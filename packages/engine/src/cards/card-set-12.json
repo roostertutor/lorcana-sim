@@ -1322,7 +1322,10 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "turn_end"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
         },
         "effects": [
           {
@@ -1799,7 +1802,10 @@
         "storyName": "FLEXIBLE THINKING",
         "rulesText": "At the start of your turn, you may choose one: • This character gains <Evasive> until the start of your next turn. • This character gets +1 {L} this turn.",
         "trigger": {
-          "on": "turn_start"
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
         },
         "effects": [
           {
@@ -3739,7 +3745,10 @@
         "type": "triggered",
         "rulesText": "At the end of your turn, if you have 3 or more exerted characters in play, deal 1 damage to chosen opposing character, gain 1 lore, and draw a card.",
         "trigger": {
-          "on": "turn_end"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "cards_in_zone_gte",
@@ -3860,7 +3869,10 @@
         "storyName": "DIRTY TRICKS",
         "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, each opponent loses 1 lore.",
         "trigger": {
-          "on": "turn_end"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "cards_put_into_discard_this_turn_atleast",
@@ -5410,7 +5422,10 @@
         "storyName": "WEIRD THINGS ARE HAPPENING",
         "rulesText": "At the start of your turn, you may put the top card of your deck into your discard. If its card type is: • character, this character gets +2 {S} this turn. • action or item, this character gets +2 {L} this turn. • location, banish chosen character.",
         "trigger": {
-          "on": "turn_start"
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
         },
         "effects": [
           {
@@ -5418,29 +5433,46 @@
             "isMay": true,
             "cases": [
               {
-                "filter": { "cardType": ["character"] },
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ]
+                },
                 "effects": [
                   {
                     "type": "gain_stats",
                     "strength": 2,
                     "duration": "end_of_turn",
-                    "target": { "type": "this" }
+                    "target": {
+                      "type": "this"
+                    }
                   }
                 ]
               },
               {
-                "filter": { "cardType": ["action", "item"] },
+                "filter": {
+                  "cardType": [
+                    "action",
+                    "item"
+                  ]
+                },
                 "effects": [
                   {
                     "type": "gain_stats",
                     "lore": 2,
                     "duration": "end_of_turn",
-                    "target": { "type": "this" }
+                    "target": {
+                      "type": "this"
+                    }
                   }
                 ]
               },
               {
-                "filter": { "cardType": ["location"] },
+                "filter": {
+                  "cardType": [
+                    "location"
+                  ]
+                },
                 "effects": [
                   {
                     "type": "banish",
@@ -5448,7 +5480,9 @@
                       "type": "chosen",
                       "filter": {
                         "zone": "play",
-                        "cardType": ["character"]
+                        "cardType": [
+                          "character"
+                        ]
                       }
                     }
                   }
@@ -6133,7 +6167,10 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "turn_start"
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
         },
         "effects": [
           {
@@ -6768,7 +6805,10 @@
         "storyName": "STRENGTH IN MEMORY",
         "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, you may put the top card of your deck into your inkwell facedown.",
         "trigger": {
-          "on": "turn_end"
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "cards_put_into_discard_this_turn_atleast",
@@ -6891,7 +6931,10 @@
         "storyName": "FLAVORFUL CURE",
         "rulesText": "At the start of your turn, if you have a Madrigal character in play, remove up to 2 damage from chosen character.",
         "trigger": {
-          "on": "turn_start"
+          "on": "turn_start",
+          "player": {
+            "type": "self"
+          }
         },
         "condition": {
           "type": "has_character_with_trait",

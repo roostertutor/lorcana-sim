@@ -1132,6 +1132,36 @@ describe("Set 12 — Escape Plan (playRestriction + bilateral inkwell-exerted)",
   });
 });
 
+describe("Repo-wide: turn_start triggers with 'your turn' oracle must have player:self filter", () => {
+  // Regression guard — without `trigger.player`, queueTriggersByEvent fires
+  // turn_start triggers for BOTH players' turn_start (see reducer.ts:5977
+  // — the player filter check is skipped when trigger.player is undefined).
+  // Oracle text "At the start of your turn" means the card's controller's
+  // turn only. This class-bug affected 6 cards (2026-04-21 sweep):
+  // Jack-jack Parr, Mrs. Incredible, Julieta's Arepas FLAVORFUL CURE,
+  // Remote Inklands Desert Ruins ERODING WINDS, Treasure Mountain Azurite
+  // Sea Island (×2 printings) — all fired on opponent's turn_start as well,
+  // causing mills/draws/heal triggers to happen at 2x the intended rate.
+  it("every turn_start triggered ability whose oracle says 'at the start of your' has player:{type:self}", () => {
+    for (const id of Object.keys(CARD_DEFINITIONS)) {
+      const def = CARD_DEFINITIONS[id];
+      if (!def || !def.abilities) continue;
+      for (const ab of def.abilities) {
+        if (ab.type !== "triggered") continue;
+        const trig = (ab as any).trigger;
+        if (!trig || trig.on !== "turn_start") continue;
+        const oracle = ((ab as any).rulesText ?? "") as string;
+        if (!/at the start of your/i.test(oracle)) continue;
+        // If the oracle scopes to "your turn", the player filter is required.
+        expect(
+          trig.player,
+          `${def.fullName} (${(ab as any).storyName ?? "?"}) — oracle says "at the start of your turn" but trigger.player is undefined. Without this filter, the ability fires on both players' turn_start.`,
+        ).toEqual({ type: "self" });
+      }
+    }
+  });
+});
+
 describe("Set 12 — You've Got a Friend in Me (scry-4 reveal up to 2 Toy to hand)", () => {
   it("action wiring: look_at_top 4, maxToHand:2, filter:Toy character, revealPicks:true", () => {
     const def = CARD_DEFINITIONS["youve-got-a-friend-in-me"];

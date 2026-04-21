@@ -11819,6 +11819,9 @@
           "on": "turn_start",
           "condition": {
             "type": "is_your_turn"
+          },
+          "player": {
+            "type": "self"
           }
         },
         "effects": [
@@ -13039,6 +13042,9 @@
           "on": "turn_start",
           "condition": {
             "type": "is_your_turn"
+          },
+          "player": {
+            "type": "self"
           }
         },
         "effects": [

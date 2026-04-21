@@ -404,6 +404,31 @@ function validateCardFields(card: any): FieldError[] {
     if (ab.name && !ab.storyName) {
       errors.push({ path: `abilities[${i}]`, field: "name", value: ab.name, validValues: "use 'storyName' not 'name'" });
     }
+    // Missing player filter on turn_start / turn_end triggers whose oracle
+    // scopes to "your turn" or "an opponent's turn". Without the filter,
+    // queueTriggersByEvent fires the trigger on BOTH players' turn
+    // transitions (the player check at reducer.ts:5977 is skipped when
+    // trigger.player is undefined). Caught 6 cards in the 2026-04-21 sweep
+    // (Jack-jack Parr, Mrs. Incredible, Julieta's Arepas, Remote Inklands
+    // Desert Ruins ERODING WINDS, Treasure Mountain Azurite Sea Island ×2).
+    if (
+      ab.type === "triggered" &&
+      (ab.trigger?.on === "turn_start" || ab.trigger?.on === "turn_end") &&
+      !ab.trigger?.player
+    ) {
+      const oracle = String(ab.rulesText ?? "");
+      const scopedToYour = /\bat the (?:start|end) of your\b/i.test(oracle);
+      const scopedToOpponent = /\bat the (?:start|end) of an opponent'?s?\b/i.test(oracle);
+      if (scopedToYour || scopedToOpponent) {
+        const expected = scopedToYour ? '{ type: "self" }' : '{ type: "opponent" }';
+        errors.push({
+          path: `abilities[${i}].trigger`,
+          field: "player",
+          value: "(missing)",
+          validValues: `oracle scopes to ${scopedToYour ? "your" : "opponent's"} turn — add player: ${expected} to prevent firing on the wrong player's turn transition`,
+        });
+      }
+    }
   });
 
   // Check story names against stubs — catch fabricated ability names.
