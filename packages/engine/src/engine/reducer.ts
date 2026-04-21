@@ -1251,8 +1251,17 @@ function applyChallenge(
   }
 
   // CRD 8.8.1: Resist
+  // Captain Amelia EVERYTHING SHIPSHAPE: "while being challenged" keyword
+  // grants only apply to the defender during the challenge resolution —
+  // merge those grants into the defender's effective keyword set here.
+  // Scope is narrow by design: outside this window the defender shouldn't
+  // have the keyword, so we DON'T bake it into modifiers.grantedKeywords.
+  const defenderWhileBeingChallenged = modifiers.grantKeywordWhileBeingChallenged.get(defenderInstanceId) ?? [];
+  const defenderStaticGrants = defenderWhileBeingChallenged.length > 0
+    ? [...(modifiers.grantedKeywords.get(defenderInstanceId) ?? []), ...defenderWhileBeingChallenged]
+    : modifiers.grantedKeywords.get(defenderInstanceId);
   const attackerResist = getKeywordValue(atkNow, attackerDef, "resist", modifiers.grantedKeywords.get(attackerInstanceId));
-  const defenderResist = getKeywordValue(defNow, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId));
+  const defenderResist = getKeywordValue(defNow, defenderDef, "resist", defenderStaticGrants);
   let actualAttackerDamage = Math.max(0, defenderStr - attackerResist);
   let actualDefenderDamage = Math.max(0, attackerStr - defenderResist);
 
@@ -2832,6 +2841,17 @@ export function applyEffect(
     }
 
     case "remove_damage": {
+      // Vision Slab TRAPPED!: "Damage counters can't be removed." The effect
+      // is consumed (caller paid costs) but does nothing, and no
+      // `damage_removed_from` trigger fires since no damage was actually
+      // removed. Guard at BOTH `remove_damage` sites (here + the resolved-
+      // target path in applyEffectToTarget) so the "chosen" target branch
+      // doesn't queue a pendingChoice for a no-op either.
+      const mods = getGameModifiers(state, definitions);
+      if (mods.preventDamageRemoval) {
+        state = { ...state, lastEffectResult: 0 };
+        return state;
+      }
       if (effect.target.type === "this") {
         const instance = getInstance(state, sourceInstanceId);
         const actualRemoved = Math.min(effect.amount, instance.damage);
@@ -5780,10 +5800,18 @@ function queueTrigger(
     return matchesFilter(srcInst, srcDef, trigger.sourceFilter, state, watcherOwnerId);
   };
 
-  // Queue self-triggers (the source card's own triggered abilities)
+  // Queue self-triggers (the source card's own triggered abilities + any
+  // abilities granted via `grant_triggered_ability` static — Flotsam
+  // Ursula's "Baby" grants a banished_in_challenge bounce to Jetsam cards;
+  // the granted ability fires on Jetsam, not on Flotsam, so it lives in
+  // the SELF-trigger scan for the recipient's instanceId).
   // If the trigger has a filter, the source card must match it (e.g. ADORING FANS
   // fires "whenever you play a character cost ≤ 2" — Stitch Rock Star itself costs 6).
-  const selfTriggers = def.abilities
+  const modifiers = getGameModifiers(state, definitions);
+  const grantedSelf = modifiers.grantedTriggeredAbilities.get(sourceInstanceId) ?? [];
+  const effectiveAbilities: readonly import("../types/index.js").Ability[] =
+    grantedSelf.length > 0 ? [...def.abilities, ...grantedSelf] : def.abilities;
+  const selfTriggers = effectiveAbilities
     .filter((a): a is TriggeredAbility => {
       if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
       const triggerFilter = "filter" in a.trigger ? a.trigger.filter : undefined;
@@ -7072,6 +7100,15 @@ function applyEffectToTarget(
       return state;
     }
     case "remove_damage": {
+      // Vision Slab TRAPPED! — see top-level remove_damage case above.
+      // Belt-and-suspenders: also guard the post-choice path so a
+      // pendingChoice initiated before Vision Slab entered play still
+      // fizzles correctly if it resolves after.
+      const mods = getGameModifiers(state, definitions);
+      if (mods.preventDamageRemoval) {
+        state = { ...state, lastEffectResult: 0 };
+        return state;
+      }
       const instance = getInstance(state, targetInstanceId);
       // CRD "up to N": in interactive mode, let the player choose how much to remove
       if (effect.isUpTo && state.interactive && instance.damage > 0) {

@@ -1248,3 +1248,110 @@ describe("§4 Set 4 — Hidden Inkcaster UNEXPECTED TREASURE (all_hand_inkable)"
     expect(r.reason).toMatch(/cannot be used as ink/i);
   });
 });
+
+// =============================================================================
+// Flotsam - Ursula's "Baby" — OMINOUS PAIR grants banished_in_challenge bounce
+// to all your Jetsam characters. Regression: queueTrigger previously only
+// scanned `def.abilities`, never `modifiers.grantedTriggeredAbilities`, so the
+// granted ability silently no-oped. Fix: self-trigger scan now merges both.
+// =============================================================================
+
+describe("§4 Set 4 — Flotsam Ursula's \"Baby\" OMINOUS PAIR (grant_triggered_ability)", () => {
+  it("Jetsam banished in a challenge returns to hand when Flotsam is in play", () => {
+    let state = startGame();
+    // Flotsam on player1's side grants the bounce trigger to Jetsam.
+    ({ state } = injectCard(state, "player1", "flotsam-ursulas-baby", "play", { isDrying: false }));
+    // Jetsam Ursula's "Baby" is 2/4 — pre-damage to 3 so a 1+ str challenge banishes.
+    let jetsamId: string;
+    ({ state, instanceId: jetsamId } = injectCard(state, "player1", "jetsam-ursulas-baby", "play", { isDrying: false, damage: 3, isExerted: true }));
+    // Attacker on player2 — Mickey True Friend (3 str) will banish pre-damaged Jetsam.
+    state = passTurns(state, 1);
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player2",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: jetsamId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Granted "return to hand on banished_in_challenge" should have fired;
+    // Jetsam ends up in player1's hand, NOT discard.
+    const jetsam = getInstance(r.newState, jetsamId);
+    expect(jetsam.zone).toBe("hand");
+    expect(jetsam.ownerId).toBe("player1");
+  });
+
+  it("negative control: without Flotsam, Jetsam goes to discard as normal", () => {
+    let state = startGame();
+    // No Flotsam — Jetsam should banish to discard, not bounce.
+    let jetsamId: string;
+    ({ state, instanceId: jetsamId } = injectCard(state, "player1", "jetsam-ursulas-baby", "play", { isDrying: false, damage: 3, isExerted: true }));
+    state = passTurns(state, 1);
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player2",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: jetsamId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const jetsam = getInstance(r.newState, jetsamId);
+    expect(jetsam.zone).toBe("discard");
+  });
+});
+
+// =============================================================================
+// Vision Slab — TRAPPED! "Damage counters can't be removed." Regression:
+// `preventDamageRemoval` boolean was populated but `remove_damage` handler
+// never consulted it. Fix: both remove_damage dispatches short-circuit with
+// lastEffectResult=0 when the flag is true.
+// =============================================================================
+
+describe("§4 Set 4 — Vision Slab TRAPPED! (prevent_damage_removal)", () => {
+  const HEALER = "cinderella-gentle-and-kind"; // ETB: remove up to 3 damage from chosen character
+
+  it("remove_damage leaves damage counters untouched while Vision Slab is in play", () => {
+    let state = startGame();
+    // Vision Slab in player1's play — damage removal globally blocked.
+    ({ state } = injectCard(state, "player1", "vision-slab", "play", { isDrying: false }));
+    // Damaged character to try to heal.
+    let patientId: string;
+    ({ state, instanceId: patientId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+
+    // Directly apply a remove_damage effect targeting "this" (simulates a
+    // self-heal ability firing — the path type="this" uses sourceInstanceId).
+    const events: any[] = [];
+    const newState = applyEffect(
+      state,
+      { type: "remove_damage", amount: 3, target: { type: "this" } } as any,
+      patientId,
+      "player1",
+      CARD_DEFINITIONS,
+      events,
+    );
+    // Damage preserved; effect was consumed as a no-op.
+    expect(getInstance(newState, patientId).damage).toBe(2);
+  });
+
+  it("negative control: without Vision Slab, remove_damage works normally", () => {
+    let state = startGame();
+    let patientId: string;
+    ({ state, instanceId: patientId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+
+    const events: any[] = [];
+    const newState = applyEffect(
+      state,
+      { type: "remove_damage", amount: 3, target: { type: "this" } } as any,
+      patientId,
+      "player1",
+      CARD_DEFINITIONS,
+      events,
+    );
+    expect(getInstance(newState, patientId).damage).toBe(0);
+  });
+});

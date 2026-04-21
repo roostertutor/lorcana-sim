@@ -1316,3 +1316,84 @@ describe("§8 Set 8 — Alma Madrigal Accepting Grandmother THE MIRACLE IS YOU (
     expect(getInstance(state, s2).isExerted).toBe(false);
   });
 });
+
+// =============================================================================
+// Captain Amelia - Commander of the Legacy — EVERYTHING SHIPSHAPE grants
+// <Resist> +1 to your OTHER characters while they're being challenged.
+// Regression: `grantKeywordWhileBeingChallenged` Map was populated but the
+// challenge damage resolver never consulted it, so the granted resist
+// silently no-oped. Fix: defender's keyword grants merged with the
+// "while being challenged" entries at CRD 8.8.1 resist calculation.
+// Scope is narrow — the resist is active ONLY during the specific challenge
+// resolution, not bled into modifiers.grantedKeywords.
+// =============================================================================
+
+describe("§6 Set 6 — Captain Amelia EVERYTHING SHIPSHAPE (grant_keyword_while_being_challenged)", () => {
+  it("friendly defender takes 1 less damage while being challenged when Amelia is in play", () => {
+    let state = startGame();
+    // Captain Amelia anchors the "while being challenged" grant.
+    ({ state } = injectCard(state, "player1", "captain-amelia-commander-of-the-legacy", "play", { isDrying: false }));
+    // Friendly defender — Minnie Mouse Beloved Princess (2/3) — exerted so
+    // she can be challenged.
+    let defenderId: string;
+    ({ state, instanceId: defenderId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false, isExerted: true }));
+
+    // Swap to player2 and challenge with a 2-str attacker.
+    state = passTurns(state, 1);
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "sebastian-court-composer", "play", { isDrying: false }));
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player2",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: defenderId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Attacker str 2 minus Resist +1 = 1 damage to defender.
+    expect(getInstance(r.newState, defenderId).damage).toBe(1);
+  });
+
+  it("negative control: without Amelia, same challenge deals full damage", () => {
+    let state = startGame();
+    let defenderId: string;
+    ({ state, instanceId: defenderId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false, isExerted: true }));
+    state = passTurns(state, 1);
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "sebastian-court-composer", "play", { isDrying: false }));
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player2",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: defenderId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Full 2 damage with no resist grant.
+    expect(getInstance(r.newState, defenderId).damage).toBe(2);
+  });
+
+  it("grant scope is narrow — the resist is NOT present outside a challenge context", () => {
+    // Probe `getEffectiveKeywords`-style lookup: the while-being-challenged
+    // grant should NOT appear in modifiers.grantedKeywords. Using a direct
+    // call to getGameModifiers and spot-checking the two Maps.
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "captain-amelia-commander-of-the-legacy", "play", { isDrying: false }));
+    let friendId: string;
+    ({ state, instanceId: friendId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+
+    // getGameModifiers is imported at the top of this file.
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+
+    // The friendly defender should NOT have resist baked into
+    // `grantedKeywords` — that's the whole point of the separate Map.
+    const permanent = mods.grantedKeywords.get(friendId) ?? [];
+    expect(permanent.some((g: any) => g.keyword === "resist")).toBe(false);
+
+    // But the while-being-challenged Map SHOULD carry the grant.
+    const whileBeingChallenged = mods.grantKeywordWhileBeingChallenged.get(friendId) ?? [];
+    expect(whileBeingChallenged).toContainEqual({ keyword: "resist", value: 1 });
+  });
+});

@@ -255,101 +255,90 @@ panels — trivial compared to the engine/bot work.
 
 ---
 
-## Engine agent: 3 dead-primitive bugs surfaced by new `pnpm audit-dead-primitives` (follow-up from Hidden Inkcaster fix)
+## Engine agent: 3 dead-primitive bugs surfaced by `pnpm audit-dead-primitives` — DONE 2026-04-21
 
-Shipped 2026-04-21 alongside the Hidden Inkcaster fix: a new audit script
-(`pnpm audit-dead-primitives`) that scans `gameModifiers.ts` for every
-`modifiers.<field>.(add|set|push|=|...)` write and verifies at least one
-reader exists across engine + simulator + analytics + cli + ui. The audit
-matches reads through canonical names (`modifiers.X`), abbreviated aliases
-(`mods.X`, `drawModifiers.X`, `epeMods.X`, `inkMods.X`, `discardMods.X`),
-and optional chaining (`modifiers?.X`). Write-shaped tails (`.add(`,
-`.set(`, `.push(`, ` = `) are skipped so writes don't count as reads.
+**All three shipped.** Audit now prints
+`✓ All 39 StaticEffect modifier fields have at least one reader.`
 
-First run after fixing Hidden Inkcaster surfaces **3 additional dead
-primitives** — each is its own runtime bug. Pattern: the case handler
-populates the modifier field, but no consumer reads it, so the static
-silently no-ops.
+Retained below for reasoning context on how each fix was diagnosed — the
+pattern (case handler populates a modifier field but no consumer reads it)
+will recur and the diagnostic playbook is worth preserving.
 
-### 1. Flotsam - Ursula's "Baby" (`grant_triggered_ability` → `grantedTriggeredAbilities`)
+### 1. Flotsam - Ursula's "Baby" — DONE
 
+- Fix: `reducer.ts:queueTrigger` (~line 5786) — the self-trigger scan now
+  concats `modifiers.grantedTriggeredAbilities.get(sourceInstanceId) ?? []`
+  onto `def.abilities` before filtering. Cross-card scan + `queueTriggersByEvent`
+  NOT extended — no current card needs granted abilities to fire via those
+  paths, so the change stays scoped to where today's only user (Flotsam
+  granting `banished_in_challenge` to Jetsam) lives.
+- 2 regression tests in `set4.test.ts` (grant path fires, negative control).
+
+Diagnostic trace (preserved for future similar bugs):
 - **Populator**: `gameModifiers.ts:1093-1095` — `modifiers.grantedTriggeredAbilities.set(candidate.instanceId, [...])`
 - **Expected reader**: the trigger scanner (docs comment at `types/index.ts:1768`
-  literally says "The trigger scanner checks grantedTriggeredAbilities in
-  addition to the card's own definition abilities") — **but no such check
-  exists**.
-- **Runtime impact**: Flotsam grants a triggered ability to matching
-  characters. With no reader, the granted ability never fires.
-- **Fix location**: wherever the trigger-scanner walks a card's abilities to
-  dispatch triggers. Search `reducer.ts` for `for (const ab of def.abilities`
-  or similar; augment the loop to also iterate
-  `modifiers.grantedTriggeredAbilities.get(instance.instanceId) ?? []`.
-- **Test pattern**: inject Flotsam's source in play, inject a matching
-  character, fire the granting event, assert the granted ability triggers.
+  literally said "The trigger scanner checks grantedTriggeredAbilities in
+  addition to the card's own definition abilities") — none existed. Comment
+  was aspirational, not descriptive.
 
-### 2. Captain Amelia - Commander of the Legacy (`grant_keyword_while_being_challenged` → `grantKeywordWhileBeingChallenged`)
+### 2. Captain Amelia - Commander of the Legacy — DONE
 
-- **Populator**: `gameModifiers.ts:1140-1142` —
-  `modifiers.grantKeywordWhileBeingChallenged.set(candidate.instanceId, [...])`
-- **Expected reader**: the challenge-resolution path in `reducer.ts` when
-  computing the defender's effective keywords — **but no consumer reads
-  the Map**.
-- **Runtime impact**: when a matching character is challenged, the granted
-  keyword (e.g. `<Bodyguard>` / `<Resist>` / `<Ward>`) is not active during
-  challenge resolution. Cards that rely on "while being challenged, gains
-  keyword X" protection are silently broken.
-- **Fix location**: the challenge reducer's effective-keyword lookup. Grep
-  `reducer.ts` for the challenge action case; add a merge of
-  `modifiers.grantKeywordWhileBeingChallenged.get(defenderId) ?? []` into
-  the keyword set used for that specific challenge resolution only (the
-  keyword should NOT persist outside the challenge — that's why it lives
-  in a separate "while being challenged" field rather than the regular
-  `grantedKeywords`).
-- **Test pattern**: inject Captain Amelia's source in play, matching
-  character gets challenged, assert the granted keyword is active for the
-  challenge damage/banish resolution but not for a subsequent un-challenged
-  action.
+- Fix: `reducer.ts` challenge damage step (~line 1255, CRD 8.8.1 resist
+  calculation) — defender's `staticGrants` parameter to `getKeywordValue`
+  now merges `modifiers.grantedKeywords.get(defenderId)` with
+  `modifiers.grantKeywordWhileBeingChallenged.get(defenderId)`. The
+  "while being challenged" grants are intentionally kept in a separate Map
+  (not baked into `grantedKeywords`) so they ONLY apply during the
+  challenge resolution — outside the challenge context, the defender
+  doesn't have the keyword. The merged array is scoped to this one
+  `getKeywordValue` call.
+- 3 regression tests in `set5-set8.test.ts` (challenge damage reduced by
+  Resist +1, negative control, grant scope narrow).
 
-### 3. Vision Slab (`prevent_damage_removal` → `preventDamageRemoval`)
+Diagnostic trace:
+- **Populator**: `gameModifiers.ts:1140-1142`
+- **Expected reader**: the challenge resolver's keyword lookup for the
+  defender — `getKeywordValue(defNow, defenderDef, "resist", modifiers.grantedKeywords.get(defenderInstanceId))`
+  only passed the permanent-grants Map, never the while-being-challenged Map.
 
+### 3. Vision Slab — DONE
+
+- Fix: both `remove_damage` case handlers in `reducer.ts` (`applyEffect` at
+  line 2834 and `applyEffectToTarget` at line 7074). Each short-circuits
+  with `lastEffectResult = 0` when `getGameModifiers(state, definitions).preventDamageRemoval`
+  is true, before the pendingChoice or damage mutation. Guarding BOTH
+  dispatch sites is belt-and-suspenders: the `chosen` target path queues a
+  pendingChoice first, and in theory Vision Slab could enter between prompt
+  and accept (in practice statics are computed on-demand so both paths see
+  the same state, but the guard costs nothing).
+- 2 regression tests in `set4.test.ts` (remove_damage no-op, negative control).
+
+Diagnostic trace:
 - **Populator**: `gameModifiers.ts:1110` — `modifiers.preventDamageRemoval = true;`
-- **Expected reader**: `reducer.ts`'s `remove_damage` effect handler — **but
-  no consumer checks the boolean**.
-- **Runtime impact**: Vision Slab's "damage counters can't be removed
-  globally" effect is a silent no-op. Cards that remove damage continue to
-  remove damage while Vision Slab is in play.
-- **Fix location**: `reducer.ts` `case "remove_damage":` — at the top of the
-  handler, short-circuit with `if (getGameModifiers(state, definitions).preventDamageRemoval) return state;`
-  (zero damage removed, effect is consumed). Consider whether the effect
-  should noisily log or silently no-op — matches how similar global
-  prevention primitives behave (`prevent_discard_from_hand`).
-- **Test pattern**: inject Vision Slab in play, put damage on a character,
-  apply a `remove_damage` effect, assert the character still has the
-  damage counter afterward.
+- **Expected reader**: `case "remove_damage":` in `applyEffect` — never
+  checked the flag, so the effect removed damage unconditionally.
 
-### Meta: why the audit catches this but the existing four don't
+### Meta: why the audit catches this class
 
-All four existing audits (`card-status`, `audit-cards`, `audit-approximations`,
-`decompile-cards`) are TEXT-SHAPE checks — they validate JSON field names and
-oracle-text similarity. None of them follow runtime data flow. A primitive
-can have the correct emit-side case handler, the correct JSON, the correct
-oracle text, and still silently no-op because no consumer reads the runtime
-state it populates.
+All four pre-existing audits (`card-status`, `audit-cards`,
+`audit-approximations`, `decompile-cards`) are TEXT-SHAPE checks — they
+validate JSON field names and oracle-text similarity. None follow runtime
+data flow. A primitive can have the correct emit-side case handler, correct
+JSON, correct oracle text, and still silently no-op because no consumer
+reads the runtime state it populates.
 
-`pnpm audit-dead-primitives` fills that specific gap — emit-vs-read
-reachability analysis via textual grep. Heuristic but effective: Hidden
-Inkcaster + these 3 were sitting in production across 4+ sets undetected.
+`pnpm audit-dead-primitives` fills that gap: emit-vs-read reachability
+analysis via textual grep. Hidden Inkcaster + these 3 were sitting in
+production across 4+ sets undetected. First run of the audit flagged 19
+false positives (reader regex too narrow), then widening to cover scoped
+aliases (`drawModifiers`, `epeMods`, `inkMods`, `discardMods`) and optional
+chaining dropped it to 3 genuine bugs — each a real runtime no-op.
 
-### Sequencing
-
-Each of the 3 bugs is independent — wire them in any order. Each needs its
-own regression test per CLAUDE.md's "validateX rejection must always be
-paired with a getAllLegalActions test" rule (for Vision Slab and Flotsam
-those are the relevant flavors; Captain Amelia is reducer-internal so the
-test is on the challenge resolution). After each fix, re-run
-`pnpm audit-dead-primitives` — the fixed entry should drop off the dead
-list. When all 3 land, the audit should print `✓ All N StaticEffect
-modifier fields have at least one reader.`
+Next-similar-bug procedure: run `pnpm audit-dead-primitives`. For each
+flagged field, grep `gameModifiers.ts` to find the case handler, then walk
+upward to identify which card(s) use the discriminator, then search
+`reducer.ts` / `validator.ts` / `utils/` for where that behavior SHOULD be
+consumed but isn't.
 
 ---
 
