@@ -480,6 +480,7 @@ interface CardEntry {
   fullName: string;
   cardType: string;
   setId: string;
+  number: number;
   fieldErrors?: FieldError[];
   category: CardCategory;
   stubs: { storyName: string; rulesText: string; category: StubCategory }[];
@@ -1255,6 +1256,7 @@ for (const filename of SET_FILES) {
       fullName: card.fullName,
       cardType: card.cardType,
       setId: setNum ?? "?",
+      number: card.number ?? 0,
       category,
       stubs: categorizedStubs,
       fieldErrors: fieldErrors.length > 0 ? fieldErrors : undefined,
@@ -1387,7 +1389,7 @@ if (filterCategory) {
   console.log(`\n=== ${cat.toUpperCase()} (${matching.length} cards) ===\n`);
 
   for (const card of matching) {
-    const prefix = `  [set-${card.setId}/${card.cardType}]`;
+    const prefix = `  [set-${card.setId}/${card.cardType} #${card.number}]`;
     console.log(`${prefix} ${card.fullName}`);
     if (verbose) {
       if (cat === "invalid-field" && card.fieldErrors) {
@@ -1425,7 +1427,7 @@ if (!filterCategory && !filterSet) {
     if (matching.length === 0) continue;
     console.log(`=== ${cat.toUpperCase()} (${matching.length} cards — need design before implementation) ===\n`);
     for (const card of matching.slice(0, 20)) {
-      console.log(`  [set-${card.setId}/${card.cardType}] ${card.fullName}`);
+      console.log(`  [set-${card.setId}/${card.cardType} #${card.number}] ${card.fullName}`);
       for (const stub of card.stubs.filter((s) => s.category === cat)) {
         console.log(`    → ${stub.rulesText}`);
       }
