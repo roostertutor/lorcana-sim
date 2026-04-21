@@ -141,7 +141,14 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     ? getEffectiveWillpower(instance, def, staticBonus?.willpower ?? 0)
     : null;
 
-  const loreDelta = staticBonus?.lore ?? 0;
+  // Lore delta must include BOTH static bonuses (e.g. Lady Decisive Dog's TAKE
+  // THE LEAD while 3+ str) AND timed modify_lore effects (e.g. Eye of the Fates
+  // "+1 lore this turn"). Strength/willpower deltas are computed in the IIFE
+  // below; lore is computed here because `loreDelta` gates `hasAnyStatMod`.
+  const timedLoreBonus = (instance.timedEffects ?? [])
+    .filter((te: any) => te.type === "modify_lore")
+    .reduce((sum: number, te: any) => sum + (te.amount ?? 0), 0);
+  const loreDelta = (staticBonus?.lore ?? 0) + timedLoreBonus;
   const hasAnyStatMod = (staticBonus?.strength ?? 0) !== 0 || (staticBonus?.willpower ?? 0) !== 0 || loreDelta !== 0
     || (instance.timedEffects ?? []).some((te: any) => te.type === "modify_strength" || te.type === "modify_willpower" || te.type === "modify_lore");
   const hasModifiedStats = hasAnyStatMod;
