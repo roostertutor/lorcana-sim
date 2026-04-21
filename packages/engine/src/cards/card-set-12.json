@@ -8672,8 +8672,9 @@
   },
   {
     "id": "the-familys-scattered",
-    "name": "The Family's Scattered",
-    "fullName": "The Family's Scattered",
+    "name": "The Family Scattered",
+    "fullName": "The Family Scattered",
+    "_sourceLock": true,
     "cardType": "action",
     "inkColors": [
       "emerald"
