@@ -10,41 +10,40 @@ Conventions:
 
 ---
 
-## GUI / Sandbox agent: verify 5 newly-wired set-12 cards end-to-end
+## Engine agent: Lorcast importer stub extraction only captures first line
 
-Five set-12 cards landed this session (2026-04-21) via commits `b7a4434` →
-`6b831a1`. All primitives + wiring + engine tests land, but runtime visuals
-and opponent-choice flow need sandbox-level verification. Likely 30-60 min
-of hotseat playtime.
+Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
+importer at `scripts/import-cards-lorcast.ts` populates
+`CardDefinition._namedAbilityStubs` from the Lorcast API's `text` field —
+but for multi-line abilities, only the first line (the banner + preamble)
+lands in the stub's `rulesText`; subsequent lines (bullet lists, clause
+continuations) are lost.
 
-**Cards to verify** (in priority order — simpler first):
+Concrete case: Jack-jack Parr — Incredible Potential (set 12 #121) has:
+```
+WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the
+top card of your deck into your discard.
+If its card type is:
+• character, this character gets +2 {S} this turn.
+• action or item, this character gets +2 {L} this turn.
+• location, banish chosen character.
+```
+Stub's `rulesText` only contains the first sentence. The reverse compiler
+(`scripts/compile-cards.ts`) receives just the preamble and can only match
+the "you may put top card into discard" pattern — misses the 3-way switch
+despite a dedicated matcher existing for the full oracle.
 
-| # | Card | What to check |
-|---|---|---|
-| 164 | Escape Plan | **playRestriction gate**: card should be UNCLICKABLE / greyed in hand when <2 cards discarded this turn. After 2+ discards (e.g. play Dangerous Plan × 2), it becomes playable. On play, BOTH players see a "choose 2 characters → inkwell exerted" prompt in succession (caster first per CRD 7.7.4). Characters land in each player's inkwell as exerted. |
-| 132 | Hero Work | **Timed grant triggered ability**: play Hero Work. Own characters gain +1 {S} (should show as existing stat delta badge). Then any own Hero-trait character challenges — trigger fires: each opponent loses 1 lore + you gain 1 lore. Next turn: effect expires (timed grant clears on PASS_TURN). |
-| 121 | Jack-jack Parr | **3-way switch on mill**: card enters play. Pass turn back around. At start of your next turn: may-mill prompt. Accept → top card milled. Test each of 3 branches by stacking deck (use card injector with zone=deck): character → Jack-jack +2 {S}; action/item → Jack-jack +2 {L}; location → caster picks an opposing character to banish. |
-| 97 | The Family Scattered | **Opponent 3-way partition**: play vs an opponent with ≥3 characters in play. Active player sees "Opponent is choosing..." wait state (existing pattern, `PendingChoiceModal.tsx:159`). Hotseat opponent sees 3 sequential modals: (a) return to hand, (b) bottom of deck, (c) top of deck. After all 3 resolve: 1 char in opponent's hand, 2 in opponent's deck (one at each end). |
-| 231 | The Family's Scattered | Same effect as #97, different printing (Lorcast enchanted inkable). Both share identical actionEffects per repo alt-art convention. Quick spot-check: play both to confirm identical behavior. |
+Impact: compiler auto-wire misses multi-line abilities until the stub
+extraction is fixed. The card wiring itself was unaffected (manually wired
+against the full oracle). This is a compiler-coverage limitation, not a
+runtime bug.
 
-**Existing `PendingChoiceModal`** (`packages/ui/src/components/PendingChoiceModal.tsx:159-170`)
-already handles `choosingPlayerId !== myId` — shows "Opponent is choosing..."
-on the waiting player's screen and renders the prompt on the active chooser's
-screen. This pattern is already exercised by set-4 Ursula's Plan, Be King
-Undisputed, Triton's Decree (all `chooser: "target_player"`). Family
-Scattered should work out of the box.
+Fix location: `scripts/import-cards-lorcast.ts` — the regex that extracts
+named abilities stops at a newline. Should consume lines until the next
+story-name banner (all-caps line at start) or end of text.
 
-**Optional polish** (not blocking):
-- "Step 1 of 3" indicator on the opponent's Family Scattered partition modals.
-- Grouped "Family Scattered — waiting on opponent's 3 picks..." label on
-  the active player's wait state instead of 3 consecutive "opponent is
-  choosing" ticks.
-
-**Don't touch**:
-- Engine code, card JSONs, or primitive definitions — those are shipped.
-- The 2 new primitives (`grant_triggered_ability_timed`, `reveal_top_switch`)
-  have decompiler renderers as of commit [followup]; they score ≥0.85 on
-  round-trip now.
+Non-urgent: affects auto-wiring coverage for future multi-line Lorcast
+pre-release cards. Manual wiring still works.
 
 ---
 
@@ -68,35 +67,25 @@ deferred for a follow-up session:
 
 None blocking. The helper already covers ~100 LOC of the hottest duplication.
 
-## Engine agent: deferred / low-priority queue (verified against code 2026-04-20)
+## Engine agent: deferred / low-priority queue (verified against code 2026-04-21)
 
 Items NOT currently blocking anything, kept here so they don't need to live in
 an agent's memory. Each entry confirmed by reading the code, not from memory.
 
-**1. Wire the 17 set-12 stubs**
-- 14 fits-grammar (9 Lorcast pre-release — rename risk until Ravensburger
-  mirrors; 5 pre-existing Ravensburger silent no-ops surfaced by the action-stub
-  audit fix: Firefly Swarm, Hero Work, Dangerous Plan, You've Got a Friend in Me,
-  plus one more — diff `pnpm card-status --category fits-grammar` to confirm)
-- 1 needs-new-type: Escape Plan — "each player puts 2 characters into their
-  inkwell facedown and exerted" requires bilateral-target primitive + a new
-  inkwell-exerted state flag
-- 2 unknowns: `The Family Scattered` #97 (Rav) vs `The Family's Scattered`
-  #231 (Lorcast) — same effect, different names/numbers. Design call needed:
-  merge into one definition with `variants[]` (like enchanted alt-arts), or
-  keep as distinct printings?
+**Previously here, now DONE (retained for reasoning context):**
+- ~~Wire 17 set-12 stubs~~ — all 17 cleared via commits `5cbaef7` → `6b831a1`
+  and `71ddffa`. Set 12 now 134/134 implemented, 0 stubs.
+- ~~Reverse compiler — oracle text → JSON wiring~~ — scaffold exists at
+  ~31.8% coverage; see "Engine agent: expand reverse compiler coverage + add
+  apply flow" section below for remaining work.
 
-**2. Reverse compiler — oracle text → JSON wiring** (see dedicated section
-below — "TBD: reverse compiler — oracle text → JSON wiring"). Auto-wires the
-~80% of cards that match templated grammar on new-set import.
-
-**3. Simulator multi-pick enumerator bug** (`packages/simulator/src/rl/policy.ts:232-242`)
+**1. Simulator multi-pick enumerator bug** (`packages/simulator/src/rl/policy.ts:232-242`)
 - `choose_from_revealed` only emits single-pick candidates. Multi-pick effects
   (Dig a Little Deeper: pick exactly 2) underfill — bot takes 1 instead of 2.
 - Surgical fix, ~1-2 hours. Details in the existing "Simulator: bot policy
   enumerator only generates single-pick" section below.
 
-**4. CRD 1.8.4 strict simultaneity** (low impact — no current card)
+**2. CRD 1.8.4 strict simultaneity** (low impact — no current card)
 - `runGameStateCheck` (reducer.ts:7870) has an explicit `while (changed)` loop
   implementing 1.8.3 cascading. Banishes within a single pass happen in
   object-iteration order, not truly parallel. Matches 2P behavior correctly;
@@ -105,7 +94,7 @@ below — "TBD: reverse compiler — oracle text → JSON wiring"). Auto-wires t
 - Rest of CRD 1.8 is fully implemented (1.8.1.1, 1.8.1.2, 1.8.1.4, 1.8.2, 1.8.3
   all ✅ — verified in code).
 
-**5. CRD 6.5 remaining edge cases** (low impact — no current card)
+**3. CRD 6.5 remaining edge cases** (low impact — no current card)
 - 6.5.4: "Replaced events don't fire triggers" — currently `damage_redirect`
   and `damage_prevention_static` still fire damage-dealt/taken triggers on the
   redirected path. Works for every current card because no trigger conflicts.
@@ -118,7 +107,7 @@ below — "TBD: reverse compiler — oracle text → JSON wiring"). Auto-wires t
   (Baloo/Hercules/Lilo), `challenge_damage_prevention` (Raya), `self_replacement`
   (48 cards across sets 1-12 — handles the "if X, do Y instead" family).
 
-**6. GameEvent system — piped to UI, but few downstream consumers**
+**4. GameEvent system — piped to UI, but few downstream consumers**
 - `lastEvents` is populated by the reducer for every state mutation. Currently
   only `card_revealed` is consumed (CardPicker reveal animations). Richer log,
   event-driven animations, sound hooks — all deferred until there's a user-
@@ -354,43 +343,71 @@ a similar pass in any other bot that handles this choice type.
 
 ---
 
-## TBD: reverse compiler — oracle text → JSON wiring (build later tonight)
+## Engine agent: expand reverse compiler coverage + add apply flow
 
-Invert the decompiler to auto-wire new cards on set import. The decompiler
-already maps JSON → English via `EFFECT_RENDERERS`; a compiler adds
-`EFFECT_COMPILERS` — regex pattern matchers that go English → JSON for the
-80%+ of Lorcana cards that fit templated shapes ("When you play this
-character, draw N cards" / "Each opponent loses N lore" / etc.).
+The reverse compiler exists (`scripts/compile-cards.ts`, 3139 LOC) and
+currently auto-matches ~31.8% of named ability shapes on sets 1-11 baseline
+(commit `7eaac30` brought it from 31.7% → 31.8% with 4 new set-12 pattern
+additions). `pnpm compile-cards` runs the baseline; `--apply --set N` is
+scaffolded but not yet exercised end-to-end.
 
-Starter plan:
-1. Extract top 50 most-common oracle-text patterns from the ~2147 implemented
-   cards (normalize rulesText to placeholders; group by template).
-2. Build a compiler entry per template: `{ re: RegExp, emit: (m) => Json }`.
-3. On new-set import, run the compile pass; for each unwired card, try each
-   regex. On match, emit JSON, run decompiler round-trip, require ≥0.85
-   similarity score vs original oracle text before auto-wiring.
-4. Skip below-threshold / no-match cards → stay in `card-status` queue for
-   manual wiring.
+What's working:
+- Pattern table format: `{ name, pattern: RegExp, build: (match, ctx) => Json }`
+- Round-trip validation via decompile: `compile(oracle) → decompile(json) →
+  similarity >= 0.85` before auto-wiring
+- Most common shapes matched: draw N, gain N lore, deal N damage to chosen,
+  enters_play triggers, card_played with costAtMost filter, etc.
+- Set-12 matchers added: each_player inkwell-exerted, reveal_top_switch 3-way,
+  opponent_partition_3way, grant_triggered_ability_timed (note: this last
+  one is stale — the primitive was reverted in commit `71ddffa`; the
+  matcher should be retargeted to emit `create_floating_trigger attachTo:
+  "all_matching"` instead, matching Forest Duel's shape)
 
-Closed-loop validation is free: compile(oracle) → decompile(json) → compare.
-The `fits-grammar` category in `pnpm card-status` is already the harness —
-it classifies cards whose text matches known grammar but aren't yet wired.
-Currently 0 across all sets because every fit was manually authored.
+What's missing:
+1. **Compiler matcher cleanup** (20 min): retarget the `grant_triggered_
+   ability_timed_trait` matcher (if still present) to emit `create_floating_
+   trigger` shape per Forest Duel. Or delete entirely — only Hero Work used
+   it and that's now manually wired.
+2. **playRestrictions-prefix handling** for action cards (30 min): currently
+   the compiler's action-path calls `parseEffectChain` on the whole
+   rulesText. For cards like Escape Plan with "You can't play this action
+   unless X. Each player chooses...", the preamble isn't separable —
+   compiler fails to match. Add a two-pass normalization that strips
+   leading "You can't play this action unless ..." into a `playRestrictions`
+   entry before effect-chain parsing.
+3. **Recursive inner-ability compilation** for `grant_triggered_ability_*`
+   patterns: currently emits `{ type: "triggered", _inner_oracle: "..." }`
+   as a placeholder. Should recursively invoke the compiler's triggered-
+   ability grammar on the quoted inner text.
+4. **End-to-end apply**: `pnpm compile-cards --set N --apply` should write
+   auto-wired abilities back to card JSONs with decompiler-roundtrip
+   confidence gate. Currently writes but needs a dry-run diff view + user
+   confirmation before committing.
 
-**Prerequisite**: improve the renderer first so more primitives have
-reversible grammar. The fewer renderer gaps, the fewer false-negative
-compiles. Current decompiler-tail work is fixing both wiring bugs AND
-renderer gaps — every renderer improvement is a compiler template gained
-when the flip happens. Don't start the compiler until the renderer covers
-most of the tail.
+Decompiler renderer coverage is the upstream bottleneck — for a compile to
+score ≥0.85 via decompile round-trip, the decompiler must know how to
+render the JSON it just emitted. Every renderer gap is a compile false-
+negative. `pnpm decompile-cards` with no filter shows the worst-50 tail
+which currently has 2 cards < 0.3 and 11 cards < 0.5 — those are the
+renderer/wiring bug mixture.
+
+Starter extension plan:
+1. Fix items (1) + (2) above — small, self-contained.
+2. Re-run `pnpm compile-cards` baseline, aim for 33-35% coverage.
+3. Dry-run `--apply` on set 12 (where there are already-wired cards as
+   ground truth); measure exact-match rate.
+4. When exact-match > 80% on a test set, wire `--apply` into the new-set
+   import runbook.
 
 Practical caveats:
-- Oracle text drift in Lorcast data ({L}/{S} symbols sometimes dropped) —
-  seed tokenizer with the same drift tolerance `pnpm audit-lorcast` handles.
-- Card name normalization ("Daisy Duck" vs "this character").
-- Precedence: most-specific patterns first, to avoid over-matching.
+- Oracle text drift between sources (curly vs straight apostrophes handled
+  by normalizer; `{L}`/`{S}` symbols sometimes dropped by Lorcast).
+- Card name normalization ("Daisy Duck" vs "this character" references).
+- Precedence: most-specific patterns first. ORDER MATTERS — Jack-jack's
+  reveal_top_switch_3way_type must come before the shorter put_top_cards_
+  into_discard matcher (already documented in compile-cards.ts).
 - Conservative thresholds — better to under-wire (leave for human) than
-  silently miswire.
+  silently miswire. Never auto-wire below 0.85 similarity.
 
 ---
 
