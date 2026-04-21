@@ -1399,7 +1399,7 @@ if (filterCategory) {
       } else if (cat === "partial") {
         // For partial cards, show the rulesText and ability count mismatch
         const rawCard = loadSetFile(
-          SET_FILES.find(f => f.includes(`set-${card.setId.padStart(3, "0")}`)) ?? SET_FILES.find(f => f.includes(`set-${card.setId}`)) ?? ""
+          SET_FILES.find(f => f.includes(`set-${card.setId}`)) ?? ""
         ).find((c: any) => c.id === card.id);
         if (rawCard) {
           const expected = countRulesTextAbilities(rawCard);

@@ -2272,7 +2272,7 @@ function main() {
   console.log(`  <0.3: ${buckets.lt30}   <0.5: ${buckets.lt50}   <0.7: ${buckets.lt70}   <0.9: ${buckets.lt90}   ≥0.9: ${buckets.ge90}\n`);
   console.log(`Worst ${filtered.length} match${filtered.length === 1 ? "" : "es"}:\n`);
   for (const r of filtered) {
-    const tag = `[${r.score.toFixed(2)}] set-${r.setId.padStart(3, "0")}/${r.number}  ${r.fullName}`;
+    const tag = `[${r.score.toFixed(2)}] set-${r.setId}/${r.number}  ${r.fullName}`;
     console.log(tag);
     console.log(`  oracle:   ${oneLine(r.oracle)}`);
     console.log(`  rendered: ${oneLine(r.rendered)}`);

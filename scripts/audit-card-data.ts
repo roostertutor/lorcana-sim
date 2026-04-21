@@ -317,7 +317,7 @@ function main() {
   for (const [key, group] of [...byKind.entries()].sort()) {
     console.log(`  ${key}  (${group.length} card${group.length === 1 ? "" : "s"})`);
     for (const i of group.slice(0, 8)) {
-      const setLabel = `set-${i.setId.padStart(3, "0")}/${i.number}`.padEnd(14);
+      const setLabel = `set-${i.setId}/${i.number}`.padEnd(14);
       const valHint =
         i.kind === "missing_value" || i.kind === "miswired_full_cost_reduction"
           ? `expected ${i.expectedValue}${i.actualValue !== undefined ? `, got ${i.actualValue}` : ""}`

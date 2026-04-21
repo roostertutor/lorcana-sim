@@ -75,7 +75,28 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "LOOK WHAT I FOUND",
+        "rulesText": "While you have a character named Chip in play, this character gets +1 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 1,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "has_character_named",
+          "name": "Chip",
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 4,
     "rarity": "common",
@@ -1629,7 +1650,71 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLARION CALL",
+        "rulesText": "Whenever this character quests, you may return chosen Seven Dwarfs character of yours to your hand to draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasTrait": "Seven Dwarfs"
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "NEVER FORGOTTEN",
+        "rulesText": "During an opponent's turn, when this character is banished in a challenge, return this card to your hand.",
+        "trigger": {
+          "on": "banished_in_challenge"
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 37,
     "rarity": "legendary",
@@ -1669,7 +1754,42 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "TONGUE-TIED",
+        "rulesText": "This character can't {E} to sing songs.",
+        "effect": {
+          "type": "cant_action_self",
+          "action": "sing"
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "DISTANT MELODY",
+        "rulesText": "Once during your turn, whenever you play a song, this character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Song"
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 38,
     "rarity": "uncommon",
@@ -1743,7 +1863,46 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SHARE KNOWLEDGE",
+        "rulesText": "When you play this character, if you have another Seven Dwarfs character or a Princess character in play, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_with_trait",
+              "trait": "Seven Dwarfs",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 40,
     "rarity": "uncommon",
@@ -1807,7 +1966,32 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GESUNDHEIT",
+        "rulesText": "When you play this character, chosen character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 42,
     "rarity": "common",
@@ -1871,7 +2055,47 @@
       "Ally",
       "Seven Dwarfs"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PLEASANT DREAMS",
+        "rulesText": "When this character is banished, if you have a Seven Dwarfs or Princess character in play, you may draw a card.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_with_trait",
+              "trait": "Seven Dwarfs",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 44,
     "rarity": "common",
@@ -4616,7 +4840,71 @@
       "Dreamborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "COMBAT TRAINING",
+        "rulesText": "Whenever this character quests, deal 1 damage to chosen opposing character. If 2 or more cards were put into your discard this turn, deal 2 damage instead.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "cards_put_into_discard_this_turn_atleast",
+            "amount": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "COMBAT TRAINING",
+        "rulesText": "Whenever this character quests, deal 1 damage to chosen opposing character. If 2 or more cards were put into your discard this turn, deal 2 damage instead.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 2,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 93,
     "rarity": "rare",
@@ -6653,7 +6941,40 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "LOST TO THE DUNES",
+        "rulesText": "When this location is banished, each opponent chooses and banishes one of their characters.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  },
+                  "chooser": "target_player"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 136,
     "rarity": "rare",
@@ -6850,7 +7171,35 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NATURAL DEFENSE",
+        "rulesText": "When you play this character, chosen opposing character gets -2 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 144,
     "rarity": "common",
@@ -7379,7 +7728,35 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DISCERNING EYE",
+        "rulesText": "Whenever this character quests, if you played another character this turn, gain 1 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 159,
     "rarity": "uncommon",
@@ -7420,7 +7797,26 @@
     "_source": "ravensburger",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nEach opposing character gets –2 {S} this turn.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg",
-    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg"
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg",
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": -2,
+        "duration": "end_of_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "escape-plan",
@@ -8534,6 +8930,31 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "static",
+        "storyName": "FAIL-SAFE",
+        "rulesText": "While you have no cards in your hand, opponents can't play actions with cost 4 or more.",
+        "effect": {
+          "type": "action_restriction",
+          "restricts": "play",
+          "affectedPlayer": {
+            "type": "opponent"
+          },
+          "filter": {
+            "cardType": [
+              "action"
+            ],
+            "costAtLeast": 4
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        }
       }
     ],
     "setId": "12",
@@ -9129,6 +9550,26 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "NEW MOTIF",
+        "rulesText": "When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_removed_damage_this_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -9296,6 +9737,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "DO NO WRONG",
+        "rulesText": "Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
