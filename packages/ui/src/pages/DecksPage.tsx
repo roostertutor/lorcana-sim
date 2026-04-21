@@ -6,12 +6,18 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
-import { resolveBoxCard, deckInkColors, hydrateVariants } from "../utils/deckRules.js";
+import {
+  resolveBoxCard,
+  deckInkColors,
+  hydrateVariants,
+  formatDisplayName,
+  FORMAT_FAMILY_ACCENT,
+} from "../utils/deckRules.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -174,6 +180,21 @@ export default function DecksPage() {
                 const isValid = hydrated.length > 0 && parsed.errors.length === 0;
                 const boxCard = resolveBoxCard(hydrated, d.box_card_id, CARD_DEFINITIONS);
                 const inks = deckInkColors(hydrated, CARD_DEFINITIONS);
+                // Format stamp — shown as a chip on the tile so users see at-a-
+                // glance what format this deck targets. Engine-thrown errors
+                // (stale rotation stamped on a rotation no longer in the
+                // registry) get surfaced as legality issues rather than a crash.
+                const format = { family: d.format_family, rotation: d.format_rotation };
+                const formatAccent = FORMAT_FAMILY_ACCENT[format.family];
+                const formatLabel = formatDisplayName(format);
+                let legalityIssues: string[] = [];
+                try {
+                  const res = isLegalFor(hydrated, CARD_DEFINITIONS, format);
+                  if (!res.ok) legalityIssues = res.issues.map((i) => i.message);
+                } catch (e) {
+                  legalityIssues = [String(e)];
+                }
+                const isLegal = legalityIssues.length === 0;
                 return (
                   <Link
                     key={d.id}
@@ -193,6 +214,28 @@ export default function DecksPage() {
                         Empty deck
                       </div>
                     )}
+
+                    {/* Top-right stack: format chip + (when illegal) a red
+                         exclamation. Hover shows the full issue list via
+                         native title tooltip. Placed absolute so the chip
+                         floats over the art without eating into the bottom
+                         name overlay. */}
+                    <div className="absolute top-1.5 right-1.5 flex flex-col items-end gap-1 pointer-events-none">
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border} border shadow-sm pointer-events-auto`}
+                        title={`Built for ${formatLabel}`}
+                      >
+                        {formatLabel}
+                      </span>
+                      {!isLegal && isValid && (
+                        <span
+                          className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-900/90 text-red-100 border border-red-700 shadow-sm pointer-events-auto"
+                          title={legalityIssues.join("\n")}
+                        >
+                          {legalityIssues.length} illegal
+                        </span>
+                      )}
+                    </div>
 
                     {/* Bottom overlay: ink icons + name + count + date. Ink
                          icons are inlined here (not over the cost pip) — the

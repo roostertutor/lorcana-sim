@@ -8,15 +8,16 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import type { MouseEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { CARD_DEFINITIONS, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
-import type { DeckEntry, CardVariantType } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, isLegalFor, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
+import type { DeckEntry, CardVariantType, GameFormat } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from "../lib/deckApi.js";
 import type { SavedDeck, DeckVersion, CardMetadata } from "../lib/deckApi.js";
 import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
-import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants } from "../utils/deckRules.js";
+import FormatPicker from "../components/FormatPicker.js";
+import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, formatDisplayName } from "../utils/deckRules.js";
 
 /** Build the card_metadata map for persistence from the current entries.
  *  Only cards with a non-default variant appear — regular (the default) is
@@ -55,6 +56,12 @@ export default function DeckBuilderPage() {
   const [entries, setEntries] = useState<DeckEntry[]>([]);
   const [boxCardId, setBoxCardId] = useState<string | null>(null);
   const [boxPickerOpen, setBoxPickerOpen] = useState(false);
+  // Declared format — drives the CardPicker filter, autocomplete, and
+  // legality validation. New decks default to the pre-release Set-12 Core
+  // preview; loaded decks adopt their stored stamp. Flip the default to
+  // { family: "core", rotation: "s12" } on 2026-05-08 when Set 12 releases
+  // and the matching schema DEFAULT flips.
+  const [format, setFormat] = useState<GameFormat>({ family: "core", rotation: "s12" });
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +95,11 @@ export default function DeckBuilderPage() {
         setDeckName(found.name);
         setEntries(hydrated);
         setBoxCardId(found.box_card_id);
+        // Adopt the deck's stored format stamp. Engine validates at call
+        // time — if the stored rotation has since been removed from the
+        // registry, isLegalFor will throw and the user sees the issue in
+        // the legality panel below.
+        setFormat({ family: found.format_family, rotation: found.format_rotation });
         loadVersions(found.id);
       } catch (e) {
         setError(String(e));
@@ -101,6 +113,36 @@ export default function DeckBuilderPage() {
     () => serializeDecklist(entries, CARD_DEFINITIONS),
     [entries],
   );
+
+  // Legality — recompute whenever entries or format change. Engine throws
+  // on unknown rotation (stale stamp after a registry removal); wrap so
+  // the UI shows a clean error banner instead of crashing.
+  const legality = useMemo(() => {
+    try {
+      return isLegalFor(entries, CARD_DEFINITIONS, format);
+    } catch (e) {
+      return {
+        ok: false,
+        issues: [{
+          definitionId: "",
+          fullName: "",
+          reason: "unknown_card" as const,
+          message: String(e),
+        }],
+      };
+    }
+  }, [entries, format]);
+
+  // Build definitionId → message map for DeckBuilder row highlighting.
+  // One message per card (first issue wins; can't currently have two
+  // issues on the same card because isLegalFor short-circuits per entry).
+  const issueMessagesByDefinitionId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const issue of legality.issues) {
+      if (issue.definitionId) map.set(issue.definitionId, issue.message);
+    }
+    return map;
+  }, [legality]);
   const currentMetadata = useMemo(() => buildCardMetadata(entries), [entries]);
   // card_metadata is a shallow record of shallow records — JSON-stringify diff
   // is cheap and correct for this shape. Avoids pulling in a deepEqual dep.
@@ -117,6 +159,8 @@ export default function DeckBuilderPage() {
       || originalDeck.decklist_text !== currentText
       || originalDeck.box_card_id !== boxCardId
       || originalMetadataJson !== metadataJson
+      || originalDeck.format_family !== format.family
+      || originalDeck.format_rotation !== format.rotation
     : nameIsUserEdited
       || entries.length > 0
       || boxCardId !== null
@@ -176,11 +220,15 @@ export default function DeckBuilderPage() {
           decklist_text: decklistText,
           box_card_id: boxCardId,
           card_metadata: currentMetadata,
+          format_family: format.family,
+          format_rotation: format.rotation,
         });
         setOriginalDeck(updated);
         loadVersions(updated.id);
       } else {
-        const created = await saveDeck(deckName.trim(), decklistText);
+        // saveDeck stamps the format on insert (falls through DB default
+        // for legacy callers not providing one).
+        const created = await saveDeck(deckName.trim(), decklistText, format);
         // saveDeck doesn't accept box_card_id / card_metadata on insert — apply
         // them via a follow-up update when the user set either pre-save.
         const hasExtras =
@@ -280,6 +328,7 @@ export default function DeckBuilderPage() {
               entries={entries}
               definitions={CARD_DEFINITIONS}
               onChange={setEntries}
+              format={format}
             />
           </div>
         )}
@@ -319,17 +368,35 @@ export default function DeckBuilderPage() {
                       Change
                     </div>
                   </button>
-                  <input
-                    className="flex-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2.5
-                               text-sm text-gray-200 placeholder-gray-600
-                               focus:border-amber-500 focus:outline-none"
-                    placeholder="Deck name"
-                    value={deckName}
-                    onChange={(e) => setDeckName(e.target.value)}
-                  />
+                  <div className="flex-1 flex flex-col gap-1.5">
+                    <input
+                      className="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2.5
+                                 text-sm text-gray-200 placeholder-gray-600
+                                 focus:border-amber-500 focus:outline-none"
+                      placeholder="Deck name"
+                      value={deckName}
+                      onChange={(e) => setDeckName(e.target.value)}
+                    />
+                    <FormatPicker value={format} onChange={setFormat} />
+                  </div>
                 </div>
               );
             })()}
+
+            {/* Legality summary — only rendered when there are issues. Counts
+                 the illegal entries so the user sees at-a-glance how many
+                 rows need fixing; each illegal row also shows its own
+                 inline message via DeckBuilder's issueMessagesByDefinitionId. */}
+            {!legality.ok && entries.length > 0 && (
+              <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
+                <div className="font-bold">
+                  {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in {formatDisplayName(format)}
+                </div>
+                <div className="text-red-400/80">
+                  Highlighted in red below. Change the format, or replace the cards.
+                </div>
+              </div>
+            )}
 
             {/* Your deck rows */}
             <div className="pt-2 border-t border-gray-800">
@@ -341,6 +408,8 @@ export default function DeckBuilderPage() {
                 definitions={CARD_DEFINITIONS}
                 onChange={setEntries}
                 deckName={deckName}
+                format={format}
+                issueMessagesByDefinitionId={issueMessagesByDefinitionId}
               />
             </div>
 

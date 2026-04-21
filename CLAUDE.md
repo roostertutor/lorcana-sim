@@ -93,6 +93,7 @@ Four scripts triangulate data quality; all four report clean across all 17 sets.
 | `docs/ANALYTICS_PHILOSOPHY.md` | Why we ask certain questions, query design principles | Designing new question files |
 | `docs/GAME_BOARD.md` / `docs/GUI_TEST_CARDS.md` / `docs/UI_PENDING_MECHANICS.md` | UI-side references | Touching the sandbox |
 | `docs/MULTIPLAYER.md` | Server + anti-cheat + ELO design | Touching server / lobby |
+| `docs/ROTATIONS.md` | Core/Infinity rotation runbooks (pre-release, release day, cut, banlist) | Ravensburger announces a rotation change; flipping `offeredForNewDecks`; Set 12 switchover on 2026-05-08 |
 
 ---
 

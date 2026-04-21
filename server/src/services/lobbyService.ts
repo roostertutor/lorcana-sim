@@ -1,6 +1,38 @@
-import type { DeckEntry } from "@lorcana-sim/engine"
+import {
+  CARD_DEFINITIONS,
+  CORE_ROTATIONS,
+  INFINITY_ROTATIONS,
+  isLegalFor,
+  type DeckEntry,
+  type GameFormat,
+  type GameFormatFamily,
+  type RotationId,
+} from "@lorcana-sim/engine"
 import { supabase } from "../db/client.js"
 import { createNewGame } from "./gameService.js"
+
+/** Validate that a rotation id exists in the registry for the given family.
+ *  Rejects typos / forgotten entries at the API boundary. */
+function assertRotationExists(format: GameFormat): void {
+  const registry = format.family === "core" ? CORE_ROTATIONS : INFINITY_ROTATIONS
+  if (!registry[format.rotation]) {
+    throw new Error(
+      `Unknown rotation "${format.rotation}" in ${format.family}. ` +
+        `Known: ${Object.keys(registry).join(", ")}.`,
+    )
+  }
+}
+
+/** Run legality against the engine's rotation registry. Throws a tagged error
+ *  that lobby.ts knows how to surface as a 400 with the issues list. */
+function assertDeckLegal(deck: DeckEntry[], format: GameFormat): void {
+  const result = isLegalFor(deck, CARD_DEFINITIONS, format)
+  if (!result.ok) {
+    const err = new Error("ILLEGAL_DECK") as Error & { issues?: unknown }
+    err.issues = result.issues
+    throw err
+  }
+}
 
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -35,7 +67,15 @@ async function checkForActiveGame(userId: string): Promise<string | null> {
   return null
 }
 
-export async function createLobby(hostId: string, hostDeck: DeckEntry[], format: "bo1" | "bo3" = "bo1", gameFormat: "core" | "infinity" = "infinity") {
+export async function createLobby(
+  hostId: string,
+  hostDeck: DeckEntry[],
+  format: "bo1" | "bo3" = "bo1",
+  gameFormat: GameFormat = { family: "infinity", rotation: "s11" },
+) {
+  assertRotationExists(gameFormat)
+  assertDeckLegal(hostDeck, gameFormat)
+
   const activeGameId = await checkForActiveGame(hostId)
   if (activeGameId) {
     throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
@@ -64,7 +104,14 @@ export async function createLobby(hostId: string, hostDeck: DeckEntry[], format:
 
   const { data, error } = await supabase
     .from("lobbies")
-    .insert({ code, host_id: hostId, host_deck: hostDeck, format, game_format: gameFormat })
+    .insert({
+      code,
+      host_id: hostId,
+      host_deck: hostDeck,
+      format,
+      game_format: gameFormat.family,
+      game_rotation: gameFormat.rotation,
+    })
     .select()
     .single()
 
@@ -96,6 +143,16 @@ export async function joinLobby(
   if (lobby.host_id === guestId) {
     throw new Error("Cannot join your own lobby")
   }
+
+  // Validate guest deck against the format stamped on the lobby at create time.
+  // Host's deck was validated in createLobby; re-validating here prevents a guest
+  // bypassing legality by editing their deck after the lobby was made.
+  const lobbyFormat: GameFormat = {
+    family: lobby.game_format as GameFormatFamily,
+    rotation: lobby.game_rotation as RotationId,
+  }
+  assertRotationExists(lobbyFormat)
+  assertDeckLegal(guestDeck, lobbyFormat)
 
   // Update lobby to active with guest + store guest deck for Bo3 rematches
   const { error: updateError } = await supabase

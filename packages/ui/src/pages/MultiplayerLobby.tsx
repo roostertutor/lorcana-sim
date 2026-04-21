@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
-import type { DeckEntry } from "@lorcana-sim/engine";
+import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory } from "../lib/serverApi.js";
-import type { GameHistoryEntry } from "../lib/serverApi.js";
+import type { EloKey, GameHistoryEntry, Profile } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
+import { formatDisplayName, FORMAT_FAMILY_ACCENT } from "../utils/deckRules.js";
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
@@ -25,7 +26,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [deckMode, setDeckMode] = useState<"saved" | "paste">("saved");
   const [deckOpen, setDeckOpen] = useState(false);
   const [format, setFormat]     = useState<"bo1" | "bo3">("bo1");
-  const [gameFormat, setGameFormat] = useState<"core" | "infinity">("infinity");
+  // Paste-mode format fallback — used only when the user has pasted a
+  // deck rather than selecting a saved one. Saved decks carry their own
+  // format stamp; we read from that instead. Default matches the
+  // pre-release transition baseline (same as schema DEFAULT / saveDeck
+  // default).
+  const [pasteFormat, setPasteFormat] = useState<GameFormat>({ family: "core", rotation: "s11" });
   const [joinCode, setJoinCode] = useState(initialJoinCode ?? "");
   const [status, setStatus]     = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
@@ -34,7 +40,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [copied, setCopied]     = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [session, setSession]   = useState<{ email: string } | null>(null);
-  const [profile, setProfile]   = useState<{ username: string; elo: number; games_played: number } | null>(null);
+  const [profile, setProfile]   = useState<Profile | null>(null);
   const [history, setHistory]   = useState<GameHistoryEntry[]>([]);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -74,6 +80,19 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
   const deckReady = deck.length > 0 && deckErrors.length === 0;
   const cardCount = deck.reduce((s, e) => s + e.count, 0);
+
+  // Format that this match will be created under. Saved deck → read the
+  // deck's stamp; paste mode → use the local pasteFormat state. The
+  // server validates legality against this before accepting the lobby;
+  // a paste-mode deck that's illegal in the paste-mode format surfaces
+  // as an ILLEGAL_DECK error from createLobby.
+  const selectedDeck = selectedDeckId
+    ? savedDecks.find((d) => d.id === selectedDeckId) ?? null
+    : null;
+  const gameFormat: GameFormat = deckMode === "saved" && selectedDeck
+    ? { family: selectedDeck.format_family, rotation: selectedDeck.format_rotation }
+    : pasteFormat;
+  const formatAccent = FORMAT_FAMILY_ACCENT[gameFormat.family];
 
   async function handleAuth() {
     setError(null);
@@ -129,7 +148,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setError(null);
     setStatus("Creating lobby…");
     try {
-      const result = await createLobby(deck, format, gameFormat);
+      const result = await createLobby(deck, format, gameFormat.family, gameFormat.rotation);
       setLobbyCode(result.code);
       setLobbyId(result.lobbyId);
       setStatus(null);
@@ -212,6 +231,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
                   const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                   const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
+                  const deckFormat = { family: d.format_family, rotation: d.format_rotation };
+                  const deckAccent = FORMAT_FAMILY_ACCENT[deckFormat.family];
                   return (
                     <button
                       key={d.id}
@@ -222,12 +243,17 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                           : "border-gray-800 bg-gray-950 hover:border-gray-700"
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-200 truncate">{d.name}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm text-gray-200 truncate flex-1">{d.name}</span>
+                        <span
+                          className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${deckAccent.badgeBg} ${deckAccent.text}`}
+                        >
+                          {formatDisplayName(deckFormat)}
+                        </span>
                         {isValid ? (
-                          <span className="text-xs text-green-400 font-mono shrink-0 ml-2">{count}</span>
+                          <span className="text-xs text-green-400 font-mono shrink-0">{count}</span>
                         ) : (
-                          <span className="text-xs text-red-400 shrink-0 ml-2">invalid</span>
+                          <span className="text-xs text-red-400 shrink-0">invalid</span>
                         )}
                       </div>
                     </button>
@@ -366,11 +392,18 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-600">{profile?.username ?? session.email}</span>
-                {profile?.elo_ratings && (
-                  <span className="text-xs font-mono text-amber-500/80">
-                    {profile.elo_ratings[`${format}_${gameFormat}`] ?? profile.elo} ELO
-                  </span>
-                )}
+                {profile?.elo_ratings && (() => {
+                  // Per-rotation ELO key — mirrors the server schema.
+                  // Falls back to legacy single-column elo while old
+                  // accounts haven't been backfilled to the full 8-key
+                  // JSONB yet.
+                  const eloKey = `${format}_${gameFormat.family}_${gameFormat.rotation}` as EloKey;
+                  return (
+                    <span className="text-xs font-mono text-amber-500/80" title={`${formatDisplayName(gameFormat)} · ${format.toUpperCase()}`}>
+                      {profile.elo_ratings[eloKey] ?? profile.elo} ELO
+                    </span>
+                  );
+                })()}
                 {profile && profile.games_played > 0 && (
                   <span className="text-xs text-gray-700">({profile.games_played} games)</span>
                 )}
@@ -391,7 +424,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     <div className="text-sm font-semibold text-gray-200">Host a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Create a lobby, share the code</div>
                   </div>
-                  {/* Format selectors */}
+                  {/* Match format (Bo1/Bo3) — separate from card-pool
+                       format; this stays a lobby-level toggle. */}
                   <div className="space-y-1.5">
                     <div className="flex rounded-lg bg-gray-800 p-0.5">
                       {(["bo1", "bo3"] as const).map((f) => (
@@ -408,21 +442,38 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                         </button>
                       ))}
                     </div>
-                    <div className="flex rounded-lg bg-gray-800 p-0.5">
-                      {(["core", "infinity"] as const).map((gf) => (
-                        <button
-                          key={gf}
-                          onClick={() => setGameFormat(gf)}
-                          className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            gameFormat === gf
-                              ? "bg-gray-700 text-gray-100 shadow-sm"
-                              : "text-gray-500 hover:text-gray-300"
-                          }`}
-                        >
-                          {gf === "core" ? "Core" : "Infinity"}
-                        </button>
-                      ))}
-                    </div>
+
+                    {/* Card-pool format — sourced from the selected deck's
+                         stamp. Read-only display because the deck declares
+                         its format; pasted decks use the pasteFormat
+                         (simple Core/Infinity toggle — rotation defaults
+                         to s11, matching schema DEFAULT). Per-deck format
+                         is edited via the deckbuilder. */}
+                    {deckMode === "saved" ? (
+                      <div
+                        className={`flex items-center justify-between px-2 py-1.5 rounded-md text-xs font-medium border ${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border}`}
+                        title="Format declared by the selected deck. Edit in the deckbuilder to change."
+                      >
+                        <span className="uppercase tracking-wider text-[10px] font-bold opacity-75">Format</span>
+                        <span className="font-bold">{formatDisplayName(gameFormat)}</span>
+                      </div>
+                    ) : (
+                      <div className="flex rounded-lg bg-gray-800 p-0.5">
+                        {(["core", "infinity"] as const).map((fam) => (
+                          <button
+                            key={fam}
+                            onClick={() => setPasteFormat({ ...pasteFormat, family: fam })}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                              pasteFormat.family === fam
+                                ? "bg-gray-700 text-gray-100 shadow-sm"
+                                : "text-gray-500 hover:text-gray-300"
+                            }`}
+                          >
+                            {fam === "core" ? "Core" : "Infinity"}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <button
                     className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800

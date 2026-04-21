@@ -1,4 +1,4 @@
-import type { GameAction, GameState, DeckEntry, PlayerID } from "@lorcana-sim/engine"
+import type { GameAction, GameState, DeckEntry, PlayerID, RotationId, GameFormatFamily } from "@lorcana-sim/engine"
 import { supabase } from "./supabase.js"
 
 const SERVER_URL = (import.meta.env["VITE_SERVER_URL"] as string | undefined) ?? "http://localhost:3001"
@@ -42,14 +42,19 @@ export async function ensureProfile() {
   if (!res.ok) throw new Error("Failed to initialize profile")
 }
 
-export async function createLobby(deck: DeckEntry[], format: "bo1" | "bo3" = "bo1", gameFormat: "core" | "infinity" = "infinity") {
+export async function createLobby(
+  deck: DeckEntry[],
+  format: "bo1" | "bo3" = "bo1",
+  gameFormat: GameFormatFamily = "infinity",
+  gameRotation: RotationId = "s11",
+) {
   const res = await fetch(`${SERVER_URL}/lobby/create`, {
     method: "POST",
     headers: await authHeaders(),
-    body: JSON.stringify({ deck, format, gameFormat }),
+    body: JSON.stringify({ deck, format, gameFormat, gameRotation }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; code: string; format: string; gameFormat: string }>
+  return res.json() as Promise<{ lobbyId: string; code: string; format: string; gameFormat: string; gameRotation: string }>
 }
 
 export async function joinLobby(code: string, deck: DeckEntry[]) {
@@ -98,12 +103,12 @@ export async function resignGame(gameId: string) {
   if (!res.ok) throw new Error(await extractError(res))
 }
 
-export interface EloRatings {
-  bo1_core: number
-  bo1_infinity: number
-  bo3_core: number
-  bo3_infinity: number
-}
+/** Per-rotation ELO key — matches the server schema's JSONB shape.
+ *  One bucket per (match-format × card-pool × rotation). Mirrors the engine's
+ *  registry (CORE_ROTATIONS / INFINITY_ROTATIONS) — when a new rotation lands,
+ *  add it to RotationId in the engine and the key union grows automatically. */
+export type EloKey = `${"bo1" | "bo3"}_${GameFormatFamily}_${RotationId}`
+export type EloRatings = Record<EloKey, number>
 
 export interface Profile {
   username: string

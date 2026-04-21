@@ -6,7 +6,8 @@
 // =============================================================================
 
 import React from "react";
-import type { CardDefinition, DeckEntry, InkColor } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, GameFormat, InkColor } from "@lorcana-sim/engine";
+import { isCardLegalInFormat } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
 import { getMaxCopies, countById, cardMatchScore, INK_COLOR_CLASS, INK_ORDER } from "../utils/deckRules.js";
@@ -16,9 +17,14 @@ interface Props {
   entries: DeckEntry[];
   definitions: Record<string, CardDefinition>;
   onChange: (entries: DeckEntry[]) => void;
+  /** Deck's declared format. When set, the browser hides cards that aren't
+   *  legal in this format so users can't see (or accidentally add) cards
+   *  that would fail legality validation. Implicit filter — not a
+   *  user-toggleable chip. When omitted, all cards are shown. */
+  format?: GameFormat;
 }
 
-export default function CardPicker({ entries, definitions, onChange }: Props) {
+export default function CardPicker({ entries, definitions, onChange, format }: Props) {
   const [filters, setFilters] = React.useState<CardFilters>(EMPTY_FILTERS);
   const [inspectId, setInspectId] = React.useState<string | null>(null);
 
@@ -50,6 +56,10 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
 
     const result: Array<{ def: CardDefinition; score: number }> = [];
     for (const def of Object.values(definitions)) {
+      // Implicit format filter — hides cards not legal in the deck's
+      // declared format. Runs before any user filters so match-count and
+      // sort work only against the legal subset.
+      if (format && !isCardLegalInFormat(def, format)) continue;
       if (hasCostFilter) {
         const bucket: CostBucket = (def.cost >= 8 ? 8 : Math.max(1, def.cost)) as CostBucket;
         if (!filters.costs.has(bucket)) continue;
@@ -81,7 +91,7 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
       });
     }
     return result.map((r) => r.def);
-  }, [definitions, filters]);
+  }, [definitions, filters, format]);
 
   function setCardQty(def: CardDefinition, newQty: number) {
     const max = getMaxCopies(def);
@@ -131,7 +141,10 @@ export default function CardPicker({ entries, definitions, onChange }: Props) {
           <div>
             <div className="text-sm text-gray-400">Start browsing</div>
             <div className="text-[11px] text-gray-600 mt-0.5">
-              {Object.keys(definitions).length.toLocaleString()} cards available — pick an ink or type, or type above.
+              {(format
+                ? Object.values(definitions).filter((d) => isCardLegalInFormat(d, format)).length
+                : Object.keys(definitions).length
+              ).toLocaleString()} cards available — pick an ink or type, or type above.
             </div>
           </div>
           {/* Ink quick-start */}

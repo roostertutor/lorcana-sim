@@ -1,11 +1,15 @@
 import {
   applyAction,
   CARD_DEFINITIONS,
+  CORE_ROTATIONS,
+  INFINITY_ROTATIONS,
   createGame,
   type GameConfig,
   type GameAction,
   type GameState,
   type DeckEntry,
+  type GameFormatFamily,
+  type RotationId,
 } from "@lorcana-sim/engine"
 import { supabase } from "../db/client.js"
 
@@ -178,22 +182,51 @@ export async function processAction(
   return { success: true, newState, nextGameId }
 }
 
-type EloKey = "bo1_core" | "bo1_infinity" | "bo3_core" | "bo3_infinity"
+/** ELO bucket key: {match}_{family}_{rotation} — per-match-format, per-family,
+ *  per-rotation. Shape grows automatically as new rotations are added to the
+ *  engine's CORE_ROTATIONS / INFINITY_ROTATIONS registries. Note: rating values
+ *  are infra-correct but not migrated from the legacy 4-key shape — pre-migration
+ *  history is effectively reset. */
+type MatchFormat = "bo1" | "bo3"
+type EloKey = `${MatchFormat}_${GameFormatFamily}_${RotationId}`
 type EloRatings = Record<EloKey, number>
 
-const DEFAULT_RATINGS: EloRatings = { bo1_core: 1200, bo1_infinity: 1200, bo3_core: 1200, bo3_infinity: 1200 }
-
-function getEloKey(format: string, cardPool: string): EloKey {
-  const f = format === "bo3" ? "bo3" : "bo1"
-  const p = cardPool === "core" ? "core" : "infinity"
-  return `${f}_${p}` as EloKey
+/** Build the default rating map from the engine registries. Includes every
+ *  registered rotation for both families, even those not currently offered for
+ *  new decks — stored decks can still end up in matches against legacy rotations. */
+function buildDefaultRatings(): EloRatings {
+  const out: Partial<Record<EloKey, number>> = {}
+  for (const match of ["bo1", "bo3"] as const) {
+    for (const [family, registry] of [
+      ["core", CORE_ROTATIONS],
+      ["infinity", INFINITY_ROTATIONS],
+    ] as const) {
+      for (const rotation of Object.keys(registry) as RotationId[]) {
+        out[`${match}_${family}_${rotation}`] = 1200
+      }
+    }
+  }
+  return out as EloRatings
 }
+
+const DEFAULT_RATINGS: EloRatings = buildDefaultRatings()
+
+function getEloKey(format: string, cardPool: string, rotation: string): EloKey {
+  const f: MatchFormat = format === "bo3" ? "bo3" : "bo1"
+  const p: GameFormatFamily = cardPool === "core" ? "core" : "infinity"
+  return `${f}_${p}_${rotation as RotationId}` as EloKey
+}
+
+/** Fallback key used when a callsite doesn't have rotation context (e.g. a
+ *  resignation before the lobby's rotation is looked up). Safe default — lands
+ *  ratings in a real bucket rather than a typo-land bucket. */
+const FALLBACK_ELO_KEY: EloKey = "bo1_infinity_s11"
 
 async function updateElo(
   player1Id: string,
   player2Id: string,
   winner: "player1" | "player2",
-  eloKey: EloKey = "bo1_infinity",
+  eloKey: EloKey = FALLBACK_ELO_KEY,
 ) {
   const [{ data: p1 }, { data: p2 }] = await Promise.all([
     supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player1Id).single(),
@@ -263,7 +296,20 @@ export async function resignGame(gameId: string, userId: string) {
     .update({ state: updatedState, status: "finished", winner_id: winnerId, updated_at: new Date() })
     .eq("id", gameId)
 
-  await updateElo(game.player1_id as string, game.player2_id as string, winner)
+  // Land the resignation's ELO change in the correct per-rotation bucket by
+  // reading format+rotation from the parent lobby. Falls back to defaults if
+  // the lobby row is missing (shouldn't happen but keeps the update safe).
+  const { data: lobby } = await supabase
+    .from("lobbies")
+    .select("format, game_format, game_rotation")
+    .eq("id", game.lobby_id as string)
+    .single()
+  const eloKey = getEloKey(
+    (lobby?.format as string) ?? "bo1",
+    (lobby?.game_format as string) ?? "infinity",
+    (lobby?.game_rotation as string) ?? "s11",
+  )
+  await updateElo(game.player1_id as string, game.player2_id as string, winner, eloKey)
 
   return { success: true }
 }
@@ -308,7 +354,8 @@ async function handleMatchProgress(
     // Match over — update ELO once per match and close lobby
     const matchWinner = p1Wins >= winsNeeded ? "player1" : "player2"
     const gameFormat = (lobby.game_format as string) ?? "infinity"
-    const eloKey = getEloKey(format, gameFormat)
+    const gameRotation = (lobby.game_rotation as string) ?? "s11"
+    const eloKey = getEloKey(format, gameFormat, gameRotation)
     await updateElo(player1Id, player2Id, matchWinner, eloKey)
     await supabase
       .from("lobbies")

@@ -4,7 +4,21 @@
 // the UI just reads def.maxCopies (default 4 if unset).
 // =============================================================================
 
-import type { CardDefinition, CardVariant, CardVariantType, DeckEntry, InkColor } from "@lorcana-sim/engine";
+import type {
+  CardDefinition,
+  CardVariant,
+  CardVariantType,
+  DeckEntry,
+  GameFormat,
+  GameFormatFamily,
+  InkColor,
+  RotationId,
+} from "@lorcana-sim/engine";
+import {
+  CORE_ROTATIONS,
+  INFINITY_ROTATIONS,
+  listOfferedRotations,
+} from "@lorcana-sim/engine";
 
 /** Standard 4-copy rule unless the card has an exception (Dalmatian Puppy = 99,
  *  Glass Slipper = 2, Microbots = any). */
@@ -213,6 +227,71 @@ export function resolveEntryImageUrl(
   }
   return def.imageUrl ?? "";
 }
+
+// ─── Format legality — UI helpers ────────────────────────────────────────
+
+/** Shape for the format-picker dropdown entries. One row per (family,
+ *  rotation) combo that the engine registry currently exposes for new
+ *  decks. UI renders `displayName` in the button; family drives the
+ *  accent color ("core" = indigo / "infinity" = orange). */
+export interface FormatOption {
+  family: GameFormatFamily;
+  rotation: RotationId;
+  displayName: string;
+}
+
+/** Every (family, rotation) pair currently offered for new deck creation.
+ *  Order: all Core rotations first (chronological), then Infinity (same).
+ *  Engine is the source of truth — when a new rotation lands and is
+ *  flipped on, the list grows without any UI change. */
+export function listFormatOptions(): FormatOption[] {
+  const out: FormatOption[] = [];
+  for (const family of ["core", "infinity"] as const) {
+    for (const { id, entry } of listOfferedRotations(family)) {
+      out.push({ family, rotation: id, displayName: entry.displayName });
+    }
+  }
+  return out;
+}
+
+/** Look up the human-readable name of a format even when its rotation is
+ *  no longer offered for new decks — e.g. a deck stamped `s11` after Set
+ *  13 release still shows "Set 11 Core" on its tile, even though you
+ *  can't pick it from the dropdown anymore. */
+export function formatDisplayName(format: GameFormat): string {
+  const registry = format.family === "core" ? CORE_ROTATIONS : INFINITY_ROTATIONS;
+  const entry = registry[format.rotation];
+  if (entry) return entry.displayName;
+  // Unknown rotation id (e.g. stored under a value the engine has since
+  // removed). Fall back to a best-effort label so the UI doesn't crash.
+  const familyLabel = format.family === "core" ? "Core" : "Infinity";
+  return `${format.rotation.toUpperCase()} ${familyLabel}`;
+}
+
+/** Tailwind accent color per family — Core = indigo, Infinity = orange.
+ *  Hearthstone-style tiering (Standard = blue / Wild = orange), and
+ *  deliberately avoids the six Lorcana ink colors (amber, amethyst,
+ *  emerald, ruby, sapphire, steel) so format chips never visually
+ *  collide with ink indicators on deck tiles / row gems. */
+export const FORMAT_FAMILY_ACCENT: Record<GameFormatFamily, {
+  text: string;
+  bg: string;
+  border: string;
+  badgeBg: string;
+}> = {
+  core: {
+    text: "text-indigo-400",
+    bg: "bg-indigo-950/40",
+    border: "border-indigo-700/60",
+    badgeBg: "bg-indigo-900/60",
+  },
+  infinity: {
+    text: "text-orange-400",
+    bg: "bg-orange-950/40",
+    border: "border-orange-700/60",
+    badgeBg: "bg-orange-900/60",
+  },
+};
 
 /** Resolve the card whose art represents a deck visually. Returns the
  *  display-ready { fullName, imageUrl } — imageUrl reflects the resolved

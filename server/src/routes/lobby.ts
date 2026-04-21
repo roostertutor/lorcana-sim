@@ -1,5 +1,10 @@
 import { Hono } from "hono"
-import type { DeckEntry } from "@lorcana-sim/engine"
+import type {
+  DeckEntry,
+  GameFormat,
+  GameFormatFamily,
+  RotationId,
+} from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
 import {
   createLobby,
@@ -9,24 +14,48 @@ import {
 } from "../services/lobbyService.js"
 import { supabase } from "../db/client.js"
 
+/** Default rotation when the client doesn't send one. Matches schema default.
+ *  Flip to "s12" on 2026-05-08 (Set 12 release) alongside the SQL column default. */
+const DEFAULT_ROTATION: RotationId = "s11"
+
 const lobby = new Hono<{ Variables: { userId: string } }>()
 
 // POST /lobby/create
 lobby.post("/create", requireAuth, async (c) => {
   const userId = c.get("userId")
-  const body = await c.req.json<{ deck: DeckEntry[]; format?: string; gameFormat?: string }>()
+  const body = await c.req.json<{
+    deck: DeckEntry[]
+    format?: string
+    gameFormat?: string
+    gameRotation?: string
+  }>()
 
   if (!Array.isArray(body.deck) || body.deck.length === 0) {
     return c.json({ error: "deck is required" }, 400)
   }
 
   const format = body.format === "bo3" ? "bo3" : "bo1"
-  const gameFormat = body.gameFormat === "core" ? "core" : "infinity"
+  const family: GameFormatFamily = body.gameFormat === "core" ? "core" : "infinity"
+  const rotation = (body.gameRotation ?? DEFAULT_ROTATION) as RotationId
+  const gameFormat: GameFormat = { family, rotation }
 
   try {
     const result = await createLobby(userId, body.deck, format, gameFormat)
-    return c.json({ lobbyId: result.id, code: result.code, format, gameFormat })
+    return c.json({
+      lobbyId: result.id,
+      code: result.code,
+      format,
+      gameFormat: family,
+      gameRotation: rotation,
+    })
   } catch (err) {
+    const e = err as Error & { issues?: unknown }
+    if (e.message === "ILLEGAL_DECK") {
+      return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
+    }
+    if (e.message?.startsWith("Unknown rotation")) {
+      return c.json({ error: e.message }, 400)
+    }
     return c.json({ error: String(err) }, 500)
   }
 })
@@ -45,6 +74,10 @@ lobby.post("/join", requireAuth, async (c) => {
     const result = await joinLobby(userId, body.code, body.deck)
     return c.json({ lobbyId: result.lobbyId, gameId: result.gameId, myPlayerId: result.guestSide })
   } catch (err) {
+    const e = err as Error & { issues?: unknown }
+    if (e.message === "ILLEGAL_DECK") {
+      return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
+    }
     const msg = String(err)
     if (msg.includes("not found")) return c.json({ error: msg }, 404)
     if (msg.includes("own lobby")) return c.json({ error: msg }, 400)

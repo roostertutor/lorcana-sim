@@ -93,16 +93,31 @@ CREATE POLICY "Actions visible to game players"
 
 -- Match format support (Bo1/Bo3) and card pool (core/infinity)
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS format TEXT NOT NULL DEFAULT 'bo1';      -- bo1 | bo3
-ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_format TEXT NOT NULL DEFAULT 'infinity'; -- core | infinity
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_format TEXT NOT NULL DEFAULT 'infinity'; -- core | infinity (family only)
+-- Rotation id paired with game_format — together they form the engine's GameFormat.
+-- Default 's11' = pre-Set-12 live rotation. Flip to 's12' on 2026-05-08 (Set 12 release).
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_rotation TEXT NOT NULL DEFAULT 's11';
 ALTER TABLE games ADD COLUMN IF NOT EXISTS game_number INTEGER NOT NULL DEFAULT 1;    -- 1, 2, or 3
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS guest_deck JSONB;    -- stored on join for Bo3 rematches
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p1_wins INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p2_wins INTEGER NOT NULL DEFAULT 0;
 
 -- Per-format ELO ratings (replaces single elo column)
--- Format: { "bo1_core": 1200, "bo1_infinity": 1200, "bo3_core": 1200, "bo3_infinity": 1200 }
+-- Keys are {match}_{family}_{rotation} — 8 entries today for s11/s12 x core/infinity x bo1/bo3.
+-- Engine registries (CORE_ROTATIONS / INFINITY_ROTATIONS) are the source of truth for which
+-- rotations exist; this default just seeds the JSONB so lookups don't have to nullcheck.
+-- When a new rotation lands, bump the default AND run the merge statement below once.
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
-  '{"bo1_core": 1200, "bo1_infinity": 1200, "bo3_core": 1200, "bo3_infinity": 1200}'::jsonb;
+  '{"bo1_core_s11":1200,"bo1_core_s12":1200,"bo1_infinity_s11":1200,"bo1_infinity_s12":1200,"bo3_core_s11":1200,"bo3_core_s12":1200,"bo3_infinity_s11":1200,"bo3_infinity_s12":1200}'::jsonb;
+
+-- One-shot ELO key migration: merge new per-rotation keys into existing rows without
+-- clobbering their current values. Idempotent — re-running has no effect after the
+-- first pass. Legacy keys (bo1_core etc.) are left in place as dead weight; new code
+-- writes only to the per-rotation keys. Accuracy of post-migration ratings is not
+-- preserved — by design, we're resetting to the right infra shape for per-rotation
+-- tracking going forward.
+UPDATE profiles SET elo_ratings = '{"bo1_core_s11":1200,"bo1_core_s12":1200,"bo1_infinity_s11":1200,"bo1_infinity_s12":1200,"bo3_core_s11":1200,"bo3_core_s12":1200,"bo3_infinity_s11":1200,"bo3_infinity_s12":1200}'::jsonb || elo_ratings
+WHERE NOT (elo_ratings ? 'bo1_core_s11');
 
 -- Deck box art: the CardDefinition id whose image visually represents this
 -- deck in lists + deck-title chrome. Null means "derive from first entry in
@@ -116,6 +131,14 @@ ALTER TABLE decks ADD COLUMN IF NOT EXISTS box_card_id TEXT;
 -- wide so future fields (foil preference, per-card notes, tags) nest under
 -- the same key without another migration.
 ALTER TABLE decks ADD COLUMN IF NOT EXISTS card_metadata JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+-- Format stamp — which GameFormat the deck was built for. Together they mirror
+-- the engine's GameFormat = { family, rotation } shape. Default values blanket-
+-- stamp every existing row on ADD COLUMN (Postgres backfills from the DEFAULT);
+-- no separate backfill script needed. Flip defaults to 's12' on 2026-05-08
+-- when Set 12 releases and becomes the new Core default.
+ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_family TEXT NOT NULL DEFAULT 'core';
+ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_rotation TEXT NOT NULL DEFAULT 's11';
 
 -- Enable Supabase Realtime on the games table
 ALTER TABLE games REPLICA IDENTITY FULL;

@@ -6,8 +6,8 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { toPng } from "html-to-image";
-import type { CardDefinition, DeckEntry, InkColor, CardVariantType } from "@lorcana-sim/engine";
-import { parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, GameFormat, InkColor, CardVariantType } from "@lorcana-sim/engine";
+import { isCardLegalInFormat, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels, cardMatchScore } from "../utils/deckRules.js";
 import DeckExportPanel from "./DeckExportPanel.js";
 
@@ -28,6 +28,18 @@ interface Props {
   onChange: (entries: DeckEntry[]) => void;
   /** Used in the PNG export header. Falls back to "Untitled Deck" when blank. */
   deckName?: string;
+  /** Deck's declared format. When set:
+   *   - autocomplete filters out cards not legal in this format (same behavior
+   *     as the CardPicker browser),
+   *   - deck rows with illegal entries get a red border + inline error message
+   *     sourced from `issueMessagesByDefinitionId`.
+   *  When omitted, no legality styling is applied. */
+  format?: GameFormat;
+  /** Map of definitionId → human-readable legality issue message (from the
+   *  engine's `isLegalFor().issues[]`). Entries present in the map get
+   *  highlighted as illegal in their row. Typically the parent computes this
+   *  once per `entries` change and passes it through. */
+  issueMessagesByDefinitionId?: Map<string, string>;
 }
 
 type GroupMode = "cost" | "type" | "none";
@@ -46,7 +58,7 @@ function useGroupMode(): [GroupMode, (m: GroupMode) => void] {
   return [mode, update];
 }
 
-export default function DeckBuilder({ entries, definitions, onChange, deckName = "" }: Props) {
+export default function DeckBuilder({ entries, definitions, onChange, deckName = "", format, issueMessagesByDefinitionId }: Props) {
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightedIdx, setHighlightedIdx] = useState(0);
@@ -102,17 +114,21 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
   // ── Search results for add-card ──
   // Uses the shared cardMatchScore so "draw" surfaces every card whose
   // rules text mentions drawing, not just cards with "draw" in the name.
+  // Filters out cards illegal in the deck's format so the autocomplete
+  // matches the CardPicker browser (no surprise adds of set-1 cards into
+  // a Core deck).
   const searchResults = useMemo(() => {
     const q = query.trim();
     if (!q) return [];
     const scored: Array<{ d: CardDefinition; score: number }> = [];
     for (const d of Object.values(definitions)) {
+      if (format && !isCardLegalInFormat(d, format)) continue;
       const score = cardMatchScore(d, q);
       if (score >= 0) scored.push({ d, score });
     }
     scored.sort((a, b) => b.score - a.score);
     return scored.slice(0, 10).map((r) => r.d);
-  }, [query, definitions]);
+  }, [query, definitions, format]);
 
   useEffect(() => { setHighlightedIdx(0); }, [query]);
 
@@ -427,16 +443,20 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                   <span className="text-gray-700 font-mono">{group.count}</span>
                 </div>
               )}
-              {group.rows.map(({ entry, def }) => (
-                <DeckRow
-                  key={entry.definitionId}
-                  entry={entry}
-                  def={def!}
-                  onIncrement={() => adjustQty(entry.definitionId, 1)}
-                  onDecrement={() => adjustQty(entry.definitionId, -1)}
-                  onSetVariant={(v) => setVariant(entry.definitionId, v)}
-                />
-              ))}
+              {group.rows.map(({ entry, def }) => {
+                const msg = issueMessagesByDefinitionId?.get(entry.definitionId);
+                return (
+                  <DeckRow
+                    key={entry.definitionId}
+                    entry={entry}
+                    def={def!}
+                    onIncrement={() => adjustQty(entry.definitionId, 1)}
+                    onDecrement={() => adjustQty(entry.definitionId, -1)}
+                    onSetVariant={(v) => setVariant(entry.definitionId, v)}
+                    {...(msg ? { issueMessage: msg } : {})}
+                  />
+                );
+              })}
             </div>
           ))}
         </div>
@@ -600,9 +620,12 @@ interface RowProps {
   onIncrement: () => void;
   onDecrement: () => void;
   onSetVariant: (variantKey: string) => void;
+  /** When present, the row renders with a red accent + the message below.
+   *  Sourced from the engine's `isLegalFor().issues[].message`. */
+  issueMessage?: string;
 }
 
-function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProps) {
+function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant, issueMessage }: RowProps) {
   const max = getMaxCopies(def);
   const atMax = entry.count >= max;
   const maxLabel = max >= 99 ? "∞" : String(max);
@@ -627,8 +650,15 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
     : null;
   const [variantMenuOpen, setVariantMenuOpen] = useState(false);
 
+  const hasIssue = !!issueMessage;
+
   return (
-    <div className="group flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-700 transition-colors">
+    <div className={`group flex flex-col gap-1 px-2 py-1.5 rounded-lg transition-colors ${
+      hasIssue
+        ? "bg-red-950/30 border border-red-800/60 hover:border-red-700"
+        : "bg-gray-900 border border-gray-800 hover:border-gray-700"
+    }`}>
+    <div className="flex items-center gap-1.5">
       {/* Cost */}
       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-800 text-white text-xs font-black shrink-0">
         {def.cost}
@@ -724,6 +754,12 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant }: RowProp
           +
         </button>
       </div>
+    </div>
+    {hasIssue && (
+      <div className="text-[10px] text-red-400 px-1 leading-snug">
+        {issueMessage}
+      </div>
+    )}
     </div>
   );
 }

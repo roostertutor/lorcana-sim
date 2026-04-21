@@ -678,18 +678,25 @@ Set-N's cards are recognized.
 Set 12 itself is fully wired as of 2026-04-21 (0 stubs), so there is no
 card-data blocker preventing the `s12` rotation from being used.
 
-### Storage + backfill (server + GUI agents, after engine lands)
+### ~~Storage + backfill~~ — DONE 2026-04-21 (server agent)
 
-**Deck storage schema** — add `{ family, rotation }` stamp:
-- `deck_versions` table: add two columns (`format_family`, `format_rotation`),
-  NOT NULL with defaults for backfill.
-- Local deck objects in `DecksPage` / `DeckBuilder`: add matching fields.
+Landed on `decks` (not `deck_versions` — see "deck-table consolidation" note
+at the end of this section for the rationale; history stays on the parent
+deck's stamp). Columns added:
+- `decks.format_family TEXT NOT NULL DEFAULT 'core'`
+- `decks.format_rotation TEXT NOT NULL DEFAULT 's11'`
+- `lobbies.game_rotation TEXT NOT NULL DEFAULT 's11'` (paired with existing
+  `game_format` family column — together they form the engine's `GameFormat`).
 
-**Backfill policy — blanket-stamp, confirmed by user:**
-Every existing deck gets `{ family: "core", rotation: "s11" }` on migration.
-No smart detection. Users who have old (set 1-4) cards in their decks will see
-red chips on first load and can explicitly re-stamp to Infinity. Simple,
-predictable.
+Blanket backfill was free via Postgres's `ADD COLUMN ... DEFAULT` behavior —
+every existing row got `{ core, s11 }` without a separate script.
+
+ELO JSONB default updated to the 8 per-rotation keys; a one-shot merge
+statement (`elo_ratings = new_defaults || elo_ratings`) folds new keys into
+existing profile rows without clobbering. Legacy keys (`bo1_core`, etc.) are
+left in place as dead weight; new code writes only to per-rotation keys.
+Ratings not migrated from the old 4-key shape — infrastructurally reset, by
+design (user confirmed accuracy-later).
 
 ### UI work (GUI agent, after engine + storage land)
 
@@ -713,17 +720,83 @@ predictable.
   selected deck's stamp instead of the lobby screen's current Core/Infinity
   toggle. Remove the toggle.
 
-### Server work (after engine + storage land)
+### ~~Server work~~ — DONE 2026-04-21 (server agent)
 
-- Lobby creation calls `isLegalFor(entries, defs, deck.format)` and rejects
-  with `issues[]` if `!ok`. Anti-cheat — the UI filter is advisory; server
-  validation is authoritative.
-- ELO buckets widen from 4 (`bo1/bo3 × core/infinity`) to N — one per active
-  rotation. Simplest: just add rotation id to the key, e.g. `bo1_core_s12`,
-  `bo1_core_s11`. Update `profile.elo_ratings` shape and the per-format ELO
-  display in `MultiplayerLobby`. Alternative: collapse to family-only buckets
-  (`bo1_core`, `bo1_infinity`) and accept that players span rotations in a
-  single rating. User decides.
+- `lobbyService.createLobby` now takes `GameFormat = { family, rotation }`,
+  validates rotation against `CORE_ROTATIONS` / `INFINITY_ROTATIONS` registry,
+  and calls `isLegalFor(deck, CARD_DEFINITIONS, gameFormat)` — illegal decks
+  throw `"ILLEGAL_DECK"` which the route translates to a 400 with
+  `issues[]`. `joinLobby` re-validates the guest's deck against the lobby's
+  stored format+rotation to prevent post-create deck edits from bypassing
+  legality.
+- `routes/lobby.ts` accepts `gameRotation` as a parallel field alongside the
+  existing `gameFormat` string (didn't merge into one object shape to keep UI
+  migration non-breaking — UI can keep sending `gameFormat: "core"` and just
+  add `gameRotation: "s12"` when ready). `DEFAULT_ROTATION` constant set to
+  `"s11"`; bump to `"s12"` on 2026-05-08.
+- ELO key shape: `${"bo1"|"bo3"}_${"core"|"infinity"}_${RotationId}`. Per-
+  rotation as decided by user. `DEFAULT_RATINGS` built by iterating
+  `CORE_ROTATIONS` / `INFINITY_ROTATIONS` keys — new rotations auto-populate
+  without touching `gameService.ts`.
+- `resignGame` now looks up the parent lobby's `format/game_format/
+  game_rotation` to land ELO in the correct bucket instead of always
+  defaulting to `bo1_infinity`.
+
+**2026-05-08 reminder:** on Set 12 release, follow `docs/ROTATIONS.md`
+runbook 2 ("Release day — switch the live Core default") to flip the s11
+→ s12 defaults across engine / SQL / server code. Runbook lists exact
+files, commands, and verification queries.
+
+### ~~Still open: UI work~~ — DONE 2026-04-21 (GUI agent, commit TBD)
+
+User confirmed browser flow works end-to-end for both new and existing decks.
+What shipped:
+
+- `serverApi.ts` — `EloRatings` widened to 8 per-rotation keys via template
+  literal type `${"bo1"|"bo3"}_${GameFormatFamily}_${RotationId}`;
+  `createLobby` accepts `gameRotation: RotationId` as 4th arg, response
+  includes `gameRotation`. Added `EloKey` + `Profile` exports.
+- `deckApi.ts` — `SavedDeck` gets `format_family` + `format_rotation`.
+  `saveDeck` accepts optional `format` param (falls through to DB DEFAULT
+  for omitted); `updateDeck` accepts both fields. All SELECTs widened.
+- `utils/deckRules.ts` — `listFormatOptions()`, `formatDisplayName()`,
+  `FORMAT_FAMILY_ACCENT` palette. Engine registry → UI dropdown lives here
+  so palette changes are one-line.
+- `components/FormatPicker.tsx` — new compact dropdown (same pattern as
+  DeckBuilder's group-by picker). Supports read-only mode for lobby
+  contexts where format is derived from the selected deck.
+- `components/CardPicker.tsx` — accepts `format?: GameFormat`; when set,
+  `isCardLegalInFormat` runs as a hidden filter before user filters. Empty-
+  state count reflects legal subset.
+- `components/DeckBuilder.tsx` — accepts `format` (filters autocomplete) +
+  `issueMessagesByDefinitionId` map. `DeckRow` renders red border +
+  inline issue message when its entry is in the map.
+- `pages/DeckBuilderPage.tsx` — format state (defaults `{ core, s12 }`),
+  loaded decks adopt stored stamp. Format picker under deck name.
+  `isLegalFor` memoized; issue map derived. Legality summary banner above
+  rows. Save persists format. Dirty tracking accounts for format changes.
+- `pages/DecksPage.tsx` — each tile shows format chip (top-right, accent-
+  colored) and red "N illegal" chip when `isLegalFor` fails, hover tooltip
+  listing issues.
+- `pages/MultiplayerLobby.tsx` — removed standalone Core/Infinity toggle.
+  `gameFormat` derived from selected saved deck's stamp; paste mode uses
+  local `pasteFormat` state with a family-only toggle (rotation defaults
+  to `s11`). ELO display key now 3D (`${bo}_${family}_${rotation}`).
+  Saved-deck list tiles show format chip. Bo1/Bo3 match-format toggle
+  stays (orthogonal). `profile` uses canonical `Profile` type.
+
+Palette: **Core = indigo, Infinity = orange** (Hearthstone-style tiering;
+both deliberately avoid the six Lorcana ink colors so format chips never
+collide visually with ink indicators on deck tiles / row gems).
+
+Still not in scope for this session (deliberately deferred):
+- Paste-mode rotation picker (paste mode can only toggle family; rotation
+  is hardcoded to `s11`). Low priority — paste is an edge-case entry point;
+  saved decks are the primary flow.
+- Banner/toast when deck's stamped rotation has been removed from the
+  registry (`offeredForNewDecks: false` wouldn't affect existing decks, but
+  if a rotation id is fully deleted the engine throws; the legality panel
+  surfaces the error but it's not pretty).
 
 ### Maintenance
 
@@ -736,15 +809,147 @@ to `false`. No legality logic ever changes; it's all registry edits.
 ### Sequencing
 
 1. ~~**engine-expert**: refactor `formats/legality.ts` to the registry shape,
-   update tests~~ — **DONE 2026-04-21**. API surface available via
-   `import { ... } from "@lorcana-sim/engine"` for GUI/server to consume.
-2. **server agent** (next): schema migration for `deck_versions` + ELO key
-   shape, add server-side legality enforcement in lobby creation.
-3. **GUI agent**: backfill-migrate local deck objects, add format dropdown
-   (use `listOfferedRotations("core")` / `listOfferedRotations("infinity")`),
-   CardPicker filter, deck tile chip, inline errors, remove
-   `MultiplayerLobby.tsx`'s standalone `"core" | "infinity"` toggle (format
-   now comes from the selected deck's stamp).
+   update tests~~ — **DONE 2026-04-21**.
+2. ~~**server agent**: schema migration + ELO key shape + server-side legality
+   enforcement~~ — **DONE 2026-04-21**.
+3. ~~**GUI agent**: update `EloRatings` type + `MultiplayerLobby` ELO lookup,
+   add format dropdown, CardPicker filter, deck tile chip, inline row errors,
+   remove the standalone `"core" | "infinity"` toggle~~ — **DONE 2026-04-21**.
+
+---
+
+## Engine agent (primary) + server agent + GUI agent: unranked rotation flag for pre-release Set 12 play
+
+Worked through with user 2026-04-21 after the format-legality chain landed.
+Problem: Set 12 releases 2026-05-08. Pre-release, two users playing a
+lobby-code game on the `s12` rotation would move their `bo1_core_s12` /
+`bo3_core_s12` ELO buckets — but at this stage the rotation is effectively
+a beta: possible card-text errata, incomplete data coverage for some users,
+undiagnosed bugs that could favor/disfavor specific cards. We want
+playtesting games to record in history + replay for bug reports, but NOT
+to move ratings until the rotation stabilizes at official release.
+
+There is no matchmaking queue today — lobby codes only — so this isn't "a
+separate queue." It's purely: "this rotation's lobbies don't award ELO."
+Users who happen to play it before release know it doesn't count.
+
+### Engine work (engine-expert)
+
+Add a `ranked: boolean` field to `RotationEntry`, alongside the existing
+`offeredForNewDecks` flag. Same lifecycle ritual — registered new, flipped
+on release day.
+
+```ts
+// packages/engine/src/formats/legality.ts
+export interface RotationEntry {
+  readonly legalSets: ReadonlySet<string>;
+  readonly banlist: ReadonlySet<string>;
+  readonly offeredForNewDecks: boolean;
+  readonly ranked: boolean;          // ← new
+  readonly displayName: string;
+}
+
+CORE_ROTATIONS = {
+  s11: { ..., offeredForNewDecks: true, ranked: true  },  // live, ELO-affecting
+  s12: { ..., offeredForNewDecks: true, ranked: false },  // beta, unranked
+};
+INFINITY_ROTATIONS = {
+  s11: { ..., offeredForNewDecks: true, ranked: true  },
+  s12: { ..., offeredForNewDecks: true, ranked: false },
+};
+```
+
+Suggested helper (used by server's updateElo early-return and UI's "Beta"
+chip):
+
+```ts
+export function isRankedFormat(format: GameFormat): boolean {
+  return resolveRotation(format).ranked;
+}
+```
+
+Export `isRankedFormat` from `packages/engine/src/index.ts` alongside the
+existing legality exports.
+
+Tests: extend `legality.test.ts` with cases for the flag — both core and
+infinity `s12` return `ranked: false`; `s11` returns `ranked: true`;
+default values documented.
+
+### Server work (server agent)
+
+One behavior change: `updateElo()` in `packages/server/src/services/
+gameService.ts` becomes a no-op when the lobby's rotation is unranked.
+
+```ts
+import { isRankedFormat } from "@lorcana-sim/engine"
+
+async function updateElo(
+  player1Id: string,
+  player2Id: string,
+  winner: "player1" | "player2",
+  eloKey: EloKey,
+  format: GameFormat,                    // ← new param (derived at call site)
+) {
+  if (!isRankedFormat(format)) {
+    // Games on unranked rotations still save to history + replay table;
+    // only the rating-update side-effects are suppressed. Still increment
+    // games_played so the user's activity count is accurate.
+    await Promise.all([
+      supabase.from("profiles").update({ games_played: ... }).eq("id", player1Id),
+      supabase.from("profiles").update({ games_played: ... }).eq("id", player2Id),
+    ])
+    return
+  }
+  // ...existing rating math
+}
+```
+
+Every callsite of `updateElo` already looks up the lobby's
+`format/game_format/game_rotation`, so threading `GameFormat` through is a
+signature change, not a data-availability problem.
+
+Also: when a game completes on an unranked rotation, include a
+`ranked: false` flag in the game_over payload / game record so the UI can
+render differently without needing to re-derive.
+
+### GUI work (GUI agent — me, follow-up after engine + server)
+
+- `MultiplayerLobby`: when a selected deck's rotation is unranked, show a
+  small "Unranked — Beta" chip next to the format chip in the lobby tile.
+  Also in the host/join cards, display a one-line banner: *"Set 12 Core is
+  in beta. Wins/losses won't affect your ELO until release day."*
+- `DecksPage`: beside the format chip on each deck tile, a small "Beta"
+  badge for unranked rotations. Subtle — same-family accent but with a
+  "BETA" text suffix on the chip instead of a separate chip.
+- Post-game screen (wherever match result is shown — GameBoard's game-over
+  overlay?): suppress the ELO delta display for unranked matches. Show
+  "Unranked match" in place of the rating change.
+- `FormatPicker` dropdown: append a small "beta" italic note next to
+  rotation names where `ranked: false` so users picking the format see the
+  status before committing to it.
+
+No new storage needed — the flag is a pure derived property of the
+rotation, read from the engine registry on every render.
+
+### Sequencing
+
+1. **engine-expert**: add `ranked` field + `isRankedFormat` helper, update
+   tests. Small, self-contained.
+2. **server agent**: thread `GameFormat` into `updateElo`, early-return on
+   unranked, still bump `games_played` + save to history. Include the flag
+   in the completed-game payload.
+3. **GUI agent** (me): Beta chip + banner + post-game suppression +
+   FormatPicker italic note. Blocks on (1) for `isRankedFormat` export.
+
+### 2026-05-08 reminder — additive to the existing release-day runbook
+
+When flipping s12 to the live default, also flip `ranked: false` → `true`
+for both `CORE_ROTATIONS.s12` and `INFINITY_ROTATIONS.s12`. If any s12
+registry entry was duplicated into `docs/ROTATIONS.md`, update that too.
+Backdated games on the s12 rotation stay unranked — we don't retroactively
+award ELO.
+
+---
 
 ## GUI: MTGA-style "shortened" card rendering in play zones
 
@@ -898,3 +1103,82 @@ deckbuilder files.
 - Existing importer hierarchy pattern: `scripts/import-cards-rav.ts` +
   `scripts/import-cards-lorcast.ts` (refuses-to-downgrade logic is the template).
 - Existing `_sourceLock` precedent: The Bayou in card-set-1.json.
+
+---
+
+## Server agent: `decks` + `deck_versions` base-table DDL missing from schema.sql
+
+Discovered 2026-04-21 while adding format-stamp columns. `server/src/db/schema.sql`
+contains `ALTER TABLE decks ADD COLUMN ...` statements but **not the
+`CREATE TABLE decks` or `CREATE TABLE deck_versions` that they alter** —
+those tables were created ad-hoc in Supabase Studio at some point and the
+DDL never landed in source control. The app works because Supabase has the
+tables, but anyone spinning up a fresh environment from `schema.sql` would
+hit "relation does not exist" on the first `ALTER TABLE decks` line.
+
+Both are referenced from `packages/ui/src/lib/deckApi.ts:37,48,58,69,85,101,110`.
+
+**Fix:** reconstruct the base DDL by inspecting the live Supabase schema
+(`supabase db dump` or SQL editor) and prepend it to the block in
+`schema.sql`. Expected shape (inferred from usage):
+
+```sql
+CREATE TABLE IF NOT EXISTS decks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  decklist_text TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE (user_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS deck_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  deck_id UUID NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
+  decklist_text TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
+Add appropriate RLS policies to match (`auth.uid() = user_id` on decks;
+deck_versions visible via `EXISTS` subquery to the parent deck). Verify
+against the live Supabase schema before committing — the types above are
+inferences from the API surface, not a dump.
+
+Low priority (app works today) but load-bearing for dev onboarding and
+before any schema-only rebuild.
+
+---
+
+## Server agent: `decks` / `deck_versions` consolidation — future cleanup
+
+Captured 2026-04-21 after the format-stamp migration landed. Raised by user:
+"can't the latest deck_version just be the deck?"
+
+Today the two tables carry overlapping data — `decks.decklist_text` equals
+the latest `deck_versions.decklist_text` for the same deck by convention,
+kept in sync by `snapshotVersion()` in `packages/ui/src/lib/deckApi.ts:46`.
+If `snapshotVersion` ever silently fails after `saveDeck` succeeds, the two
+can drift and the app silently lies about history.
+
+**Why it stays two tables today:**
+- `decks` carries non-versioned metadata: `name`, `box_card_id`,
+  `card_metadata`, and (as of 2026-04-21) `format_family` + `format_rotation`.
+- `decks` is the clean FK target for future `games.deck_id`, `matches.deck_id`
+  etc. — those should reference the deck identity, not a specific version.
+- `SELECT * FROM decks WHERE user_id = ?` is trivial. The collapsed shape
+  needs a window-function / self-join for "latest per deck."
+
+**Cleanup paths if the redundancy becomes a real problem:**
+1. **Drop `decks.decklist_text` entirely.** Always read the latest version.
+   Rewrites every deck-read path to do a `LATERAL JOIN` or subquery.
+2. **Replace `decks.decklist_text` with `current_version_id FK → deck_versions.id`.**
+   Explicit pointer, no drift risk, one extra join per read. Cleanest
+   middle ground.
+3. **Keep as-is, add a DB trigger that keeps `decks.decklist_text` in sync
+   with the latest version.** Fixes drift without changing the reading
+   surface. Trade-off: trigger logic is spooky-action-at-a-distance.
+
+Not blocking anything. Park here until we either (a) see a real drift bug or
+(b) touch this area for another reason.
