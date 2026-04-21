@@ -6552,23 +6552,12 @@ function zoneTransition(
     });
   }
 
-  // Per-turn counter: cards put into YOUR discard from anywhere (banish, discard
-  // from hand, mill, etc). Used by set-12 Madrigal discard-theme cards (Helga
-  // Sinclair No Backup Needed cost reduction, Kida Discovering / Kashekim Wise
-  // King inkwell acceleration, Lyle Tiberius Rourke DIRTY TRICKS opp-lore-drain).
-  // Counts card instances, not sources — CRD wording "cards were put into your
-  // discard" scopes to the owning player's discard regardless of who caused it.
-  if (!ctx.silent && targetZone === "discard" && fromZone !== "discard") {
-    const ownerPid = instance.ownerId;
-    const prev = state.players[ownerPid].cardsPutIntoDiscardThisTurn ?? 0;
-    state = {
-      ...state,
-      players: {
-        ...state.players,
-        [ownerPid]: { ...state.players[ownerPid], cardsPutIntoDiscardThisTurn: prev + 1 },
-      },
-    };
-  }
+  // Per-turn counter for "cards put into your discard this turn" now lives
+  // in moveCard (utils/index.ts) — runs for every discard-destination
+  // zone-change regardless of whether the caller went through zoneTransition
+  // or moveCard directly. Previously this logic lived HERE, but it missed
+  // the ~7 direct-moveCard discard paths (discard_from_hand, action cleanup,
+  // mill, choose_discard, reveal_top_switch). See commit [counter-fix].
 
   // Fire post-move triggers + events
   if (!ctx.silent) {

@@ -645,6 +645,30 @@ export function moveCard(
   // player's discard. Cleared on PASS_TURN.
   const cardsLeftDiscardThisTurn =
     sourceZone === "discard" ? true : state.cardsLeftDiscardThisTurn;
+
+  // Per-turn counter for set-12 discard-theme cards (Helga Sinclair CRISIS
+  // MANAGEMENT cost reduction, Kida/Kashekim inkwell acceleration, Lyle
+  // DIRTY TRICKS lore drain, Escape Plan's playRestriction "unless 2+
+  // cards were put into your discard this turn"). CRD wording "cards put
+  // into <player>'s discard" scopes to the OWNER of the moved card — so
+  // opponent actions going to the opponent's discard don't count toward
+  // your counter, and vice versa. Lives in moveCard (the lowest-level
+  // zone-change) so every discard path — zoneTransition (banish), direct
+  // moveCard (discard_from_hand, action cleanup, mill, choose_discard),
+  // and reveal_top_switch — increments uniformly. Previously lived only
+  // in zoneTransition which missed ~7 direct-moveCard discard paths,
+  // silently breaking Escape Plan's play gate and the other Madrigal
+  // discard-theme conditions.
+  let updatedPlayers = state.players;
+  if (targetZone === "discard" && sourceZone !== "discard") {
+    const ownerPid = instance.ownerId;
+    const prev = state.players[ownerPid].cardsPutIntoDiscardThisTurn ?? 0;
+    updatedPlayers = {
+      ...state.players,
+      [ownerPid]: { ...state.players[ownerPid], cardsPutIntoDiscardThisTurn: prev + 1 },
+    };
+  }
+
   return {
     ...state,
     cards: {
@@ -659,6 +683,7 @@ export function moveCard(
       ...state.zones,
       ...updatedPlayerZones,
     },
+    players: updatedPlayers,
     cardsLeftDiscardThisTurn,
   };
 }

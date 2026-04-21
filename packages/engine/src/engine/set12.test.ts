@@ -1132,6 +1132,88 @@ describe("Set 12 — Escape Plan (playRestriction + bilateral inkwell-exerted)",
   });
 });
 
+describe("cardsPutIntoDiscardThisTurn counter — increments on ALL discard paths (not just banish)", () => {
+  // Regression coverage for the counter bug discovered via Escape Plan
+  // (2026-04-21). The counter previously lived in zoneTransition only,
+  // missing direct-moveCard discard paths. Escape Plan's playRestriction
+  // "unless 2 or more cards were put into your discard this turn" was
+  // silently blocked after discard_from_hand/mill because the counter
+  // stayed at 0. Same bug class affected Helga Sinclair / Kida / Kashekim /
+  // Lyle. Fix: counter increment moved to moveCard (utils/index.ts) so it
+  // runs on EVERY zone-change-to-discard uniformly.
+
+  it("banish path (zoneTransition → moveCard) increments the owner's counter", () => {
+    let state = startGame();
+    const { state: s1, instanceId: victimId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    expect(s1.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(0);
+    const s2 = applyEffect(
+      s1,
+      { type: "banish", target: { type: "this" } } as any,
+      victimId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(s2.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(1);
+  });
+
+  it("discard_from_hand path (direct moveCard) increments the owner's counter", () => {
+    let state = startGame();
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "helga-sinclair-no-backup-needed", "play");
+    const { state: s2 } = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "hand");
+    const { state: s3 } = injectCard(s2, "player1", "minnie-mouse-beloved-princess", "hand");
+    expect(s3.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(0);
+    const s4 = applyEffect(
+      s3,
+      { type: "discard_from_hand", amount: 1, target: { type: "self" } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    // discard_from_hand on self surfaces a choose_discard pendingChoice.
+    if (s4.pendingChoice?.type === "choose_discard") {
+      const handCards = s4.pendingChoice.validTargets ?? [];
+      const r = applyAction(
+        s4,
+        { type: "RESOLVE_CHOICE", playerId: "player1", choice: [handCards[0]!] } as any,
+        CARD_DEFINITIONS,
+      );
+      expect(r.newState.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(1);
+    } else {
+      // Random / auto-resolve branch — counter should also be 1.
+      expect(s4.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(1);
+    }
+  });
+
+  it("put_top_cards_into_discard path (mill via direct moveCard) increments the owner's counter", () => {
+    let state = startGame();
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "helga-sinclair-no-backup-needed", "play");
+    // Stack a card on the deck top so there's something to mill.
+    const { state: s2 } = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "deck");
+    expect(s2.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(0);
+    const s3 = applyEffect(
+      s2,
+      { type: "put_top_cards_into_discard", amount: 1, target: { type: "self" } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(s3.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(1);
+  });
+
+  it("counter is per-owner — opponent's discards don't count toward your counter", () => {
+    let state = startGame();
+    // Give player1 a source to control the banish; player2 owns the victim.
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "helga-sinclair-no-backup-needed", "play");
+    const { state: s2, instanceId: opponentCharId } = injectCard(s1, "player2", "minnie-mouse-beloved-princess", "play");
+    expect(s2.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(0);
+    expect(s2.players.player2.cardsPutIntoDiscardThisTurn ?? 0).toBe(0);
+    // player1 (caster) applies a banish with target:this to player2's character.
+    // Note: using target:this with sourceInstanceId=opponentCharId so the banish
+    // lands on the opponent's card.
+    const s3 = applyEffect(
+      s2,
+      { type: "banish", target: { type: "this" } } as any,
+      opponentCharId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(s3.players.player1.cardsPutIntoDiscardThisTurn ?? 0).toBe(0); // caster's counter UNCHANGED
+    expect(s3.players.player2.cardsPutIntoDiscardThisTurn ?? 0).toBe(1); // owner's counter increments
+  });
+});
+
 describe("Repo-wide: turn_start triggers with 'your turn' oracle must have player:self filter", () => {
   // Regression guard — without `trigger.player`, queueTriggersByEvent fires
   // turn_start triggers for BOTH players' turn_start (see reducer.ts:5977
