@@ -39,6 +39,19 @@ export function filterStateForPlayer(state: GameState, playerId: PlayerID): Game
   // they're in a hidden zone (the whole point of "reveal" is both players see it).
   const revealedSet = new Set(state.lastRevealedCards?.instanceIds ?? [])
 
+  // Cards referenced by lastRevealedHand are visible to the audience the reveal
+  // was scoped to: public reveals (privateTo == null — both players see it) and
+  // private peeks where the viewer is the one who peeked (privateTo === viewer).
+  // Same principle as lastRevealedCards above: reveals preserve info for the
+  // audience that was meant to receive it. Without this, set 12's look_at_hand
+  // effects (and any future public reveal_hand ability) silently stub out in
+  // the peeker's filtered state — they'd see card backs for cards they just
+  // revealed.
+  const revealedHand = state.lastRevealedHand
+  if (revealedHand && (revealedHand.privateTo == null || revealedHand.privateTo === playerId)) {
+    for (const id of revealedHand.cardIds) revealedSet.add(id)
+  }
+
   // Hidden zones: opponent's hand and deck
   const hiddenZones: ZoneName[] = ["hand", "deck"]
   for (const zoneName of hiddenZones) {

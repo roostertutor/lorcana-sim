@@ -10,6 +10,245 @@ Conventions:
 
 ---
 
+## ~~Server / MP agent: anti-cheat filter doesn't preserve `lastRevealedHand`~~ — DONE 2026-04-21
+
+Landed via `server-specialist` agent. Fix applied as described: 4-line addition
+to `server/src/services/stateFilter.ts` that lifts `lastRevealedHand.cardIds`
+into the preserve-set when the viewer is the intended audience (public reveal
+OR `privateTo === viewer`). Mirrors the existing `lastRevealedCards` treatment.
+
+**Test coverage NOT added** — server package has no test runner / test files
+at all (only `typecheck`). Adding vitest + a `stateFilter.test.ts` is infra
+work beyond the scope of a 4-line fix; see follow-up note at the bottom of
+this doc ("Server agent: set up server-side test infrastructure"). Manual
+verification path: in MP, play a set-12 `look_at_hand` effect — the peeker's
+UI should render the face-up cards instead of card backs.
+
+### Original bug description (kept for context until deploy-verified)
+
+### Bug
+
+`server/src/services/stateFilter.ts` correctly preserves
+`lastRevealedCards.instanceIds` from being stubbed out as hidden (line
+40: `const revealedSet = new Set(state.lastRevealedCards?.instanceIds ?? [])`).
+It does **NOT** preserve `lastRevealedHand.cardIds`. So any reveal that
+populates `lastRevealedHand` (both public `reveal_hand` and private
+`look_at_hand` with `privateTo: controllingPlayerId`) hits the filter
+and has its referenced hand instances replaced with
+`{ definitionId: "hidden", … }` stubs in the player's filtered state.
+
+### Impact
+
+In MP, when player1 plays a `look_at_hand` effect on player2's hand:
+- Engine sets `lastRevealedHand = { playerId: p2, cardIds: [...],
+  privateTo: p1 }`.
+- Server sends filtered state to p1.
+- Filter strips p2's hand (in the "hand" zone) because the IDs are NOT
+  in `revealedSet` (only `lastRevealedCards` is).
+- p1's UI reads `gameState.lastRevealedHand.cardIds` → looks up each in
+  `state.cards[id]` → gets "hidden" stubs → renders card backs in the
+  RevealPill / ZoneViewModal **even though p1 is the player who peeked**.
+
+Same problem for public `reveal_hand` effects (both players should see,
+but filter stubs them for the viewing side because it only treats
+`lastRevealedCards` as public).
+
+**Cards currently affected:** set 12 introduced `look_at_hand` effects
+(see `set12.test.ts:745-783` — "on play, snapshots the opposing hand
+with privateTo=controller"). Any future public `reveal_hand` abilities
+have the same issue. Sandbox (single-player) is unaffected — the filter
+isn't in that code path. MP only.
+
+### Fix (~4 lines)
+
+File: `server/src/services/stateFilter.ts`, just before the
+`hiddenZones` loop at line 43:
+
+```typescript
+// Cards referenced by lastRevealedHand are visible to viewers the reveal
+// was scoped to: public reveals (privateTo == null, both players should
+// see) and peeks where the viewer is the one who peeked (privateTo ===
+// playerId). Same principle as lastRevealedCards above: reveals preserve
+// info for the audience that was meant to receive it.
+const revealedHand = state.lastRevealedHand;
+if (revealedHand && (revealedHand.privateTo == null || revealedHand.privateTo === playerId)) {
+  for (const id of revealedHand.cardIds) revealedSet.add(id);
+}
+```
+
+The rest of the filter already checks `revealedSet.has(id)` before
+stubbing, so this just lifts the right instance IDs into the preserve-set.
+
+### Test coverage to add
+
+Server doesn't currently have a `stateFilter.test.ts` (check me on
+this). Worth adding minimal coverage:
+1. Public `reveal_hand` → cards preserved in BOTH players' filtered states.
+2. `look_at_hand` (privateTo: p1) → cards preserved in p1's state, stubbed in p2's.
+3. `look_at_hand` (privateTo: p1) but the hand afterward is unchanged →
+   still stubbed for p2 on the next fetch (filter is stateless, so as
+   long as `lastRevealedHand` remains set it leaks — this is a broader
+   question: when does the engine clear `lastRevealedHand`? If it sticks
+   across the opponent's following turn, the peeker keeps seeing it,
+   which matches UI intent but might need a reducer sweep to confirm
+   non-viewer doesn't get re-filtered on every poll).
+
+### Non-urgent but pre-deploy
+
+Per CLAUDE.md: "server — done (core). Remaining: Railway deploy, OAuth."
+This filter gap doesn't block deploy but should land before
+user-facing MP testing with set 12 `look_at_hand` cards (otherwise those
+abilities silently show card backs and look broken). Sandbox play is
+unaffected — file this as a P1 on the server track, not a P0 blocker.
+
+---
+
+## Engine agent + Bot-trainer agent: reveal-info model — bots currently have oracle access
+
+**Raised 2026-04-21 during a sandbox QOL pass (reveal-modal → reveal-pill,
+turn-anchored auto-clear). The GUI change is cosmetic; this note is about
+the deeper simulation-fidelity problem it exposed. Decision needed before
+any "realistic bot" training work.**
+
+### Current state (verified in code, not memory)
+
+**Engine tracks reveals as transient state:**
+- `GameState.lastRevealedHand?: { playerId; cardIds; privateTo? }`
+  (types/index.ts:3303) — populated by both `reveal_hand` (public) and
+  `look_at_hand` (private peek). Overwritten by the next reveal. Shared
+  pipeline at `reducer.ts:~2720`; only `privateTo` stamp differs. Set
+  by `look_at_hand` to the controlling player (set12.test.ts:745-783
+  covers this).
+- `GameState.lastRevealedCards?: { instanceIds; sourceInstanceId; playerId;
+  sequenceId }` — for search / look-at-top-N reveals. `sequenceId`
+  increments per reveal event so back-to-back reveals of the same cards
+  distinguish. Persists across non-reveal actions ("NOT cleared by actions
+  with no reveals" per reducer comments).
+- `GameEvent` emits `hand_revealed` and `card_revealed` with matching
+  `privateTo` flags (types/index.ts:3674).
+
+**Engine already has the privacy primitive (`privateTo`) in place.** What it
+lacks is a state-filtering layer — the bot reads the raw `GameState`.
+
+**Bot currently has full oracle access:**
+- Greedy / heuristic policies in `packages/simulator/src/` read the
+  unfiltered `GameState` directly. No filtering between engine and bot.
+- RL policies (Actor-Critic + GAE, see `docs/RL.md`) — state encoder
+  consumes unfiltered `GameState`. Means the policy can learn to exploit
+  opponent's hand contents even when IRL it would not have been revealed.
+  Likely already baked into trained weights.
+- Server-side `stateFilter.ts` (server/src/services/stateFilter.ts — OUT
+  OF packages/, lives in separate server tree) is the anti-cheat filter
+  for the network boundary. Bot path bypasses it entirely.
+
+**Reveals are therefore not "special" to bots:** the bot sees opponent's
+hand whether or not a reveal just fired, because it sees everything. The
+`privateTo` flag is only honored by the UI layer right now (per reducer
+comment at 2720: "only privateTo flag stamped on the event + snapshot").
+
+### Scope question (answer this first)
+
+**Should bots be oracles or humans?**
+
+- **Oracle bots (status quo):** fine for headless analytics. Both sides
+  cheat symmetrically; relative deck win-rates stay valid even if absolute
+  numbers are off. Cheapest and preserves all existing RL weights.
+- **Human-like bots:** required if we want the sandbox/clone-trainer to
+  feel like real play, and for MP bot opponents to not telegraph that
+  they "know" hidden info. Much bigger lift: observation filter + memory
+  model + retrain all policies.
+
+**Possible hybrid (recommended):** keep analytics bots as oracles; build
+a separate `ObservedBot` variant for sandbox / clone-trainer / MP that
+wraps a policy with the observation filter + memory buffer. Both run on
+the same engine — only the adapter differs. Doesn't invalidate existing
+training for analytics use. New training runs for MP/sandbox bots.
+
+### Implementation sketch (if we go with observation filtering)
+
+**Engine side (new primitive, ~half a day):**
+- Function `buildObservation(state: GameState, viewerId: PlayerID):
+  Observation` in `engine/src/engine/observation.ts`.
+- Strips opponent's hand-instance definitions (keep counts, lose IDs)
+  UNLESS the instance is in `lastRevealedHand.cardIds` with `privateTo
+  == null || privateTo === viewerId`.
+- Strips opponent's deck-order UNLESS `lastRevealedCards` from viewer's
+  POV exposes specific top-N instances.
+- Keeps all public-zone info (play, discard, inkwell face-down counts,
+  inkwell face-up colors if CRD permits — check 8.x).
+- Returns an `Observation` with the same shape as `GameState` but with
+  hidden instances replaced by `{ definitionId: "__HIDDEN__", zone,
+  ownerId }` markers so bot encoders can handle them without restructure.
+
+**Bot side (harder — policy-specific memory, 1-2 weeks):**
+- Bot wraps Observation with a `KnownFacts` buffer maintained across the
+  episode: "instance X was in opponent hand at turn N; still there
+  unless I saw a discard / play / banish event for it." This is the
+  memory model and it's the hard part.
+- State encoder consumes `{ observation, knownFacts }` instead of raw
+  `GameState`. All downstream encoders (`featureExtractor.ts` or
+  wherever) need to handle `__HIDDEN__` sentinels gracefully.
+- Retrain: every existing policies/*.json is trained on oracle state.
+  None will generalize to observation input. This is the biggest cost.
+
+**Alternative: perfect-memory-with-observation:** skip the `KnownFacts`
+layer, have the observation always reflect "currently known" (persistent
+reveal memory maintained by engine itself). Simpler for bots but changes
+engine semantics — revelations would no longer be transient. Probably
+not worth it; the transient model matches CRD semantics and the UI work
+just shipped (turn-anchored pills).
+
+### Specific pointers for the agents
+
+**Engine agent: look at these files first**
+- `packages/engine/src/types/index.ts:3303` (LastRevealedHand type)
+- `packages/engine/src/types/index.ts:3674` (hand_revealed event)
+- `packages/engine/src/engine/reducer.ts:~2720` (shared reveal pipeline —
+  this is where an observation emission hook would live)
+- CRD §8 (zones) and §7 (game state) for what's public vs private per
+  rule. Inkwell face-down count is public; face-up colors may be
+  public (confirm).
+
+**Bot-trainer agent: look at these first**
+- `docs/RL.md` — training architecture, reward design
+- `packages/simulator/src/` — Actor-Critic, state encoder
+- `policies/*.json` — any observation-model change invalidates these
+- `MEMORY.md` note "RL reward weight architecture" — current weight
+  approach treats decks as avg of 60 cards; orthogonal to the oracle-vs-
+  human question but worth reviewing.
+
+### Questions to resolve (in order)
+
+1. **Oracle bots for analytics forever?** If yes, we're done. No engine
+   or bot work needed. This doc stays as context.
+2. **If we want human-like bots somewhere:** only in
+   sandbox/clone-trainer, or also in the primary analytics runs? Affects
+   whether existing policies need retraining or if new ones run alongside.
+3. **Observation filter first, memory model later?** The filter is a
+   clean engine PR. The memory model is a bot-side training project.
+   Filter alone gives us "bot is blind outside reveals" which is more
+   realistic than oracle. Memory makes it actually smart.
+4. **Who owns `ObservedBot`?** Engine-expert for the filter + types;
+   bot-trainer for the wrapper + memory + retraining. Hand off at the
+   `buildObservation` signature.
+
+**Current blockers:** none. This is a scope/direction decision, not a
+bug. Document the decision in `DECISIONS.md` once made — either
+"oracle bots are the design" or "observation filter landing in phase X."
+
+### UI context (for completeness)
+
+Sandbox reveal UI was just upgraded (2026-04-21) to match the "no note-
+taking IRL" expectation: reveal modals auto-collapse to a bottom-right
+pill on close, and both modal + pill clear when `gameState.turnNumber`
+advances past the reveal's anchor turn. This is purely client-side; it
+doesn't touch engine state. Same `lastRevealedHand` / `lastRevealedCards`
+contract. If observation filtering lands, the UI will need a minor pass
+to consume `Observation` instead of `GameState` for the "opponent's hand"
+panels — trivial compared to the engine/bot work.
+
+---
+
 ## Engine agent: Lorcast importer stub extraction only captures first line
 
 Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
@@ -1182,3 +1421,48 @@ can drift and the app silently lies about history.
 
 Not blocking anything. Park here until we either (a) see a real drift bug or
 (b) touch this area for another reason.
+
+---
+
+## Server agent: set up server-side test infrastructure
+
+Filed 2026-04-21 after the `lastRevealedHand` anti-cheat fix landed without
+regression coverage.
+
+`server/` has no test runner at all — `package.json` scripts are `dev /
+build / start / typecheck`, and there are zero `*.test.ts` files. Bug fixes
+in server code (like the `stateFilter.ts` fix today) ship without automated
+regression coverage. Manual MP testing is the only safety net, which won't
+scale as the server grows (anti-cheat, lobby, ELO, format validation are all
+security-adjacent surfaces).
+
+**Scope:**
+1. Add `vitest` dev dep + `test` / `test:watch` scripts to
+   `server/package.json` (match the engine's setup).
+2. Create `server/src/services/stateFilter.test.ts` with the 3 cases
+   originally proposed in the `lastRevealedHand` handoff entry:
+   - Public `reveal_hand` → cards preserved in BOTH players' filtered states.
+   - `look_at_hand` (privateTo: p1) → cards preserved in p1's state, stubbed
+     in p2's.
+   - Post-reveal drift: if p2 draws a new card, that new card's instance
+     correctly gets stubbed for p1 (the filter only preserves the revealed
+     instance IDs, not the hand slot).
+3. Create `server/src/services/lobbyService.test.ts` covering format legality
+   rejection — exercises the `isLegalFor` integration added 2026-04-21. Needs
+   a Supabase mock or a test-DB fixture; simpler path is mocking the supabase
+   client since `lobbyService` is the only consumer.
+4. Wire up `pnpm --filter server test` in CI once it exists.
+
+**Why deferred:** adding test infra is meaningfully more scope than any
+single server bug fix that's come up so far. Landing it as its own task
+(not coupled to a bug fix) keeps the intent clean.
+
+Related notes across the repo mention this gap obliquely but nothing owns it:
+- `CLAUDE.md` lists engine/simulator/analytics test counts but server has no
+  test metric — the omission is the signal.
+- `feedback_bug_fix_workflow` in user memory says "every engine bug fix
+  ships a regression test" — server doesn't have the infrastructure to
+  follow that rule today.
+
+~1 day to land minimal scaffolding + the two test files above. Worth
+doing before Railway MP deploy.
