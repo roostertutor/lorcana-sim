@@ -48,6 +48,149 @@ Scattered should work out of the box.
 
 ---
 
+## Engine agent: revert grant_triggered_ability_timed — use create_floating_trigger instead
+
+**Mistake from commit 4fde647 (2026-04-21):** added a new primitive
+(`grant_triggered_ability_timed` + PlayerState.timedGrantedTriggeredAbilities
++ reducer case + gameModifiers merge + PASS_TURN reset — ~75 LOC) when the
+existing `create_floating_trigger` with `attachTo: "all_matching"` +
+`targetFilter` was the correct primitive. Forest Duel (set 8) is the exact
+precedent for the same oracle structure: "Your [X] characters gain +N {Y}
+and '[triggered ability]' this turn."
+
+**Semantic issue:** my primitive uses `getGameModifiers` which re-iterates
+matching cards on every scan — a Hero character entering play AFTER Hero
+Work resolves would inherit the trigger. Oracle semantics bind at
+resolution time ("Your Hero characters gain..." = current ones only);
+`create_floating_trigger attachTo:"all_matching"` correctly binds per-
+instance at grant time.
+
+**Refactor steps:**
+
+1. Revert `grant_triggered_ability_timed` across:
+   - `types/index.ts` — remove `GrantTriggeredAbilityTimedEffect` interface,
+     remove from Effect union, remove `PlayerState.timedGrantedTriggeredAbilities`
+     field.
+   - `reducer.ts` — remove the `case "grant_triggered_ability_timed":` block.
+     Remove `timedGrantedTriggeredAbilities: []` from PASS_TURN reset (lines
+     ~1720, ~1738).
+   - `gameModifiers.ts` — remove the timed-triggered merge block at ~line 1220.
+
+2. Rewire Hero Work (`card-set-12.json` #132) — replace the second action
+   effect. Copy Forest Duel's shape (set 8, search `"Forest Duel"`):
+   ```json
+   {
+     "type": "create_floating_trigger",
+     "attachTo": "all_matching",
+     "targetFilter": {
+       "owner": { "type": "self" },
+       "zone": "play",
+       "cardType": ["character"],
+       "hasTrait": "Hero"
+     },
+     "trigger": { "on": "challenges" },
+     "effects": [
+       { "type": "each_player", "scope": "opponents",
+         "effects": [{ "type": "lose_lore", "amount": 1, "target": { "type": "self" } }] },
+       { "type": "gain_lore", "amount": 1, "target": { "type": "self" } }
+     ]
+   }
+   ```
+
+3. Remove the 3 Hero Work tests that assert on `grant_triggered_ability_timed`
+   in `set12.test.ts` — replace with a wiring-shape test against the
+   `create_floating_trigger` shape (mirror Forest Duel's existing tests
+   in set8/set5-set8.test.ts for the pattern).
+
+4. Remove the decompiler renderer for `grant_triggered_ability_timed` in
+   `scripts/decompile-cards.ts` — `create_floating_trigger` already has a
+   renderer that handles this case.
+
+5. Remove the compiler matcher `grant_triggered_ability_timed_trait` in
+   `scripts/compile-cards.ts` — or retarget it to emit `create_floating_trigger`
+   shape instead.
+
+6. Re-run `pnpm catalog > docs/ENGINE_PRIMITIVES.md` (gitignored, just
+   update the user's local copy).
+
+Expected result: −75 LOC engine, 0 new primitives, Hero Work matches Forest
+Duel's pattern exactly, decompiler round-trip score holds or improves.
+
+## Engine agent: zone-move helper consolidation (deferred to dedicated session)
+
+**Scope:** unify the duplicated target-resolution + pendingChoice + all-
+iteration boilerplate across ~4-5 zone-move effect cases. Card JSON surface
+stays 100% unchanged — the type discriminators (`banish`, `return_to_hand`,
+`put_into_inkwell`, `put_card_on_bottom_of_deck`) remain separate for
+readability; only the engine reducer internals consolidate. Precedent:
+`reveal_hand` and `look_at_hand` already fall through the same case block
+(`reducer.ts:2717`) differing only in a `privateTo` flag.
+
+**Helper sketch:**
+```ts
+function resolveTargetAndApply(
+  state: GameState,
+  effect: Effect & { target: CardTarget; isMay?: boolean },
+  opts: {
+    prompt: string;
+    promptForCount?: (n: number) => string;  // "up to N" variant
+    perInstance: (s: GameState, id: string, ev: GameEvent[]) => GameState;
+    setLastResolvedTargetOnTriggering?: boolean;  // Yzma BACK TO WORK pattern
+    skipIfNotInPlay?: boolean;                     // banish/inkwell-from-play
+  },
+  sourceInstanceId: string,
+  controllingPlayerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[],
+  triggeringCardInstanceId?: string,
+): GameState {
+  // Handles chosen → pendingChoice, all → iterate, this / triggering_card
+  // → direct perInstance application.
+}
+```
+
+**Scope:** 4 target cases (+maybe shuffle_into_deck). `put_card_on_bottom_of_deck`
+covers only its `from: "play"` branch — `from: "hand"` / `from: "discard"`
+use different auto-pick patterns.
+
+**LOC savings (measured):**
+
+| Case | Before | After | Saves |
+|---|---|---|---|
+| `banish` (applyEffect branch) | 44 | ~10 | 34 |
+| `return_to_hand` (applyEffect branch) | 46 | ~12 | 34 |
+| `put_into_inkwell` chosen-play branch | ~30 | ~12 | 18 |
+| `put_card_on_bottom_of_deck` from:play | ~30 | ~12 | 18 |
+| Helper + unit tests | 0 | +60 | — |
+| **Net** | — | — | **~100 LOC removed, centralized** |
+
+**Don't touch in first pass:**
+- `shuffle_into_deck` — has post-iteration shuffle step, fits but adds
+  option-bag complexity. Defer.
+- `discard_from_hand` — has random/chooser modes that don't fit the helper.
+- `play_card` — very different semantics (cost payment, triggers, shift).
+
+**Gotchas confirmed during exploration (2026-04-21):**
+- `banish` uses its own `banishCard()` helper that wraps zoneTransition with
+  challenge context (fromChallenge / challengeOpponentId). The perInstance
+  callback must call `banishCard(s, id, defs, ev)` to preserve this.
+- `return_to_hand` sets `lastResolvedTarget` for Yzma BACK TO WORK's
+  "target_owner" follow-up. `setLastResolvedTargetOnTriggering` option.
+- `put_into_inkwell` has post-move side effects: `updateInstance(isExerted)`
+  when `enterExerted: true`, then queue `card_put_into_inkwell` trigger.
+  perInstance handles all of this internally.
+- `put_card_on_bottom_of_deck` from:"play" respects `chooser: "target_player"`
+  as of commit 6b831a1 — the helper must preserve this, not hardcode
+  `controllingPlayerId` for the chooser.
+
+**Reference precedent (in-code):** `reveal_hand` / `look_at_hand` share a
+case block (`reducer.ts:2717-2744`), differing only in a `privateTo` flag.
+Same philosophy at the target-resolution layer.
+
+**Deferred — estimated 2 hours for a dedicated session. Non-urgent.** Card
+JSON doesn't change, so no downstream work. Refactor purely reduces
+reducer.ts maintenance surface.
+
 ## Engine agent: deferred / low-priority queue (verified against code 2026-04-20)
 
 Items NOT currently blocking anything, kept here so they don't need to live in
