@@ -618,53 +618,133 @@ cycle-on-click for a compact popover menu:
 No engine changes — same `DeckEntry.variant` model. Pure UI refactor
 in `DeckBuilder.DeckRow`.
 
-## Deckbuilder / server: Core-vs-Infinity format legality — UI + server hookup
+## GUI/server agents: Core/Infinity format legality — multi-rotation registry (engine side DONE)
 
-Engine side landed in `packages/engine/src/formats/legality.ts`:
+Multi-rotation legality registry. Worked through with user 2026-04-21; the
+old single-rotation shape couldn't model the pre-release window where BOTH
+the current live rotation AND the upcoming rotation need to be offered for
+new decks simultaneously.
 
-- `CORE_LEGAL_SETS` = { 5, 6, 7, 8, 9, 10, 11, 12 } (rotates — source of
-  truth is Ravensburger's Disney Lorcana TCG Organized Play rules).
-- `INFINITY_LEGAL_SETS` = sets 1-12 + all promo sets.
-- `CORE_BANLIST` = empty as of 2026-04-19.
-- `INFINITY_BANLIST` = `["hiram-flaversham-toymaker"]`.
-- `isCardLegalInFormat(def, format)` — single-card check.
-- `isLegalFor(entries, defs, format) → { ok, issues[] }` — deck-level
-  check. Reprint rule: iterates `def.printings[]` (falls back to canonical
-  `setId` + `variants[]` for cards with only one printing).
-- `LegalityIssue.reason`: `"banned" | "set_not_legal" | "unknown_card"`,
-  with a UI-ready `message` string.
+### Engine work — DONE 2026-04-21 (commit TBD)
 
-Multiplayer already tracks `game_format: "core" | "infinity"` on lobbies +
-ELO (`schema.sql:96`, `gameService.ts:184`) as an honor-system tag. The
-engine helpers now let UI and server enforce it.
+`packages/engine/src/formats/legality.ts` has been rewritten to the registry
+shape. What shipped:
 
-**UI (GUI agent lane):**
-- Per-deck `format` field stored on `decks` table (new column,
-  `"core" | "infinity"` with **`"core"` default** — most new decks target
-  the competitive format; Infinity is an explicit opt-in for experienced
-  players who want access to older cards).
-- Format picker in `DeckBuilderPage` (next to deck name).
-- **Auto-apply format as a CardPicker filter.** Selecting `"core"` on
-  the deck pre-applies a hidden "Core-legal" filter on the card browser
-  (use `isCardLegalInFormat`) so users can't see (and accidentally add)
-  non-Core cards. Selecting `"infinity"` swaps to the Infinity filter
-  (hides Hiram). Implicit filter (not a user-toggleable chip) so it
-  never conflicts with the declared format.
-- Badge on `DecksPage` tiles showing declared format + a warning glyph
-  when `isLegalFor(entries, defs, format).ok` is false.
-- In `DeckBuilderPage`, surface the `issues[]` list inline (e.g.
-  "Hiram Flaversham Toymaker — banned in infinity") so the user can fix.
+- `type RotationId = "s11" | "s12"` (s13 intentionally not pre-registered —
+  add when Ravensburger locks in the set list)
+- `interface RotationEntry { legalSets, banlist, offeredForNewDecks, displayName }`
+- `CORE_ROTATIONS: Record<RotationId, RotationEntry>` — s11={5..11}, s12={5..12},
+  both `offeredForNewDecks: true`, empty banlists
+- `INFINITY_ROTATIONS: Record<RotationId, RotationEntry>` — every rotation
+  carries the full set list (main 1-12 + P1/P2/P3/C1/C2/CP/D23/DIS); banlist
+  carries `hiram-flaversham-toymaker` in both
+- `export type GameFormat = { family: "core" | "infinity"; rotation: RotationId }`
+- `isCardLegalInFormat(def, format)` and `isLegalFor(entries, defs, format)`
+  take the new shape; `LegalityIssue.message` includes rotation `displayName`
+  (e.g. "Dale - Excited Friend — no printing in a Set 11 Core-legal set.")
+- `listOfferedRotations(family)` — UI dropdown populates from this
+- `resolveRotation()` throws on unknown rotation id rather than silently
+  treating every card as illegal — catches typos immediately
+- `legality.test.ts` expanded from 14 → 23 tests; covers rotation-specific
+  acceptance/rejection, reprint rule across rotations, Infinity banlist
+  constancy, unknown-rotation throw, `listOfferedRotations` ordering
+- `packages/engine/src/index.ts` re-exports: `CORE_ROTATIONS`,
+  `INFINITY_ROTATIONS`, `isCardLegalInFormat`, `isLegalFor`,
+  `listOfferedRotations` + types `GameFormat`, `GameFormatFamily`,
+  `RotationId`, `RotationEntry`, `LegalityIssue`, `LegalityResult`
+- Old exports removed: `CORE_LEGAL_SETS`, `INFINITY_LEGAL_SETS`,
+  `CORE_BANLIST`, `INFINITY_BANLIST`. No back-compat shim was shipped because
+  the only downstream string-literal user (`MultiplayerLobby.tsx:28`) keeps
+  its own local union state; no callers import the removed symbols.
 
-**Server:**
-- Lobby creation calls `isLegalFor(entries, defs, lobby.game_format)`
-  before marking the match ready. Reject with the issues list if `ok`
-  is false. Prevents Core queue from getting Infinity-only decks
-  mid-match.
+All 571 engine tests pass. Typecheck clean for the new code (pre-existing
+`exactOptionalPropertyTypes` errors unrelated).
 
-**Maintenance:** update `CORE_LEGAL_SETS` when Ravensburger rotates
-(new set drops push the oldest out roughly once per year). Ban
-additions go in the relevant `*_BANLIST`. Source of truth is
-Ravensburger's OP rules; add a dated note alongside any change.
+### Rotation facts (confirmed with user — unchanged from original plan)
+
+Cadence: **every 4 sets, the oldest 4 sets drop**. Between cuts, new sets are
+additive to the pool. Locked rotation map:
+
+| Rotation | Legal sets | Size | Status |
+|---|---|---|---|
+| Set 11 Core | {5,6,7,8,9,10,11} | 7 | pre-Set-12 live format |
+| Set 12 Core | {5,6,7,8,9,10,11,12} | 8 | additive, current pre-release preview |
+| Set 13 Core | {9,10,11,12,13} | 5 | **rotation cut** — drops sets 5-8 (not yet registered; add when locked) |
+
+Infinity rotations share the rotation naming (`s11`, `s12`, `s13`) but always
+include every set — they differ only in banlist progression and in which
+Set-N's cards are recognized.
+
+Set 12 itself is fully wired as of 2026-04-21 (0 stubs), so there is no
+card-data blocker preventing the `s12` rotation from being used.
+
+### Storage + backfill (server + GUI agents, after engine lands)
+
+**Deck storage schema** — add `{ family, rotation }` stamp:
+- `deck_versions` table: add two columns (`format_family`, `format_rotation`),
+  NOT NULL with defaults for backfill.
+- Local deck objects in `DecksPage` / `DeckBuilder`: add matching fields.
+
+**Backfill policy — blanket-stamp, confirmed by user:**
+Every existing deck gets `{ family: "core", rotation: "s11" }` on migration.
+No smart detection. Users who have old (set 1-4) cards in their decks will see
+red chips on first load and can explicitly re-stamp to Infinity. Simple,
+predictable.
+
+### UI work (GUI agent, after engine + storage land)
+
+- **DeckBuilder format dropdown** next to deck name — populated from the
+  registry, filtered to `offeredForNewDecks: true` entries. Grouped
+  ("Core / Set 12", "Core / Set 11", "Infinity / Set 12", "Infinity / Set 11").
+  When Set 12 officially drops, flip `s11.offeredForNewDecks = false` —
+  the option disappears from new-deck creation but existing Set 11 decks
+  still render with their stamp.
+- **CardPicker / CardFilterBar implicit filter** — when the deck's stamped
+  rotation is selected, auto-apply `isCardLegalInFormat` as a hidden filter
+  so users can't see (and accidentally add) non-legal cards. Not a
+  user-toggleable chip; bound to the declared format.
+- **Deck tile legality chip** on `DecksPage` — run `isLegalFor()` on load;
+  if `!ok`, show a red chip with issue count. Hover/tap reveals the issues
+  list.
+- **Inline row errors** in `DeckBuilder` — each deck row with a legality
+  issue gets a red border + a small message ("banned in Infinity / Set 12",
+  "no printing in Set 12 Core-legal set") sourced from `issue.message`.
+- **`createLobby` format source** — read `{ family, rotation }` off the
+  selected deck's stamp instead of the lobby screen's current Core/Infinity
+  toggle. Remove the toggle.
+
+### Server work (after engine + storage land)
+
+- Lobby creation calls `isLegalFor(entries, defs, deck.format)` and rejects
+  with `issues[]` if `!ok`. Anti-cheat — the UI filter is advisory; server
+  validation is authoritative.
+- ELO buckets widen from 4 (`bo1/bo3 × core/infinity`) to N — one per active
+  rotation. Simplest: just add rotation id to the key, e.g. `bo1_core_s12`,
+  `bo1_core_s11`. Update `profile.elo_ratings` shape and the per-format ELO
+  display in `MultiplayerLobby`. Alternative: collapse to family-only buckets
+  (`bo1_core`, `bo1_infinity`) and accept that players span rotations in a
+  single rating. User decides.
+
+### Maintenance
+
+When Ravensburger announces the next rotation's set list, add a new entry
+to `CORE_ROTATIONS` / `INFINITY_ROTATIONS`. Pre-release: set
+`offeredForNewDecks: true` on the new entry while keeping the current one
+also `true`. On release day: flip the prior rotation's `offeredForNewDecks`
+to `false`. No legality logic ever changes; it's all registry edits.
+
+### Sequencing
+
+1. ~~**engine-expert**: refactor `formats/legality.ts` to the registry shape,
+   update tests~~ — **DONE 2026-04-21**. API surface available via
+   `import { ... } from "@lorcana-sim/engine"` for GUI/server to consume.
+2. **server agent** (next): schema migration for `deck_versions` + ELO key
+   shape, add server-side legality enforcement in lobby creation.
+3. **GUI agent**: backfill-migrate local deck objects, add format dropdown
+   (use `listOfferedRotations("core")` / `listOfferedRotations("infinity")`),
+   CardPicker filter, deck tile chip, inline errors, remove
+   `MultiplayerLobby.tsx`'s standalone `"core" | "infinity"` toggle (format
+   now comes from the selected deck's stamp).
 
 ## GUI: MTGA-style "shortened" card rendering in play zones
 
