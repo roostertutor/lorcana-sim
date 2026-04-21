@@ -6652,6 +6652,54 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "playRestrictions": [
+      {
+        "type": "cards_put_into_discard_this_turn_atleast",
+        "amount": 2
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "each_player",
+        "scope": "all",
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "enterExerted": true,
+            "fromZone": "play"
+          },
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "enterExerted": true,
+            "fromZone": "play"
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 164,
     "rarity": "rare",

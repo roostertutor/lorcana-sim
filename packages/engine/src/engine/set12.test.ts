@@ -927,6 +927,37 @@ describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
   });
 });
 
+describe("Set 12 — Escape Plan (playRestriction + bilateral inkwell-exerted)", () => {
+  it("has a playRestriction gate on cards_put_into_discard_this_turn_atleast amount 2", () => {
+    const def = CARD_DEFINITIONS["escape-plan"];
+    expect(def).toBeDefined();
+    const restrictions = (def as any).playRestrictions;
+    expect(restrictions).toHaveLength(1);
+    expect(restrictions[0].type).toBe("cards_put_into_discard_this_turn_atleast");
+    expect(restrictions[0].amount).toBe(2);
+  });
+
+  it("actionEffects wrap each_player scope:'all' around two sequential put_into_inkwell prompts", () => {
+    const def = CARD_DEFINITIONS["escape-plan"];
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].type).toBe("each_player");
+    expect(effects[0].scope).toBe("all");
+    // Two sequential put_into_inkwell effects — each iteration's player picks
+    // one character at a time, twice. Each pick inherits the iteration's
+    // player as controllingPlayerId so filter owner:self resolves correctly.
+    expect(effects[0].effects).toHaveLength(2);
+    for (const inner of effects[0].effects) {
+      expect(inner.type).toBe("put_into_inkwell");
+      expect(inner.enterExerted).toBe(true);
+      expect(inner.fromZone).toBe("play");
+      expect(inner.target.type).toBe("chosen");
+      expect(inner.target.filter.cardType).toEqual(["character"]);
+      expect(inner.target.filter.owner.type).toBe("self");
+    }
+  });
+});
+
 describe("Set 12 — You've Got a Friend in Me (scry-4 reveal up to 2 Toy to hand)", () => {
   it("action wiring: look_at_top 4, maxToHand:2, filter:Toy character, revealPicks:true", () => {
     const def = CARD_DEFINITIONS["youve-got-a-friend-in-me"];
