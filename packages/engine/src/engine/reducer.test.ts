@@ -3974,3 +3974,148 @@ describe("Conditions", () => {
     expect(result.newState.players.player1.availableInk).toBe(7);
   });
 });
+
+// =============================================================================
+// resolveTargetAndApply helper — shared target-dispatch for zone-move effects
+// (banish / return_to_hand / put_into_inkwell / put_card_on_bottom_of_deck).
+// Covers all 4 target branches (chosen / this / triggering_card / all) + the
+// two optional hooks (setLastResolvedTargetOnTriggering, skipIfNotInPlay).
+// Regression guard against semantic drift during the 2026-04-21 consolidation.
+// =============================================================================
+
+describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () => {
+  it("banish target:this — direct, no pendingChoice", () => {
+    let state = startGame();
+    const { state: s1, instanceId: victimId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const after = applyEffect(
+      s1,
+      { type: "banish", target: { type: "this" } } as any,
+      victimId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.pendingChoice).toBeFalsy();
+    expect(getZone(after, "player1", "discard")).toContain(victimId);
+  });
+
+  it("banish target:chosen — surfaces choose_target pendingChoice with count:1 by default", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      { type: "banish", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.pendingChoice?.type).toBe("choose_target");
+    expect((after.pendingChoice as any)?.count).toBe(1);
+    expect(after.pendingChoice?.prompt).toBe("Choose a target to banish.");
+  });
+
+  it("banish target:chosen with count>1 — uses 'up to N' promptForCount variant (Grab Your Bow)", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      { type: "banish", target: { type: "chosen", count: 2, filter: { zone: "play", cardType: ["character"] } } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.pendingChoice?.prompt).toBe("Choose up to 2 targets to banish.");
+    expect((after.pendingChoice as any)?.count).toBe(2);
+  });
+
+  it("banish target:all with skipIfNotInPlay — cascading banish doesn't double-process same card", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2 } = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s3, instanceId: sourceId } = injectCard(s2, "player1", "helga-sinclair-no-backup-needed", "play");
+    const playCountBefore = getZone(s3, "player1", "play").length;
+    const after = applyEffect(
+      s3,
+      { type: "banish", target: { type: "all", filter: { zone: "play", cardType: ["character"], excludeSelf: true } } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(getZone(after, "player1", "play").length).toBeLessThan(playCountBefore);
+    expect(getZone(after, "player1", "discard").length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("return_to_hand target:chosen — surfaces choose_target with correct prompt", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      { type: "return_to_hand", target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } } } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.pendingChoice?.type).toBe("choose_target");
+    expect(after.pendingChoice?.prompt).toBe("Choose a card to return to hand.");
+  });
+
+  it("return_to_hand target:triggering_card — sets lastResolvedTarget (Yzma BACK TO WORK pattern)", () => {
+    let state = startGame();
+    const { state: s1, instanceId: triggerer } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    expect(s2.lastResolvedTarget).toBeUndefined();
+    const after = applyEffect(
+      s2,
+      { type: "return_to_hand", target: { type: "triggering_card" } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+      triggerer,
+    );
+    // lastResolvedTarget pinned so follow-up effects can target_owner
+    expect(after.lastResolvedTarget).toBeDefined();
+    expect(after.lastResolvedTarget?.instanceId).toBe(triggerer);
+    // Card actually returned to hand
+    expect(getZone(after, "player1", "hand")).toContain(triggerer);
+  });
+
+  it("return_to_hand target:all — each card returns to its OWN owner's hand (Milo Thatch pattern)", () => {
+    let state = startGame();
+    const { state: s1, instanceId: oppChar } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: ownChar } = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s3, instanceId: sourceId } = injectCard(s2, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s3,
+      { type: "return_to_hand", target: { type: "all", filter: { zone: "play", cardType: ["character"], excludeSelf: true } } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    // Each character went to its own owner's hand
+    expect(getZone(after, "player1", "hand")).toContain(ownChar);
+    expect(getZone(after, "player2", "hand")).toContain(oppChar);
+  });
+
+  it("put_into_inkwell target:chosen — surfaces choose_target pendingChoice", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      { type: "put_into_inkwell", target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } }, enterExerted: true, fromZone: "play" } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.pendingChoice?.type).toBe("choose_target");
+    expect(after.pendingChoice?.prompt).toBe("Choose a card to put into inkwell.");
+  });
+
+  it("put_card_on_bottom_of_deck from:play respects chooser:target_player (Family Scattered pattern)", () => {
+    let state = startGame();
+    const { state: s1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      {
+        type: "put_card_on_bottom_of_deck",
+        from: "play",
+        position: "top",
+        target: {
+          type: "chosen",
+          chooser: "target_player",
+          filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+    );
+    // pendingChoice surfaces to player2 (the target), not player1 (caster).
+    expect(after.pendingChoice?.choosingPlayerId).toBe("player2");
+  });
+});

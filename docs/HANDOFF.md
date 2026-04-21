@@ -48,80 +48,25 @@ Scattered should work out of the box.
 
 ---
 
-## Engine agent: zone-move helper consolidation (deferred to dedicated session)
+## Engine agent: possible follow-up — expand resolveTargetAndApply coverage
 
-**Scope:** unify the duplicated target-resolution + pendingChoice + all-
-iteration boilerplate across ~4-5 zone-move effect cases. Card JSON surface
-stays 100% unchanged — the type discriminators (`banish`, `return_to_hand`,
-`put_into_inkwell`, `put_card_on_bottom_of_deck`) remain separate for
-readability; only the engine reducer internals consolidate. Precedent:
-`reveal_hand` and `look_at_hand` already fall through the same case block
-(`reducer.ts:2717`) differing only in a `privateTo` flag.
+The 2026-04-21 zone-move helper consolidation landed — `resolveTargetAndApply`
+at `reducer.ts:~6620` now serves as the shared target-dispatch for `banish`,
+`return_to_hand`, `put_into_inkwell` (chosen/all), and
+`put_card_on_bottom_of_deck` (from:"play"). Future candidates for migration,
+deferred for a follow-up session:
 
-**Helper sketch:**
-```ts
-function resolveTargetAndApply(
-  state: GameState,
-  effect: Effect & { target: CardTarget; isMay?: boolean },
-  opts: {
-    prompt: string;
-    promptForCount?: (n: number) => string;  // "up to N" variant
-    perInstance: (s: GameState, id: string, ev: GameEvent[]) => GameState;
-    setLastResolvedTargetOnTriggering?: boolean;  // Yzma BACK TO WORK pattern
-    skipIfNotInPlay?: boolean;                     // banish/inkwell-from-play
-  },
-  sourceInstanceId: string,
-  controllingPlayerId: PlayerID,
-  definitions: Record<string, CardDefinition>,
-  events: GameEvent[],
-  triggeringCardInstanceId?: string,
-): GameState {
-  // Handles chosen → pendingChoice, all → iterate, this / triggering_card
-  // → direct perInstance application.
-}
-```
+- **`shuffle_into_deck`** — target-dispatch shape matches, but needs a post-
+  iteration shuffle step. Could extend `ResolveTargetAndApplyOptions` with a
+  `postIterationHook?: (state, events) => state`. Worth doing when a third
+  similar case appears so the hook isn't over-engineered for one user.
+- **`discard_from_hand`** — has `chooser: "random" | "target_player"` modes
+  and `amount: "all" | "any" | number` polymorphism that the helper's 4
+  target-type branches don't cover cleanly. Likely best left bespoke.
+- **`move_damage`** — two targets (source + destination instance) rather
+  than one. Wouldn't fit the helper without a second target parameter.
 
-**Scope:** 4 target cases (+maybe shuffle_into_deck). `put_card_on_bottom_of_deck`
-covers only its `from: "play"` branch — `from: "hand"` / `from: "discard"`
-use different auto-pick patterns.
-
-**LOC savings (measured):**
-
-| Case | Before | After | Saves |
-|---|---|---|---|
-| `banish` (applyEffect branch) | 44 | ~10 | 34 |
-| `return_to_hand` (applyEffect branch) | 46 | ~12 | 34 |
-| `put_into_inkwell` chosen-play branch | ~30 | ~12 | 18 |
-| `put_card_on_bottom_of_deck` from:play | ~30 | ~12 | 18 |
-| Helper + unit tests | 0 | +60 | — |
-| **Net** | — | — | **~100 LOC removed, centralized** |
-
-**Don't touch in first pass:**
-- `shuffle_into_deck` — has post-iteration shuffle step, fits but adds
-  option-bag complexity. Defer.
-- `discard_from_hand` — has random/chooser modes that don't fit the helper.
-- `play_card` — very different semantics (cost payment, triggers, shift).
-
-**Gotchas confirmed during exploration (2026-04-21):**
-- `banish` uses its own `banishCard()` helper that wraps zoneTransition with
-  challenge context (fromChallenge / challengeOpponentId). The perInstance
-  callback must call `banishCard(s, id, defs, ev)` to preserve this.
-- `return_to_hand` sets `lastResolvedTarget` for Yzma BACK TO WORK's
-  "target_owner" follow-up. `setLastResolvedTargetOnTriggering` option.
-- `put_into_inkwell` has post-move side effects: `updateInstance(isExerted)`
-  when `enterExerted: true`, then queue `card_put_into_inkwell` trigger.
-  perInstance handles all of this internally.
-- `put_card_on_bottom_of_deck` from:"play" respects `chooser: "target_player"`
-  as of commit 6b831a1 — the helper must preserve this, not hardcode
-  `controllingPlayerId` for the chooser.
-
-**Reference precedent (in-code):** `reveal_hand` / `look_at_hand` share a
-case block (`reducer.ts:2717-2744`), differing only in a `privateTo` flag.
-Same philosophy at the target-resolution layer.
-
-**Deferred — estimated 2 hours for a dedicated session. Non-urgent.** Card
-JSON doesn't change, so no downstream work. Refactor purely reduces
-reducer.ts maintenance surface.
+None blocking. The helper already covers ~100 LOC of the hottest duplication.
 
 ## Engine agent: deferred / low-priority queue (verified against code 2026-04-20)
 

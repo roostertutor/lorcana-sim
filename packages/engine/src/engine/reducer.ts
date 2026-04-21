@@ -2807,95 +2807,28 @@ export function applyEffect(
     }
 
     case "banish": {
-      if (effect.target.type === "chosen") {
-        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state; // CRD 1.7.7
-        // Grab Your Bow: "Banish up to 2 chosen characters with 2 {S} or less."
-        // target.count > 1 surfaces a multi-select; isMay gates the optional
-        // "up to" semantic (player can pick 0..count).
-        const count = effect.target.count ?? 1;
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId,
-            prompt: count > 1 ? `Choose up to ${count} targets to banish.` : "Choose a target to banish.",
-            validTargets,
-            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-            optional: effect.isMay ?? false,
-            count,
-          },
-        };
-      }
-      if (effect.target.type === "all") {
-        // CRD 5.4.1.2: "banish all" resolves immediately
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        for (const targetId of targets) {
-          // Skip if already banished by a previous iteration (e.g. cascading triggers)
-          const inst = state.cards[targetId];
-          if (!inst || inst.zone !== "play") continue;
-          state = banishCard(state, targetId, definitions, events);
-        }
-        return state;
-      }
-      if (effect.target.type === "this") {
-        return banishCard(state, sourceInstanceId, definitions, events);
-      }
-      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        const trigInst = state.cards[triggeringCardInstanceId];
-        if (trigInst) {
-          return banishCard(state, triggeringCardInstanceId, definitions, events);
-        }
-      }
-      return state;
+      // CRD 5.4.1.2 + 1.7.7. "Grab Your Bow: banish up to 2 chosen characters"
+      // → target.count > 1 + up-to-N prompt. skipIfNotInPlay defends cascading
+      // "banish all" iterations where earlier banishes' triggers could remove
+      // the same card. See resolveTargetAndApply (reducer.ts) for dispatch.
+      return resolveTargetAndApply(state, effect, {
+        prompt: "Choose a target to banish.",
+        promptForCount: (n) => `Choose up to ${n} targets to banish.`,
+        perInstance: (s, id, ev) => banishCard(s, id, definitions, ev),
+        skipIfNotInPlay: true,
+      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
     }
 
     case "return_to_hand": {
-      if (effect.target.type === "chosen") {
-        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state; // CRD 1.7.7
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId,
-            prompt: "Choose a card to return to hand.",
-            validTargets,
-            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-            optional: effect.isMay ?? false,
-            count: effect.target.count ?? 1,
-          },
-        };
-      }
-      if (effect.target.type === "this") {
-        return zoneTransition(state, sourceInstanceId, "hand", definitions, events, { reason: "returned" });
-      }
-      if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        const trigInst = state.cards[triggeringCardInstanceId];
-        if (trigInst) {
-          // Set lastResolvedTarget so a follow-up effect can target_owner the
-          // returned card's player (Yzma BACK TO WORK: "return that card... then
-          // that player discards a card at random").
-          const trigRef = makeResolvedRef(state, definitions, triggeringCardInstanceId);
-          if (trigRef) state = { ...state, lastResolvedTarget: trigRef };
-          return zoneTransition(state, triggeringCardInstanceId, "hand", definitions, events, { reason: "returned" });
-        }
-      }
-      if (effect.target.type === "all") {
-        // Milo Thatch TAKE THEM BY SURPRISE: "return all opposing characters
-        // to their players' hands." Mass return — each card goes to its OWN
-        // owner's hand (opposing chars come back to opponent, not controller).
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        for (const id of targets) {
-          const inst = state.cards[id];
-          if (!inst || inst.zone !== "play") continue;
-          state = zoneTransition(state, id, "hand", definitions, events, { reason: "returned" });
-        }
-        return state;
-      }
-      return state;
+      // Milo Thatch TAKE THEM BY SURPRISE "all" variant and Yzma BACK TO
+      // WORK "triggering_card" variant with lastResolvedTarget pin for the
+      // "target_owner" follow-up. See resolveTargetAndApply for dispatch.
+      return resolveTargetAndApply(state, effect, {
+        prompt: "Choose a card to return to hand.",
+        perInstance: (s, id, ev) => zoneTransition(s, id, "hand", definitions, ev, { reason: "returned" }),
+        setLastResolvedTargetOnTriggering: true,
+        skipIfNotInPlay: true,
+      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
     }
 
     case "remove_damage": {
@@ -3170,39 +3103,25 @@ export function applyEffect(
         : /* target_player — controller picks; engine picks opponent in 2P */ getOpponent(controllingPlayerId);
 
       if (effect.from === "play") {
-        // Surface choose_target like return_to_hand. Each chosen instance moves
-        // to its OWN owner's deck at the configured position.
-        const target: CardTarget = effect.target ?? { type: "chosen", filter: { zone: "play", cardType: ["character"] } };
-        if (target.type === "this") {
-          const inst = state.cards[sourceInstanceId];
-          if (!inst) return state;
-          return moveCard(state, sourceInstanceId, inst.ownerId, "deck", position);
-        }
-        if (target.type === "chosen") {
-          // Respect target.chooser — "target_player" inverts the choosing
-          // player to the opponent (The Family Scattered: "Chosen opponent
-          // chooses 3 of their characters... puts one on the top / bottom of
-          // their deck"). Filter's self-references resolve relative to the
-          // chooser, so owner:"self" in the filter means "the chooser's own
-          // characters" when chooser is target_player.
-          const choosingPlayerId = chosenChooserPlayerId(target, controllingPlayerId);
-          const validTargets = findChosenTargets(state, target.filter, choosingPlayerId, definitions, sourceInstanceId);
-          if (validTargets.length === 0) return state;
-          return {
-            ...state,
-            pendingChoice: {
-              type: "choose_target",
-              choosingPlayerId,
-              prompt: position === "top"
-                ? "Choose a card to put on top of its owner's deck."
-                : "Choose a card to put on the bottom of its owner's deck.",
-              validTargets,
-              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-              optional: effect.isMay ?? false,
-            },
-          };
-        }
-        return state;
+        // Chosen character moves to its OWN owner's deck at configured
+        // position. chooser:"target_player" flips the picker to the opponent
+        // (The Family Scattered "Chosen opponent chooses 3 of their characters
+        // ... puts one on top/bottom"). Filter's owner:"self" resolves
+        // relative to the chooser. See resolveTargetAndApply for dispatch.
+        const effectWithDefaultTarget = {
+          ...effect,
+          target: effect.target ?? { type: "chosen", filter: { zone: "play", cardType: ["character"] } },
+        };
+        return resolveTargetAndApply(state, effectWithDefaultTarget, {
+          prompt: position === "top"
+            ? "Choose a card to put on top of its owner's deck."
+            : "Choose a card to put on the bottom of its owner's deck.",
+          perInstance: (s, id) => {
+            const inst = s.cards[id];
+            if (!inst) return s;
+            return moveCard(s, id, inst.ownerId, "deck", position);
+          },
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
       }
 
       // from: "hand" | "discard" — auto-pick eligible cards from the source zone
@@ -5048,37 +4967,39 @@ export function applyEffect(
         return state;
       }
 
+      // Chosen + all target types use the shared target-dispatch helper.
+      // Note: "this" and fromZone="deck" branches above have bespoke per-
+      // iteration side effects (addInk vs enterExerted + card_put_into_inkwell
+      // trigger firing) that run inline per card owner; keeping them separate.
+      //
+      // For chosen: pendingChoice routes to applyEffectToTarget's case
+      // "put_into_inkwell" (line ~7220) which handles the enterExerted flag
+      // + queue card_put_into_inkwell trigger for the resolved target.
+      //
+      // For all: Perdita Determined Mother (discard→inkwell) is canonical.
+      // Per-iteration side effects (enterExerted + trigger queuing) happen
+      // inside perInstance; we deduplicate receiving players with a Set.
       if (effect.target.type === "chosen") {
-        const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
-        const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state; // CRD 1.7.7: no legal targets → fizzle
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId,
-            prompt: "Choose a card to put into inkwell.",
-            validTargets,
-            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-          },
-        };
+        return resolveTargetAndApply(state, effect, {
+          prompt: "Choose a card to put into inkwell.",
+          perInstance: (s) => s, // unreachable for "chosen" — resolution goes through pendingChoice
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
       }
       if (effect.target.type === "all") {
-        // Mass move: CRD 8.10.5 "Put all <X> cards from your <zone> into your
-        // inkwell facedown and exerted." Scope is resolved by the filter's
-        // `zone`/`owner` fields. Perdita Determined Mother (discard→inkwell)
-        // is the canonical user. Bypasses inkable check (cards are facedown).
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const receivingPlayers = new Set<PlayerID>();
-        for (const id of targets) {
-          const inst = state.cards[id];
-          if (!inst) continue;
-          state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
-          if (effect.enterExerted) state = updateInstance(state, id, { isExerted: true });
-          receivingPlayers.add(inst.ownerId);
-        }
+        state = resolveTargetAndApply(state, effect, {
+          prompt: "Put into inkwell", // unused — "all" skips pendingChoice
+          perInstance: (s, id, ev) => {
+            const inst = s.cards[id];
+            if (!inst) return s;
+            receivingPlayers.add(inst.ownerId);
+            s = zoneTransition(s, id, "inkwell", definitions, ev, { reason: "inked" });
+            if (effect.enterExerted) s = updateInstance(s, id, { isExerted: true });
+            return s;
+          },
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
         // CRD 6.2: fire card_put_into_inkwell per receiving player so cross-
-        // card watchers (Oswald, Chicha Dedicated Mother, etc.) pick it up.
+        // card watchers (Oswald, Chicha Dedicated Mother) pick it up.
         for (const pid of receivingPlayers) {
           state = queueTriggersByEvent(state, "card_put_into_inkwell", pid, definitions, {});
         }
@@ -6612,6 +6533,118 @@ function zoneTransition(
     if (fromZone !== targetZone) {
       events.push({ type: "card_moved", instanceId, from: fromZone, to: targetZone });
     }
+  }
+
+  return state;
+}
+
+/**
+ * Consolidated target-resolution + per-target application helper for zone-move
+ * effects that share the chosen / this / triggering_card / all pattern.
+ *
+ * Before this helper, each of `banish`, `return_to_hand`, `put_into_inkwell`
+ * (chosen branch), and `put_card_on_bottom_of_deck` (from:"play") duplicated
+ * ~30-46 lines of identical target-dispatch boilerplate. The surface-level
+ * Effect type discriminators stay distinct (for card-JSON readability + audit
+ * patterns); only the reducer's target-dispatching internals consolidate.
+ *
+ * Precedent: `reveal_hand` / `look_at_hand` fall through the same case block
+ * at reducer.ts:~2717 differing only in a `privateTo` flag. Same philosophy,
+ * one abstraction layer deeper.
+ *
+ * Branch behavior:
+ *  - chosen → create pendingChoice with `pendingEffect: effect` so the
+ *    original case's `applyEffectToTarget` resolution branch runs on pick
+ *  - this → call perInstance(sourceInstanceId) directly
+ *  - triggering_card → optionally set lastResolvedTarget (Yzma BACK TO WORK),
+ *    then perInstance(triggeringCardInstanceId)
+ *  - all → findValidTargets + iterate + perInstance(id), optionally
+ *    skipping instances not in play (for cascading banishes / mass returns)
+ */
+interface ResolveTargetAndApplyOptions {
+  /** Prompt text shown in the pendingChoice when target.type === "chosen". */
+  prompt: string;
+  /** Alternate prompt for target.count > 1 ("up to N" variants — Grab Your
+   *  Bow "Banish up to 2 chosen characters"). Omit for single-target cases. */
+  promptForCount?: (count: number) => string;
+  /** Per-target application: the actual move/banish/etc. Called for "this",
+   *  "triggering_card", and each "all" iteration. The "chosen" branch doesn't
+   *  call this here — resolution goes through the caller's `applyEffectToTarget`
+   *  case after the pendingChoice resolves. */
+  perInstance: (state: GameState, instanceId: string, events: GameEvent[]) => GameState;
+  /** When true, writing lastResolvedTarget to the triggering card before
+   *  perInstance runs — used by Yzma BACK TO WORK for the "target_owner"
+   *  follow-up effect to read the returned card's owner. */
+  setLastResolvedTargetOnTriggering?: boolean;
+  /** Skip instances whose zone !== "play" in the "all" branch — defensive for
+   *  cascading iterations (a banish in the iteration may queue triggers that
+   *  later-iterate the same card; post-banish it's no longer in play). Also
+   *  applies to return_to_hand's "all" branch (Milo Thatch TAKE THEM BY SURPRISE
+   *  — CRD 1.7.7 "valid target" check is at the filter level, but a card could
+   *  leave play between filter check and iteration). */
+  skipIfNotInPlay?: boolean;
+}
+
+function resolveTargetAndApply(
+  state: GameState,
+  effect: { target: CardTarget; isMay?: boolean; [k: string]: unknown },
+  opts: ResolveTargetAndApplyOptions,
+  sourceInstanceId: string,
+  controllingPlayerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+  events: GameEvent[],
+  triggeringCardInstanceId?: string,
+): GameState {
+  const target = effect.target;
+
+  if (target.type === "chosen") {
+    const choosingPlayerId = chosenChooserPlayerId(target, controllingPlayerId);
+    const validTargets = findChosenTargets(state, target.filter, choosingPlayerId, definitions, sourceInstanceId);
+    if (validTargets.length === 0) return state; // CRD 1.7.7
+    const count = target.count ?? 1;
+    const prompt = count > 1 && opts.promptForCount
+      ? opts.promptForCount(count)
+      : opts.prompt;
+    return {
+      ...state,
+      pendingChoice: {
+        type: "choose_target",
+        choosingPlayerId,
+        prompt,
+        validTargets,
+        pendingEffect: effect as Effect,
+        sourceInstanceId,
+        triggeringCardInstanceId,
+        optional: effect.isMay ?? false,
+        count,
+      },
+    };
+  }
+
+  if (target.type === "this") {
+    return opts.perInstance(state, sourceInstanceId, events);
+  }
+
+  if (target.type === "triggering_card" && triggeringCardInstanceId) {
+    const trigInst = state.cards[triggeringCardInstanceId];
+    if (!trigInst) return state;
+    if (opts.setLastResolvedTargetOnTriggering) {
+      const trigRef = makeResolvedRef(state, definitions, triggeringCardInstanceId);
+      if (trigRef) state = { ...state, lastResolvedTarget: trigRef };
+    }
+    return opts.perInstance(state, triggeringCardInstanceId, events);
+  }
+
+  if (target.type === "all") {
+    const targets = findValidTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
+    for (const id of targets) {
+      if (opts.skipIfNotInPlay) {
+        const inst = state.cards[id];
+        if (!inst || inst.zone !== "play") continue;
+      }
+      state = opts.perInstance(state, id, events);
+    }
+    return state;
   }
 
   return state;
