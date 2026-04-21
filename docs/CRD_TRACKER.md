@@ -56,12 +56,12 @@
 ### 1.8 Game State Check
 | Rule | Quote | Status |
 |------|-------|--------|
-| 1.8.1.1 | Player with 20+ lore wins | ✅ `checkWinConditions` / `getLoreThreshold`. Win threshold modification implemented via `modify_win_threshold` StaticEffect (Donald Duck Flustered Sorcerer). |
+| 1.8.1.1 | Player with 20+ lore wins | ✅ `runGameStateCheck` + `getLoreThreshold`. Win threshold modification via `modify_win_threshold` StaticEffect (Donald Duck Flustered Sorcerer). |
 | 1.8.1.2 | Player who ends turn with empty deck loses | ✅ Checked in `applyPassTurn`; game ends immediately with opponent as winner |
-| 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `banishCard` called from damage resolution |
+| 1.8.1.4 | Character/location with damage >= willpower is banished | ✅ `runGameStateCheck` (reducer.ts:7870) scans every card in play each pass; called after every turn action, effect resolution, challenge declaration, and timed-effect expiry |
 | 1.8.2 | Triggered abilities from state check added to bag before resolving | ✅ `evaluateCondition()` checks `trigger.ability.condition` before resolving effects in `processTriggerStack()`. Supports `characters_in_play_gte`, `cards_in_hand_eq`, lore conditions. Tested with Stitch - Carefree Surfer, Beast's Mirror |
-| 1.8.3 | Game state check cascades — repeats until no new conditions met (e.g., location banish → character loses {W} buff → character banished too) | ⚠️ Banish chains work naturally (dealDamageToCard → banishCard → check again), but no explicit loop structure. Works in practice for all current cards. |
-| 1.8.4 | Multiple conditions met simultaneously → single check, all results occur simultaneously; multi-player: in turn order | ⚠️ All banish checks happen in sequence within `dealDamageToCard`, not truly simultaneous. May matter for "leaves play together" trigger interactions (CRD 7.4.3). |
+| 1.8.3 | Game state check cascades — repeats until no new conditions met (e.g., location banish → character loses {W} buff → character banished too) | ✅ `runGameStateCheck` runs an explicit `while (changed)` loop — each pass rescans willpower-vs-damage for all in-play cards, plus lore threshold. Terminates when a pass produces no new banishes. |
+| 1.8.4 | Multiple conditions met simultaneously → single check, all results occur simultaneously; multi-player: in turn order | ⚠️ Banishes within a single loop pass happen in object-iteration order, not truly parallel. Matches 2P behavior in practice; a strict simultaneous implementation would matter if a 3+P variant ever ships or if a "leaves play together" trigger (CRD 7.4.3) is sensitive to order within the same pass. No current card exposes this. |
 
 ### 1.9 Damage
 | Rule | Quote | Status |
@@ -309,12 +309,12 @@
 ### 6.5 Replacement Effects
 | Rule | Quote | Status |
 |------|-------|--------|
-| 6.5.1 | Replacement effects wait for a condition and partially/completely replace the event as it resolves | ⚠️ Partial — only damage_redirect implemented |
-| 6.5.1.1 | Abilities with "instead" are the most common type | ⚠️ No general "instead" detection — each pattern is special-cased |
-| 6.5.4 | Replaced events never happen; their triggers don't fire | ❌ Not enforced — damage_redirect still fires damage triggers |
-| 6.5.6 | Self-replacement effects (within same ability) always apply first | ❌ Not implemented — e.g. "deal 1; if Knight, deal 2 instead" conditional upgrades |
-| 6.5.7 | Multiple replacement effects: affected player chooses order | ❌ Not implemented — only one damage_redirect can exist currently |
-| 6.5.8 | Same replacement effect can't apply twice to same event | ❌ Not implemented |
+| 6.5.1 | Replacement effects wait for a condition and partially/completely replace the event as it resolves | ✅ Multiple patterns implemented: `damage_redirect` (Beast), `damage_prevention_static` (Baloo, Hercules, Lilo — incl. `chargesPerTurn`), `challenge_damage_prevention` (Raya), `self_replacement` (48 cards). No single unified "general replacement system" — each pattern is a distinct effect/modifier — but every card that needs one is wired. |
+| 6.5.1.1 | Abilities with "instead" are the most common type | ✅ `SelfReplacementEffect` handles conditional "do X instead" patterns uniformly: `effect: []` default branch, `instead: []` replacement branch, `condition: CardFilter \| Condition`. Turbo Royal Hack, Hidden Trap BLINDING CLOUD, Consult the Spellbook all wired this way. |
+| 6.5.4 | Replaced events never happen; their triggers don't fire | ❌ Not enforced — `damage_redirect` and `damage_prevention_static` still fire damage-dealt/damage-taken triggers on the redirected path. Works for current cards because no card's trigger is "damage would be dealt" in a way that conflicts. |
+| 6.5.6 | Self-replacement effects (within same ability) always apply first | ✅ `SelfReplacementEffect` — condition evaluated at resolution time, branches are mutually exclusive, always apply before cross-card replacements can see the event. Tested in `dynamic-amount.test.ts`, `set4.test.ts`, `set5-set8.test.ts`, `set12.test.ts`. |
+| 6.5.7 | Multiple replacement effects: affected player chooses order | ❌ Not implemented — no current card pair has two replacements competing on the same event. Would matter if, say, two bodyguard-style redirects existed simultaneously. |
+| 6.5.8 | Same replacement effect can't apply twice to same event | ❌ Not implemented — same applicability condition as 6.5.7. `damage_prevention_static` with `chargesPerTurn:1` (Lilo) independently enforces once-per-turn via its own charge counter, not via 6.5.8's general rule. |
 
 ### 6.6 Ability Modifiers
 | Rule | Quote | Status |
@@ -478,7 +478,7 @@
 | Actions card type | 5.4.1 | ✅ Implemented with actionEffects; 3 cards have data (Friends, Dragon Fire, Be Prepared) |
 | ~~Locations card type~~ | 5.6 | ✅ Locations implemented: play, move characters, moveCost, willpower, lore gain at Set step, atLocationInstanceId tracking. |
 | ~~Shift stack: all stack cards leave play together~~ | 8.10.7 | ✅ Under-cards follow top card to same zone |
-| Replacement effects | 6.5 | Partial — only `damage_redirect` for Beast. Three CRD patterns: self-replacement conditional upgrades (6.5.6), damage redirect (✅), damage prevention. Missing: 6.5.4 (replaced events don't trigger), 6.5.7 (multi-replacement ordering), 6.5.8 (no-double-apply). Vanish (8.14) is NOT a replacement effect — it's a triggered ability. |
+| Replacement effects | 6.5 | ✅ All currently-needed patterns wired: `damage_redirect` (Beast), `damage_prevention_static` (Baloo/Hercules/Lilo, with `chargesPerTurn`), `challenge_damage_prevention` (Raya), `self_replacement` (48 cards — 6.5.6 conditional upgrades). Missing edge cases: 6.5.4 (replaced events still fire triggers), 6.5.7 (multi-replacement ordering), 6.5.8 (no-double-apply). All three are Low impact — no current card pair triggers them. Vanish (8.14) is NOT a replacement effect — it's a triggered ability. |
 | ~~Floating triggered abilities~~ | 6.2.7.1 | ✅ `floatingTriggers[]`, `CreateFloatingTriggerEffect` |
 | ~~Delayed triggered abilities~~ | 6.2.7.2 | ✅ `delayedTriggers[]` on GameState, `CreateDelayedTriggerEffect`, resolved at end_of_turn / start_of_next_turn in applyPassTurn. Candy Drift wired. |
 | "For free" play | 1.5.5.3 | ✅ `play_for_free` effect + `grant_play_for_free_self` static. Mufasa, Pride Lands, Belle all wired. |
@@ -501,8 +501,9 @@
 | ~~6.2.7.2~~ | ~~Delayed triggered abilities~~ | ✅ | `delayedTriggers[]` + `CreateDelayedTriggerEffect`. Candy Drift wired + tested. |
 | ~~6.4.2.1~~ | ~~Continuous static from resolved effect~~ | ✅ | `globalTimedEffects[]` + `continuous: true` flag. Restoring Atlantis wired. |
 | ~~6.4.2.2~~ | ~~Applied static (only cards at resolution)~~ | ✅ | Default per-card timedEffects behavior. |
-| 6.5.4 | Replaced events don't fire triggers | ❌ | Low — only matters with general replacement system |
-| 6.5.6–8 | Self-replacement ordering, multi-replacement choice, no-double-apply | ❌ | Low — needs general replacement system first |
+| 6.5.4 | Replaced events don't fire triggers | ❌ | Low — no current card's trigger conflicts with damage_redirect or damage_prevention paths |
+| ~~6.5.6~~ | ~~Self-replacement conditional upgrades~~ | ✅ | `SelfReplacementEffect` with condition/effect/instead branches; 48 cards use it |
+| 6.5.7–8 | Multi-replacement ordering + no-double-apply | ❌ | Low — no current card pair has competing replacements on the same event |
 | ~~6.7.6~~ | ~~Last known information for cards that left play~~ | ✅ | `lastResolvedTarget`/`lastResolvedSource`/`lastDamageDealtAmount` snapshots cover all current DynamicAmount patterns. |
 | ~~6.7.7~~ | ~~Sub-card effects wait until parent finishes~~ | ✅ | `play_for_free` resolves inline; triggers go to bag and resolve after parent action. Functionally correct for current cards. |
 | ~~7.1.4~~ | ~~Public zone search must-find~~ | ✅ | `choose_target` mechanism only offers valid choices; private zone `search` uses "up to N" allowing fail-to-find. |

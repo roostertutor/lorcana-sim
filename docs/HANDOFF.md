@@ -10,6 +10,70 @@ Conventions:
 
 ---
 
+## Engine agent: deferred / low-priority queue (verified against code 2026-04-20)
+
+Items NOT currently blocking anything, kept here so they don't need to live in
+an agent's memory. Each entry confirmed by reading the code, not from memory.
+
+**1. Wire the 17 set-12 stubs**
+- 14 fits-grammar (9 Lorcast pre-release — rename risk until Ravensburger
+  mirrors; 5 pre-existing Ravensburger silent no-ops surfaced by the action-stub
+  audit fix: Firefly Swarm, Hero Work, Dangerous Plan, You've Got a Friend in Me,
+  plus one more — diff `pnpm card-status --category fits-grammar` to confirm)
+- 1 needs-new-type: Escape Plan — "each player puts 2 characters into their
+  inkwell facedown and exerted" requires bilateral-target primitive + a new
+  inkwell-exerted state flag
+- 2 unknowns: `The Family Scattered` #97 (Rav) vs `The Family's Scattered`
+  #231 (Lorcast) — same effect, different names/numbers. Design call needed:
+  merge into one definition with `variants[]` (like enchanted alt-arts), or
+  keep as distinct printings?
+
+**2. Reverse compiler — oracle text → JSON wiring** (see dedicated section
+below — "TBD: reverse compiler — oracle text → JSON wiring"). Auto-wires the
+~80% of cards that match templated grammar on new-set import.
+
+**3. Simulator multi-pick enumerator bug** (`packages/simulator/src/rl/policy.ts:232-242`)
+- `choose_from_revealed` only emits single-pick candidates. Multi-pick effects
+  (Dig a Little Deeper: pick exactly 2) underfill — bot takes 1 instead of 2.
+- Surgical fix, ~1-2 hours. Details in the existing "Simulator: bot policy
+  enumerator only generates single-pick" section below.
+
+**4. CRD 1.8.4 strict simultaneity** (low impact — no current card)
+- `runGameStateCheck` (reducer.ts:7870) has an explicit `while (changed)` loop
+  implementing 1.8.3 cascading. Banishes within a single pass happen in
+  object-iteration order, not truly parallel. Matches 2P behavior correctly;
+  would matter only if a 3+P variant ships OR if a "leaves play together"
+  trigger (CRD 7.4.3) becomes sensitive to banish ordering within a pass.
+- Rest of CRD 1.8 is fully implemented (1.8.1.1, 1.8.1.2, 1.8.1.4, 1.8.2, 1.8.3
+  all ✅ — verified in code).
+
+**5. CRD 6.5 remaining edge cases** (low impact — no current card)
+- 6.5.4: "Replaced events don't fire triggers" — currently `damage_redirect`
+  and `damage_prevention_static` still fire damage-dealt/taken triggers on the
+  redirected path. Works for every current card because no trigger conflicts.
+- 6.5.7: "Multi-replacement ordering" — no current card pair has two
+  replacements competing on the same event.
+- 6.5.8: "Same replacement can't apply twice" — same applicability condition
+  as 6.5.7. `damage_prevention_static` with `chargesPerTurn:1` (Lilo) enforces
+  once-per-turn via its own counter, not via this general rule.
+- Rest of CRD 6.5 is wired: `damage_redirect` (Beast), `damage_prevention_static`
+  (Baloo/Hercules/Lilo), `challenge_damage_prevention` (Raya), `self_replacement`
+  (48 cards across sets 1-12 — handles the "if X, do Y instead" family).
+
+**6. GameEvent system — piped to UI, but few downstream consumers**
+- `lastEvents` is populated by the reducer for every state mutation. Currently
+  only `card_revealed` is consumed (CardPicker reveal animations). Richer log,
+  event-driven animations, sound hooks — all deferred until there's a user-
+  facing need. Not blocking.
+
+**Currently blocked on external action:**
+- **R2 image self-hosting migration** — see dedicated section below ("Engine
+  agent (primary) + UI agent (follow-up): self-host card images on R2"). Owns
+  schema + 3 sync scripts (~2 days). Waiting on user to provision R2 bucket +
+  DNS + credentials before end-to-end testing. Priority: do before MP deploy.
+
+---
+
 ## GUI agent: build `/dev/add-card` form + null-image placeholder
 
 Backend is ready; UI is the remaining half. Use case: user wants to hand-enter
@@ -589,3 +653,114 @@ only engage where it actually pays rent. Matches the existing
 Out of scope for the current deckbuilder stack — this is a GameBoard /
 play-zone change. Pick up when the deckbuilder work lands and there's a
 dedicated session for board chrome.
+
+---
+
+## Engine agent (primary) + UI agent (follow-up): self-host card images on R2
+
+**Why now:** Every card JSON embeds a hot-link to `api.lorcana.ravensburger.com`.
+Post-MP-deploy this becomes (a) a rate-limit dependency on Ravensburger's good
+will, (b) a CORS blocker for canvas-based clip/deck-image export (near-term
+priority), and (c) a fragility point — their CDN path includes a content hash
+that will rotate eventually, breaking 2769 URLs across 19 JSON files at once.
+
+Do this **before** Railway MP deploy, not after. Once multiplayer is live,
+every game board render hammers Ravensburger.
+
+### Scope for `engine-expert` (the bulk of the work)
+
+This agent owns card-data imports, card JSON schema, and the types — so it owns
+this migration. Work is roughly two days end-to-end.
+
+**1. Schema additions to every card-JSON entry** (one-time migration script,
+must be idempotent):
+- `_imageSource: "ravensburger" | "lorcast" | "manual"` — parallel to existing
+  `_source` but tracked independently (the two can diverge during pre-release —
+  e.g. Ravensburger has card text before image, or vice versa).
+- `_sourceImageUrl: string` — original upstream URL (preserves provenance so we
+  can re-verify / re-pull without re-scraping the whole API).
+- `_imageSourceLock?: true` — escape hatch mirroring existing `_sourceLock`, for
+  cards where a lower-tier source has visibly better art than a higher tier.
+- `imageUrl` gets rewritten to point at R2 (see path shape below).
+
+**2. Three sync scripts, three tiers** (mirrors `ravensburger > lorcast > manual`
+hierarchy already used for card data):
+
+| Script | Writes tier | Refuses to overwrite |
+|---|---|---|
+| `scripts/sync-images-rav.ts` (extend existing `~/Desktop/Lorcana_Assets/rav-download-images.mjs`) | `ravensburger` | — (top tier) |
+| `scripts/sync-images-lorcast.ts` (new) | `lorcast` | `ravensburger` tier |
+| `scripts/sync-images-manual.ts` (new) | `manual` | `ravensburger` or `lorcast` |
+
+Each script:
+- Downloads from its source → resizes via sharp (small 200w / normal 450w /
+  large 900w) → uploads to R2 → rewrites `imageUrl` + `_imageSource` +
+  `_sourceImageUrl` in card JSON.
+- Skips entries where `_imageSourceLock: true` already points at a lower tier.
+- Manual script reads from `assets/manual-cards/{setCode}/{cardId}.jpg` (dev
+  drops file → script picks up on next run). Use cases: super-early spoilers
+  before any API has images, bad scans, playtest-only cards.
+
+**3. R2 path shape** (preserves cache-busting on source upgrade):
+
+```
+https://cards.<domain>/set12/123_<sha256-of-image>_{small|normal|large}.jpg
+```
+
+Content hash in filename → `cache-control: public, max-age=31536000, immutable`
+works. When Ravensburger upgrades a Lorcast-tier image, new hash = new URL =
+forced refetch. Do NOT use canonical paths without hashes; CDN/browser caches
+won't invalidate cleanly.
+
+**4. Defer variants (enchanted/foil/cold-foil)** to a second phase. MVP ships
+regular art only. The existing `resolveEntryImageUrl` in `deckRules.ts` already
+handles per-variant lookup, so the scaffolding is there — but don't block the
+migration on variant support.
+
+**5. User-level ops (not an agent task, flag for user to do):**
+- Provision Cloudflare R2 bucket (`lorcana-cards`).
+- DNS: `cards.<domain>` → R2 public bucket.
+- Generate R2 API credentials; add to `.env` as `R2_ACCESS_KEY_ID` /
+  `R2_SECRET_ACCESS_KEY` / `R2_BUCKET`.
+- Optional: edge worker that falls back to Ravensburger on R2 miss (useful for
+  set-drop days before the sync script runs).
+
+### Scope for `ui-specialist` + `gameboard-specialist` (follow-up, ~30 min)
+
+Once the R2 migration lands, fix these two bugs that are currently silent no-ops:
+
+- `packages/ui/src/components/GameCard.tsx:239` —
+  `def.imageUrl.replace("/digital/normal/", "/digital/small/")`
+- `packages/ui/src/components/DeckBuilder.tsx:311` — same pattern
+- `packages/ui/src/pages/DeckBuilderPage.tsx:308` — same pattern
+
+The `/digital/normal/` path is **Lorcast-shaped**, not Ravensburger-shaped.
+Since most cards import from Ravensburger, the replace is a no-op and we ship
+the full 900w image to the board where a 200w thumbnail would do. After
+migration, R2 paths encode the size as `_small` / `_normal` / `_large`, so the
+swap becomes something like:
+
+```ts
+def.imageUrl.replace("_normal.jpg", "_small.jpg")
+```
+
+Ping `gameboard-specialist` for `GameCard.tsx`; `ui-specialist` for the two
+deckbuilder files.
+
+### Sequencing
+
+1. `engine-expert` does schema + migration + sync scripts (~2 days).
+2. User provisions R2 bucket + DNS (~1 hour).
+3. Run one-time migration: download all existing images, resize, upload, rewrite
+   JSON. Commit the JSON rewrite.
+4. `ui-specialist` + `gameboard-specialist` fix the size-swap bugs (~30 min).
+5. Then proceed with Railway MP deploy.
+
+### Reference
+
+- Strategy rationale + cost analysis: this session's chat log (strategy agent,
+  2026-04-20).
+- Existing download script: `~/Desktop/Lorcana_Assets/rav-download-images.mjs`.
+- Existing importer hierarchy pattern: `scripts/import-cards-rav.ts` +
+  `scripts/import-cards-lorcast.ts` (refuses-to-downgrade logic is the template).
+- Existing `_sourceLock` precedent: The Bayou in card-set-1.json.
