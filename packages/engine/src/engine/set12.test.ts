@@ -875,3 +875,73 @@ describe("Set 12 — Elinor turn_end + ≥3 exerted characters in play (wiring s
     expect(kinds).toEqual(["deal_damage", "gain_lore", "draw"]);
   });
 });
+
+// =============================================================================
+// Stubs surfaced by the 2026-04 card-status audit fix (plain-text actions with
+// empty actionEffects now classify as stubs instead of vanilla). All three
+// were shipping as silent no-ops before this commit.
+// =============================================================================
+
+describe("Set 12 — Firefly Swarm (choose with conditional second option)", () => {
+  it("action wiring: choose 1 of 2 options; option-B gated by ≥2 cards-to-discard condition", () => {
+    const def = CARD_DEFINITIONS["firefly-swarm"];
+    expect(def).toBeDefined();
+    expect(def!.cardType).toBe("action");
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(1);
+    expect(effects[0].type).toBe("choose");
+    expect(effects[0].count).toBe(1);
+    expect(effects[0].options).toHaveLength(2);
+
+    // Option A: banish chosen character with strengthAtMost 2 (no gating).
+    const optA = effects[0].options[0];
+    expect(optA).toHaveLength(1);
+    expect(optA[0].type).toBe("banish");
+    expect(optA[0].target.filter.strengthAtMost).toBe(2);
+
+    // Option B: self_replacement gates the banish on discard-this-turn condition.
+    const optB = effects[0].options[1];
+    expect(optB).toHaveLength(1);
+    expect(optB[0].type).toBe("self_replacement");
+    expect(optB[0].condition.type).toBe("cards_put_into_discard_this_turn_atleast");
+    expect(optB[0].condition.amount).toBe(2);
+    // Default branch is no-op; replacement branch is banish any character.
+    expect(optB[0].effect).toEqual([]);
+    expect(optB[0].instead[0].type).toBe("banish");
+    expect(optB[0].instead[0].target.filter.strengthAtMost).toBeUndefined();
+  });
+});
+
+describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
+  it("action wiring: sequential draw 2 → discard_from_hand random 1", () => {
+    const def = CARD_DEFINITIONS["dangerous-plan"];
+    expect(def).toBeDefined();
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(2);
+    expect(effects[0].type).toBe("draw");
+    expect(effects[0].amount).toBe(2);
+    expect(effects[1].type).toBe("discard_from_hand");
+    expect(effects[1].amount).toBe(1);
+    expect(effects[1].chooser).toBe("random");
+    expect(effects[1].target.type).toBe("self");
+  });
+});
+
+describe("Set 12 — You've Got a Friend in Me (scry-4 reveal up to 2 Toy to hand)", () => {
+  it("action wiring: look_at_top 4, maxToHand:2, filter:Toy character, revealPicks:true", () => {
+    const def = CARD_DEFINITIONS["youve-got-a-friend-in-me"];
+    expect(def).toBeDefined();
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(1);
+    const e = effects[0];
+    expect(e.type).toBe("look_at_top");
+    expect(e.count).toBe(4);
+    expect(e.action).toBe("choose_from_top");
+    expect(e.maxToHand).toBe(2);
+    expect(e.filter.cardType).toEqual(["character"]);
+    expect(e.filter.hasTrait).toBe("Toy");
+    expect(e.isMay).toBe(true);
+    expect(e.revealPicks).toBe(true);
+  });
+});
+

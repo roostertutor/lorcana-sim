@@ -5417,6 +5417,53 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "choose",
+        "count": 1,
+        "options": [
+          [
+            {
+              "type": "banish",
+              "target": {
+                "type": "chosen",
+                "filter": {
+                  "zone": "play",
+                  "cardType": [
+                    "character"
+                  ],
+                  "strengthAtMost": 2
+                }
+              }
+            }
+          ],
+          [
+            {
+              "type": "self_replacement",
+              "effect": [],
+              "instead": [
+                {
+                  "type": "banish",
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "zone": "play",
+                      "cardType": [
+                        "character"
+                      ]
+                    }
+                  }
+                }
+              ],
+              "condition": {
+                "type": "cards_put_into_discard_this_turn_atleast",
+                "amount": 2
+              }
+            }
+          ]
+        ]
+      }
+    ],
     "setId": "12",
     "number": 130,
     "rarity": "uncommon",
@@ -5495,6 +5542,23 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "discard_from_hand",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        },
+        "chooser": "random"
+      }
+    ],
     "setId": "12",
     "number": 133,
     "rarity": "common",
@@ -7889,6 +7953,25 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "choose_from_top",
+        "maxToHand": 2,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ],
+          "hasTrait": "Toy"
+        },
+        "isMay": true,
+        "revealPicks": true
+      }
+    ],
     "setId": "12",
     "number": 225,
     "rarity": "enchanted",

@@ -1030,7 +1030,7 @@
       {
         "type": "triggered",
         "storyName": "SIGNATURE RECIPE",
-        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card. (draw approximation skipped)",
+        "rulesText": "When you play this character, you may remove up to 2 damage from chosen character. If you removed damage this way, you may draw a card.",
         "trigger": {
           "on": "enters_play"
         },
@@ -1047,6 +1047,23 @@
                   "character"
                 ]
               }
+            }
+          },
+          {
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "isMay": true,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "condition": {
+              "type": "you_removed_damage_this_turn"
             }
           }
         ]

@@ -1052,3 +1052,43 @@ describe("§4 Set 4 — CRD 6.1.6 excludeSelf on self-trigger", () => {
     expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
   });
 });
+
+describe("§4 Set 4 — Julieta Madrigal Excellent Cook SIGNATURE RECIPE (conditional draw fix)", () => {
+  // Julieta is set 4 #13 with an identical reprint in set 9 #18 — same id,
+  // same wiring. Before 2026-04-20, both shipped with only the remove_damage
+  // effect; the follow-on "If you removed damage this way, you may draw a card"
+  // was annotated "(draw approximation skipped)" in rulesText and unwired.
+  // Contrast with Rapunzel Gifted with Healing (set 1) which uses
+  // amount:"cost_result" — her oracle scales linearly ("Draw a card for each
+  // 1 damage removed"). Julieta's oracle is binary ("may draw a card") so she
+  // gates on you_removed_damage_this_turn instead.
+  it("has both the remove_damage effect and a self_replacement draw gated on you_removed_damage_this_turn", () => {
+    const def = CARD_DEFINITIONS["julieta-madrigal-excellent-cook"];
+    expect(def).toBeDefined();
+    const recipe = def!.abilities.find((a: any) => a.type === "triggered" && a.storyName === "SIGNATURE RECIPE");
+    expect(recipe).toBeDefined();
+    const effects = (recipe as any).effects;
+    expect(effects).toHaveLength(2);
+
+    // 1. remove_damage up to 2 on chosen character
+    expect(effects[0].type).toBe("remove_damage");
+    expect(effects[0].amount).toBe(2);
+    expect(effects[0].isUpTo).toBe(true);
+
+    // 2. self_replacement — if you_removed_damage_this_turn, may draw 1
+    expect(effects[1].type).toBe("self_replacement");
+    expect(effects[1].condition.type).toBe("you_removed_damage_this_turn");
+    expect(effects[1].effect).toEqual([]);
+    expect(effects[1].instead).toHaveLength(1);
+    expect(effects[1].instead[0].type).toBe("draw");
+    expect(effects[1].instead[0].amount).toBe(1);
+    expect(effects[1].instead[0].isMay).toBe(true);
+  });
+
+  it("no approximation annotation remains in rulesText", () => {
+    const def = CARD_DEFINITIONS["julieta-madrigal-excellent-cook"];
+    const recipe = def!.abilities.find((a: any) => a.type === "triggered" && a.storyName === "SIGNATURE RECIPE");
+    expect((recipe as any).rulesText).not.toMatch(/approximation/i);
+    expect(def!.rulesText).not.toMatch(/approximation/i);
+  });
+});
