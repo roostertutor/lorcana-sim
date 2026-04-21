@@ -1058,11 +1058,18 @@ describe("§4 Set 4 — Julieta Madrigal Excellent Cook SIGNATURE RECIPE (condit
   // same wiring. Before 2026-04-20, both shipped with only the remove_damage
   // effect; the follow-on "If you removed damage this way, you may draw a card"
   // was annotated "(draw approximation skipped)" in rulesText and unwired.
+  //
   // Contrast with Rapunzel Gifted with Healing (set 1) which uses
   // amount:"cost_result" — her oracle scales linearly ("Draw a card for each
   // 1 damage removed"). Julieta's oracle is binary ("may draw a card") so she
-  // gates on you_removed_damage_this_turn instead.
-  it("has both the remove_damage effect and a self_replacement draw gated on you_removed_damage_this_turn", () => {
+  // needs a conditional gate, not a count.
+  //
+  // Gating choice: `last_effect_result` with comparison "gte" reads the
+  // ability-local result of the preceding remove_damage. This is strictly
+  // correct for the oracle's "this way" wording — versus the turn-wide
+  // `you_removed_damage_this_turn` flag which would leak prior-turn damage
+  // removals into the conditional (ghost-draw edge case).
+  it("has both the remove_damage effect and a self_replacement draw gated on last_effect_result >= 1", () => {
     const def = CARD_DEFINITIONS["julieta-madrigal-excellent-cook"];
     expect(def).toBeDefined();
     const recipe = def!.abilities.find((a: any) => a.type === "triggered" && a.storyName === "SIGNATURE RECIPE");
@@ -1075,9 +1082,12 @@ describe("§4 Set 4 — Julieta Madrigal Excellent Cook SIGNATURE RECIPE (condit
     expect(effects[0].amount).toBe(2);
     expect(effects[0].isUpTo).toBe(true);
 
-    // 2. self_replacement — if you_removed_damage_this_turn, may draw 1
+    // 2. self_replacement — if last_effect_result >= 1 (i.e. the preceding
+    // remove_damage was effective), may draw 1
     expect(effects[1].type).toBe("self_replacement");
-    expect(effects[1].condition.type).toBe("you_removed_damage_this_turn");
+    expect(effects[1].condition.type).toBe("last_effect_result");
+    expect(effects[1].condition.comparison).toBe("gte");
+    expect(effects[1].condition.amount).toBe(1);
     expect(effects[1].effect).toEqual([]);
     expect(effects[1].instead).toHaveLength(1);
     expect(effects[1].instead[0].type).toBe("draw");
@@ -1090,5 +1100,42 @@ describe("§4 Set 4 — Julieta Madrigal Excellent Cook SIGNATURE RECIPE (condit
     const recipe = def!.abilities.find((a: any) => a.type === "triggered" && a.storyName === "SIGNATURE RECIPE");
     expect((recipe as any).rulesText).not.toMatch(/approximation/i);
     expect(def!.rulesText).not.toMatch(/approximation/i);
+  });
+});
+
+describe("§4 Set 4 — last_effect_result condition primitive (all comparison operators)", () => {
+  // Unit tests for the new general-purpose condition primitive. Doesn't use
+  // Julieta — tests the evaluator directly on synthesized state so we cover
+  // all 5 comparators. Relied on by Julieta Madrigal - Excellent Cook and
+  // available to any future card with "this way" / "if you did" semantics.
+  it("gte/lte/gt/lt/eq comparators evaluate against state.lastEffectResult", async () => {
+    const { evaluateCondition } = await import("../utils/index.js");
+    const mkState = (lastEffectResult: number | undefined) =>
+      ({ ...startGame(), lastEffectResult }) as any;
+
+    // Reference value for comparison: amount=2, test with various lastEffectResult values.
+    const cases: [number | undefined, "gte" | "lte" | "gt" | "lt" | "eq", boolean][] = [
+      [3, "gte", true],   [2, "gte", true],   [1, "gte", false],
+      [3, "gt",  true],   [2, "gt",  false],  [1, "gt",  false],
+      [3, "lte", false],  [2, "lte", true],   [1, "lte", true],
+      [3, "lt",  false],  [2, "lt",  false],  [1, "lt",  true],
+      [2, "eq",  true],   [3, "eq",  false],  [0, "eq",  false],
+      // undefined coerces to 0 (no effect has set lastEffectResult yet)
+      [undefined, "gte", false], [undefined, "eq", false], [undefined, "lt", true],
+    ];
+    for (const [value, op, expected] of cases) {
+      const cond: any = { type: "last_effect_result", comparison: op, amount: 2 };
+      const actual = evaluateCondition(cond, mkState(value), CARD_DEFINITIONS, "player1", "dummy", undefined, new Map());
+      expect(actual, `lastEffectResult=${value}, op=${op}, amount=2 → ${expected}`).toBe(expected);
+    }
+  });
+
+  it("amount=0 with comparison eq: fires exactly when effect produced 0 (useful for 'if you didn't do X' patterns)", async () => {
+    const { evaluateCondition } = await import("../utils/index.js");
+    const cond: any = { type: "last_effect_result", comparison: "eq", amount: 0 };
+    const zero = { ...startGame(), lastEffectResult: 0 } as any;
+    const one  = { ...startGame(), lastEffectResult: 1 } as any;
+    expect(evaluateCondition(cond, zero, CARD_DEFINITIONS, "player1", "dummy", undefined, new Map())).toBe(true);
+    expect(evaluateCondition(cond, one,  CARD_DEFINITIONS, "player1", "dummy", undefined, new Map())).toBe(false);
   });
 });

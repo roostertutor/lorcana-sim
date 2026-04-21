@@ -1031,8 +1031,25 @@ export function evaluateCondition(
       return count >= condition.amount;
     }
     case "you_removed_damage_this_turn": {
-      // Julieta's Arepas THAT DID THE TRICK.
+      // Julieta's Arepas THAT DID THE TRICK — turn-wide flag ("this turn").
       return !!state.players[controllingPlayerId].youRemovedDamageThisTurn;
+    }
+    case "last_effect_result": {
+      // Ability-local conditional gate: compare the most recently resolved
+      // effect's result (state.lastEffectResult) against amount. Used for
+      // oracle texts with "this way" semantics — Julieta Madrigal's SIGNATURE
+      // RECIPE "If you removed damage this way, you may draw a card" gates
+      // on gte 1. Distinct from turn-wide flags like you_removed_damage_this_turn
+      // which accumulate across the whole turn.
+      const value = state.lastEffectResult ?? 0;
+      switch (condition.comparison) {
+        case "gte": return value >= condition.amount;
+        case "lte": return value <= condition.amount;
+        case "gt":  return value >  condition.amount;
+        case "lt":  return value <  condition.amount;
+        case "eq":  return value === condition.amount;
+      }
+      return false;
     }
     case "not": {
       return !evaluateCondition(condition.condition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, statBonuses);

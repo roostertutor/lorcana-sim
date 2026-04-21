@@ -2607,8 +2607,29 @@ export type Condition =
   | { type: "cards_put_into_discard_this_turn_atleast"; amount: number }
   /** True if the controller removed damage from any of their characters this
    *  turn (binary, not thresholded). Used by Julieta's Arepas THAT DID THE
-   *  TRICK. Flag lives on PlayerState.youRemovedDamageThisTurn. */
+   *  TRICK — whose oracle explicitly says "this turn". For the ability-local
+   *  "this way" variant (Julieta Madrigal - Excellent Cook), use
+   *  `last_effect_result` instead — it reads the PRECEDING effect's result
+   *  rather than a turn-wide accumulator, which is strictly correct for
+   *  oracle wordings that scope to the current ability. */
   | { type: "you_removed_damage_this_turn" }
+  /** Compare `state.lastEffectResult` (the outcome of the most recently resolved
+   *  effect that writes to it — e.g. remove_damage's actualRemoved, discard
+   *  count, cards drawn, damage dealt) against `amount`.
+   *
+   *  Ability-local by nature: chains of effects within a single ability execute
+   *  sequentially, so a `last_effect_result` condition evaluated right after
+   *  the effect that wrote the value reads that value exactly. Prefer this
+   *  over turn-wide flags (like `you_removed_damage_this_turn`) whenever the
+   *  oracle says "this way" / "if any were moved" rather than "this turn".
+   *
+   *  Julieta Madrigal - Excellent Cook: SIGNATURE RECIPE "If you removed
+   *  damage this way, you may draw a card" → `{ comparison: "gte", amount: 1 }`.
+   *
+   *  Comparators cover the common shapes — "gte" for most "did it happen"
+   *  gates, "eq"/"lt" for rare "exactly N" / "fewer than N" oracles. Negation
+   *  via the existing `not` combinator (`not(eq N)` = "not equal"). */
+  | { type: "last_effect_result"; comparison: "gte" | "lte" | "gt" | "lt" | "eq"; amount: number }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "a_character_was_banished_in_challenge_this_turn" }
   | { type: "not"; condition: Condition }

@@ -680,7 +680,9 @@
               }
             ],
             "condition": {
-              "type": "you_removed_damage_this_turn"
+              "type": "last_effect_result",
+              "comparison": "gte",
+              "amount": 1
             }
           }
         ]
