@@ -4311,6 +4311,98 @@ export function applyEffect(
       return state;
     }
 
+    case "reveal_top_switch": {
+      // Jack-jack Parr WEIRD THINGS ARE HAPPENING — atomic mill + multi-branch
+      // switch on revealed card type. isMay surfaces a choose_may prompt
+      // first; on accept (or if isMay is unset), mill `count` cards, and for
+      // each revealed card run the first matching case's effects with the
+      // revealed card set as lastResolvedTarget. Card lands in `destination`.
+      //
+      // Current implementation supports count=1 (Jack-jack's use case). For
+      // count > 1, the loop handles each revealed card in deck-top order but
+      // does not support pendingChoice mid-iteration — if a case's effects
+      // surface a pendingChoice, later revealed cards are dropped. Extend via
+      // pendingEffectQueue if a future card needs multi-reveal with interactive
+      // case effects.
+      if (effect.isMay) {
+        const acceptEffect: RevealTopSwitchEffect = { ...effect, isMay: false };
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_may",
+            choosingPlayerId: controllingPlayerId,
+            prompt: "Put the top card of your deck into your discard?",
+            pendingEffect: acceptEffect,
+            sourceInstanceId,
+            triggeringCardInstanceId,
+            optional: true,
+          },
+        };
+      }
+      // Resolve target player (default self).
+      const revealTargetPlayer: PlayerID =
+        effect.target?.type === "opponent" ? getOpponent(controllingPlayerId)
+        : controllingPlayerId;
+      const deck = getZone(state, revealTargetPlayer, "deck");
+      const revealCount = effect.count ?? 1;
+      const revealN = Math.min(revealCount, deck.length);
+      if (revealN === 0) return state;
+      const destination = effect.destination ?? "discard";
+      const destinationZone: ZoneName =
+        destination === "discard" ? "discard"
+        : destination === "hand" ? "hand"
+        : "deck"; // top/bottom both land in deck; order adjusted below
+      for (let i = 0; i < revealN; i++) {
+        const revealedId = deck[i];
+        if (!revealedId) break;
+        const revealedInst = state.cards[revealedId];
+        const revealedDef = revealedInst ? definitions[revealedInst.definitionId] : undefined;
+        if (!revealedInst || !revealedDef) continue;
+        // Match against cases in order; first match wins.
+        const matchedCase = effect.cases.find((c) =>
+          matchesFilter(revealedInst, revealedDef, c.filter, state, revealTargetPlayer, sourceInstanceId)
+        );
+        // Move revealed card to destination.
+        state = moveCard(state, revealedId, revealTargetPlayer, destinationZone);
+        if (destination === "bottom") {
+          // Append to end of deck rather than default prepend — moveCard
+          // places at zone's natural end which for deck is the top. Swap
+          // the newly-placed card to the bottom.
+          const freshDeck = getZone(state, revealTargetPlayer, "deck");
+          if (freshDeck[freshDeck.length - 1] === revealedId) {
+            // Already last (= top in deck order). Rotate to position 0 = bottom.
+            // In this engine deck[0] is top (per put_top_cards_into_discard
+            // which uses deck.slice(0, N) for the mill). So top=0, bottom=end.
+            // moveCard appends by default → already at bottom. No-op needed.
+          }
+        }
+        // Set lastResolvedTarget so case effects (and downstream) can read
+        // the revealed card's properties. Use the full ref shape.
+        const revealedRef = makeResolvedRef(state, definitions, revealedId);
+        if (revealedRef) state = { ...state, lastResolvedTarget: revealedRef };
+        // Apply matched case's effects (if any).
+        if (matchedCase) {
+          for (let j = 0; j < matchedCase.effects.length; j++) {
+            const sub = matchedCase.effects[j]!;
+            state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+            if (state.pendingChoice) {
+              // Sub-effect created a pendingChoice (e.g. Jack-jack's location
+              // case "banish chosen character"). Remaining sub-effects queue
+              // via pendingEffectQueue naturally; this case is fully consumed.
+              // (Remaining revealed cards in count > 1 flows would be lost
+              // here — documented limitation above.)
+              return state;
+            }
+          }
+        }
+      }
+      // Fire zone-transition triggers once per destination.
+      if (destination === "discard") {
+        state = queueTriggersByEvent(state, "cards_discarded", revealTargetPlayer, definitions, {});
+      }
+      return state;
+    }
+
     case "mass_inkwell": {
       // Mufasa - Ruler of Pride Rock + Ink Geyser. Operates over the inkwell zone.
       // CRD 4.5: availableInk reflects the count of unexerted inkwell cards.

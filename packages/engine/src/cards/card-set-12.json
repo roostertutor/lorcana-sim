@@ -5350,7 +5350,61 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WEIRD THINGS ARE HAPPENING",
+        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard. If its card type is: • character, this character gets +2 {S} this turn. • action or item, this character gets +2 {L} this turn. • location, banish chosen character.",
+        "trigger": {
+          "on": "turn_start"
+        },
+        "effects": [
+          {
+            "type": "reveal_top_switch",
+            "isMay": true,
+            "cases": [
+              {
+                "filter": { "cardType": ["character"] },
+                "effects": [
+                  {
+                    "type": "gain_stats",
+                    "strength": 2,
+                    "duration": "end_of_turn",
+                    "target": { "type": "this" }
+                  }
+                ]
+              },
+              {
+                "filter": { "cardType": ["action", "item"] },
+                "effects": [
+                  {
+                    "type": "gain_stats",
+                    "lore": 2,
+                    "duration": "end_of_turn",
+                    "target": { "type": "this" }
+                  }
+                ]
+              },
+              {
+                "filter": { "cardType": ["location"] },
+                "effects": [
+                  {
+                    "type": "banish",
+                    "target": {
+                      "type": "chosen",
+                      "filter": {
+                        "zone": "play",
+                        "cardType": ["character"]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 121,
     "rarity": "super_rare",

@@ -235,6 +235,7 @@ export type Effect =
   | RevealHandEffect
   | LookAtHandEffect
   | PutTopCardsIntoDiscardEffect
+  | RevealTopSwitchEffect
   | MassInkwellEffect
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
@@ -491,6 +492,47 @@ export interface PutTopCardsIntoDiscardEffect {
   /** Whose deck. "self" / "opponent" / "both" / "chosen". */
   target: PlayerTarget;
   /** CRD 6.1.4 */
+  isMay?: boolean;
+}
+
+/**
+ * Jack-jack Parr - Incredible Potential (set 12 #121): "At the start of your
+ * turn, you may put the top card of your deck into your discard. If its card
+ * type is: • character, this character gets +2 {S} this turn. • action or
+ * item, this character gets +2 {L} this turn. • location, banish chosen
+ * character."
+ *
+ * Atomic mill + multi-branch switch. Mills the top `count` cards from
+ * `target`'s deck, then for EACH milled card, applies the first matching
+ * case's effects (with the milled card set as lastResolvedTarget — so
+ * downstream effects can reference its properties if needed). Falls through
+ * to no-op if no case matches. Card lands in `destination` (default discard).
+ *
+ * Why a new primitive instead of reusing `reveal_top_conditional` +
+ * composition: the existing conditional only supports single-match binary
+ * branching, and the composition approach can't preserve the milled card's
+ * reference across sequential `self_replacement` effects (no condition type
+ * reads lastResolvedTarget's cardType). One atomic effect also avoids
+ * accidentally leaking the revealed card's reference into unrelated later
+ * effects in the same ability.
+ */
+export interface RevealTopSwitchEffect {
+  type: "reveal_top_switch";
+  /** How many top cards to reveal. Defaults to 1 (Jack-jack's use case).
+   *  Generalized for future cards that reveal multiple and apply per-card
+   *  switching (e.g. scry-2 with type-based effects per card). */
+  count?: number;
+  /** Whose deck to reveal from. Defaults to "self". */
+  target?: PlayerTarget;
+  /** Evaluated in order per revealed card; first-match-wins. Non-matching
+   *  revealed cards skip the switch entirely and still land at destination. */
+  cases: Array<{ filter: CardFilter; effects: Effect[] }>;
+  /** Where the revealed card goes after case effects. Defaults to "discard"
+   *  (Jack-jack). `top` returns to deck-top (no-op net movement); `bottom`
+   *  is the classic scry-miss; `hand` matches the draw-if-type pattern. */
+  destination?: "discard" | "hand" | "top" | "bottom";
+  /** CRD 6.1.4: player may decline the reveal entirely. If declined, the
+   *  effect is skipped and no cases fire. */
   isMay?: boolean;
 }
 

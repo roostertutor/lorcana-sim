@@ -927,6 +927,74 @@ describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
   });
 });
 
+describe("Set 12 — Jack-jack Parr (reveal_top_switch 3-way)", () => {
+  it("triggered turn_start + reveal_top_switch with 3 cases in priority order", () => {
+    const def = CARD_DEFINITIONS["jack-jack-parr-incredible-potential"];
+    expect(def).toBeDefined();
+    const trig = def!.abilities.find((a: any) => a.type === "triggered" && a.storyName === "WEIRD THINGS ARE HAPPENING");
+    expect(trig).toBeDefined();
+    expect((trig as any).trigger.on).toBe("turn_start");
+    const effects = (trig as any).effects;
+    expect(effects).toHaveLength(1);
+    const sw = effects[0];
+    expect(sw.type).toBe("reveal_top_switch");
+    expect(sw.isMay).toBe(true);
+    expect(sw.cases).toHaveLength(3);
+    // Case 1: character → +2 {S} this turn on self
+    expect(sw.cases[0].filter.cardType).toEqual(["character"]);
+    expect(sw.cases[0].effects[0].type).toBe("gain_stats");
+    expect(sw.cases[0].effects[0].strength).toBe(2);
+    // Case 2: action OR item → +2 {L} this turn on self
+    expect(sw.cases[1].filter.cardType).toEqual(["action", "item"]);
+    expect(sw.cases[1].effects[0].lore).toBe(2);
+    // Case 3: location → banish chosen character
+    expect(sw.cases[2].filter.cardType).toEqual(["location"]);
+    expect(sw.cases[2].effects[0].type).toBe("banish");
+  });
+
+  it("reveal_top_switch with isMay surfaces choose_may prompt first", () => {
+    let state = startGame();
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "jack-jack-parr-incredible-potential", "play");
+    // Stack a known character on top of deck via injectCard
+    const s2 = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "deck").state;
+    const effect: any = {
+      type: "reveal_top_switch",
+      isMay: true,
+      cases: [
+        { filter: { cardType: ["character"] }, effects: [{ type: "gain_stats", strength: 2, duration: "end_of_turn", target: { type: "this" } }] },
+      ],
+    };
+    const after = applyEffect(s2, effect, sourceId, "player1", CARD_DEFINITIONS, []);
+    expect(after.pendingChoice).toBeDefined();
+    expect(after.pendingChoice?.type).toBe("choose_may");
+    expect(after.pendingChoice?.optional).toBe(true);
+  });
+
+  it("reveal_top_switch without isMay mills the top card and applies first matching case", () => {
+    let state = startGame();
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "jack-jack-parr-incredible-potential", "play");
+    // Stack a character on top of deck (so the character case fires)
+    const s2 = injectCard(s1, "player1", "minnie-mouse-beloved-princess", "deck").state;
+    const deckBefore = getZone(s2, "player1", "deck");
+    const discardBefore = getZone(s2, "player1", "discard");
+    const effect: any = {
+      type: "reveal_top_switch",
+      cases: [
+        { filter: { cardType: ["character"] }, effects: [{ type: "gain_stats", strength: 2, duration: "end_of_turn", target: { type: "this" } }] },
+        { filter: { cardType: ["action", "item"] }, effects: [{ type: "gain_stats", lore: 2, duration: "end_of_turn", target: { type: "this" } }] },
+      ],
+    };
+    const after = applyEffect(s2, effect, sourceId, "player1", CARD_DEFINITIONS, []);
+    // Top card moved to discard
+    expect(getZone(after, "player1", "deck").length).toBe(deckBefore.length - 1);
+    expect(getZone(after, "player1", "discard").length).toBe(discardBefore.length + 1);
+    // Source gained +2 strength (character case fired)
+    const sourceInst = after.cards[sourceId];
+    const sourceTimed = sourceInst?.timedEffects ?? [];
+    expect(sourceTimed.some((t: any) => t.type === "modify_strength" && t.amount === 2)).toBe(true);
+  });
+});
+
 describe("Set 12 — Hero Work (timed grant_triggered_ability)", () => {
   it("actionEffects: +1 {S} to own characters this turn + timed grant of challenge trigger to Hero-trait", () => {
     const def = CARD_DEFINITIONS["hero-work"];
