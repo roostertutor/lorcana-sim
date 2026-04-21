@@ -7074,11 +7074,34 @@ function applyEffectToTarget(
         casterPlayerId: controllingPlayerId,
         sourceInstanceId,
       };
-      return addTimedEffect(state, targetInstanceId, timedEffect);
+      state = addTimedEffect(state, targetInstanceId, timedEffect);
+      // Apply any follow-up effects to the same target — used by "can't X AND
+      // must Y" oracle pairs (This Growing Pressure / Ariel Curious Traveler /
+      // Gaston Frightful Bully). Mirrors the exert/ready/remove_damage pattern.
+      if (effect.followUpEffects) {
+        for (const followUp of effect.followUpEffects) {
+          state = applyEffectToTarget(state, followUp, targetInstanceId, controllingPlayerId, definitions, events, sourceInstanceId, triggeringCardInstanceId);
+        }
+      }
+      return state;
     }
     case "cant_be_challenged_timed": {
       return addTimedEffect(state, targetInstanceId, {
         type: "cant_be_challenged",
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      });
+    }
+    case "must_quest_if_able": {
+      // Reached only via followUpEffects (e.g. cant_action's followUp chain
+      // for "can't challenge AND must quest" pairs) or via a direct target
+      // like last_resolved_target. The primary path for chosen targets is in
+      // applyEffect.
+      return addTimedEffect(state, targetInstanceId, {
+        type: "must_quest_if_able",
+        amount: 0,
         expiresAt: effect.duration,
         appliedOnTurn: state.turnNumber,
         casterPlayerId: controllingPlayerId,

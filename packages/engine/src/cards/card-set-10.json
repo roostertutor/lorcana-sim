@@ -59,7 +59,7 @@
       {
         "type": "triggered",
         "storyName": "TOP THAT!",
-        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
+        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
         "trigger": {
           "on": "quests"
         },
@@ -82,7 +82,16 @@
                   "character"
                 ]
               }
-            }
+            },
+            "followUpEffects": [
+              {
+                "type": "must_quest_if_able",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "end_of_owner_next_turn"
+              }
+            ]
           }
         ]
       }
@@ -12311,7 +12320,7 @@
       {
         "type": "triggered",
         "storyName": "TOP THAT!",
-        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge during their next turn.",
+        "rulesText": "Whenever this character quests, if there's a card under him, chosen opposing character can't challenge and must quest if able during their next turn.",
         "trigger": {
           "on": "quests"
         },
@@ -12334,7 +12343,16 @@
                   "character"
                 ]
               }
-            }
+            },
+            "followUpEffects": [
+              {
+                "type": "must_quest_if_able",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "end_of_owner_next_turn"
+              }
+            ]
           }
         ]
       }

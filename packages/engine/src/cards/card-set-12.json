@@ -630,6 +630,26 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "NEW MOTIF",
+        "rulesText": "When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_removed_damage_this_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -740,7 +760,16 @@
                 }
               }
             },
-            "duration": "end_of_owner_next_turn"
+            "duration": "end_of_owner_next_turn",
+            "followUpEffects": [
+              {
+                "type": "must_quest_if_able",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "end_of_owner_next_turn"
+              }
+            ]
           }
         ],
         "condition": {
@@ -797,6 +826,28 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "DO NO WRONG",
+        "rulesText": "Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": "cost_result",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -1159,6 +1210,41 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "cant_action",
+        "action": "challenge",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        },
+        "duration": "end_of_owner_next_turn",
+        "followUpEffects": [
+          {
+            "type": "must_quest_if_able",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "duration": "end_of_owner_next_turn"
+          }
+        ]
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
     "setId": "12",
     "number": 29,
     "rarity": "common",
@@ -1707,7 +1793,45 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FLEXIBLE THINKING",
+        "rulesText": "At the start of your turn, you may choose one: • This character gains <Evasive> until the start of your next turn. • This character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "turn_start"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "isMay": true,
+            "options": [
+              [
+                {
+                  "type": "grant_keyword",
+                  "keyword": "evasive",
+                  "duration": "until_caster_next_turn",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "gain_stats",
+                  "lore": 1,
+                  "duration": "end_of_turn",
+                  "target": {
+                    "type": "this"
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 49,
     "rarity": "rare",
@@ -2945,7 +3069,31 @@
       "Queen",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "UNEQUALED CRUELTY",
+        "rulesText": "While an opposing damaged character is in play, this character gets +2 {S}.",
+        "condition": {
+          "type": "opponent_controls_matching",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 75,
     "rarity": "common",
@@ -3310,7 +3458,62 @@
       "Alien",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "WE ARE ONE",
+        "rulesText": "This character gets +1 {S} for each other Toy character you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "strength",
+          "perCount": 1,
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Toy",
+            "excludeSelf": true
+          },
+          "target": {
+            "type": "this"
+          }
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "HE HAS BEEN CHOSEN",
+        "rulesText": "During your turn, when this character is banished, return another character card named Alien from your discard to your hand.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "character"
+                ],
+                "hasName": "Alien",
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 83,
     "rarity": "rare",
@@ -3419,7 +3622,80 @@
       "Toy",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SECRET MISSION",
+        "rulesText": "Whenever you pay 2 {I} or less to play a non-character, draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action",
+              "item",
+              "location"
+            ],
+            "costAtMost": 2
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "WORLD'S GREATEST TOY",
+        "rulesText": "Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "costAtMost": 2,
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                },
+                "hasDamage": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 85,
     "rarity": "rare",
@@ -4043,7 +4319,54 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE CLAW CHOOSES",
+        "rulesText": "{E}, 2 {I}, Banish one of your characters — Return chosen opposing character to their player's hand.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          },
+          {
+            "type": "banish_chosen",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 99,
     "rarity": "rare",
@@ -6718,6 +7041,44 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "GOT ME MONOLOGUING!",
+        "rulesText": "Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Robot"
+              }
+            }
+          },
+          {
+            "type": "play_card",
+            "isMay": true,
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Robot",
+              "costAtMost": 8
+            }
+          }
+        ]
       }
     ],
     "setId": "12",

@@ -1338,6 +1338,13 @@ export interface CantActionEffect {
    *  applies. Used by cards that conditionally restrict actions (e.g. only
    *  while the source has Anna in play). */
   condition?: Condition;
+  /** Effects to apply to the SAME resolved target after the cant_action lands.
+   *  Pattern shared with ExertEffect / ReadyEffect / RemoveDamageEffect.
+   *  Used by cards with "can't X AND must Y" oracle pairs that land both on
+   *  one chosen character — e.g. This Growing Pressure "Chosen opposing
+   *  character can't challenge and must quest during their next turn",
+   *  Ariel Curious Traveler / Gaston Frightful Bully (same pattern). */
+  followUpEffects?: Effect[];
 }
 
 /**
