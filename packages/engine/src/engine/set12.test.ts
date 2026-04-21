@@ -927,6 +927,82 @@ describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
   });
 });
 
+describe("Set 12 — Hero Work (timed grant_triggered_ability)", () => {
+  it("actionEffects: +1 {S} to own characters this turn + timed grant of challenge trigger to Hero-trait", () => {
+    const def = CARD_DEFINITIONS["hero-work"];
+    expect(def).toBeDefined();
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(2);
+
+    // 1. +1 {S} this turn to all own characters
+    expect(effects[0].type).toBe("gain_stats");
+    expect(effects[0].strength).toBe(1);
+    expect(effects[0].duration).toBe("end_of_turn");
+    expect(effects[0].target.type).toBe("all");
+    expect(effects[0].target.filter.owner.type).toBe("self");
+
+    // 2. Timed grant of triggered ability to Hero-trait own characters
+    expect(effects[1].type).toBe("grant_triggered_ability_timed");
+    expect(effects[1].filter.hasTrait).toBe("Hero");
+    expect(effects[1].filter.owner.type).toBe("self");
+    expect(effects[1].ability.type).toBe("triggered");
+    expect(effects[1].ability.trigger.on).toBe("challenges");
+    // Granted ability: each_player opponents lose 1 lore + self gain 1 lore
+    const granted = effects[1].ability.effects;
+    expect(granted).toHaveLength(2);
+    expect(granted[0].type).toBe("each_player");
+    expect(granted[0].scope).toBe("opponents");
+    expect(granted[0].effects[0].type).toBe("lose_lore");
+    expect(granted[1].type).toBe("gain_lore");
+    expect(granted[1].amount).toBe(1);
+  });
+
+  it("grant_triggered_ability_timed pushes to timedGrantedTriggeredAbilities on PlayerState", () => {
+    let state = startGame();
+    expect(state.players.player1.timedGrantedTriggeredAbilities ?? []).toEqual([]);
+    // Inject a source and apply the effect directly via applyEffect.
+    const { state: s1, instanceId: sourceId } = injectCard(state, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s1,
+      {
+        type: "grant_triggered_ability_timed",
+        filter: { hasTrait: "Hero" } as any,
+        ability: {
+          type: "triggered",
+          trigger: { on: "challenges" },
+          effects: [{ type: "gain_lore", amount: 1, target: { type: "self" } }],
+        } as any,
+      } as any,
+      sourceId,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    const grants = after.players.player1.timedGrantedTriggeredAbilities ?? [];
+    expect(grants).toHaveLength(1);
+    expect(grants[0]?.filter).toEqual({ hasTrait: "Hero" });
+    expect(grants[0]?.ability.trigger.on).toBe("challenges");
+  });
+
+  it("timedGrantedTriggeredAbilities resets on PASS_TURN (parity with activated variant)", () => {
+    let state = startGame();
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player1: {
+          ...state.players.player1,
+          timedGrantedTriggeredAbilities: [
+            { filter: {} as any, ability: { type: "triggered", trigger: { on: "quests" }, effects: [] } as any },
+          ],
+        },
+      },
+    };
+    const after = passTurns(state, 2);
+    expect(after.players.player1.timedGrantedTriggeredAbilities ?? []).toEqual([]);
+  });
+});
+
 describe("Set 12 — Escape Plan (playRestriction + bilateral inkwell-exerted)", () => {
   it("has a playRestriction gate on cards_put_into_discard_this_turn_atleast amount 2", () => {
     const def = CARD_DEFINITIONS["escape-plan"];

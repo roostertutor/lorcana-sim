@@ -1718,6 +1718,7 @@ function performTurnTransition(
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
         timedGrantedActivatedAbilities: [],
+        timedGrantedTriggeredAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
       // and per-turn event flags (damaged-this-turn, banished-in-challenge-this-turn).
@@ -1736,6 +1737,7 @@ function performTurnTransition(
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
         timedGrantedActivatedAbilities: [],
+        timedGrantedTriggeredAbilities: [],
       },
     },
     cardsLeftDiscardThisTurn: false,
@@ -4402,6 +4404,24 @@ export function applyEffect(
           [controllingPlayerId]: {
             ...state.players[controllingPlayerId],
             timedGrantedActivatedAbilities: [...existing, { filter: effect.filter, ability: effect.ability }],
+          },
+        },
+      };
+    }
+
+    case "grant_triggered_ability_timed": {
+      // Hero Work — "Your Hero characters gain '[trigger]' this turn." Pushes
+      // a turn-scoped grant onto the controller's timedGrantedTriggeredAbilities.
+      // getGameModifiers merges these into grantedTriggeredAbilities for
+      // matching in-play cards each pass. Cleared on PASS_TURN.
+      const existing = state.players[controllingPlayerId].timedGrantedTriggeredAbilities ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...state.players[controllingPlayerId],
+            timedGrantedTriggeredAbilities: [...existing, { filter: effect.filter, ability: effect.ability }],
           },
         },
       };
