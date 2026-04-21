@@ -103,12 +103,18 @@ unaffected — file this as a P1 on the server track, not a P0 blocker.
 
 ---
 
-## Engine agent + Bot-trainer agent: reveal-info model — bots currently have oracle access
+## [DEFERRED 2026-04-21] Engine agent + Bot-trainer agent: reveal-info model — bots currently have oracle access
 
-**Raised 2026-04-21 during a sandbox QOL pass (reveal-modal → reveal-pill,
-turn-anchored auto-clear). The GUI change is cosmetic; this note is about
-the deeper simulation-fidelity problem it exposed. Decision needed before
-any "realistic bot" training work.**
+**STATUS: deferred by user on 2026-04-21. Not a priority right now. Do not
+pick this up proactively — reopen only if/when "human-like bots" becomes
+a product requirement (e.g. MP bot opponents that shouldn't telegraph
+hidden info, clone-trainer calibration fidelity). Entry preserved because
+it documents real architectural debt + a full implementation sketch;
+resuming from scratch later would waste the analysis.**
+
+**Originally raised 2026-04-21 during a sandbox QOL pass (reveal-modal
+→ reveal-pill, turn-anchored auto-clear). The GUI change is cosmetic;
+this note is about the deeper simulation-fidelity problem it exposed.**
 
 ### Current state (verified in code, not memory)
 
