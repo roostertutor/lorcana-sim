@@ -13,8 +13,20 @@ export function useBoardDnd(params: {
   legalActions: GameAction[];
   dispatch: (action: GameAction) => void;
   isEnabled: boolean;
+  /**
+   * Called when a card is dragged into the play zone but has MULTIPLE legal
+   * play variants (e.g. Belle - Apprentice Inventor with both 3-ink play
+   * and viaGrantedFreePlay banish-item available). Stance B: never silently
+   * commit — surface the existing card popover so the user picks the path.
+   * Caller is expected to open the popover anchored at `rect`.
+   *
+   * Rect is dnd-kit's `ClientRect` (structurally compatible with DOMRect
+   * for positioning; lacks the `x`/`y` aliases and `toJSON`, which we
+   * don't use).
+   */
+  onAmbiguousPlay?: (instanceId: string, rect: { left: number; top: number; right: number; bottom: number; width: number; height: number }) => void;
 }) {
-  const { myId, gameState, legalActions, dispatch, isEnabled } = params;
+  const { myId, gameState, legalActions, dispatch, isEnabled, onAmbiguousPlay } = params;
   const [activeId,   setActiveId]   = useState<string | null>(null);
   const [activeZone, setActiveZone] = useState<"hand" | "play" | null>(null);
 
@@ -34,10 +46,28 @@ export function useBoardDnd(params: {
     const overId = over.id as string;
 
     if (overId === DROP_PLAY_ZONE) {
-      const action = legalActions.find(
+      // Collect every "simple" play path for this card (excludes shift/sing/
+      // singer-group, which drop onto other cards not the play zone).
+      const playActions = legalActions.filter(
         (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.singerInstanceId && !a.singerInstanceIds,
       );
-      if (action) dispatch(action);
+      if (playActions.length === 0) return;
+      if (playActions.length === 1) { dispatch(playActions[0]!); return; }
+      // Multiple legal variants (e.g. Belle: normal 3-ink play AND
+      // viaGrantedFreePlay banish-item). Stance B — surface the existing
+      // card popover instead of silently picking the first match. Caller
+      // anchors the popover at the drag-initial rect (the card's home
+      // position in hand, since dnd-kit visually translates via DragOverlay
+      // while the source element stays put).
+      if (onAmbiguousPlay) {
+        const initial = active.rect.current.initial;
+        if (initial) {
+          onAmbiguousPlay(draggingId, initial);
+          return;
+        }
+      }
+      // Fallback: old behavior if no handler wired (preserves a single path).
+      dispatch(playActions[0]!);
       return;
     }
 

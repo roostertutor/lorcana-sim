@@ -1155,6 +1155,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       !session.pendingChoice &&
       !session.isGameOver
     ),
+    // Stance B for alt-cost ambiguity: Belle (normal play vs. banish item)
+    // and Scrooge (normal vs. exert-4-matching) surface both "Play" and
+    // "Play Free" buttons in the card popover on tap. Drag used to silently
+    // pick the first match (normal-ink), losing the free-play benefit.
+    // Now: open the popover at the card's home position so the user sees
+    // both options — same UX as tapping, just triggered by the drag.
+    onAmbiguousPlay: (instanceId, rect) => {
+      setInspectCardId(instanceId);
+      const left = Math.max(8, Math.min(window.innerWidth - 8, rect.left + rect.width / 2));
+      const POPOVER_EST_HEIGHT = 160;
+      const placement = rect.bottom + POPOVER_EST_HEIGHT > window.innerHeight - 8 ? "above" : "below";
+      const top = placement === "below" ? rect.bottom + 6 : rect.top - 6;
+      setPopoverPos({ top, left, placement });
+    },
   });
 
   // Track the drop target currently under the cursor during a drag — used to
