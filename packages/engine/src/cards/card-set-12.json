@@ -4300,6 +4300,60 @@
     "inkable": false,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "put_card_on_bottom_of_deck",
+        "from": "play",
+        "position": "bottom",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "put_card_on_bottom_of_deck",
+        "from": "play",
+        "position": "top",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 97,
     "rarity": "super_rare",
@@ -8587,6 +8641,60 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "put_card_on_bottom_of_deck",
+        "from": "play",
+        "position": "bottom",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "put_card_on_bottom_of_deck",
+        "from": "play",
+        "position": "top",
+        "target": {
+          "type": "chosen",
+          "chooser": "target_player",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "12",
     "number": 231,
     "rarity": "enchanted",

@@ -3181,13 +3181,20 @@ export function applyEffect(
           return moveCard(state, sourceInstanceId, inst.ownerId, "deck", position);
         }
         if (target.type === "chosen") {
-          const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId);
+          // Respect target.chooser — "target_player" inverts the choosing
+          // player to the opponent (The Family Scattered: "Chosen opponent
+          // chooses 3 of their characters... puts one on the top / bottom of
+          // their deck"). Filter's self-references resolve relative to the
+          // chooser, so owner:"self" in the filter means "the chooser's own
+          // characters" when chooser is target_player.
+          const choosingPlayerId = chosenChooserPlayerId(target, controllingPlayerId);
+          const validTargets = findChosenTargets(state, target.filter, choosingPlayerId, definitions, sourceInstanceId);
           if (validTargets.length === 0) return state;
           return {
             ...state,
             pendingChoice: {
               type: "choose_target",
-              choosingPlayerId: controllingPlayerId,
+              choosingPlayerId,
               prompt: position === "top"
                 ? "Choose a card to put on top of its owner's deck."
                 : "Choose a card to put on the bottom of its owner's deck.",

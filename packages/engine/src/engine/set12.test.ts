@@ -927,6 +927,72 @@ describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
   });
 });
 
+describe("Set 12 — The Family Scattered / The Family's Scattered (opponent 3-way partition)", () => {
+  // #97 is Ravensburger super_rare (uninkable). #231 is Lorcast enchanted alt-art
+  // (inkable). Same oracle text, separate CardDefinitions by repo convention.
+  // Both wire the opponent-partition flow via 3 sequential effects with
+  // chooser: "target_player":
+  //   1. return_to_hand (opponent's choice) — one char to opponent's hand
+  //   2. put_card_on_bottom_of_deck from:play position:bottom
+  //   3. put_card_on_bottom_of_deck from:play position:top
+  // Each effect surfaces a fresh pendingChoice to the opposing player.
+  for (const [id, label] of [
+    ["the-family-scattered", "#97 Ravensburger super_rare"],
+    ["the-familys-scattered", "#231 Lorcast enchanted alt-art"],
+  ] as const) {
+    it(`${id} (${label}): actionEffects chain 3 opponent-chosen zone moves`, () => {
+      const def = CARD_DEFINITIONS[id];
+      expect(def).toBeDefined();
+      const effects = (def as any).actionEffects;
+      expect(effects).toHaveLength(3);
+
+      // 1. return_to_hand
+      expect(effects[0].type).toBe("return_to_hand");
+      expect(effects[0].target.chooser).toBe("target_player");
+      expect(effects[0].target.filter.owner.type).toBe("self");
+
+      // 2. put on bottom of deck
+      expect(effects[1].type).toBe("put_card_on_bottom_of_deck");
+      expect(effects[1].from).toBe("play");
+      expect(effects[1].position).toBe("bottom");
+      expect(effects[1].target.chooser).toBe("target_player");
+
+      // 3. put on top of deck
+      expect(effects[2].type).toBe("put_card_on_bottom_of_deck");
+      expect(effects[2].from).toBe("play");
+      expect(effects[2].position).toBe("top");
+      expect(effects[2].target.chooser).toBe("target_player");
+    });
+  }
+
+  it("put_card_on_bottom_of_deck from:play now respects chooser:target_player (extension to existing primitive)", () => {
+    let state = startGame();
+    // Give player2 a character; have player1 cast the effect.
+    const { state: s1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      {
+        type: "put_card_on_bottom_of_deck",
+        from: "play",
+        position: "top",
+        target: {
+          type: "chosen",
+          chooser: "target_player",
+          filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      sourceId,
+      "player1",
+      CARD_DEFINITIONS,
+      []
+    );
+    // pendingChoice surfaces to player2 (the target), not player1 (caster).
+    expect(after.pendingChoice).toBeDefined();
+    expect(after.pendingChoice?.choosingPlayerId).toBe("player2");
+  });
+});
+
 describe("Set 12 — Jack-jack Parr (reveal_top_switch 3-way)", () => {
   it("triggered turn_start + reveal_top_switch with 3 cases in priority order", () => {
     const def = CARD_DEFINITIONS["jack-jack-parr-incredible-potential"];
