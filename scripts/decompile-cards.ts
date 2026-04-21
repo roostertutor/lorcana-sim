@@ -397,6 +397,23 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   cards_put_into_discard_this_turn_atleast: (c) =>
     `if ${c.amount ?? 0} or more cards were put into your discard this turn`,
   you_removed_damage_this_turn: () => "if you removed damage from a character this turn",
+  // Julieta Madrigal Excellent Cook SIGNATURE RECIPE pattern — ability-local
+  // "this way" variant. Compares state.lastEffectResult (count from the most
+  // recent remove_damage / discard / mill / etc.) against amount. `gte 1`
+  // reads as "if you did it this way"; other comparators spell out the exact
+  // numeric gate.
+  last_effect_result: (c) => {
+    const op = c.comparison ?? "gte";
+    const n = c.amount ?? 0;
+    if (op === "gte" && n === 1) return "if you did this";
+    const phrase =
+      op === "gte" ? `at least ${n}`
+      : op === "lte" ? `at most ${n}`
+      : op === "gt" ? `more than ${n}`
+      : op === "lt" ? `fewer than ${n}`
+      : `exactly ${n}`;
+    return `if the preceding effect produced ${phrase}`;
+  },
 
   // Stat / location / state checks
   this_has_damage: () => "if this character has damage",
@@ -1190,6 +1207,36 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const filt = e.filter ? renderFilter(e.filter) : "characters";
     const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
     return `your ${filt} gain "${inner}" this turn`;
+  },
+
+  // Grants a triggered ability to a filtered set of characters until end of
+  // turn. Hero Work pattern — "Your Hero characters gain '[trigger]' this
+  // turn." Mirrors grant_activated_ability_timed but routes the inner
+  // TriggeredAbility through renderAbility.
+  grant_triggered_ability_timed: (e) => {
+    const filt = e.filter ? renderFilter(e.filter) : "characters";
+    const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
+    return `your ${filt} gain "${inner}" this turn`;
+  },
+
+  // Atomic mill + switch-on-revealed-type — Jack-jack Parr WEIRD THINGS ARE
+  // HAPPENING ("put top card into discard; if character, +2 S; if action/
+  // item, +2 L; if location, banish chosen character"). Each case renders
+  // as "if <filter>, <effects>"; cases joined with semicolons in priority
+  // order (first-match-wins).
+  reveal_top_switch: (e) => {
+    const maybe = e.isMay ? "you may " : "";
+    const destVerb =
+      (e.destination ?? "discard") === "discard" ? "put the top card of your deck into your discard"
+      : (e.destination ?? "discard") === "hand" ? "look at the top card of your deck and put it into your hand"
+      : (e.destination ?? "discard") === "top" ? "look at the top card of your deck"
+      : "put the top card of your deck on the bottom";
+    const cases = (e.cases ?? []).map((c: any) => {
+      const filt = c.filter ? renderFilter(c.filter) : "card";
+      const effs = (c.effects ?? []).map((sub: any) => renderEffect(sub)).join("; ");
+      return `if ${filt}, ${effs}`;
+    }).join("; ");
+    return `${maybe}${destVerb}. ${cases}`;
   },
 
   // Static "enters play exerted" — applies to a filtered set (e.g.

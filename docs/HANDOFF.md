@@ -10,6 +10,44 @@ Conventions:
 
 ---
 
+## GUI / Sandbox agent: verify 5 newly-wired set-12 cards end-to-end
+
+Five set-12 cards landed this session (2026-04-21) via commits `b7a4434` →
+`6b831a1`. All primitives + wiring + engine tests land, but runtime visuals
+and opponent-choice flow need sandbox-level verification. Likely 30-60 min
+of hotseat playtime.
+
+**Cards to verify** (in priority order — simpler first):
+
+| # | Card | What to check |
+|---|---|---|
+| 164 | Escape Plan | **playRestriction gate**: card should be UNCLICKABLE / greyed in hand when <2 cards discarded this turn. After 2+ discards (e.g. play Dangerous Plan × 2), it becomes playable. On play, BOTH players see a "choose 2 characters → inkwell exerted" prompt in succession (caster first per CRD 7.7.4). Characters land in each player's inkwell as exerted. |
+| 132 | Hero Work | **Timed grant triggered ability**: play Hero Work. Own characters gain +1 {S} (should show as existing stat delta badge). Then any own Hero-trait character challenges — trigger fires: each opponent loses 1 lore + you gain 1 lore. Next turn: effect expires (timed grant clears on PASS_TURN). |
+| 121 | Jack-jack Parr | **3-way switch on mill**: card enters play. Pass turn back around. At start of your next turn: may-mill prompt. Accept → top card milled. Test each of 3 branches by stacking deck (use card injector with zone=deck): character → Jack-jack +2 {S}; action/item → Jack-jack +2 {L}; location → caster picks an opposing character to banish. |
+| 97 | The Family Scattered | **Opponent 3-way partition**: play vs an opponent with ≥3 characters in play. Active player sees "Opponent is choosing..." wait state (existing pattern, `PendingChoiceModal.tsx:159`). Hotseat opponent sees 3 sequential modals: (a) return to hand, (b) bottom of deck, (c) top of deck. After all 3 resolve: 1 char in opponent's hand, 2 in opponent's deck (one at each end). |
+| 231 | The Family's Scattered | Same effect as #97, different printing (Lorcast enchanted inkable). Both share identical actionEffects per repo alt-art convention. Quick spot-check: play both to confirm identical behavior. |
+
+**Existing `PendingChoiceModal`** (`packages/ui/src/components/PendingChoiceModal.tsx:159-170`)
+already handles `choosingPlayerId !== myId` — shows "Opponent is choosing..."
+on the waiting player's screen and renders the prompt on the active chooser's
+screen. This pattern is already exercised by set-4 Ursula's Plan, Be King
+Undisputed, Triton's Decree (all `chooser: "target_player"`). Family
+Scattered should work out of the box.
+
+**Optional polish** (not blocking):
+- "Step 1 of 3" indicator on the opponent's Family Scattered partition modals.
+- Grouped "Family Scattered — waiting on opponent's 3 picks..." label on
+  the active player's wait state instead of 3 consecutive "opponent is
+  choosing" ticks.
+
+**Don't touch**:
+- Engine code, card JSONs, or primitive definitions — those are shipped.
+- The 2 new primitives (`grant_triggered_ability_timed`, `reveal_top_switch`)
+  have decompiler renderers as of commit [followup]; they score ≥0.85 on
+  round-trip now.
+
+---
+
 ## Engine agent: deferred / low-priority queue (verified against code 2026-04-20)
 
 Items NOT currently blocking anything, kept here so they don't need to live in

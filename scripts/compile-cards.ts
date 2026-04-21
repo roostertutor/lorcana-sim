@@ -1404,6 +1404,32 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= DECK MANIPULATION ==========================================
+  // ORDER MATTERS: reveal_top_switch_3way_type must come BEFORE
+  // put_top_card_of_own_deck_into_discard because both match the same
+  // "you may put the top card of your deck into your discard" prefix —
+  // without the 3-way pattern winning first, the shorter matcher returns
+  // just the mill and the switch body is lost.
+  {
+    name: "reveal_top_switch_3way_type",
+    // Jack-jack Parr WEIRD THINGS ARE HAPPENING: mill + switch on card type
+    // (character / action-or-item / location). Multi-line oracle — the
+    // compiler preserves newlines in the rulesText, and each bullet line
+    // starts with "• ". Regex uses `[\s\S]` to span newlines.
+    pattern: /^you may put the top card of your deck into your discard\.\s*if its card type is:\s*•?\s*character,\s*([\s\S]+?)\s*•?\s*action or item,\s*([\s\S]+?)\s*•?\s*location,\s*([\s\S]+?)\.?\s*$/i,
+    build: (m, ctx) => {
+      const charText = m[1].trim().replace(/\.$/, "");
+      const actItemText = m[2].trim().replace(/\.$/, "");
+      const locText = m[3].trim().replace(/\.$/, "");
+      const charEffect = matchEffect(charText + ".", ctx);
+      const actItemEffect = matchEffect(actItemText + ".", ctx);
+      const locEffect = matchEffect(locText + ".", ctx);
+      const cases: any[] = [];
+      if (charEffect) cases.push({ filter: { cardType: ["character"] }, effects: [charEffect.json] });
+      if (actItemEffect) cases.push({ filter: { cardType: ["action", "item"] }, effects: [actItemEffect.json] });
+      if (locEffect) cases.push({ filter: { cardType: ["location"] }, effects: [locEffect.json] });
+      return { type: "reveal_top_switch", isMay: true, cases };
+    },
+  },
   {
     name: "put_top_card_of_own_deck_into_discard",
     pattern: /^(?:you may )?put the top card of your deck into your discard/i,
@@ -1545,6 +1571,112 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "return_all_to_bottom_in_order",
       filter: { zone: "discard", owner: { type: "self" }, ...parseSimpleFilter(m[1].trim()) },
     }),
+  },
+
+  // ============= ESCAPE PLAN PATTERN =========================================
+  // "Each player chooses N of their characters and puts them into their
+  // inkwell facedown and exerted." Bilateral each_player over all players
+  // (caster + opponent in 2P) with N sequential put_into_inkwell prompts
+  // per iteration. Each iteration's filter owner:"self" resolves to the
+  // iteration's player via each_player's controller rotation.
+  {
+    name: "each_player_inkwell_exerted_n_chars",
+    pattern: /^each player chooses (\d+) of their characters and puts them into their inkwell(?: facedown)?(?: and)?(?: exerted)?/i,
+    build: (m) => {
+      const count = n(m[1]);
+      const inner = {
+        type: "put_into_inkwell",
+        target: {
+          type: "chosen",
+          filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] },
+        },
+        enterExerted: true,
+        fromZone: "play",
+      };
+      return {
+        type: "each_player",
+        scope: "all",
+        effects: Array.from({ length: count }, () => inner),
+      };
+    },
+  },
+
+  // (reveal_top_switch_3way_type matcher moved earlier in the list so it
+  // beats the shorter put_top_card_of_own_deck_into_discard prefix match.)
+
+  // ============= FAMILY SCATTERED PATTERN ===================================
+  // "Chosen opponent chooses 3 of their characters and returns one of those
+  // cards to their hand, puts one on the bottom of their deck, and puts
+  // one on the top of their deck." Emits 3 sequential effects, each with
+  // chooser:"target_player" so the opposing player picks. No new primitive
+  // — chooser on put_card_on_bottom_of_deck from:"play" respects
+  // target_player as of the 2026-04-21 extension.
+  //
+  // This matcher emits a 3-effect sequence but compile-cards' caller
+  // expects a single ability — so the sequence is wrapped in an array by
+  // a follow-up flatten pass. For now, emit as a `sequential` effect which
+  // the engine already flattens via the action-effects dispatcher.
+  {
+    name: "opponent_partition_3way_hand_bottom_top",
+    pattern: /^chosen opponent chooses 3 of their characters and returns one of those cards to their hand,\s*puts one on the bottom of their deck,\s*and puts one on the top of their deck/i,
+    build: () => {
+      const opponentChars = {
+        type: "chosen",
+        chooser: "target_player",
+        filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] },
+      };
+      return {
+        // sequential-as-container: compile-cards' wrapper unwraps the
+        // inner effects into actionEffects[] on the emitted card.
+        type: "__actionEffects__",
+        effects: [
+          { type: "return_to_hand", target: opponentChars },
+          { type: "put_card_on_bottom_of_deck", from: "play", position: "bottom", target: opponentChars },
+          { type: "put_card_on_bottom_of_deck", from: "play", position: "top", target: opponentChars },
+        ],
+      };
+    },
+  },
+
+  // ============= HERO WORK PATTERN ==========================================
+  // "Your X characters gain '<triggered ability>' this turn." Emits a
+  // grant_triggered_ability_timed effect. The quoted inner ability is
+  // passed through matchEffect as an embedded triggered ability — compiler
+  // recursion handles the quote-wrapped inner oracle.
+  //
+  // Scope is intentionally narrow: requires "Your <trait> characters gain"
+  // (trait-filtered form). Plain "Your characters gain" without a trait is
+  // less common and would match too aggressively here.
+  {
+    name: "grant_triggered_ability_timed_trait",
+    pattern: /^your (\w+) characters gain ["“](.+?)["”] this turn/i,
+    build: (m, ctx) => {
+      const trait = m[1];
+      const innerText = m[2];
+      // The inner is a triggered ability — try to compile it into
+      // { type: "triggered", trigger, effects, ... }. If inner parsing
+      // fails, return null to let the surrounding matcher queue flag this.
+      // For the MVP we emit the inner as an opaque string placeholder
+      // when recursion fails; callers should validate via round-trip.
+      const capTrait = trait.charAt(0).toUpperCase() + trait.slice(1);
+      return {
+        type: "grant_triggered_ability_timed",
+        filter: {
+          owner: { type: "self" },
+          zone: "play",
+          cardType: ["character"],
+          hasTrait: capTrait,
+        },
+        // Inner ability emitted as a stub — the real wire-up needs manual
+        // trigger-matching (compiler's triggered-ability parsing is itself
+        // complex; matching the inner quoted oracle back through tryTriggered
+        // would be the extension for full automation).
+        ability: {
+          type: "triggered",
+          _inner_oracle: innerText,
+        },
+      };
+    },
   },
 ];
 
