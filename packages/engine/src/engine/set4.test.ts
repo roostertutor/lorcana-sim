@@ -1139,3 +1139,112 @@ describe("§4 Set 4 — last_effect_result condition primitive (all comparison o
     expect(evaluateCondition(cond, one,  CARD_DEFINITIONS, "player1", "dummy", undefined, new Map())).toBe(false);
   });
 });
+
+// =============================================================================
+// Hidden Inkcaster — "All cards in your hand count as having {IW}".
+// Regression: validator used to check only def.inkable and never consult
+// modifiers.allHandInkable (handler-existence-is-not-correctness bug — the
+// emit case at gameModifiers.ts was populated, but no consumer read the Set).
+// Fix lives at validator.ts:validatePlayInk — checks the printed flag OR the
+// modifier set.
+// =============================================================================
+
+import { validateAction } from "./validator.js";
+
+describe("§4 Set 4 — Hidden Inkcaster UNEXPECTED TREASURE (all_hand_inkable)", () => {
+  const UNINKABLE_CHARACTER = "hades-king-of-olympus";
+
+  it("validator: uninkable hand card becomes inkable while Hidden Inkcaster is in play", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "hidden-inkcaster", "play", { isDrying: false }));
+    const { state: s, instanceId: uninkableId } = injectCard(state, "player1", UNINKABLE_CHARACTER, "hand");
+    state = s;
+
+    const r = validateAction(state, {
+      type: "PLAY_INK",
+      playerId: "player1",
+      instanceId: uninkableId,
+    }, CARD_DEFINITIONS);
+    expect(r.valid).toBe(true);
+  });
+
+  it("legal-actions: PLAY_INK for uninkable card is enumerated while Hidden Inkcaster is in play", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "hidden-inkcaster", "play", { isDrying: false }));
+    const { state: s, instanceId: uninkableId } = injectCard(state, "player1", UNINKABLE_CHARACTER, "hand");
+    state = s;
+
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const inkActions = actions.filter(
+      (a) => a.type === "PLAY_INK" && a.instanceId === uninkableId,
+    );
+    expect(inkActions).toHaveLength(1);
+  });
+
+  it("negative control: without Hidden Inkcaster, same uninkable card is rejected and omitted from legal actions", () => {
+    let state = startGame();
+    const { state: s, instanceId: uninkableId } = injectCard(state, "player1", UNINKABLE_CHARACTER, "hand");
+    state = s;
+
+    const r = validateAction(state, {
+      type: "PLAY_INK",
+      playerId: "player1",
+      instanceId: uninkableId,
+    }, CARD_DEFINITIONS);
+    expect(r.valid).toBe(false);
+
+    const actions = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const inkActions = actions.filter(
+      (a) => a.type === "PLAY_INK" && a.instanceId === uninkableId,
+    );
+    expect(inkActions).toHaveLength(0);
+  });
+
+  it("once-per-turn ink cap still enforced (UNEXPECTED TREASURE doesn't grant extra ink plays)", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "hidden-inkcaster", "play", { isDrying: false }));
+    // Put two different uninkable cards in hand so the stale-instance excuse can't hide the bug.
+    const a = injectCard(state, "player1", UNINKABLE_CHARACTER, "hand");
+    state = a.state;
+    const b = injectCard(state, "player1", "lilo-making-a-wish", "hand");
+    state = b.state;
+
+    // First ink — succeeds.
+    const r1 = applyAction(state, {
+      type: "PLAY_INK",
+      playerId: "player1",
+      instanceId: a.instanceId,
+    }, CARD_DEFINITIONS);
+    expect(r1.success).toBe(true);
+    state = r1.newState;
+
+    // Second ink — same turn — CRD 4.2.3 blocks even though the card is eligible.
+    const r2 = validateAction(state, {
+      type: "PLAY_INK",
+      playerId: "player1",
+      instanceId: b.instanceId,
+    }, CARD_DEFINITIONS);
+    expect(r2.valid).toBe(false);
+    expect(r2.reason).toMatch(/ink this turn/i);
+  });
+
+  it("only affects owner's hand — opponent's uninkable cards remain un-inkable", () => {
+    let state = startGame();
+    // Hidden Inkcaster in p1's play.
+    ({ state } = injectCard(state, "player1", "hidden-inkcaster", "play", { isDrying: false }));
+    // Uninkable card in p2's hand.
+    const { state: s, instanceId: p2UninkableId } = injectCard(state, "player2", UNINKABLE_CHARACTER, "hand");
+    state = s;
+    // Advance to p2's turn so the phase gate doesn't short-circuit first.
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+    expect(state.currentPlayer).toBe("player2");
+
+    const r = validateAction(state, {
+      type: "PLAY_INK",
+      playerId: "player2",
+      instanceId: p2UninkableId,
+    }, CARD_DEFINITIONS);
+    expect(r.valid).toBe(false);
+    expect(r.reason).toMatch(/cannot be used as ink/i);
+  });
+});

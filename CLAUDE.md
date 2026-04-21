@@ -68,7 +68,7 @@ Run whenever Ravensburger adds cards to the API (typically same day as app relea
 
 ## Audits
 
-Four scripts triangulate data quality; all four report clean across all 17 sets.
+Five scripts triangulate data quality; four (`card-status`, `audit-cards`, `audit-approximations`, `decompile-cards`) are text-shape checks; the fifth (`audit-dead-primitives`) does reachability analysis over runtime state.
 
 | Script | Covers | What it misses |
 |---|---|---|
@@ -76,6 +76,7 @@ Four scripts triangulate data quality; all four report clean across all 17 sets.
 | `pnpm audit-cards` | Card data drift: scalar fields, static-effect-type mismatches, keyword drops. Run after re-import. | Engine-internal wiring correctness. |
 | `pnpm audit-approximations` | Parenthetical `(approximation: ...)` annotations in rulesText. | Anything not marked with that exact phrase. |
 | `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. |
+| `pnpm audit-dead-primitives` | Emit-vs-read reachability on StaticEffect primitives: every `modifiers.<field>` write in `gameModifiers.ts` must have at least one reader across engine+simulator+analytics+cli+ui. Catches the Hidden Inkcaster class of bug — case handler exists and populates a modifier field, but no consumer ever reads it, so the static silently no-ops. | Runtime correctness of the readers themselves (wrong variable, off-by-one). |
 
 **What no audit catches:** required-field structural validation, semantic correctness (e.g. `triggering_card` vs `last_resolved_target` picking the wrong one), and runtime-handler bugs. Those need the decompiler-diff sweep, tests, or hands-on play.
 

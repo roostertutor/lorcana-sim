@@ -255,7 +255,114 @@ panels — trivial compared to the engine/bot work.
 
 ---
 
-## Engine agent: Hidden Inkcaster — `all_hand_inkable` populated but never consumed
+## Engine agent: 3 dead-primitive bugs surfaced by new `pnpm audit-dead-primitives` (follow-up from Hidden Inkcaster fix)
+
+Shipped 2026-04-21 alongside the Hidden Inkcaster fix: a new audit script
+(`pnpm audit-dead-primitives`) that scans `gameModifiers.ts` for every
+`modifiers.<field>.(add|set|push|=|...)` write and verifies at least one
+reader exists across engine + simulator + analytics + cli + ui. The audit
+matches reads through canonical names (`modifiers.X`), abbreviated aliases
+(`mods.X`, `drawModifiers.X`, `epeMods.X`, `inkMods.X`, `discardMods.X`),
+and optional chaining (`modifiers?.X`). Write-shaped tails (`.add(`,
+`.set(`, `.push(`, ` = `) are skipped so writes don't count as reads.
+
+First run after fixing Hidden Inkcaster surfaces **3 additional dead
+primitives** — each is its own runtime bug. Pattern: the case handler
+populates the modifier field, but no consumer reads it, so the static
+silently no-ops.
+
+### 1. Flotsam - Ursula's "Baby" (`grant_triggered_ability` → `grantedTriggeredAbilities`)
+
+- **Populator**: `gameModifiers.ts:1093-1095` — `modifiers.grantedTriggeredAbilities.set(candidate.instanceId, [...])`
+- **Expected reader**: the trigger scanner (docs comment at `types/index.ts:1768`
+  literally says "The trigger scanner checks grantedTriggeredAbilities in
+  addition to the card's own definition abilities") — **but no such check
+  exists**.
+- **Runtime impact**: Flotsam grants a triggered ability to matching
+  characters. With no reader, the granted ability never fires.
+- **Fix location**: wherever the trigger-scanner walks a card's abilities to
+  dispatch triggers. Search `reducer.ts` for `for (const ab of def.abilities`
+  or similar; augment the loop to also iterate
+  `modifiers.grantedTriggeredAbilities.get(instance.instanceId) ?? []`.
+- **Test pattern**: inject Flotsam's source in play, inject a matching
+  character, fire the granting event, assert the granted ability triggers.
+
+### 2. Captain Amelia - Commander of the Legacy (`grant_keyword_while_being_challenged` → `grantKeywordWhileBeingChallenged`)
+
+- **Populator**: `gameModifiers.ts:1140-1142` —
+  `modifiers.grantKeywordWhileBeingChallenged.set(candidate.instanceId, [...])`
+- **Expected reader**: the challenge-resolution path in `reducer.ts` when
+  computing the defender's effective keywords — **but no consumer reads
+  the Map**.
+- **Runtime impact**: when a matching character is challenged, the granted
+  keyword (e.g. `<Bodyguard>` / `<Resist>` / `<Ward>`) is not active during
+  challenge resolution. Cards that rely on "while being challenged, gains
+  keyword X" protection are silently broken.
+- **Fix location**: the challenge reducer's effective-keyword lookup. Grep
+  `reducer.ts` for the challenge action case; add a merge of
+  `modifiers.grantKeywordWhileBeingChallenged.get(defenderId) ?? []` into
+  the keyword set used for that specific challenge resolution only (the
+  keyword should NOT persist outside the challenge — that's why it lives
+  in a separate "while being challenged" field rather than the regular
+  `grantedKeywords`).
+- **Test pattern**: inject Captain Amelia's source in play, matching
+  character gets challenged, assert the granted keyword is active for the
+  challenge damage/banish resolution but not for a subsequent un-challenged
+  action.
+
+### 3. Vision Slab (`prevent_damage_removal` → `preventDamageRemoval`)
+
+- **Populator**: `gameModifiers.ts:1110` — `modifiers.preventDamageRemoval = true;`
+- **Expected reader**: `reducer.ts`'s `remove_damage` effect handler — **but
+  no consumer checks the boolean**.
+- **Runtime impact**: Vision Slab's "damage counters can't be removed
+  globally" effect is a silent no-op. Cards that remove damage continue to
+  remove damage while Vision Slab is in play.
+- **Fix location**: `reducer.ts` `case "remove_damage":` — at the top of the
+  handler, short-circuit with `if (getGameModifiers(state, definitions).preventDamageRemoval) return state;`
+  (zero damage removed, effect is consumed). Consider whether the effect
+  should noisily log or silently no-op — matches how similar global
+  prevention primitives behave (`prevent_discard_from_hand`).
+- **Test pattern**: inject Vision Slab in play, put damage on a character,
+  apply a `remove_damage` effect, assert the character still has the
+  damage counter afterward.
+
+### Meta: why the audit catches this but the existing four don't
+
+All four existing audits (`card-status`, `audit-cards`, `audit-approximations`,
+`decompile-cards`) are TEXT-SHAPE checks — they validate JSON field names and
+oracle-text similarity. None of them follow runtime data flow. A primitive
+can have the correct emit-side case handler, the correct JSON, the correct
+oracle text, and still silently no-op because no consumer reads the runtime
+state it populates.
+
+`pnpm audit-dead-primitives` fills that specific gap — emit-vs-read
+reachability analysis via textual grep. Heuristic but effective: Hidden
+Inkcaster + these 3 were sitting in production across 4+ sets undetected.
+
+### Sequencing
+
+Each of the 3 bugs is independent — wire them in any order. Each needs its
+own regression test per CLAUDE.md's "validateX rejection must always be
+paired with a getAllLegalActions test" rule (for Vision Slab and Flotsam
+those are the relevant flavors; Captain Amelia is reducer-internal so the
+test is on the challenge resolution). After each fix, re-run
+`pnpm audit-dead-primitives` — the fixed entry should drop off the dead
+list. When all 3 land, the audit should print `✓ All N StaticEffect
+modifier fields have at least one reader.`
+
+---
+
+## Engine agent: Hidden Inkcaster — `all_hand_inkable` (DONE 2026-04-21)
+
+**DONE — commit TBD.** Fix shipped: `validator.ts:validatePlayInk` now
+consults `modifiers.allHandInkable.has(playerId)` alongside `def.inkable`.
+5 regression tests added to `set4.test.ts` (validator path, legal-actions
+path, negative control, once-per-turn still enforced, only-owner-affected).
+Audit improvement shipped: new `pnpm audit-dead-primitives` script (see
+entry above for the 3 other dead primitives it surfaced).
+
+Retained below for reasoning context on how the fix was diagnosed.
 
 **Dead-code primitive. Found 2026-04-21 during sandbox play — user dropped
 Hidden Inkcaster into play, then tried to ink an uninkable card from hand,

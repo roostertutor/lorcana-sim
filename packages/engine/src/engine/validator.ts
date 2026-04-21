@@ -470,7 +470,11 @@ function validatePlayInk(
   }
 
   const def = getDefinition(state, instanceId, definitions);
-  if (!def.inkable) return fail("This card cannot be used as ink.");
+  // Hidden Inkcaster: while one controller-side copy is in play, all of that
+  // player's hand counts as inkable regardless of the printed {IW} flag.
+  if (!def.inkable && !modifiers.allHandInkable.has(playerId)) {
+    return fail("This card cannot be used as ink.");
+  }
 
   return OK;
 }

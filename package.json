@@ -17,6 +17,7 @@
     "import-cards-lorcast": "tsx scripts/import-cards-lorcast.ts",
     "backfill-source-manual": "tsx scripts/backfill-source-manual.ts",
     "audit-cards": "tsx scripts/audit-card-data.ts",
+    "audit-dead-primitives": "tsx scripts/audit-dead-primitives.ts",
     "catalog": "tsx scripts/catalog-primitives.ts > docs/ENGINE_PRIMITIVES.md",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
     "compile-cards": "tsx scripts/compile-cards.ts",
