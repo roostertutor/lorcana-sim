@@ -10,6 +10,7 @@ import { computeDeckProbabilities } from "../probabilities.js";
 import { evaluatePosition } from "../evaluator.js";
 import type { BotWeights } from "../types.js";
 import { shouldMulligan } from "../mulligan.js";
+import { getMultiPickRange } from "./multiPick.js";
 
 /**
  * Resolve a pending choice intelligently using position evaluation.
@@ -96,6 +97,36 @@ export function resolveChoiceIntelligently(
       console.warn("[choiceResolver] required choice has no valid targets — returning empty");
     }
     return { type: "RESOLVE_CHOICE", playerId, choice: [] };
+  }
+
+  // Multi-pick (Dig a Little Deeper, Look at This Family): the engine expects
+  // `min(maxToHand, validTargets)` IDs back. Score each target individually,
+  // then take top-K — single-pick would underfill mandatory effects. Greedy
+  // top-K is a sound approximation since the reveal-pile cards don't interact
+  // with each other at pick time.
+  if (choice.type === "choose_from_revealed") {
+    const { minSize, maxSize } = getMultiPickRange(choice);
+    if (maxSize > 1) {
+      const probsMulti = computeDeckProbabilities(state, playerId, definitions);
+      const scored = targets.map((id) => {
+        const a: GameAction = { type: "RESOLVE_CHOICE", playerId, choice: [id] };
+        const r = applyAction(state, a, definitions);
+        if (!r.success) return { id, score: -Infinity };
+        const { score } = evaluatePosition(r.newState, playerId, probsMulti, weights);
+        return { id, score };
+      });
+      scored.sort((a, b) => b.score - a.score);
+      const pickSize = minSize === 0
+        // Optional: only take as many cards as have positive marginal value.
+        // Fall back to maxSize if none score positively (effect is free loot).
+        ? Math.max(0, Math.min(maxSize, scored.filter((s) => s.score > 0).length || maxSize))
+        : maxSize;
+      return {
+        type: "RESOLVE_CHOICE",
+        playerId,
+        choice: scored.slice(0, pickSize).map((s) => s.id),
+      };
+    }
   }
 
   const probs = computeDeckProbabilities(state, playerId, definitions);

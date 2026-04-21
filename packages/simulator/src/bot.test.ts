@@ -8,15 +8,19 @@ import { describe, it, expect } from "vitest";
 import {
   applyAction,
   createGame,
+  createRng,
+  cloneRng,
   getZone,
   generateId,
   CARD_DEFINITIONS,
 } from "@lorcana-sim/engine";
 import type { CardInstance, GameState, PlayerID } from "@lorcana-sim/engine";
 import { GreedyBot } from "./bots/GreedyBot.js";
+import { RandomBot } from "./bots/RandomBot.js";
 import { resolveChoiceIntelligently } from "./bots/choiceResolver.js";
 import { shouldMulligan, performMulligan, DEFAULT_MULLIGAN } from "./mulligan.js";
 import { runGame } from "./runGame.js";
+import { RLPolicy } from "./rl/policy.js";
 import type { SimGameConfig } from "./types.js";
 
 // ---------------------------------------------------------------------------
@@ -468,6 +472,173 @@ describe("Layer 5b — Personality & simulation", () => {
     const p1Rate = p1Wins / total;
     expect(p1Rate).toBeGreaterThan(0.25);
     expect(p1Rate).toBeLessThan(0.75);
+  });
+
+  it("multi-pick choose_from_revealed: all bots return correct array length", () => {
+    // Regression for HANDOFF "Simulator multi-pick enumerator bug" — all three
+    // bots used to emit single-pick candidates for choose_from_revealed,
+    // underfilling Dig a Little Deeper / Look at This Family (maxToHand=2).
+    // Builds a PendingChoice that mirrors what look_at_top creates: 7 valid
+    // targets, maxToHand=2, mandatory (isOptional=false). The engine reads the
+    // bot's `choice` array verbatim and routes that many cards to hand — a
+    // length-1 response silently leaves 1 card on the deck instead of 2.
+    let state = createGame({ player1Deck: TEST_DECK, player2Deck: TEST_DECK }, defs);
+
+    // 7 cards in player1's deck to act as the "revealed" set.
+    const revealedIds: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const r = injectCard(state, "player1", "simba-protective-cub", "deck");
+      state = r.state;
+      revealedIds.push(r.instanceId);
+    }
+
+    state = {
+      ...state,
+      currentPlayer: "player1",
+      phase: "main",
+      pendingChoice: {
+        type: "choose_from_revealed",
+        choosingPlayerId: "player1",
+        prompt: "Choose 2 cards to put into your hand.",
+        validTargets: revealedIds,
+        revealedCards: revealedIds,
+        pendingEffect: {
+          type: "look_at_top",
+          count: 7,
+          action: "choose_from_top",
+          maxToHand: 2,
+          target: { type: "self" },
+        } as any,
+        optional: false,
+      },
+    };
+
+    // GreedyBot: greedy top-K of size 2.
+    const greedyAction = GreedyBot.decideAction(state, "player1", defs);
+    expect(greedyAction.type).toBe("RESOLVE_CHOICE");
+    if (greedyAction.type === "RESOLVE_CHOICE" && Array.isArray(greedyAction.choice)) {
+      expect(greedyAction.choice.length).toBe(2);
+      // All picks must be from the valid targets (no synthetic IDs).
+      for (const id of greedyAction.choice) expect(revealedIds).toContain(id);
+    }
+
+    // RandomBot: random subset of size 2.
+    const randomAction = RandomBot.decideAction(state, "player1", defs);
+    expect(randomAction.type).toBe("RESOLVE_CHOICE");
+    if (randomAction.type === "RESOLVE_CHOICE" && Array.isArray(randomAction.choice)) {
+      expect(randomAction.choice.length).toBe(2);
+      for (const id of randomAction.choice) expect(revealedIds).toContain(id);
+      // No duplicates.
+      expect(new Set(randomAction.choice).size).toBe(2);
+    }
+
+    // RLPolicy: enumerated combinations + scored. We don't care WHICH it picks
+    // (untrained net), just that it picks the right COUNT.
+    const rng = createRng(42);
+    const policy = new RLPolicy("test-multi-pick", rng, cloneRng(rng), 0.0);
+    const rlAction = policy.decideAction(state, "player1", defs);
+    expect(rlAction.type).toBe("RESOLVE_CHOICE");
+    if (rlAction.type === "RESOLVE_CHOICE" && Array.isArray(rlAction.choice)) {
+      expect(rlAction.choice.length).toBe(2);
+      for (const id of rlAction.choice) expect(revealedIds).toContain(id);
+    }
+  });
+
+  it("multi-pick choose_from_revealed clamps to validTargets when short", () => {
+    // CRD 1.7.x "as much as possible" — if only 1 card is revealed but
+    // maxToHand=2, the bot must return [the_one_card], not 2 IDs.
+    let state = createGame({ player1Deck: TEST_DECK, player2Deck: TEST_DECK }, defs);
+    const r = injectCard(state, "player1", "simba-protective-cub", "deck");
+    state = r.state;
+    const onlyCard = r.instanceId;
+
+    state = {
+      ...state,
+      currentPlayer: "player1",
+      phase: "main",
+      pendingChoice: {
+        type: "choose_from_revealed",
+        choosingPlayerId: "player1",
+        prompt: "Choose up to 2.",
+        validTargets: [onlyCard],
+        revealedCards: [onlyCard],
+        pendingEffect: {
+          type: "look_at_top",
+          count: 7,
+          action: "choose_from_top",
+          maxToHand: 2,
+          target: { type: "self" },
+        } as any,
+        optional: false,
+      },
+    };
+
+    const greedy = GreedyBot.decideAction(state, "player1", defs);
+    if (greedy.type === "RESOLVE_CHOICE" && Array.isArray(greedy.choice)) {
+      expect(greedy.choice.length).toBe(1);
+      expect(greedy.choice[0]).toBe(onlyCard);
+    }
+
+    const random = RandomBot.decideAction(state, "player1", defs);
+    if (random.type === "RESOLVE_CHOICE" && Array.isArray(random.choice)) {
+      expect(random.choice.length).toBe(1);
+      expect(random.choice[0]).toBe(onlyCard);
+    }
+
+    const rng = createRng(7);
+    const policy = new RLPolicy("test-clamp", rng, cloneRng(rng), 0.0);
+    const rl = policy.decideAction(state, "player1", defs);
+    if (rl.type === "RESOLVE_CHOICE" && Array.isArray(rl.choice)) {
+      expect(rl.choice.length).toBe(1);
+      expect(rl.choice[0]).toBe(onlyCard);
+    }
+  });
+
+  it("optional multi-pick (isMay) lets RandomBot return 0..maxToHand", () => {
+    // The Family Madrigal-style isMay=true: legal pick range is [0, maxSize].
+    // Run RandomBot many times on the same input and confirm it produces sizes
+    // across the full legal range, never out of bounds.
+    let state = createGame({ player1Deck: TEST_DECK, player2Deck: TEST_DECK }, defs);
+    const targets: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      const r = injectCard(state, "player1", "simba-protective-cub", "deck");
+      state = r.state;
+      targets.push(r.instanceId);
+    }
+    state = {
+      ...state,
+      pendingChoice: {
+        type: "choose_from_revealed",
+        choosingPlayerId: "player1",
+        prompt: "May choose up to 2.",
+        validTargets: targets,
+        revealedCards: targets,
+        pendingEffect: {
+          type: "look_at_top",
+          count: 5,
+          action: "choose_from_top",
+          maxToHand: 2,
+          isMay: true,
+          target: { type: "self" },
+        } as any,
+        optional: true,
+      },
+    };
+
+    const observedSizes = new Set<number>();
+    for (let i = 0; i < 60; i++) {
+      const action = RandomBot.decideAction(state, "player1", defs);
+      if (action.type === "RESOLVE_CHOICE" && Array.isArray(action.choice)) {
+        observedSizes.add(action.choice.length);
+        // Always within legal bounds.
+        expect(action.choice.length).toBeGreaterThanOrEqual(0);
+        expect(action.choice.length).toBeLessThanOrEqual(2);
+      }
+    }
+    // Over 60 rolls we should hit at least 2 of the 3 legal sizes (0, 1, 2).
+    // Probability of a specific size NOT appearing in 60 trials ≈ (2/3)^60
+    // which is negligible — flake risk is ~0.
+    expect(observedSizes.size).toBeGreaterThanOrEqual(2);
   });
 
   it("startingState injection bypasses createGame and mulligan", () => {

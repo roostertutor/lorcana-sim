@@ -79,13 +79,7 @@ an agent's memory. Each entry confirmed by reading the code, not from memory.
   ~31.8% coverage; see "Engine agent: expand reverse compiler coverage + add
   apply flow" section below for remaining work.
 
-**1. Simulator multi-pick enumerator bug** (`packages/simulator/src/rl/policy.ts:232-242`)
-- `choose_from_revealed` only emits single-pick candidates. Multi-pick effects
-  (Dig a Little Deeper: pick exactly 2) underfill — bot takes 1 instead of 2.
-- Surgical fix, ~1-2 hours. Details in the existing "Simulator: bot policy
-  enumerator only generates single-pick" section below.
-
-**2. CRD 1.8.4 strict simultaneity** (low impact — no current card)
+**1. CRD 1.8.4 strict simultaneity** (low impact — no current card)
 - `runGameStateCheck` (reducer.ts:7870) has an explicit `while (changed)` loop
   implementing 1.8.3 cascading. Banishes within a single pass happen in
   object-iteration order, not truly parallel. Matches 2P behavior correctly;
@@ -94,7 +88,7 @@ an agent's memory. Each entry confirmed by reading the code, not from memory.
 - Rest of CRD 1.8 is fully implemented (1.8.1.1, 1.8.1.2, 1.8.1.4, 1.8.2, 1.8.3
   all ✅ — verified in code).
 
-**3. CRD 6.5 remaining edge cases** (low impact — no current card)
+**2. CRD 6.5 remaining edge cases** (low impact — no current card)
 - 6.5.4: "Replaced events don't fire triggers" — currently `damage_redirect`
   and `damage_prevention_static` still fire damage-dealt/taken triggers on the
   redirected path. Works for every current card because no trigger conflicts.
@@ -107,7 +101,7 @@ an agent's memory. Each entry confirmed by reading the code, not from memory.
   (Baloo/Hercules/Lilo), `challenge_damage_prevention` (Raya), `self_replacement`
   (48 cards across sets 1-12 — handles the "if X, do Y instead" family).
 
-**4. GameEvent system — piped to UI, but few downstream consumers**
+**3. GameEvent system — piped to UI, but few downstream consumers**
 - `lastEvents` is populated by the reducer for every state mutation. Currently
   only `card_revealed` is consumed (CardPicker reveal animations). Richer log,
   event-driven animations, sound hooks — all deferred until there's a user-
@@ -325,21 +319,6 @@ delay, includes Iconic/Epic cards Lorcast doesn't index, and provides
 
 **Validation:** `pnpm --filter engine test` (460/460) and `pnpm card-status`
 (0 invalid) should stay green after any re-import.
-
----
-
-## Simulator: bot policy enumerator only generates single-pick for multi-pick choices
-
-`packages/simulator/src/rl/policy.ts:232-242` — the `choose_from_revealed`
-candidate enumerator emits one candidate per valid target (single pick) plus
-an empty-array candidate if optional. For mandatory multi-pick effects
-(e.g. Dig a Little Deeper: pick exactly 2), this underfills — the bot will
-only put 1 card into hand instead of 2, leaving the other picks on deck.
-
-Fix: for `choose_from_revealed` backed by `look_at_top` with
-`pendingEffect.maxToHand > 1`, enumerate multi-pick combinations (or at least
-pick the top-K valid targets as a single candidate when mandatory). May need
-a similar pass in any other bot that handles this choice type.
 
 ---
 

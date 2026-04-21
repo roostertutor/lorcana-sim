@@ -7,6 +7,7 @@
 import type { CardDefinition, GameAction, GameState, PlayerID } from "@lorcana-sim/engine";
 import { getAllLegalActions } from "@lorcana-sim/engine";
 import type { BotStrategy } from "../types.js";
+import { getMultiPickRange } from "./multiPick.js";
 
 function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
   const choice = state.pendingChoice!;
@@ -36,8 +37,28 @@ function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
 
   const targets = choice.validTargets ?? [];
   if (targets.length > 0) {
-    const idx = Math.floor(Math.random() * targets.length);
-    return { type: "RESOLVE_CHOICE", playerId, choice: [targets[idx]!] };
+    // Multi-pick (Dig a Little Deeper, Look at This Family): the engine
+    // expects min(maxToHand, validTargets) IDs back. Pick a random size in
+    // the legal range, then a random subset of that size — single-pick would
+    // underfill mandatory effects.
+    const { minSize, maxSize } = choice.type === "choose_from_revealed"
+      ? getMultiPickRange(choice)
+      : { minSize: 1, maxSize: 1 };
+    const size = minSize + Math.floor(Math.random() * (maxSize - minSize + 1));
+    if (size === 0) return { type: "RESOLVE_CHOICE", playerId, choice: [] };
+    if (size === 1) {
+      const idx = Math.floor(Math.random() * targets.length);
+      return { type: "RESOLVE_CHOICE", playerId, choice: [targets[idx]!] };
+    }
+    // Reservoir-style random subset of size N from `targets`.
+    const pool = [...targets];
+    const picked: string[] = [];
+    for (let i = 0; i < size && pool.length > 0; i++) {
+      const idx = Math.floor(Math.random() * pool.length);
+      picked.push(pool[idx]!);
+      pool.splice(idx, 1);
+    }
+    return { type: "RESOLVE_CHOICE", playerId, choice: picked };
   }
   return { type: "RESOLVE_CHOICE", playerId, choice: [] };
 }

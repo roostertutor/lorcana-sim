@@ -35,6 +35,11 @@ import {
 } from "./autoTag.js";
 import { NeuralNetwork, softmax } from "./network.js";
 import type { NetworkJSON } from "./network.js";
+import {
+  enumerateMultiPickCombos,
+  getMultiPickRange,
+  MAX_MULTI_PICK_CANDIDATES,
+} from "../bots/multiPick.js";
 
 // GAE discount on the eligibility trace (λ in the literature)
 const GAE_LAMBDA = 0.95;
@@ -232,11 +237,44 @@ export class RLPolicy implements BotStrategy {
       case "choose_target":
       case "choose_from_revealed": {
         const targets = choice.validTargets ?? [];
-        for (const target of targets) {
-          candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: [target] });
-        }
-        if (choice.optional) {
-          candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: [] });
+        // For choose_target, pendingEffect.maxToHand is undefined → maxSize=1
+        // (preserves prior single-pick behavior). For choose_from_revealed
+        // backed by look_at_top with maxToHand>1 (Dig a Little Deeper,
+        // Look at This Family), we must enumerate multi-pick combinations —
+        // single-pick candidates would underfill, leaving the bot taking 1
+        // card instead of the required N.
+        const { minSize, maxSize } = getMultiPickRange(choice);
+        if (maxSize <= 1) {
+          for (const target of targets) {
+            candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: [target] });
+          }
+          if (choice.optional) {
+            candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: [] });
+          }
+        } else {
+          const combos = enumerateMultiPickCombos(targets, minSize, maxSize);
+          for (const combo of combos) {
+            candidates.push({ type: "RESOLVE_CHOICE", playerId, choice: combo });
+          }
+          // Safety net: if the combo enumerator hit the cap (huge reveal
+          // pile), guarantee at least one valid mandatory candidate by
+          // greedy top-K scoring of individual cards. Without this, a
+          // truncated enumeration could miss the highest-scoring picks.
+          if (combos.length >= MAX_MULTI_PICK_CANDIDATES) {
+            const greedyBuffer = new Float32Array(NETWORK_INPUT_SIZE);
+            greedyBuffer.set(stateFeats, 0);
+            const scored = targets.map((t) => {
+              const a: GameAction = { type: "RESOLVE_CHOICE", playerId, choice: [t] };
+              greedyBuffer.set(actionToFeatures(state, a, playerId, definitions), STATE_FEATURE_SIZE);
+              return { id: t, score: this.actionNet.forward(greedyBuffer)[0]! };
+            });
+            scored.sort((a, b) => b.score - a.score);
+            candidates.push({
+              type: "RESOLVE_CHOICE",
+              playerId,
+              choice: scored.slice(0, maxSize).map((s) => s.id),
+            });
+          }
         }
         break;
       }
