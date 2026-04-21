@@ -255,6 +255,110 @@ panels — trivial compared to the engine/bot work.
 
 ---
 
+## Engine agent: Hidden Inkcaster — `all_hand_inkable` populated but never consumed
+
+**Dead-code primitive. Found 2026-04-21 during sandbox play — user dropped
+Hidden Inkcaster into play, then tried to ink an uninkable card from hand,
+and the UI offered no Ink action. Classic "handler existence is not
+correctness" — case label exists but no reader.**
+
+### Trace (verified in code)
+
+1. **Card JSON** (`card-set-4.json` + `card-set-P1.json`): Hidden Inkcaster
+   has `{ type: "static", effect: { type: "all_hand_inkable" } }` plus a
+   passthrough `_source: "ravensburger"`. Correct.
+2. **Modifier emit** (`gameModifiers.ts:1102`): case handler runs when
+   Hidden Inkcaster is in play — adds `instance.ownerId` to
+   `modifiers.allHandInkable: Set<PlayerID>`. Correct.
+3. **Validator** (`validator.ts:473`): `validateInkCard` checks
+   `if (!def.inkable) return fail("This card cannot be used as ink.")`
+   — **never consults `modifiers.allHandInkable`.** This is the bug.
+4. **Legal-action enumeration** (`reducer.ts:271`): `getAllLegalActions`
+   defers to `validateAction` for each hand card. So both paths
+   (validator rejection + legal-action omission) share the same bug.
+   UI shows no Ink button, no inkwell drop target — card appears
+   unplayable to inkwell while Hidden Inkcaster sits in play.
+
+### Fix (~1 line at validator.ts:473)
+
+```typescript
+// Before:
+if (!def.inkable) return fail("This card cannot be used as ink.");
+// After:
+if (!def.inkable && !modifiers.allHandInkable.has(playerId)) {
+  return fail("This card cannot be used as ink.");
+}
+```
+
+`modifiers` is already in scope — used at line 465 for Moana's
+`inkFromDiscard` (same shape of "control-changing predicate").
+
+### Tests to add (pair validateX + legal-actions per CLAUDE.md rule)
+
+In `set4.test.ts` (or a new `set4.test.ts` describe block for Hidden
+Inkcaster):
+
+1. **Validator path:** inject Hidden Inkcaster into play, inject an
+   uninkable card into hand → `validateAction({type:"PLAY_INK", ...})`
+   returns `{valid: true}`.
+2. **Legal-actions path:** same scenario → `getAllLegalActions(state)`
+   includes a `PLAY_INK` for the uninkable card.
+3. **Negative control:** remove Hidden Inkcaster from play → same two
+   assertions flip to rejection.
+4. **Once-per-turn still enforced:** Hidden Inkcaster doesn't grant
+   extra inks, only makes more cards eligible. After inking one card
+   this turn, no further PLAY_INK actions should be legal (existing
+   CRD 4.2 behavior — belt-and-suspenders check).
+5. **Only affects owner's hand:** put Hidden Inkcaster in p1's play,
+   but check that p2's uninkable hand cards remain un-inkable (the
+   static targets the owner of the item, not all players).
+
+### Audit improvement
+
+No audit script catches this — `pnpm card-status` checks discriminators
+exist in the union, `pnpm decompile-cards` would render the oracle text
+correctly from the JSON, `pnpm audit-approximations` / `pnpm audit-cards`
+are unrelated. All four audits are text-shape checks; they miss
+runtime-handler bugs like this.
+
+**Proposal:** add a new audit script (or extend `pnpm catalog`) to flag
+"emit-but-never-read" primitives. For each `StaticEffect` / `Modifier`
+variant:
+1. Check that gameModifiers.ts has a `case "<type>":` branch populating
+   something (existing behavior).
+2. Check that at least one CONSUMER elsewhere in `packages/engine/src/`
+   reads the field it populates (new check).
+
+That would catch the Hidden Inkcaster class of bug: modifier emitted,
+Set populated, no reader. Not urgent; doing this as a follow-up audit
+after fixing Hidden Inkcaster + whatever else the audit surfaces when
+first run would be the pattern.
+
+Matches the CLAUDE.md rule: "Every engine bug fix ships a regression
+test AND an audit improvement — turns one-off fixes into class-wide
+sweeps."
+
+### Other cards using `all_hand_inkable`
+
+Only Hidden Inkcaster (set 4 + P1 reprint per `_source: "ravensburger"`
+promo mirror). No other current cards. So the fix is narrow-blast-radius
+but the audit improvement would surface any similar dead-code primitives
+that currently exist silently.
+
+### Blast radius
+
+Sandbox + solo + MP all affected identically (engine-layer bug, applies
+wherever the validator runs). No UI-side workaround — UI correctly
+renders only legal actions, and legal actions are rejected. This is
+engine-pure.
+
+**Urgency:** medium. Hidden Inkcaster is a popular deck-thinning / draw
+engine card in emerald builds; playing without it working limits deck
+viability testing. Not release-blocking but worth fixing before the
+next analytics batch run.
+
+---
+
 ## Engine agent: Lorcast importer stub extraction only captures first line
 
 Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
