@@ -32,7 +32,10 @@ export type IconName =
   | "clock"
   // Drawer toggle icons
   | "wrench"
-  | "document-text";
+  | "document-text"
+  // Selection overlays
+  | "check"
+  | "arrows-right-left";
 
 interface IconProps {
   name: IconName;
@@ -139,5 +142,11 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
 
     case "document-text":
       return outline("M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z");
+
+    case "check":
+      return outline("M4.5 12.75l6 6 9-13.5");
+
+    case "arrows-right-left":
+      return outline("M7.5 21 3 16.5m0 0 4.5-4.5M3 16.5h13.5m0-13.5L21 7.5m0 0-4.5 4.5M21 7.5H7.5");
   }
 }

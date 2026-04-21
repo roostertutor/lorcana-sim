@@ -118,34 +118,78 @@ export default function PendingChoiceModal({
 
   const contextHints = getContextHints();
 
-  // Renders a card image + name label. Wraps in a scaled container for modal size.
+  /**
+   * Unified selection state for card thumbs across every branch.
+   * - `idle`          — default, clickable, full brightness.
+   * - `unselectable`  — dim heavily, no badge (not in `validTargets`).
+   * - `checked`       — dim + centered green check (generic single/multi-select).
+   * - `swap`          — dim + centered red swap icon (mulligan put-back).
+   * - `ordered`       — dim + centered indigo index badge (choose_order picker).
+   */
+  type SelectionState =
+    | { kind: "idle" }
+    | { kind: "unselectable" }
+    | { kind: "checked" }
+    | { kind: "swap" }
+    | { kind: "ordered"; index: number };
+
+  // Renders a card image + selection overlay. Wraps in a scaled container for modal size.
   function CardThumb({
     id,
-    isSelected: sel,
-    isDimmed,
+    selection = { kind: "idle" },
     onClick: handleClick,
   }: {
     id: string;
-    isSelected?: boolean;
-    isDimmed?: boolean;
+    selection?: SelectionState;
     onClick: () => void;
   }) {
     const zone = (gameState.cards[id]?.zone === "play" ? "play" : "hand") as "play" | "hand";
+    const dimClass =
+      selection.kind === "unselectable"
+        ? "brightness-[0.35]"
+        : selection.kind === "idle"
+        ? ""
+        : "brightness-50";
     return (
-      <div
-        className={`flex flex-col items-center cursor-pointer transition overflow-hidden ${isDimmed ? "brightness-50" : ""}`}
-      >
+      <div className="relative flex flex-col items-center cursor-pointer overflow-hidden">
         {/* scale wrapper so cards fit comfortably in the modal */}
-        <div className="scale-[0.78] origin-top">
+        <div className={`scale-[0.78] origin-top transition ${dimClass}`}>
           <GameCard
             instanceId={id}
             gameState={gameState}
             definitions={definitions}
-            isSelected={!!sel}
+            isSelected={false}
             onClick={handleClick}
             zone={zone}
           />
         </div>
+        {/* Centered selection badge — pointer-events-none so clicks pass through
+            to the underlying GameCard's own onClick. */}
+        {selection.kind === "checked" && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-emerald-600/95 rounded-full p-1.5 shadow-lg ring-2 ring-emerald-300/60">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </div>
+          </div>
+        )}
+        {selection.kind === "swap" && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-red-900/90 rounded-full p-1.5 shadow-lg ring-2 ring-red-400/60">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-red-200" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0 4.5-4.5M3 16.5h13.5m0-13.5L21 7.5m0 0-4.5 4.5M21 7.5H7.5" />
+              </svg>
+            </div>
+          </div>
+        )}
+        {selection.kind === "ordered" && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="bg-indigo-600/95 w-8 h-8 rounded-full flex items-center justify-center shadow-lg ring-2 ring-indigo-300/60">
+              <span className="text-sm font-black text-white">{selection.index}</span>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -186,14 +230,17 @@ export default function PendingChoiceModal({
           )}
           {!isOpponentMay && pendingChoice.validTargets && (
             <div className="grid grid-cols-4 gap-1.5 pb-1">
-              {(pendingChoice.validTargets ?? []).map((id: string) => (
-                <CardThumb
-                  key={id}
-                  id={id}
-                  isSelected={multiSelectTargets[0] === id}
-                  onClick={() => onMultiSelectChange(multiSelectTargets[0] === id ? [] : [id])}
-                />
-              ))}
+              {(pendingChoice.validTargets ?? []).map((id: string) => {
+                const isSel = multiSelectTargets[0] === id;
+                return (
+                  <CardThumb
+                    key={id}
+                    id={id}
+                    selection={isSel ? { kind: "checked" } : { kind: "idle" }}
+                    onClick={() => onMultiSelectChange(isSel ? [] : [id])}
+                  />
+                );
+              })}
             </div>
           )}
           {!isOpponentMay && (
@@ -270,28 +317,16 @@ export default function PendingChoiceModal({
             {hand.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
-                <div key={id} className="relative">
-                  <CardThumb
-                    id={id}
-                    isSelected={false}
-                    isDimmed={selected}
-                    onClick={() =>
-                      onMultiSelectChange((prev) =>
-                        selected ? prev.filter((t) => t !== id) : [...prev, id],
-                      )
-                    }
-                  />
-                  {selected && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="bg-red-900/80 rounded-full p-1.5 shadow">
-                        {/* swap / arrows-right-left icon */}
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-red-300" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0 4.5-4.5M3 16.5h13.5m0-13.5L21 7.5m0 0-4.5 4.5M21 7.5H7.5" />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <CardThumb
+                  key={id}
+                  id={id}
+                  selection={selected ? { kind: "swap" } : { kind: "idle" }}
+                  onClick={() =>
+                    onMultiSelectChange((prev) =>
+                      selected ? prev.filter((t) => t !== id) : [...prev, id],
+                    )
+                  }
+                />
               );
             })}
           </div>
@@ -324,25 +359,16 @@ export default function PendingChoiceModal({
               const posIndex = multiSelectTargets.indexOf(id);
               const isOrdered = posIndex !== -1;
               return (
-                <div key={id} className="relative">
-                  <CardThumb
-                    id={id}
-                    isSelected={isOrdered}
-                    isDimmed={false}
-                    onClick={() =>
-                      onMultiSelectChange((prev) =>
-                        isOrdered ? prev.filter((t) => t !== id) : [...prev, id],
-                      )
-                    }
-                  />
-                  {isOrdered && (
-                    <div className="absolute top-1 right-1 pointer-events-none">
-                      <span className="text-[10px] font-black text-white bg-indigo-600 w-4 h-4 rounded-full flex items-center justify-center shadow">
-                        {posIndex + 1}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <CardThumb
+                  key={id}
+                  id={id}
+                  selection={isOrdered ? { kind: "ordered", index: posIndex + 1 } : { kind: "idle" }}
+                  onClick={() =>
+                    onMultiSelectChange((prev) =>
+                      isOrdered ? prev.filter((t) => t !== id) : [...prev, id],
+                    )
+                  }
+                />
               );
             })}
           </div>
@@ -401,12 +427,16 @@ export default function PendingChoiceModal({
               {displayIds.map((id) => {
                 const selectable = validSet.has(id);
                 const selected = multiSelectTargets.includes(id);
+                const selection: SelectionState = !selectable
+                  ? { kind: "unselectable" }
+                  : selected
+                  ? { kind: "checked" }
+                  : { kind: "idle" };
                 return (
                   <CardThumb
                     key={id}
                     id={id}
-                    isSelected={selected}
-                    isDimmed={!selectable}
+                    selection={selection}
                     onClick={() => {
                       if (!selectable) return;
                       onMultiSelectChange((prev) =>
@@ -632,12 +662,16 @@ export default function PendingChoiceModal({
     const renderCard = (id: string) => {
       const selectable = validSet.has(id);
       const isSelected = isMultiTarget ? multiSelectTargets.includes(id) : multiSelectTargets[0] === id;
+      const selection: SelectionState = !selectable
+        ? { kind: "unselectable" }
+        : isSelected
+        ? { kind: "checked" }
+        : { kind: "idle" };
       return (
         <CardThumb
           key={id}
           id={id}
-          isSelected={isSelected}
-          isDimmed={!selectable}
+          selection={selection}
           onClick={() => {
             if (!selectable) return;
             if (isMultiTarget) {

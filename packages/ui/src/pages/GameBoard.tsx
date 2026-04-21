@@ -33,6 +33,7 @@ import GameCard from "../components/GameCard.js";
 import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
+import RevealPill from "../components/RevealPill.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 
@@ -570,8 +571,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // distinguishes "new reveal" from "persisted stale reveal". Same
   // actionCount-based freshness check as lastRevealedCards to hide the
   // overlay once subsequent actions advance past it.
-  const [revealHandDismissed, setRevealHandDismissed] = useState(false);
+  // Collapsed-to-pill (not dismissed): user closed the full modal but can
+  // re-expand via the bottom-right RevealPill until the turn anchor expires.
+  const [revealHandCollapsedToPill, setRevealHandCollapsedToPill] = useState(false);
   const [revealHandActionCount, setRevealHandActionCount] = useState<number | null>(null);
+  // Turn number at which the current reveal fired. When gameState.turnNumber
+  // moves past this, both the modal AND the pill clear — matches "no note-
+  // taking" intent: you see the info once, you can re-open it during the
+  // same turn, but it's gone at the next turn boundary.
+  const [revealHandTurnAnchor, setRevealHandTurnAnchor] = useState<number | null>(null);
   const currentRevealedHand = session.gameState?.lastRevealedHand;
   // Forward-advance gate: undo reconstructs state from scratch, giving a
   // fresh object reference for lastRevealedHand even when the content matches
@@ -586,15 +594,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     const advanced = session.actionCount > prevHandRevealActionCount.current;
     if (currentRevealedHand && refChanged && advanced) {
       setRevealHandActionCount(session.actionCount);
-      setRevealHandDismissed(false);
+      setRevealHandTurnAnchor(session.gameState?.turnNumber ?? null);
+      setRevealHandCollapsedToPill(false);
     } else if (!currentRevealedHand) {
       setRevealHandActionCount(null);
+      setRevealHandTurnAnchor(null);
     }
     prevHandRevealRef.current = currentRevealedHand;
     prevHandRevealActionCount.current = session.actionCount;
-  }, [currentRevealedHand, session.actionCount]);
-  // Revealed cards (search/look-at-top) — track which reveal was dismissed by key
-  const [dismissedRevealKey, setDismissedRevealKey] = useState<string | null>(null);
+  }, [currentRevealedHand, session.actionCount, session.gameState?.turnNumber]);
+  // Revealed cards (search/look-at-top) — track which reveal collapsed to pill
+  // by key. Same two-state model as the hand reveal: closing the modal leaves
+  // a clickable pill; the whole thing auto-clears at the next turn boundary.
+  const [revealCardsCollapsedKey, setRevealCardsCollapsedKey] = useState<string | null>(null);
+  const [revealCardsTurnAnchor, setRevealCardsTurnAnchor] = useState<number | null>(null);
   // Include sequenceId so back-to-back reveals of the same cards produce
   // distinct keys during normal play. Engine increments sequenceId on every
   // reveal-producing action.
@@ -624,20 +637,38 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         // New reveal event arriving via forward play — lock in its birth
         // actionCount and clear any stale dismiss. Skip this branch on undo
         // (actionCount retreats): state reconstruction changes the key ref
-        // even when content matches, and the user's prior dismissal stands.
+        // even when content matches, and the user's prior collapse stands.
         setRevealActionCount(session.actionCount);
-        setDismissedRevealKey(null);
+        setRevealCardsTurnAnchor(session.gameState?.turnNumber ?? null);
+        setRevealCardsCollapsedKey(null);
       } else if (currentRevealCardsKey === null) {
         setRevealActionCount(null);
+        setRevealCardsTurnAnchor(null);
       }
       prevRevealKey.current = currentRevealCardsKey;
     }
     prevRevealActionCount.current = session.actionCount;
-  }, [currentRevealCardsKey, session.actionCount]);
-  const showRevealCards =
+  }, [currentRevealCardsKey, session.actionCount, session.gameState?.turnNumber]);
+  // Reveal is "visible" (as modal or pill) only while the anchor turn is the
+  // current turn. On next turn-advance, anchor no longer matches → hidden.
+  const revealCardsVisible =
     currentRevealCardsKey !== null
-    && currentRevealCardsKey !== dismissedRevealKey
-    && session.actionCount === revealActionCount;
+    && session.actionCount === revealActionCount
+    && revealCardsTurnAnchor != null
+    && session.gameState?.turnNumber === revealCardsTurnAnchor;
+  const showRevealCardsModal =
+    revealCardsVisible && revealCardsCollapsedKey !== currentRevealCardsKey;
+  const showRevealCardsPill =
+    revealCardsVisible && revealCardsCollapsedKey === currentRevealCardsKey;
+  // Hand-reveal visibility follows the same modal/pill split.
+  const revealHandVisible =
+    currentRevealedHand != null
+    && currentRevealedHand.cardIds.length > 0
+    && session.actionCount === revealHandActionCount
+    && revealHandTurnAnchor != null
+    && session.gameState?.turnNumber === revealHandTurnAnchor;
+  const showRevealHandModal = revealHandVisible && !revealHandCollapsedToPill;
+  const showRevealHandPill = revealHandVisible && revealHandCollapsedToPill;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -2262,18 +2293,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       })()}
 
       {/* ======================= Revealed Hand Viewer (auto-triggered by reveal_hand effect) ======================= */}
-      {gameState?.lastRevealedHand && gameState.lastRevealedHand.cardIds.length > 0 && !revealHandDismissed && session.actionCount === revealHandActionCount && (
+      {/* Closing the modal collapses to the RevealPill (bottom-right) rather
+          than dismissing outright — user can re-open during the same turn. */}
+      {showRevealHandModal && gameState?.lastRevealedHand && (
         <ZoneViewModal
           title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} Revealed Hand`}
           cardIds={gameState.lastRevealedHand.cardIds}
           gameState={gameState}
           definitions={definitions}
-          onClose={() => setRevealHandDismissed(true)}
+          onClose={() => setRevealHandCollapsedToPill(true)}
         />
       )}
 
       {/* ======================= Revealed Cards Viewer (search/look-at-top with reveal) ======================= */}
-      {showRevealCards && gameState?.lastRevealedCards && (() => {
+      {showRevealCardsModal && gameState?.lastRevealedCards && (() => {
         const rc = gameState.lastRevealedCards!;
         const srcInst = gameState.cards[rc.sourceInstanceId];
         const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
@@ -2284,10 +2317,43 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
             cardIds={rc.instanceIds}
             gameState={gameState}
             definitions={definitions}
-            onClose={() => setDismissedRevealKey(currentRevealCardsKey)}
+            onClose={() => setRevealCardsCollapsedKey(currentRevealCardsKey)}
           />
         );
       })()}
+
+      {/* ======================= Reveal Pills (collapsed reveal viewers) =======================
+          Bottom-right stack, independent of the mid-screen "View Choice" pill
+          which lives bottom-center. Clears at next turn boundary via the
+          `revealHandTurnAnchor` / `revealCardsTurnAnchor` gate. */}
+      {(showRevealHandPill || showRevealCardsPill) && (
+        <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
+          {showRevealHandPill && gameState?.lastRevealedHand && (
+            <RevealPill
+              title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} hand`}
+              cardIds={gameState.lastRevealedHand.cardIds}
+              gameState={gameState}
+              definitions={definitions}
+              onClick={() => setRevealHandCollapsedToPill(false)}
+            />
+          )}
+          {showRevealCardsPill && gameState?.lastRevealedCards && (() => {
+            const rc = gameState.lastRevealedCards!;
+            const srcInst = gameState.cards[rc.sourceInstanceId];
+            const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+            const sourceName = srcDef?.fullName ?? "Card";
+            return (
+              <RevealPill
+                title={sourceName}
+                cardIds={rc.instanceIds}
+                gameState={gameState}
+                definitions={definitions}
+                onClick={() => setRevealCardsCollapsedKey(null)}
+              />
+            );
+          })()}
+        </div>
+      )}
 
       {/* ======================= Deck Viewer (your deck only) ======================= */}
       {deckViewerOpen && (
