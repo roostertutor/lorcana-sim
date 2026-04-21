@@ -1440,6 +1440,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     } : undefined;
 
     function handleClick() {
+      // Face-down cards (opponent's hand, face-down cards under a Location)
+      // must not open the popover / inspect modal — doing so would leak the
+      // real definitionId via CardInspectModal, defeating the face-down
+      // render. Drag was already blocked via isDraggableEnabled; this closes
+      // the click path. ZoneViewModal already has the same guard for its
+      // face-down grid (`onClick={() => { if (!faceDownHere) setInspectId(id); }}`).
+      if (faceDown) return;
       if (isOpponent && challengeAttackerId && isChallTarget) {
         session.dispatch({ type: "CHALLENGE", playerId: myId, attackerInstanceId: challengeAttackerId, defenderInstanceId: id });
         setChallengeAttackerId(null);
