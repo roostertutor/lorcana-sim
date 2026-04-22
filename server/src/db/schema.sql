@@ -142,6 +142,74 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
 UPDATE profiles SET elo_ratings = '{"bo1_core_s11":1200,"bo1_core_s12":1200,"bo1_infinity_s11":1200,"bo1_infinity_s12":1200,"bo3_core_s11":1200,"bo3_core_s12":1200,"bo3_infinity_s11":1200,"bo3_infinity_s12":1200}'::jsonb || elo_ratings
 WHERE NOT (elo_ratings ? 'bo1_core_s11');
 
+-- ── Decks + deck_versions (backfilled DDL) ──────────────────────────────
+-- These tables were originally created ad-hoc in Supabase Studio and the
+-- base DDL never landed in source control; only the `ALTER TABLE decks …`
+-- statements below were tracked. Reconstructed 2026-04-22 from the fields
+-- consumed by packages/ui/src/lib/deckApi.ts so a fresh-environment rebuild
+-- from schema.sql actually works. IF NOT EXISTS makes this safe to re-run
+-- against the existing production DB — if a column is missing here that
+-- production has, that would indicate a drift that needs reconciliation.
+CREATE TABLE IF NOT EXISTS decks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  -- Full decklist as plain text ("4 Ariel - On Human Legs\n4 …") —
+  -- interoperable with external tools (Inkable, Dreamborn). Per-card
+  -- enrichment lives in card_metadata; this stays vanilla.
+  decklist_text TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Name is unique per-user so `upsert({ onConflict: "user_id,name" })`
+  -- in deckApi.saveDeck() works idempotently.
+  UNIQUE (user_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS deck_versions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  deck_id UUID NOT NULL REFERENCES decks(id) ON DELETE CASCADE,
+  decklist_text TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS deck_versions_deck_idx ON deck_versions (deck_id, created_at DESC);
+
+ALTER TABLE decks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE deck_versions ENABLE ROW LEVEL SECURITY;
+
+-- Drop-first pattern for idempotency (CREATE POLICY doesn't support
+-- IF NOT EXISTS). Safe on fresh or existing databases.
+DROP POLICY IF EXISTS "Decks are owner-only" ON decks;
+DROP POLICY IF EXISTS "Deck versions visible to deck owner" ON deck_versions;
+DROP POLICY IF EXISTS "Deck versions insertable by deck owner" ON deck_versions;
+
+-- Decks: full CRUD scoped to the owner via user_id.
+CREATE POLICY "Decks are owner-only"
+  ON decks FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Deck versions: readable and insertable only by the deck's owner.
+-- Reads are the common path (history viewer); inserts happen via
+-- snapshotVersion() in deckApi.saveDeck / updateDeck.
+CREATE POLICY "Deck versions visible to deck owner"
+  ON deck_versions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM decks
+      WHERE decks.id = deck_versions.deck_id
+        AND decks.user_id = auth.uid()
+    )
+  );
+CREATE POLICY "Deck versions insertable by deck owner"
+  ON deck_versions FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM decks
+      WHERE decks.id = deck_versions.deck_id
+        AND decks.user_id = auth.uid()
+    )
+  );
+
 -- Deck box art: the CardDefinition id whose image visually represents this
 -- deck in lists + deck-title chrome. Null means "derive from first entry in
 -- the decklist". User-selectable from within the deck's own cards.

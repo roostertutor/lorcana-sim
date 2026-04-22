@@ -2378,7 +2378,19 @@ JSON files at once.
 
 ---
 
-## Server agent: `decks` + `deck_versions` base-table DDL missing from schema.sql
+## ~~Server agent: `decks` + `deck_versions` base-table DDL missing from schema.sql~~ — DONE 2026-04-22
+
+DONE in the same session as MP UX Phase 2. `schema.sql` now contains the
+reconstructed `CREATE TABLE decks` + `CREATE TABLE deck_versions` base
+DDL immediately before the `ALTER TABLE decks …` block, plus RLS
+policies (owner-only for decks; deck_versions visible via EXISTS
+subquery to the parent deck). `IF NOT EXISTS` on the table creates
+makes it safe to run against the existing production DB. Fresh-
+environment rebuild now works end-to-end.
+
+Kept below for historical context:
+
+### Original discovery
 
 Discovered 2026-04-21 while adding format-stamp columns. `server/src/db/schema.sql`
 contains `ALTER TABLE decks ADD COLUMN ...` statements but **not the
