@@ -24,14 +24,18 @@ import { runSync, parseCliArgs, printSummary } from "./lib/image-sync.js";
 /** Lorcast stores the main-art URL at `card.imageUrl` — but only on cards
  *  we imported from Lorcast. For Ravensburger-tier cards, this field points
  *  at Ravensburger, not Lorcast. Filter to Lorcast-shaped URLs so we only
- *  touch cards that genuinely have Lorcast data. */
+ *  touch cards that genuinely have Lorcast data.
+ *
+ *  Preference order matches sync-images-rav.ts: fresh `imageUrl` (if
+ *  Lorcast-shaped) wins over stored `_sourceImageUrl`, so a `pnpm
+ *  import-cards-lorcast` rerun that rotates a Lorcast asset URL triggers
+ *  a re-sync. */
 function getLorcastSourceUrl(card: any): string | undefined {
-  const url = card._sourceImageUrl ?? card.imageUrl;
-  if (!url) return undefined;
-  if (!/(^|\/\/)(cards\.)?lorcast\.(io|com)/.test(url)) {
-    return undefined;
-  }
-  return url;
+  const isLorcastShape = (u: unknown): u is string =>
+    typeof u === "string" && /(^|\/\/)(cards\.)?lorcast\.(io|com)/.test(u);
+  if (isLorcastShape(card.imageUrl)) return card.imageUrl;
+  if (isLorcastShape(card._sourceImageUrl)) return card._sourceImageUrl;
+  return undefined;
 }
 
 async function main() {

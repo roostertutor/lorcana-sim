@@ -621,6 +621,13 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       "selfCostReduction", "shiftCost", "altShiftCost",
       "moveCost", "singTogetherCost",
       "foilImageUrl",
+      // Image-sync fields — carried over so sync-images-rav's idempotency
+      // check survives re-imports. The importer DOES overwrite `imageUrl`
+      // (with the current Rav URL), but we preserve the source markers so
+      // sync-images-rav can compare the fresh Rav URL against the stored
+      // `_sourceImageUrl` and only re-sync when Ravensburger rotates
+      // content. See docs/HANDOFF.md → self-host card images on R2.
+      "_imageSource", "_sourceImageUrl", "_imageSourceLock",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

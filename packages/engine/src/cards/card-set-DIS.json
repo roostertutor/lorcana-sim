@@ -45,14 +45,16 @@
     "lore": 3,
     "rulesText": "PERCEPTIVE PARTNER While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)",
     "flavorText": "\"Pascal! A new flower for the wall!\"",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a057fe1c22c944a38de0a0784f7d4d5e.avif?1774403534",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setDIS/1_6b383f6f304a7f3c_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PERCEPTIVE PARTNER",
         "rulesText": "While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)",
         "raw": "PERCEPTIVE PARTNER While you have a character named Pascal in play, this character gains Ward. (Opponents can’t choose them except to challenge.)"
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a057fe1c22c944a38de0a0784f7d4d5e.avif?1774403534"
   },
   {
     "id": "donald-duck-pie-slinger",
@@ -129,7 +131,7 @@
     "lore": 1,
     "shiftCost": 4,
     "rulesText": "HUMBLE PIE When you play this character, if you used Shift to play him, each opponent loses 2 lore.\nRAGING DUCK While an opponent has 10 or more lore, this character gets +6 {S}.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_27e379eda1c04eabbf3be9fc19cda671.avif?1774403562",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setDIS/2_93d910e44976ee12_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HUMBLE PIE",
@@ -141,7 +143,9 @@
         "rulesText": "While an opponent has 10 or more lore, this character gets +6 {S}.",
         "raw": "RAGING DUCK While an opponent has 10 or more lore, this character gets +6 {S}."
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_27e379eda1c04eabbf3be9fc19cda671.avif?1774403562"
   },
   {
     "id": "stitch-rock-star",
@@ -216,13 +220,15 @@
     "shiftCost": 4,
     "rulesText": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
     "flavorText": "The best part about a beachside concert is that there's always room for one more.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_65191d1c43f443469868bfc69f3aa1c4.avif?1774403589",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setDIS/3_36c76b1ccbee4684_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ADORING FANS",
         "rulesText": "Whenever you play a character with cost 2 or less, you may exert them to draw a card.",
         "raw": "ADORING FANS Whenever you play a character with cost 2 or less, you may exert them to draw a card."
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_65191d1c43f443469868bfc69f3aa1c4.avif?1774403589"
   }
 ]

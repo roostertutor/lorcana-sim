@@ -17,7 +17,7 @@
     "_source": "ravensburger",
     "rulesText": "Banish chosen character.",
     "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/1_fce7847502346536_normal.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -31,7 +31,9 @@
           }
         }
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg"
   },
   {
     "id": "let-it-go",
@@ -53,7 +55,7 @@
     "_source": "ravensburger",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player’s inkwell facedown and exerted.",
     "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/2_612ba8dd292c46d0_normal.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -68,7 +70,9 @@
         },
         "enterExerted": true
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg"
   },
   {
     "id": "cinderella-stouthearted",
@@ -131,14 +135,16 @@
     "lore": 3,
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/3_535203b106874d9b_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
         "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg"
   },
   {
     "id": "rapunzel-gifted-with-healing",
@@ -200,14 +206,16 @@
     "willpower": 5,
     "lore": 2,
     "rulesText": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/4_b0f2da4c64e54d04_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GLEAM AND GLOW",
         "rulesText": "When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
         "raw": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg"
   },
   {
     "id": "invited-to-the-ball",
@@ -226,7 +234,7 @@
     "rarity": "special",
     "_source": "ravensburger",
     "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/6_866c0959bd3bc77c_normal.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -243,7 +251,9 @@
         },
         "revealPicks": true
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg"
   },
   {
     "id": "elsas-ice-palace-place-of-solitude",
@@ -296,14 +306,16 @@
     "lore": 1,
     "moveCost": 1,
     "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_3324f1eaf672e4cfd71506a956b5098fea2364e4.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/7_750fb6b23f10c799_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ETERNAL WINTER",
         "rulesText": "When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
         "raw": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_3324f1eaf672e4cfd71506a956b5098fea2364e4.jpg"
   },
   {
     "id": "kuzco-temperamental-emperor",
@@ -351,14 +363,16 @@
     "willpower": 4,
     "lore": 3,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nNO TOUCHY! When this character is challenged and banished, you may banish the challenging character.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/8_2b58e6d998353f66_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO TOUCHY!",
         "rulesText": "When this character is challenged and banished, you may banish the challenging character.",
         "raw": "NO TOUCHY! When this character is challenged and banished, you may banish the challenging character."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg"
   },
   {
     "id": "baymax-armored-companion",
@@ -472,14 +486,16 @@
     "willpower": 6,
     "lore": 2,
     "rulesText": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_19cd83a819704f909a297aeb743e75423af34ce9.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/9_f626dbba79e12b69_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE TREATMENT IS WORKING",
         "rulesText": "When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "raw": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_19cd83a819704f909a297aeb743e75423af34ce9.jpg"
   },
   {
     "id": "a-whole-new-world",
@@ -501,7 +517,7 @@
     "_source": "ravensburger",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nEach player discards their hand and draws 7 cards.",
     "flavorText": "Shining, shimmering, splendid . . .",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/10_5dc6854f55dadd60_normal.jpg",
     "actionEffects": [
       {
         "type": "each_player",
@@ -522,6 +538,8 @@
           }
         ]
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg"
   }
 ]

@@ -23,22 +23,23 @@
 
 import { runSync, parseCliArgs, printSummary } from "./lib/image-sync.js";
 
-/** Ravensburger stores the main-art URL at `card.imageUrl`. Early-pre-release
- *  cards may not have it yet — those get skipped (no source URL). */
+/** Ravensburger stores the main-art URL at `card.imageUrl`. On re-runs after
+ *  a `pnpm import-cards`, `imageUrl` gets rewritten to the CURRENT Rav URL —
+ *  that's the fresh upstream. On re-runs after a migration but WITHOUT a
+ *  re-import, `imageUrl` points to R2 and the stored `_sourceImageUrl`
+ *  carries the last-synced Rav URL.
+ *
+ *  Preference order: fresh imageUrl (if Rav-shaped) > `_sourceImageUrl`
+ *  (if Rav-shaped) > skip. Detecting an imageUrl that's been rewritten to
+ *  a new Rav URL is what drives re-sync when Ravensburger rotates their
+ *  content hash. */
 function getRavensburgerSourceUrl(card: any): string | undefined {
-  // `_sourceImageUrl` is stamped AFTER we've synced — so on re-runs where the
-  // current URL in the JSON is R2, `imageUrl` is no longer Ravensburger-
-  // shaped. Prefer `_sourceImageUrl` when available, fall back to the
-  // unmigrated `imageUrl`. If neither is Ravensburger-shaped, skip.
-  const url = card._sourceImageUrl ?? card.imageUrl;
-  if (!url) return undefined;
-  if (!/(^|\/\/)(www\.)?(api\.)?(disney)?lorcana(\.ravensburger)?\.com/.test(url)) {
-    // URL is not Ravensburger-shaped (probably Lorcast / manual / already R2).
-    // Signal: this card hasn't been imported from Ravensburger, so there's
-    // nothing for THIS tier to fetch.
-    return undefined;
-  }
-  return url;
+  const isRavShape = (u: unknown): u is string =>
+    typeof u === "string" &&
+    /(^|\/\/)(www\.)?(api\.)?(disney)?lorcana(\.ravensburger)?\.com/.test(u);
+  if (isRavShape(card.imageUrl)) return card.imageUrl;
+  if (isRavShape(card._sourceImageUrl)) return card._sourceImageUrl;
+  return undefined;
 }
 
 async function main() {

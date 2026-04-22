@@ -456,6 +456,8 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
       "selfCostReduction", "shiftCost", "altShiftCost",
       "moveCost", "singTogetherCost",
       "foilImageUrl",
+      // Image-sync fields — see matching comment in import-cards-rav.ts.
+      "_imageSource", "_sourceImageUrl", "_imageSourceLock",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

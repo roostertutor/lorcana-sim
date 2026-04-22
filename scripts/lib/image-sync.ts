@@ -248,8 +248,16 @@ export async function syncSingleCard(
     return { status: "skipped_no_source_url" };
   }
 
-  // Guard 4: already synced from THIS upstream URL at this tier. Idempotent
-  // re-run short-circuits.
+  // Guard 4: already synced from THIS upstream URL at this tier AND the
+  // card's `imageUrl` already points to R2. Idempotent re-run short-circuits
+  // here — no fetch, no upload.
+  //
+  // The third condition (`imageUrl` R2-shaped) matters because `pnpm
+  // import-cards` rewrites `imageUrl` back to the upstream URL on every
+  // re-import. When that happens we WANT to re-process the card even if
+  // upstream hasn't rotated: the re-sync restores `imageUrl` to R2 (and
+  // since the bytes are unchanged, produces the same content hash, so R2
+  // PutObject is effectively a no-op on the backend — just network cost).
   if (
     card._imageSource === ctx.tier &&
     card._sourceImageUrl === sourceUpstreamUrl &&
@@ -294,22 +302,27 @@ export async function syncSingleCard(
   const keyFor = (size: ImageSize) => buildR2Key(card.setId, card.number, hash, size);
 
   if (ctx.r2 && !ctx.dryRun) {
-    for (const [size, buf] of resized) {
-      const key = keyFor(size);
-      // Content-hashed keys are immutable — if the object already exists we
-      // can skip the PUT.
-      const exists = await r2ObjectExists(ctx.r2.client, ctx.r2.config.bucket, key);
-      if (exists) continue;
-      await ctx.r2.client.send(
-        new PutObjectCommand({
-          Bucket: ctx.r2.config.bucket,
-          Key: key,
-          Body: buf,
-          ContentType: "image/jpeg",
-          CacheControl: "public, max-age=31536000, immutable",
-        }),
-      );
-    }
+    // Parallelize the 3 size uploads — they're independent.
+    // Note: dropped the HeadObject preflight because PUTs are idempotent at
+    // same-key (content-hashed keys guarantee same bytes), the preflight
+    // doubled the round-trip count per card during first-time migration, and
+    // S3/R2 PUT with identical bytes is effectively a no-op on the backend.
+    // Re-runs short-circuit at the card level (_sourceImageUrl === X check
+    // at the top of this function), so we never reach this upload block
+    // twice for the same card-hash.
+    await Promise.all(
+      resized.map(([size, buf]) =>
+        ctx.r2!.client.send(
+          new PutObjectCommand({
+            Bucket: ctx.r2!.config.bucket,
+            Key: keyFor(size),
+            Body: buf,
+            ContentType: "image/jpeg",
+            CacheControl: "public, max-age=31536000, immutable",
+          }),
+        ),
+      ),
+    );
   }
 
   // ── Compute new imageUrl (always — even in dry-run, so JSON preview is
@@ -441,35 +454,47 @@ export async function runSync(options: RunnerOptions): Promise<RunnerSummary> {
     const cards = loadCardSet(filename);
     let fileChanges = 0;
 
-    for (const card of cards) {
+    // Process cards in parallel batches. Network latency dominates
+    // per-card time (fetch from upstream + 3 PUTs to R2), so batching 8 at
+    // a time gives roughly 8x throughput until we saturate the uplink.
+    // Still bounded per-file so we don't load 2k images into memory at once.
+    const BATCH = 8;
+    for (let i = 0; i < cards.length; i += BATCH) {
       if (args.limit !== undefined && processed >= args.limit) break;
-      processed++;
 
-      const sourceUrl = getSourceUrl(card);
-      const result = await syncSingleCard(card, sourceUrl, ctx);
+      const batch = cards.slice(i, i + BATCH);
+      const batchResults = await Promise.all(
+        batch.map((card) => syncSingleCard(card, getSourceUrl(card), ctx)),
+      );
 
-      switch (result.status) {
-        case "uploaded":
-          summary.uploaded++;
-          Object.assign(card, result.updatedFields);
-          fileChanges++;
-          break;
-        case "skipped_already_synced":
-          summary.alreadySynced++;
-          break;
-        case "skipped_higher_tier":
-          summary.higherTier++;
-          break;
-        case "skipped_locked":
-          summary.locked++;
-          break;
-        case "skipped_no_source_url":
-          summary.noSourceUrl++;
-          break;
-        case "failed":
-          summary.failed++;
-          console.log(`  ✗ set${card.setId}/#${card.number} ${card.fullName ?? card.id}: ${result.reason}`);
-          break;
+      for (let j = 0; j < batch.length; j++) {
+        if (args.limit !== undefined && processed >= args.limit) break;
+        processed++;
+        const card = batch[j]!;
+        const result = batchResults[j]!;
+        switch (result.status) {
+          case "uploaded":
+            summary.uploaded++;
+            Object.assign(card, result.updatedFields);
+            fileChanges++;
+            break;
+          case "skipped_already_synced":
+            summary.alreadySynced++;
+            break;
+          case "skipped_higher_tier":
+            summary.higherTier++;
+            break;
+          case "skipped_locked":
+            summary.locked++;
+            break;
+          case "skipped_no_source_url":
+            summary.noSourceUrl++;
+            break;
+          case "failed":
+            summary.failed++;
+            console.log(`  ✗ set${card.setId}/#${card.number} ${card.fullName ?? card.id}: ${result.reason}`);
+            break;
+        }
       }
     }
 

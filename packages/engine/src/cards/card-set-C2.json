@@ -29,7 +29,9 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg"
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/1_18bfb1cfec63882d_normal.jpg",
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg"
   },
   {
     "id": "elsa-ice-maker",
@@ -105,14 +107,16 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Elsa.)\nWINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_f5b9e8b486e1abb86b3a1ac69e114f075f299965.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/2_63883e101aa06cbf_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WINTER WALL",
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
         "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_f5b9e8b486e1abb86b3a1ac69e114f075f299965.jpg"
   },
   {
     "id": "mulan-charging-ahead",
@@ -171,7 +175,7 @@
     "willpower": 3,
     "lore": 0,
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_9367757ea03480a9aeab58ad1816f55acb53459e.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/3_8d2ff4844e9eaab6_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURST OF SPEED",
@@ -183,7 +187,9 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_9367757ea03480a9aeab58ad1816f55acb53459e.jpg"
   },
   {
     "id": "simba-pride-protector",
@@ -250,14 +256,16 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Simba.)\nUNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_aab2a1eb45417844fc433e302037ab6a61179580.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/4_728f0b0fb64afb03_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNDERSTAND THE BALANCE",
         "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_aab2a1eb45417844fc433e302037ab6a61179580.jpg"
   },
   {
     "id": "pegasus-gift-for-hercules",
@@ -289,7 +297,9 @@
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg"
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/5_18c268e27378d068_normal.jpg",
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/5_3da76301dd582812f5e397f290df169ab59c5683.jpg"
   },
   {
     "id": "elsa-ice-maker",
@@ -365,14 +375,16 @@
     "lore": 2,
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Elsa.)\nWINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/6_108ebdd6233ebdf6601c91552efb74fe8e3f24bc.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/6_f61a812e6a219f78_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WINTER WALL",
         "rulesText": "Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
         "raw": "WINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/6_108ebdd6233ebdf6601c91552efb74fe8e3f24bc.jpg"
   },
   {
     "id": "mulan-charging-ahead",
@@ -431,7 +443,7 @@
     "willpower": 3,
     "lore": 0,
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/7_6fe67451f9a47f0db3bb1c4b615187f4ec6ca290.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/7_3a1af67b3c8f03e1_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURST OF SPEED",
@@ -443,7 +455,9 @@
         "rulesText": "This character can challenge ready characters.",
         "raw": "LONG RANGE This character can challenge ready characters."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/7_6fe67451f9a47f0db3bb1c4b615187f4ec6ca290.jpg"
   },
   {
     "id": "simba-pride-protector",
@@ -510,14 +524,16 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Simba.)\nUNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/8_8bdef61ee12642a63802b449c651e9085275b0ed.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/8_9204f0cd1c9ae937_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNDERSTAND THE BALANCE",
         "rulesText": "At the end of your turn, if this character is exerted, you may ready your other characters.",
         "raw": "UNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/8_8bdef61ee12642a63802b449c651e9085275b0ed.jpg"
   },
   {
     "id": "dragon-fire",
@@ -537,7 +553,7 @@
     "_source": "lorcast",
     "rulesText": "Banish chosen character.",
     "flavorText": "Rare is the hero who can withstand a dragon's wrath.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f54b0e3b38d340ffa793953c49e6cb56.avif?1776533276",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/9_19f1e17c93e7f5e7_normal.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -551,7 +567,9 @@
           }
         }
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f54b0e3b38d340ffa793953c49e6cb56.avif?1776533276"
   },
   {
     "id": "let-it-go",
@@ -573,7 +591,7 @@
     "_source": "lorcast",
     "rulesText": "(A character with cost 5 or more can {E} to sing this song for free.)\nPut chosen character into their player's inkwell facedown and exerted.",
     "flavorText": "It's time to see what I can do\nTo test the limits and break through",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bd1327a61be84346b595f07ccf1df0e6.avif?1776533283",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/10_3b11800f7c984ce3_normal.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -588,7 +606,9 @@
         },
         "enterExerted": true
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_bd1327a61be84346b595f07ccf1df0e6.avif?1776533283"
   },
   {
     "id": "stand-out",
@@ -609,7 +629,7 @@
     "rarity": "common",
     "_source": "lorcast",
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nChosen character gets +3 {S} and gains Evasive until the start of your next turn. (Only characters with Evasive can challenge them.)",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0049d68c901455c94c76afdd99a2745.avif?1776533289",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/15_863f66afc404c684_normal.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -639,7 +659,9 @@
           }
         }
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_d0049d68c901455c94c76afdd99a2745.avif?1776533289"
   },
   {
     "id": "down-in-new-orleans",
@@ -660,7 +682,7 @@
     "rarity": "common",
     "_source": "lorcast",
     "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.)\nLook at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3334bebad6e7424c80c2b8c0e157f654.avif?1776533296",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/16_4be23693699b41bc_normal.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -676,7 +698,9 @@
         "isMay": true,
         "revealPicks": true
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_3334bebad6e7424c80c2b8c0e157f654.avif?1776533296"
   },
   {
     "id": "the-headless-horseman-cursed-rider",
@@ -758,14 +782,16 @@
     "lore": 2,
     "shiftCost": 5,
     "rulesText": "WITCHING HOUR When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f64c2b670af947f8bca5f1ce7a5a88d9.avif?1776533301",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/17_007a0230c4141d5b_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WITCHING HOUR",
         "rulesText": "When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way.",
         "raw": "WITCHING HOUR When you play this character, each player draws 3 cards, then discards 3 cards at random. Choose an opposing character and deal 2 damage to them for each action card discarded this way."
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f64c2b670af947f8bca5f1ce7a5a88d9.avif?1776533301"
   },
   {
     "id": "tinker-bell-insistent-fairy",
@@ -837,13 +863,15 @@
     "willpower": 1,
     "lore": 1,
     "rulesText": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
-    "imageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f49776538d7247e998024421be5f5a18.avif?1776533307",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/18_c3e18cb227e03fa4_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PAY ATTENTION",
         "rulesText": "Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
         "raw": "PAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore."
       }
-    ]
+    ],
+    "_imageSource": "lorcast",
+    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_f49776538d7247e998024421be5f5a18.avif?1776533307"
   }
 ]

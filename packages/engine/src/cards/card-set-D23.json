@@ -29,7 +29,9 @@
     "lore": 4,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/1_0aa6a35b8dc7cf39_normal.jpg",
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
   },
   {
     "id": "cinderella-stouthearted",
@@ -92,14 +94,16 @@
     "lore": 3,
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/2_1dc059e9f58956e1_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
         "rulesText": "Whenever you play a song, this character may challenge ready characters this turn.",
         "raw": "THE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg"
   },
   {
     "id": "ursula-deceiver",
@@ -157,14 +161,16 @@
     "willpower": 3,
     "lore": 1,
     "rulesText": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/3_690f63bbcb26c46a_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'LL NEVER EVEN MISS IT",
         "rulesText": "When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
         "raw": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg"
   },
   {
     "id": "bruno-madrigal-undetected-uncle",
@@ -215,14 +221,16 @@
     "willpower": 3,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nYOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_830c56df482cafcb991b97b1cca0f4d0f95d0ab7.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/4_1e4507f9ad2b8c45_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU JUST HAVE TO SEE IT",
         "rulesText": "{E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
         "raw": "YOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_830c56df482cafcb991b97b1cca0f4d0f95d0ab7.jpg"
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-princess",
@@ -291,14 +299,16 @@
     "lore": 2,
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get –1 {S} until the start of your next turn.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/5_7f903b4fef824798_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HEREBY DECREE",
         "rulesText": "Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn.",
         "raw": "I HEREBY DECREE Whenever you play another Princess character, all opposing characters get -1 {S} until the start of your next turn."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg"
   },
   {
     "id": "oswald-the-lucky-rabbit",
@@ -357,14 +367,16 @@
     "willpower": 1,
     "lore": 2,
     "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_f8c77d582d04d29a2891cc2c2609f3347d197e78.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/6_43c2b8fd8cd91fda_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAVORABLE CHANCE",
         "rulesText": "During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
         "raw": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_f8c77d582d04d29a2891cc2c2609f3347d197e78.jpg"
   },
   {
     "id": "mickey-mouse-playful-sorcerer",
@@ -438,14 +450,16 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\n<Resist> +1 (Damage dealt to this character is reduced by 1.)\nSWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_d0fae8f0caf6fd33b168a61b95d51e2fb15d584d.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/7_bbc3342e126ac1e4_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SWEEP AWAY",
         "rulesText": "When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
         "raw": "SWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_d0fae8f0caf6fd33b168a61b95d51e2fb15d584d.jpg"
   },
   {
     "id": "iago-out-of-reach",
@@ -498,14 +512,16 @@
     "lore": 2,
     "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged.",
     "flavorText": "“Nice try, chumps! Too bad I’m all the way up here!”",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_4480c6738df12918c25fccbbedad4215fc19cbf2.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/8_085bcbc404415649_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SELF-PRESERVATION",
         "rulesText": "While you have another exerted character in play, this character can’t be challenged.",
         "raw": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_4480c6738df12918c25fccbbedad4215fc19cbf2.jpg"
   },
   {
     "id": "mad-hatter-unruly-eccentric",
@@ -558,13 +574,15 @@
     "lore": 2,
     "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
     "flavorText": "\"Don't you care for tea?\"",
-    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_05961dfd4070633ba8808b9827727eca4c8aca32.jpg",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/16_4858e74a5c7fd735_normal.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNBIRTHDAY PRESENT",
         "rulesText": "Whenever a damaged character challenges another character, you may draw a card.",
         "raw": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card."
       }
-    ]
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_05961dfd4070633ba8808b9827727eca4c8aca32.jpg"
   }
 ]
