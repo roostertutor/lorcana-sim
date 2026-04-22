@@ -1779,3 +1779,163 @@ Related notes across the repo mention this gap obliquely but nothing owns it:
 
 ~1 day to land minimal scaffolding + the two test files above. Worth
 doing before Railway MP deploy.
+
+---
+
+## Server agent (first) + GUI agent (follow-up): in-app feedback / bug report system
+
+Planned with user 2026-04-21. Reusable "Report an issue" trigger surfaced
+across the app (footer link, card-inspect modal, eventually gameboard +
+error boundaries) feeding a single Supabase-backed table. Value add over a
+generic email link: **context injection** — the trigger knows what the
+user was looking at when they clicked it (card id, game state, deck id,
+URL, viewport) and attaches it to the submission automatically.
+
+### Sequencing
+
+**Server first, GUI second.** Server-side MVP is small and self-contained
+(one table, one endpoint, one RLS policy set, one rate-limit check); the
+GUI POSTs to that endpoint so we'd be writing throwaway mock code if we
+reversed the order. Server session ~1 half-day, GUI session ~half-day
+after.
+
+Parallel path if needed: GUI can build provider + modal scaffolding
+against a console.log stub and wire the real endpoint in once it lands.
+Only do this if both sessions are happening concurrently — otherwise
+sequential is cleaner.
+
+### Server work (server agent) — Phase 1 MVP
+
+**New table** `feedback`:
+
+```sql
+CREATE TABLE feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),  -- nullable; anonymous submissions allowed
+  type TEXT NOT NULL CHECK (type IN ('bug','card_issue','idea','general','ui','performance','crash')),
+  title TEXT NOT NULL CHECK (length(title) BETWEEN 3 AND 200),
+  description TEXT NOT NULL CHECK (length(description) BETWEEN 3 AND 5000),
+  context JSONB NOT NULL DEFAULT '{}'::jsonb,  -- caller-injected: cardId, gameSeed, deckId, replay payload, etc.
+  url TEXT,
+  user_agent TEXT,
+  viewport JSONB,            -- { width, height }
+  app_version TEXT,
+  screenshot_data TEXT,      -- base64 data URL; nullable (MVP defers screenshots to Phase 2)
+  status TEXT NOT NULL DEFAULT 'open'
+         CHECK (status IN ('open','triaged','in_progress','resolved','wontfix','duplicate')),
+  assigned_to UUID REFERENCES auth.users(id),
+  admin_notes TEXT,
+  duplicate_of UUID REFERENCES feedback(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  resolved_at TIMESTAMPTZ
+);
+CREATE INDEX feedback_status_idx ON feedback (status, created_at DESC);
+CREATE INDEX feedback_user_idx ON feedback (user_id, created_at DESC);
+CREATE INDEX feedback_type_idx ON feedback (type, status);
+```
+
+**RLS policies:**
+- INSERT: anyone (including unauthenticated — `WITH CHECK (true)`)
+- SELECT: user can read their own submissions (future "my tickets" view); admins read all
+- UPDATE: admins only
+- DELETE: service-role only
+
+**Endpoint** `POST /feedback`:
+
+Request:
+```ts
+{
+  type: "bug"|"card_issue"|"idea"|"general"|"ui"|"performance"|"crash",
+  title: string,
+  description: string,
+  context?: Record<string, unknown>,
+  clientMeta: {
+    url: string,
+    userAgent: string,
+    viewport: { width: number, height: number },
+    appVersion: string,
+  },
+  screenshot?: string,  // base64 data URL, deferred to Phase 2 — MVP rejects with 400 if provided
+}
+```
+
+Response: `{ id, createdAt, referenceCode }` (referenceCode = `"fb-" + id.slice(0,6)`).
+
+Errors:
+- `400` — validation (length bounds, bad type)
+- `413` — screenshot too large (Phase 2 only)
+- `429` — rate limit exceeded (`{ error, retryAfter: seconds }`)
+
+**Rate limit:**
+- 10 submissions/hour per authenticated `user_id` — DB window query on `created_at`
+- 3 submissions/hour per IP for anonymous — can use Hono's IP middleware or Supabase RPC
+
+**Optional:** Discord webhook for visibility. Guard behind
+`DISCORD_FEEDBACK_WEBHOOK` env var — skip entire block if unset. Post a
+redacted summary on each new submission with a link to the Supabase row.
+
+### GUI work (GUI agent) — Phase 1 MVP
+
+Depends on server endpoint. Files to add/modify:
+
+**New:**
+- `packages/ui/src/lib/feedbackApi.ts` — POST wrapper around `/feedback`.
+  Auth header if signed in; retry-on-network-failure; returns
+  `{ id, referenceCode }`.
+- `packages/ui/src/lib/feedbackContext.tsx` — React context + provider.
+  Exposes `useFeedback()` hook returning `{ open(ctx?: FeedbackContext) }`.
+  Owns modal open state + pre-filled context.
+- `packages/ui/src/components/FeedbackModal.tsx` — the form. Type dropdown,
+  title, description, auto-metadata preview, submit. Shows toast with
+  reference code on success.
+- `packages/ui/src/components/FeedbackButton.tsx` — presentational trigger.
+  Variants: `"fab"`, `"inline"`, `"icon"`, `"menuItem"`. All call
+  `useFeedback().open()` with per-call context.
+
+**Modified:**
+- `packages/ui/src/App.tsx` — wrap app in `FeedbackProvider`; add footer
+  trigger next to the Disney/Ravensburger notice.
+- `packages/ui/src/components/CardInspectModal.tsx` — "Report issue with
+  this card" button in footer. Hands `{ type: "card_issue", context: { cardId: def.id, fullName: def.fullName } }`
+  to the modal.
+
+**Deferred to Phase 2+** (captured in comments, not in MVP scope):
+- Screenshot attachment (reuse existing `html-to-image` dep)
+- Error boundary integration ("Report this crash" in fallback UI)
+- Game-state context (coordination with gameboard-specialist)
+- "My tickets" user-visible view
+- Admin dashboard (`/admin/feedback` route)
+
+### Auto-captured client metadata (always sent)
+
+```ts
+{
+  url: window.location.pathname,
+  userAgent: navigator.userAgent,
+  viewport: { width: window.innerWidth, height: window.innerHeight },
+  appVersion: import.meta.env.VITE_APP_VERSION ?? "dev",
+}
+```
+
+Modal shows a "What we'll send" expandable section so users see metadata
+before submitting — privacy-forward. Attachment checkboxes (when context
+is non-empty) default to on but can be unchecked.
+
+### Decisions locked with user
+
+1. **Anonymous allowed** — removes signup friction for bug reports. Backend tags `user_id: null`.
+2. **MVP screenshots: deferred to Phase 2** — adds complexity without clear MVP value.
+3. **Footer placement over FAB** — less screen-real-estate intrusion. Gameboard-specialist can add a gameboard-specific trigger (FAB or utility-strip icon) separately.
+4. **Rate limits**: 10/hour authenticated, 3/hour anonymous. Adjust per real usage.
+5. **Discord webhook**: include in MVP if the project has a Discord; skip cleanly via env var otherwise.
+
+### Coordination for Phase 2+
+
+- **gameboard-specialist** will need the `useFeedback()` hook to capture
+  in-game context — ideally `{ seed, turnNumber, lastActions: GameAction[] }`
+  or even the full replay payload. Document the `FeedbackContext` type
+  shape in `feedbackContext.tsx` so their triggers pass the right fields.
+- **engine-expert** gets a query-able firehose of `card_issue` reports
+  keyed by `context->>'cardId'` — high-signal input for the card-issue
+  backlog. Flag when the feature ships.
