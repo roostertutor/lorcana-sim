@@ -2125,12 +2125,14 @@ function applyResolveChoice(
     }
     // Resume any queued follow-up effects (same as the other choose branches).
     state = resumePendingEffectQueue(state, definitions, events);
-    // CRD 4.3.3.2: action card moves to discard after its effect resolves.
-    // Without this call, a "Choose one: • X • Y" action (Pull the Lever!,
-    // Trust In Me, Mrs. Incredible FLEXIBLE THINKING) whose picked branch
-    // resolved without spawning a further pendingChoice would stay stuck in
-    // play. Safe for non-action sources too — cleanupPendingAction checks
-    // state.pendingActionInstanceId and no-ops when it's undefined.
+    // CRD 6.1.3: "Choose one" action cards (Pull the Lever!, Wrong Lever!,
+    // Trust In Me, Make the Potion) + CRD 4.3.3.2: action moves to discard
+    // after its effect + all sub-choices resolve. Without this call, the
+    // action card stayed in play after the player picked a branch.
+    // Character ability sources (Mrs. Incredible FLEXIBLE THINKING,
+    // 6.1.5.2 cards like Madam Mim - Snake / Megara SHADY DEAL / Containment
+    // Unit) hit the same RESOLVE_CHOICE path — cleanupPendingAction no-ops
+    // for them because `state.pendingActionInstanceId` is undefined.
     state = cleanupPendingAction(state, playerId);
     return state;
   }
