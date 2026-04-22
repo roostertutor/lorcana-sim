@@ -42,19 +42,94 @@ export async function ensureProfile() {
   if (!res.ok) throw new Error("Failed to initialize profile")
 }
 
+/** Spectator-access policy on a lobby. Phase 7 (spectator mode) is the
+ *  feature that consumes this; Phase 1 just stores it. Public lobbies
+ *  auto-force 'public' server-side, private lobbies expose the full
+ *  4-way policy picker. */
+export type SpectatorPolicy = "off" | "invite_only" | "friends" | "public"
+
+export interface CreateLobbyOptions {
+  /** When true, lobby appears in the public-lobby browser for anyone to
+   *  join. Server also forces spectatorPolicy to 'public' in this case. */
+  public?: boolean
+  /** Phase 1 plumbing — stored for Phase 7 to consume. Defaults to 'off'
+   *  on server. Ignored when `public: true` (server uses 'public'). */
+  spectatorPolicy?: SpectatorPolicy
+}
+
 export async function createLobby(
   deck: DeckEntry[],
   format: "bo1" | "bo3" = "bo1",
   gameFormat: GameFormatFamily = "infinity",
   gameRotation: RotationId = "s11",
+  options: CreateLobbyOptions = {},
 ) {
   const res = await fetch(`${SERVER_URL}/lobby/create`, {
     method: "POST",
     headers: await authHeaders(),
-    body: JSON.stringify({ deck, format, gameFormat, gameRotation }),
+    body: JSON.stringify({
+      deck,
+      format,
+      gameFormat,
+      gameRotation,
+      public: options.public ?? false,
+      spectatorPolicy: options.spectatorPolicy ?? "off",
+    }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; code: string; format: string; gameFormat: string; gameRotation: string }>
+  return res.json() as Promise<{
+    lobbyId: string
+    code: string
+    format: string
+    gameFormat: string
+    gameRotation: string
+    public: boolean
+    spectatorPolicy: SpectatorPolicy
+  }>
+}
+
+/** One entry in the public-lobby browser. Server deliberately omits deck
+ *  fields (no scouting). Caller's own lobbies are filtered out server-side. */
+export interface PublicLobby {
+  id: string
+  code: string
+  hostUsername: string
+  format: "bo1" | "bo3"
+  gameFormat: GameFormatFamily
+  gameRotation: RotationId
+  spectatorPolicy: SpectatorPolicy
+  createdAt: string
+}
+
+/** List public, waiting lobbies others have opened. Returns empty array
+ *  on transport errors — UI shouldn't blow up if the server is blippy. */
+export async function listPublicLobbies(): Promise<PublicLobby[]> {
+  try {
+    const res = await fetch(`${SERVER_URL}/lobby/public`, {
+      headers: await authHeaders(),
+    })
+    if (!res.ok) return []
+    const data = await res.json() as { lobbies: PublicLobby[] }
+    return data.lobbies
+  } catch {
+    return []
+  }
+}
+
+/** Host-only cancel of a waiting lobby. Returns ok=true on success;
+ *  otherwise { error, status } with 404 / 403 / 409. A 409 typically
+ *  means someone already joined — UI should redirect into the game
+ *  rather than surface the error. */
+export async function cancelLobby(
+  lobbyId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/cancel`, {
+    method: "POST",
+    headers: await authHeaders(),
+  })
+  if (res.ok) return { ok: true }
+  const error = await extractError(res)
+  return { ok: false, error, status: res.status }
 }
 
 export async function joinLobby(code: string, deck: DeckEntry[]) {
