@@ -2469,9 +2469,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
                       {/* Stack count pill — shows when a grouped timed effect
                           represents N stacked entries (Lady × 3 PACK OF HER
                           OWN triggers → ×3). Preserves the verbose oracle
-                          label while surfacing the repetition count. */}
+                          label while surfacing the repetition count.
+                          Matches the existing ×N pill convention in
+                          CardInspectModal.tsx:284 (amber on amber-900/40)
+                          so the stack-count badge reads consistently
+                          across the scoreboard's global view AND the
+                          card-level filtered view. */}
                       {e.stackCount && e.stackCount > 1 && (
-                        <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-black text-cyan-200 bg-cyan-900/60 rounded-full border border-cyan-700/60">
+                        <span className="text-[9px] font-bold text-amber-300 bg-amber-900/40 rounded px-1 shrink-0">
                           ×{e.stackCount}
                         </span>
                       )}
