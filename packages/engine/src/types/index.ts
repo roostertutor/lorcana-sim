@@ -2949,6 +2949,26 @@ export interface CardDefinition {
    *  (e.g. The Bayou's ability name, where Lorcast/printed card disagree with
    *  Ravensburger). Set manually after verifying the data is correct. */
   _sourceLock?: boolean;
+  /** Provenance of this card's IMAGE. Tracked independently of `_source`
+   *  because text and art can come from different feeds — during pre-release,
+   *  Ravensburger often has card text before image art, or vice versa.
+   *  Sync scripts stamp this on write and refuse to downgrade (same
+   *  ravensburger > lorcast > manual hierarchy as `_source`). Missing is
+   *  treated as "none / needs sync" for pre-field-introduction back-compat.
+   *    - "ravensburger" — from `pnpm sync-images-rav`
+   *    - "lorcast"      — from `pnpm sync-images-lorcast` (fills gaps)
+   *    - "manual"       — from `pnpm sync-images-manual` (dev-dropped files) */
+  _imageSource?: "ravensburger" | "lorcast" | "manual";
+  /** Upstream URL the current R2 image was sourced from. Preserves provenance
+   *  so sync scripts can detect upstream rotation (e.g. Ravensburger rotates
+   *  their content hash) and re-pull, and so a re-run is idempotent when the
+   *  upstream URL hasn't changed. Not meant for UI display — use `imageUrl`
+   *  for that (which points at R2). */
+  _sourceImageUrl?: string;
+  /** Pin this card's image source regardless of sync-script tier. Mirror of
+   *  `_sourceLock` but for images — use when a lower-tier source has visibly
+   *  better art than a higher-tier one. Rare. Set manually. */
+  _imageSourceLock?: boolean;
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct

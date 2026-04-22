@@ -1547,89 +1547,116 @@ dedicated session for board chrome.
 
 ---
 
-## Engine agent (primary) + UI agent (follow-up): self-host card images on R2
+## [BLOCKED on R2 provisioning] User action: provision R2 + then run migration
 
-**Why now:** Every card JSON embeds a hot-link to `api.lorcana.ravensburger.com`.
-Post-MP-deploy this becomes (a) a rate-limit dependency on Ravensburger's good
-will, (b) a CORS blocker for canvas-based clip/deck-image export (near-term
-priority), and (c) a fragility point — their CDN path includes a content hash
-that will rotate eventually, breaking 2769 URLs across 19 JSON files at once.
+Engine scaffolding shipped 2026-04-21 (commit TBD). All three sync scripts and
+the shared pipeline are ready; dry-run verified against sets 12, P1, DIS
+without R2 creds. Remaining work is operational + UI-side, not engine.
 
-Do this **before** Railway MP deploy, not after. Once multiplayer is live,
-every game board render hammers Ravensburger.
+### What's blocking
 
-### Scope for `engine-expert` (the bulk of the work)
+The R2 bucket / DNS / creds aren't provisioned yet. Without them, the scripts
+auto-fallback to dry-run mode (compute hashes, preview JSON writes, but don't
+upload). Sync scripts exit cleanly; nothing breaks. But card JSON still
+points at upstream URLs, so canvas-based clip/deck-image export still blocks
+on Ravensburger CORS.
 
-This agent owns card-data imports, card JSON schema, and the types — so it owns
-this migration. Work is roughly two days end-to-end.
+### Human checklist (45 min)
 
-**1. Schema additions to every card-JSON entry** (one-time migration script,
-must be idempotent):
-- `_imageSource: "ravensburger" | "lorcast" | "manual"` — parallel to existing
-  `_source` but tracked independently (the two can diverge during pre-release —
-  e.g. Ravensburger has card text before image, or vice versa).
-- `_sourceImageUrl: string` — original upstream URL (preserves provenance so we
-  can re-verify / re-pull without re-scraping the whole API).
-- `_imageSourceLock?: true` — escape hatch mirroring existing `_sourceLock`, for
-  cards where a lower-tier source has visibly better art than a higher tier.
-- `imageUrl` gets rewritten to point at R2 (see path shape below).
+1. **Create R2 bucket** `lorcana-cards` in the Cloudflare dashboard.
+2. **CORS policy**: allow GET/HEAD from `*` (tighten later):
+   ```json
+   [{"AllowedOrigins":["*"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":86400}]
+   ```
+3. **Connect a domain** — either `cards.yourdomain.com` via Custom Domains, or
+   enable the `pub-<hash>.r2.dev` default URL for dev.
+4. **Generate API token** — Object Read & Write, scoped to `lorcana-cards`.
+   Grab Access Key ID, Secret Access Key, and the Endpoint URL.
+5. **Drop creds into `.env`** (repo root; already in `.gitignore`):
+   ```
+   R2_ACCOUNT_ID=<from endpoint URL>
+   R2_ACCESS_KEY_ID=<from step 4>
+   R2_SECRET_ACCESS_KEY=<from step 4>
+   R2_BUCKET=lorcana-cards
+   R2_PUBLIC_BASE_URL=https://cards.yourdomain.com
+   ```
+6. **Canary run** (engine-expert): `pnpm sync-images-rav --sets 12` — ~156
+   cards × 3 sizes. Verify URLs resolve in a browser. Commit the card-set-12
+   JSON diff.
+7. **Full migration** (engine-expert):
+   `pnpm sync-images-rav` (all Ravensburger sources, ~2500 cards × 3 sizes,
+   ~15 min), then `pnpm sync-images-lorcast` (~200 cards across DIS/C2/CP),
+   then any `pnpm sync-images-manual` drops. Commit each set's JSON.
+8. **UI-specialist + gameboard-specialist** fix the size-swap bugs listed
+   below (~30 min).
+9. **Then Railway MP deploy.**
 
-**2. Three sync scripts, three tiers** (mirrors `ravensburger > lorcast > manual`
-hierarchy already used for card data):
+### Engine work — DONE 2026-04-21
 
-| Script | Writes tier | Refuses to overwrite |
-|---|---|---|
-| `scripts/sync-images-rav.ts` (extend existing `~/Desktop/Lorcana_Assets/rav-download-images.mjs`) | `ravensburger` | — (top tier) |
-| `scripts/sync-images-lorcast.ts` (new) | `lorcast` | `ravensburger` tier |
-| `scripts/sync-images-manual.ts` (new) | `manual` | `ravensburger` or `lorcast` |
+**Schema additions** (types/index.ts → CardDefinition):
+- `_imageSource?: "ravensburger" | "lorcast" | "manual"` — image provenance,
+  tracked independently of `_source` (they can diverge pre-release).
+- `_sourceImageUrl?: string` — upstream URL the current R2 image was pulled
+  from. Enables idempotent re-runs (same upstream → skip) + rotation
+  detection (upstream URL changed → re-pull).
+- `_imageSourceLock?: boolean` — manual pin; mirror of `_sourceLock`.
 
-Each script:
-- Downloads from its source → resizes via sharp (small 200w / normal 450w /
-  large 900w) → uploads to R2 → rewrites `imageUrl` + `_imageSource` +
-  `_sourceImageUrl` in card JSON.
-- Skips entries where `_imageSourceLock: true` already points at a lower tier.
-- Manual script reads from `assets/manual-cards/{setCode}/{cardId}.jpg` (dev
-  drops file → script picks up on next run). Use cases: super-early spoilers
-  before any API has images, bad scans, playtest-only cards.
+**Shared library** (`scripts/lib/image-sync.ts`):
+- `syncSingleCard` — the per-card pipeline (guard checks → fetch/read →
+  sharp resize to 200/450/900w → SHA-256 hash → R2 PutObject or dry-run).
+- `runSync` — top-level runner that walks all card-set JSONs, filters by
+  `--sets`, and per-file JSON writes.
+- `readR2ConfigFromEnv` — returns null when any R2 env var is missing
+  (auto-enables dry-run mode).
+- Handles `file://` URLs so the manual tier can share the same pipeline.
+- Content-hashed R2 keys (`set12/4_<hash>_normal.jpg`) + `HeadObjectCommand`
+  existence check → skips PUT when the same bytes are already uploaded.
 
-**3. R2 path shape** (preserves cache-busting on source upgrade):
+**Three sync scripts** (all registered in package.json):
+- `pnpm sync-images-rav` — covers ~90% of cards (main sets 1-12 + Ravensburger
+  promos). Filters on `api.lorcana.ravensburger.com` / `disneylorcana.com`
+  URL shape. Primary weekly maintenance script.
+- `pnpm sync-images-lorcast` — fills gaps Ravensburger doesn't publish (DIS,
+  C2, CP + pre-release set-N reveals). Filters on `cards.lorcast.io` /
+  `lorcast.com` URL shape. Refuses to downgrade cards already at
+  `_imageSource: "ravensburger"`.
+- `pnpm sync-images-manual` — reads from `assets/manual-cards/<setId>/<number>.{jpg,png,webp,avif}`.
+  Dev drops a file → script picks up on next run. Refuses to downgrade
+  ravensburger/lorcast-tier entries unless `_imageSourceLock: true` pins to
+  manual.
 
+**CLI flags** (all three scripts):
+- `--dry-run` — skip R2 upload, but still fetch + resize + hash + print
+  would-write preview. Auto-enabled when R2 creds missing from `.env`.
+- `--sets <ids>` — comma-separated set ids (e.g. `--sets 12,P1,DIS`).
+- `--limit N` — process first N cards across selected sets (smoke testing).
+- `--help` / `-h` — usage.
+
+**R2 path shape** (preserved from original design — content hash in filename
+enables `Cache-Control: public, max-age=31536000, immutable`):
 ```
-https://cards.<domain>/set12/123_<sha256-of-image>_{small|normal|large}.jpg
+https://<R2_PUBLIC_BASE_URL>/set12/123_<16-char-hash>_{small|normal|large}.jpg
 ```
 
-Content hash in filename → `cache-control: public, max-age=31536000, immutable`
-works. When Ravensburger upgrades a Lorcast-tier image, new hash = new URL =
-forced refetch. Do NOT use canonical paths without hashes; CDN/browser caches
-won't invalidate cleanly.
+**Deferred to phase 2** (non-blocking):
+- Variants / foil art. MVP ships regular `imageUrl` only; `foilImageUrl` /
+  `variants[].imageUrl` / `printings[].imageUrl` continue to point at
+  upstream URLs for now. Second migration pass once regular-art coverage is
+  ≥95% and we're confident the pipeline is solid.
 
-**4. Defer variants (enchanted/foil/cold-foil)** to a second phase. MVP ships
-regular art only. The existing `resolveEntryImageUrl` in `deckRules.ts` already
-handles per-variant lookup, so the scaffolding is there — but don't block the
-migration on variant support.
+### Scope for `ui-specialist` + `gameboard-specialist` (follow-up, ~30 min, unblocks when migration runs)
 
-**5. User-level ops (not an agent task, flag for user to do):**
-- Provision Cloudflare R2 bucket (`lorcana-cards`).
-- DNS: `cards.<domain>` → R2 public bucket.
-- Generate R2 API credentials; add to `.env` as `R2_ACCESS_KEY_ID` /
-  `R2_SECRET_ACCESS_KEY` / `R2_BUCKET`.
-- Optional: edge worker that falls back to Ravensburger on R2 miss (useful for
-  set-drop days before the sync script runs).
-
-### Scope for `ui-specialist` + `gameboard-specialist` (follow-up, ~30 min)
-
-Once the R2 migration lands, fix these two bugs that are currently silent no-ops:
+Once card-set JSONs have been migrated to R2 URLs, fix these two silent
+no-ops that were shipping the full 900w image to surfaces that only needed
+a thumbnail:
 
 - `packages/ui/src/components/GameCard.tsx:239` —
   `def.imageUrl.replace("/digital/normal/", "/digital/small/")`
 - `packages/ui/src/components/DeckBuilder.tsx:311` — same pattern
 - `packages/ui/src/pages/DeckBuilderPage.tsx:308` — same pattern
 
-The `/digital/normal/` path is **Lorcast-shaped**, not Ravensburger-shaped.
-Since most cards import from Ravensburger, the replace is a no-op and we ship
-the full 900w image to the board where a 200w thumbnail would do. After
-migration, R2 paths encode the size as `_small` / `_normal` / `_large`, so the
-swap becomes something like:
+The `/digital/normal/` path is **Lorcast-shaped**, not R2-shaped. After
+migration, R2 keys encode size as `_small` / `_normal` / `_large`:
 
 ```ts
 def.imageUrl.replace("_normal.jpg", "_small.jpg")
@@ -1638,23 +1665,23 @@ def.imageUrl.replace("_normal.jpg", "_small.jpg")
 Ping `gameboard-specialist` for `GameCard.tsx`; `ui-specialist` for the two
 deckbuilder files.
 
-### Sequencing
+### Why this matters
 
-1. `engine-expert` does schema + migration + sync scripts (~2 days).
-2. User provisions R2 bucket + DNS (~1 hour).
-3. Run one-time migration: download all existing images, resize, upload, rewrite
-   JSON. Commit the JSON rewrite.
-4. `ui-specialist` + `gameboard-specialist` fix the size-swap bugs (~30 min).
-5. Then proceed with Railway MP deploy.
+Every card JSON currently hot-links to `api.lorcana.ravensburger.com`.
+Post-MP-deploy this becomes (a) a rate-limit dependency on Ravensburger's
+good will, (b) a CORS blocker for canvas-based clip/deck-image export
+(near-term priority), and (c) a fragility point — their CDN path includes
+a content hash that will rotate eventually, breaking 2769 URLs across 19
+JSON files at once.
 
 ### Reference
 
-- Strategy rationale + cost analysis: this session's chat log (strategy agent,
-  2026-04-20).
-- Existing download script: `~/Desktop/Lorcana_Assets/rav-download-images.mjs`.
-- Existing importer hierarchy pattern: `scripts/import-cards-rav.ts` +
-  `scripts/import-cards-lorcast.ts` (refuses-to-downgrade logic is the template).
+- Strategy rationale + cost analysis: strategy agent, 2026-04-20.
+- Existing importer hierarchy pattern (refuses-to-downgrade): `scripts/import-cards-rav.ts` +
+  `scripts/import-cards-lorcast.ts`.
 - Existing `_sourceLock` precedent: The Bayou in card-set-1.json.
+- Original external download script (now superseded by in-repo scripts):
+  `~/Desktop/Lorcana_Assets/rav-download-images.mjs`.
 
 ---
 
