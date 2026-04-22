@@ -18,6 +18,7 @@ import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
 import FormatPicker from "../components/FormatPicker.js";
 import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, formatDisplayName } from "../utils/deckRules.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 
 /** Build the card_metadata map for persistence from the current entries.
  *  Only cards with a non-default variant appear — regular (the default) is
@@ -354,7 +355,7 @@ export default function DeckBuilderPage() {
                   >
                     {boxCard?.imageUrl ? (
                       <img
-                        src={boxCard.imageUrl.replace("/digital/normal/", "/digital/small/")}
+                        {...getBoardCardImage(boxCard.imageUrl)}
                         alt={boxCard.fullName}
                         className="w-full h-full object-cover object-top"
                         loading="lazy"

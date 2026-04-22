@@ -2,6 +2,7 @@ import React from "react";
 import type { CardDefinition, GameState, GameModifiers } from "@lorcana-sim/engine";
 import { getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
+import { getInspectCardImage } from "../utils/cardImage.js";
 
 type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
 
@@ -85,7 +86,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
         <div className="flex justify-center pt-4 px-4">
           {def?.imageUrl ? (
             <img
-              src={def.imageUrl}
+              {...getInspectCardImage(def.imageUrl)}
               alt={def.fullName}
               className="rounded-xl shadow-lg max-h-[45vh] sm:max-h-[50vh] object-contain"
               draggable={false}

@@ -7,6 +7,7 @@ import type { CardDefinition, GameState, GameModifiers, KeywordAbility } from "@
 import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower, evaluateCondition } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import type { IconName } from "./Icon.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 
 // Ink color → gradient + border
 const INK_THEME: Record<string, { border: string; gradFrom: string; gradTo: string; costBg: string; glow: string }> = {
@@ -241,13 +242,13 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
   // ── With image: card art fills the frame, overlays show only game state ──
   if (def.imageUrl) {
-    // Ravensburger provides card images at 1468x2048.
-    // Board cards are displayed at 88–120px CSS width — small is sufficient.
-    const boardImageUrl = def.imageUrl.replace("/digital/normal/", "/digital/small/");
+    // DPR-aware: browser picks small (200px) on DPR=1 desktops, normal (450px)
+    // on DPR=2+ retina and mobile. See utils/cardImage.ts for the full matrix.
+    const boardImg = getBoardCardImage(def.imageUrl);
     return (
       <div className={`${baseClass} aspect-[5/7] overflow-hidden`} onClick={onClick} tabIndex={0} onKeyDown={handleKey} role="button" aria-label={`${def.fullName}${isExerted ? ", exerted" : ""}${damage > 0 ? `, ${damage} damage` : ""}`}>
         <img
-          src={boardImageUrl}
+          {...boardImg}
           alt={def.fullName}
           loading="lazy"
           decoding="async"

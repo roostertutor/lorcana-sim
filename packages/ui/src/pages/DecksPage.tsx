@@ -18,6 +18,7 @@ import {
   formatDisplayName,
   FORMAT_FAMILY_ACCENT,
 } from "../utils/deckRules.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 
 const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
 4 HeiHei - Boat Snack
@@ -204,7 +205,7 @@ export default function DecksPage() {
                     {/* Box art — cropped to top of the source card image */}
                     {boxCard?.imageUrl ? (
                       <img
-                        src={boxCard.imageUrl}
+                        {...getBoardCardImage(boxCard.imageUrl)}
                         alt={boxCard.fullName}
                         className="absolute inset-0 w-full h-full object-cover object-top group-hover:brightness-110 transition-[filter]"
                         loading="lazy"

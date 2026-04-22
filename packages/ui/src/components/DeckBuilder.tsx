@@ -9,6 +9,7 @@ import { toPng } from "html-to-image";
 import type { CardDefinition, DeckEntry, GameFormat, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { isCardLegalInFormat, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels, cardMatchScore } from "../utils/deckRules.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 import DeckExportPanel from "./DeckExportPanel.js";
 
 // Compact variant labels for the inline per-row tag. Omit "regular" since
@@ -321,10 +322,10 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
               const existing = entries.find((e) => e.definitionId === d.id);
               const max = getMaxCopies(d);
               const atMax = existing && existing.count >= max;
-              // Thumbnail = small card art (small variant) so you can
-              // recognize by visual without needing to read text, and
-              // distinguish same-name cards at a glance.
-              const thumbUrl = d.imageUrl?.replace("/digital/normal/", "/digital/small/");
+              // Thumbnail = small card art so you can recognize by visual
+              // without needing to read text, and distinguish same-name
+              // cards at a glance. DPR-aware via getBoardCardImage.
+              const thumbImg = d.imageUrl ? getBoardCardImage(d.imageUrl) : null;
               return (
                 <button
                   key={d.id}
@@ -335,9 +336,9 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                   onMouseDown={(e) => { e.preventDefault(); if (!atMax) addCard(d); }}
                   disabled={!!atMax}
                 >
-                  {thumbUrl ? (
+                  {thumbImg ? (
                     <img
-                      src={thumbUrl}
+                      {...thumbImg}
                       alt=""
                       className="shrink-0 w-10 h-14 object-cover rounded border border-gray-700"
                       loading="lazy"

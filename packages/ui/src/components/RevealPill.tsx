@@ -1,6 +1,7 @@
 import React from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
+import { getThumbCardImage } from "../utils/cardImage.js";
 
 interface Props {
   title: string;
@@ -42,7 +43,7 @@ export default function RevealPill({
         {previews.map((id, i) => {
           const inst = gameState.cards[id];
           const def = inst ? definitions[inst.definitionId] : undefined;
-          const img = !faceDown ? def?.imageUrl : undefined;
+          const img = !faceDown && def?.imageUrl ? getThumbCardImage(def.imageUrl) : null;
           const rot = (i - (previews.length - 1) / 2) * 8;
           return (
             <div
@@ -52,7 +53,7 @@ export default function RevealPill({
             >
               {img && (
                 <img
-                  src={img}
+                  {...img}
                   className="w-full h-full object-cover"
                   alt=""
                   loading="lazy"

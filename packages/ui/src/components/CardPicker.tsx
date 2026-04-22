@@ -11,6 +11,7 @@ import { isCardLegalInFormat } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
 import { getMaxCopies, countById, cardMatchScore, INK_COLOR_CLASS, INK_ORDER } from "../utils/deckRules.js";
+import { getInspectCardImage } from "../utils/cardImage.js";
 import type { CardType } from "@lorcana-sim/engine";
 
 interface Props {
@@ -227,7 +228,7 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
         >
           {inspectDef.imageUrl ? (
             <img
-              src={inspectDef.imageUrl}
+              {...getInspectCardImage(inspectDef.imageUrl)}
               alt={inspectDef.fullName}
               className="max-h-[95vh] max-w-[95vw] object-contain rounded-xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}

@@ -2,6 +2,7 @@ import React from "react";
 import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcana-sim/engine";
 import { getEffectiveStrength } from "@lorcana-sim/engine";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 import GameCard from "./GameCard.js";
 import CardTextRender from "./CardTextRender.js";
 import AbilityTextRender from "./AbilityTextRender.js";
@@ -486,7 +487,7 @@ export default function PendingChoiceModal({
               </div>
             ) : srcImg ? (
               <img
-                src={srcImg}
+                {...getBoardCardImage(srcImg)}
                 alt={srcDef?.fullName ?? ""}
                 className="shrink-0 w-[140px] aspect-[5/7] rounded-lg object-cover shadow-lg"
                 loading="lazy"
@@ -555,7 +556,7 @@ export default function PendingChoiceModal({
                     <>
                       {cardImg && (
                         <img
-                          src={cardImg}
+                          {...getBoardCardImage(cardImg)}
                           alt={cardName}
                           className="shrink-0 w-[96px] aspect-[5/7] rounded-md object-cover shadow"
                           loading="lazy"

@@ -34,6 +34,7 @@ import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
 import RevealPill from "../components/RevealPill.js";
+import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 
@@ -425,7 +426,7 @@ function UtilityStrip({
             const inst = gameState.cards[deckTopId];
             const imgUrl = inst ? definitions[inst.definitionId]?.imageUrl : undefined;
             return imgUrl
-              ? <img src={imgUrl} alt="Deck top" className="w-full h-full object-cover" draggable={false} />
+              ? <img {...getBoardCardImage(imgUrl)} alt="Deck top" className="w-full h-full object-cover" draggable={false} />
               : <img src="/card-back-small.jpg" alt="Deck" className="w-full h-full object-cover" draggable={false} />;
           })()
         ) : deckTopId ? (

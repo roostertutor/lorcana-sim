@@ -10,6 +10,7 @@
 // =============================================================================
 
 import type { CardDefinition } from "@lorcana-sim/engine";
+import { getBoardCardImage } from "../utils/cardImage.js";
 
 interface Props {
   def: CardDefinition;
@@ -53,7 +54,7 @@ export default function CardTile({
         >
           {displayImageUrl ? (
             <img
-              src={displayImageUrl.replace("/digital/normal/", "/digital/small/")}
+              {...getBoardCardImage(displayImageUrl)}
               alt={def.fullName}
               className={`w-full h-full object-cover transition-[filter] ${
                 atMax ? "brightness-50" : "group-hover:brightness-110"
