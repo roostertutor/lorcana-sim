@@ -72,16 +72,26 @@ export interface R2Config {
 }
 
 /** Read R2 config from .env. Returns null when any key is missing — callers
- *  fall back to dry-run automatically. */
+ *  fall back to dry-run automatically. Normalizes R2_ACCOUNT_ID defensively
+ *  so users can paste either the bare hex ID or the full endpoint URL from
+ *  the Cloudflare dashboard without breaking anything. */
 export function readR2ConfigFromEnv(): R2Config | null {
-  const accountId = process.env.R2_ACCOUNT_ID;
+  const rawAccountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
   const bucket = process.env.R2_BUCKET;
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL;
-  if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicBaseUrl) {
+  if (!rawAccountId || !accessKeyId || !secretAccessKey || !bucket || !publicBaseUrl) {
     return null;
   }
+  // Accept: "abc123def456", "https://abc123def456.r2.cloudflarestorage.com",
+  // "https://abc123def456.r2.cloudflarestorage.com/", or the full URL with a
+  // path — strip everything down to the leading hex subdomain.
+  const accountId = rawAccountId
+    .trim()
+    .replace(/^https?:\/\//, "")
+    .replace(/\..*$/, "")
+    .replace(/\/.*$/, "");
   return { accountId, accessKeyId, secretAccessKey, bucket, publicBaseUrl };
 }
 
@@ -93,6 +103,13 @@ function buildR2Client(config: R2Config): S3Client {
       accessKeyId: config.accessKeyId,
       secretAccessKey: config.secretAccessKey,
     },
+    // R2 doesn't support virtual-hosted-style addressing for arbitrary bucket
+    // names out of the box. Force path-style so the SDK sends
+    // `https://<account>.r2.cloudflarestorage.com/<bucket>/<key>` instead of
+    // `https://<bucket>.<account>.r2.cloudflarestorage.com/<key>` — the
+    // latter is what produced `lorcana-cards.https` hostname errors when
+    // R2_ACCOUNT_ID contained junk.
+    forcePathStyle: true,
   });
 }
 
@@ -366,6 +383,11 @@ export async function runSync(options: RunnerOptions): Promise<RunnerSummary> {
   }
   if (args.dryRun && r2Config) {
     console.log(`  (R2 creds present but --dry-run forced; skipping upload.)`);
+  }
+  if (r2 && !effectiveDryRun) {
+    console.log(`  Endpoint: https://${r2Config!.accountId}.r2.cloudflarestorage.com`);
+    console.log(`  Bucket:   ${r2Config!.bucket}`);
+    console.log(`  Public:   ${r2Config!.publicBaseUrl}`);
   }
 
   const summary: RunnerSummary = {
