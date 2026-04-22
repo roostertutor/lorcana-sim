@@ -34,6 +34,13 @@ export interface GameConfig {
   seed?: number;
   /** When true, disables bot auto-resolve heuristics — humans must make all choices */
   interactive?: boolean;
+  /** CRD 2.1.3.2 / 2.2.1: play-draw rule. The player who elects to go first or
+   *  second. Defaults to "player1" — server/setup code slots the appropriate
+   *  player (coin-flip winner for game 1, previous-game loser for Bo3 games 2/3)
+   *  into the player1 slot so the default works without extra plumbing. Engine
+   *  surfaces a choose_play_order pendingChoice to this player as the first
+   *  interaction in the game. */
+  chooserPlayerId?: PlayerID;
 }
 
 /** Shuffle an array using Fisher-Yates with seeded RNG */
@@ -197,11 +204,23 @@ export function createGame(
     }
   }
 
+  // CRD 2.1.3.2 / 2.2.1: play-draw rule. The chooser (coin-flip winner for
+  // game 1, Bo3 loser for games 2/3) elects whether to be the starting player.
+  // Server/setup logic is responsible for slotting the chooser into the
+  // appropriate PlayerID slot and passing it here.
+  const chooserId: PlayerID = config.chooserPlayerId ?? "player1";
+
   let state: GameState = {
     turnNumber: 1,
-    currentPlayer: "player1",
-    firstPlayerId: "player1",
-    phase: "beginning",
+    // currentPlayer is only meaningful once a starting player is picked. We
+    // tentatively set it to the chooser so "whose move is it?" consumers that
+    // ignore pendingChoice don't see an undefined state; the reducer overwrites
+    // this on choose_play_order resolution. firstPlayerId intentionally omitted
+    // until the choice resolves — any consumer reading it (e.g. Underdog's
+    // your_first_turn_as_underdog condition) should treat undefined as "not yet
+    // decided" (no card effects run during the play_order_select phase anyway).
+    currentPlayer: chooserId,
+    phase: "play_order_select",
     players: {
       player1: { id: "player1", lore: 0, availableInk: 0, hasPlayedInkThisTurn: false },
       player2: { id: "player2", lore: 0, availableInk: 0, hasPlayedInkThisTurn: false },
@@ -216,7 +235,7 @@ export function createGame(
       {
         timestamp: Date.now(),
         turn: 1,
-        playerId: "player1",
+        playerId: chooserId,
         message: "Game started.",
         type: "game_start",
       },
@@ -249,17 +268,15 @@ export function createGame(
     };
   }
 
-  // CRD 2.2.2: Start in mulligan phase — player1 chooses first
-  const p1HandIds = state.zones.player1.hand;
+  // CRD 2.1.3.2: chooser picks go-first-or-second. Mulligan (CRD 2.2.2) only
+  // begins after this resolves, because CRD 2.2.2 orders mulligans starting
+  // with the starting player — which we don't know yet.
   state = {
     ...state,
-    phase: "mulligan_p1",
     pendingChoice: {
-      type: "choose_mulligan",
-      choosingPlayerId: "player1",
-      prompt: "Choose cards to put back (you will draw the same number). Select none to keep your hand.",
-      validTargets: [...p1HandIds],
-      optional: true,
+      type: "choose_play_order",
+      choosingPlayerId: chooserId,
+      prompt: "Choose whether to go first or second.",
     },
   };
 

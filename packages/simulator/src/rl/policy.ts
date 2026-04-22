@@ -182,6 +182,13 @@ export class RLPolicy implements BotStrategy {
     const stateFeats = stateToFeatures(state, playerId, definitions);
     const valuePred = this.valueNet.forward(stateFeats)[0]!;
 
+    // CRD 2.1.3.2 / 2.2.1: play-draw — always go first. Going first is +EV in
+    // virtually every Lorcana matchup; not worth adding a dedicated net head
+    // for a binary decision that's trivially dominated.
+    if (choice.type === "choose_play_order") {
+      return { type: "RESOLVE_CHOICE", playerId, choice: "first" };
+    }
+
     // CRD 2.2.2: Mulligan — use mulliganNet to decide keep vs full redraw
     if (choice.type === "choose_mulligan") {
       const hand = choice.validTargets ?? [];

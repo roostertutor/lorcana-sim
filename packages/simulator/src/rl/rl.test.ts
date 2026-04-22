@@ -50,7 +50,10 @@ function createTestState(seed = 42): GameState {
     { player1Deck: TEST_DECK, player2Deck: TEST_DECK, seed },
     definitions
   );
-  // Resolve both mulligans (keep all) so tests start in main phase
+  // CRD 2.1.3.2: play-draw election (player1 chooses first → preserves prior
+  // behavior where player1 was the starting player). Then resolve both
+  // mulligans (keep all) so tests start in main phase.
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" }, definitions).newState;
   state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, definitions).newState;
   state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] }, definitions).newState;
   return state;

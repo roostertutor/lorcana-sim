@@ -31,7 +31,7 @@ const TEST_DECK = [
 
 const ZONES: ZoneName[] = ["deck", "hand", "play", "discard", "inkwell"];
 const PLAYERS: PlayerID[] = ["player1", "player2"];
-const VALID_PHASES = new Set(["mulligan_p1", "mulligan_p2", "beginning", "main", "end"]);
+const VALID_PHASES = new Set(["play_order_select", "mulligan_p1", "mulligan_p2", "beginning", "main", "end"]);
 
 // ---------------------------------------------------------------------------
 // INVARIANT CHECKER
@@ -84,6 +84,27 @@ function assertInvariants(state: GameState): void {
 
   // Invariant 4: phase is valid
   expect(VALID_PHASES.has(state.phase), `phase "${state.phase}" is invalid`).toBe(true);
+
+  // Invariant 5 (CRD 2.1.3.2 audit): any pendingChoice must name a real player
+  // slot as its chooser. Catches past regressions where a new pendingChoice
+  // shape forgot to set choosingPlayerId or typoed the slot.
+  if (state.pendingChoice) {
+    expect(
+      PLAYERS,
+      `pendingChoice.choosingPlayerId "${state.pendingChoice.choosingPlayerId}" must be a real player slot`,
+    ).toContain(state.pendingChoice.choosingPlayerId);
+  }
+
+  // Invariant 6 (CRD 2.1.3.2 audit): once we're past play_order_select,
+  // firstPlayerId must be set. Catches regressions where a new mulligan or
+  // turn-transition path forgets to set the starting player.
+  if (state.phase !== "play_order_select") {
+    expect(
+      state.firstPlayerId,
+      `firstPlayerId must be non-null after leaving play_order_select phase (current phase: ${state.phase})`,
+    ).toBeDefined();
+    expect(PLAYERS).toContain(state.firstPlayerId);
+  }
 }
 
 // ---------------------------------------------------------------------------

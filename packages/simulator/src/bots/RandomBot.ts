@@ -12,6 +12,12 @@ import { getMultiPickRange } from "./multiPick.js";
 function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
   const choice = state.pendingChoice!;
 
+  // CRD 2.1.3.2 / 2.2.1: play-draw — always go first. Going first is +EV in
+  // virtually every matchup in Lorcana; not worth randomizing.
+  if (choice.type === "choose_play_order") {
+    return { type: "RESOLVE_CHOICE", playerId, choice: "first" };
+  }
+
   // CRD 2.2.2: Mulligan — keep all (random bot skips mulligan)
   if (choice.type === "choose_mulligan") {
     return { type: "RESOLVE_CHOICE", playerId, choice: [] };

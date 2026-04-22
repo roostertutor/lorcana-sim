@@ -10,6 +10,329 @@ Conventions:
 
 ---
 
+## Engine + server agents: CRD 2.1.3.2 play-draw rule — coin-flip winner / series loser chooses go-first-or-second
+
+Discovered 2026-04-22 during mobile UX planning. Current implementation
+forces the coin-flip winner to go first and has no play-draw election
+anywhere. Violates CRD 2.1.3.2 for Bo3; also missing the tournament
+convention for game 1.
+
+### Current state
+
+**Engine** (`packages/engine/src/engine/initializer.ts:203`):
+```ts
+firstPlayerId: "player1",   // hardcoded, no choice
+```
+
+**Server** (`server/src/services/gameService.ts:38-44`):
+```ts
+// Randomize who goes first — engine always starts with "player1"
+const hostGoesFirst = Math.random() < 0.5
+const p1Id = hostGoesFirst ? hostId : guestId
+const p2Id = hostGoesFirst ? guestId : hostId
+```
+Server slots the coin-flip winner into `player1`, engine forces that user
+to go first. No election is ever offered. Bo3 games 2/3 currently reuse
+the same random assignment (also wrong per 2.1.3.2).
+
+### CRD rules (verbatim from PDF page 6)
+
+- **2.1.3.1** — *two-game series*: game-2 starter is forced to be the
+  game-1 non-starter. (We don't play 2-game series, so this is likely
+  inapplicable — confirm with server agent.)
+- **2.1.3.2** — *best-of-N series*: "The losing player selects whether to
+  be the starting player or not for the next game. This is known as the
+  'play-draw' rule." (**This is Bo3 games 2 and 3.**)
+- **2.2.1.1** — game 1: players agree on a random method determining the
+  starting player. CRD doesn't explicitly say the flip-winner elects, but
+  tournament convention does, and the user (product owner) wants the
+  option offered in all cases.
+
+### Proposed architecture
+
+#### Engine (primary — engine-expert)
+
+1. Add `PendingChoice` type `choose_play_order`:
+   ```ts
+   {
+     type: "choose_play_order";
+     choosingPlayerId: PlayerID;
+     prompt: string;  // "You won the coin flip — go first or second?"
+     // Two options: "first" | "second"
+   }
+   ```
+2. Add new phase before `mulligan_p1`: `play_order_select`.
+3. `initializer.ts`: **stop hardcoding** `firstPlayerId`. Initial state:
+   - `firstPlayerId: null` (or leave unset)
+   - `currentPlayer: config.chooserPlayerId ?? "player1"` (tentative;
+     updated on choice resolution)
+   - `phase: "play_order_select"`
+   - `pendingChoice: { type: "choose_play_order", choosingPlayerId: <chooser>, ... }`
+4. `GameConfig` gains `chooserPlayerId?: PlayerID` (defaults to
+   `"player1"`). Server passes this for Bo3 game 2/3 (the previous-game
+   loser).
+5. Reducer `RESOLVE_CHOICE` for `choose_play_order`:
+   - choice === "first"  → `firstPlayerId = choosingPlayerId`, `currentPlayer = choosingPlayerId`
+   - choice === "second" → `firstPlayerId = opponent`,          `currentPlayer = opponent`
+   - Transition to `mulligan_p1`, with mulligan's `choosingPlayerId` being
+     the new `firstPlayerId` (CRD 2.2.2 orders mulligan starting with the
+     starting player).
+6. Bot strategies (GreedyBot, RandomBot, RLPolicy, choiceResolver): auto-pick
+   `"first"`. Can revisit later if play-draw ever becomes a strategic RL
+   decision — likely not (going first has positive EV in virtually every
+   matchup in Lorcana).
+
+#### Server (secondary — server-specialist)
+
+- **Game 1**: keep existing `Math.random()` slot assignment. Coin-flip
+  winner goes into `player1` slot; engine's `choose_play_order` prompts
+  that user via the `player1` `choosingPlayerId`. No server logic change
+  needed beyond passing `chooserPlayerId: "player1"` to `createGame`
+  (which will be the default).
+- **Bo3 games 2/3**: when spawning the next game, the **loser** of the
+  previous game goes into the `player1` slot AND `chooserPlayerId:
+  "player1"` is passed. Loser election flows naturally. Schema check:
+  `games.player1_id` / `player2_id` slot swap between games is fine — no
+  migration needed, just the slot-assignment logic in the "create next
+  Bo3 game" path.
+- Action validation: server already routes `RESOLVE_CHOICE` through the
+  engine; no new action type needed.
+
+#### UI (follow-on — ui-specialist, after engine lands)
+
+- New variant in `PendingChoiceModal.tsx` for `choose_play_order`: two
+  large buttons ("Go First" / "Go Second"), context subtitle:
+  - Game 1: "You won the coin flip"
+  - Bo3 game 2/3: "You lost game N — choose your play order"
+- Opponent-side view: reuse "Opponent is thinking…" banner, or a
+  dedicated "Opponent is choosing play order…" variant.
+- Sandbox: extend `GameBoard.tsx:1099` auto-resolve effect to also
+  auto-resolve `choose_play_order → "first"` so the existing skip-the-
+  ceremony behavior is preserved in sandbox.
+- Solo vs bot: human is `player1`, `choosingPlayerId === "player1"`,
+  modal shows for the human every game. Bot branch doesn't matter
+  because we always control the chooser.
+
+### Tests
+
+- **Engine** (`reducer.test.ts` or new `play-draw.test.ts`):
+  - `choose_play_order` → `"first"`: `firstPlayerId === chooser`,
+    `currentPlayer === chooser`, phase transitions to `mulligan_p1` with
+    chooser as mulligan starter.
+  - `choose_play_order` → `"second"`: `firstPlayerId === opponent`,
+    `currentPlayer === opponent`, phase transitions to `mulligan_p1` with
+    opponent as mulligan starter.
+  - `chooserPlayerId: "player2"` config → pendingChoice's
+    `choosingPlayerId === "player2"` on game start.
+  - `getAllLegalActions` during `play_order_select` phase returns exactly
+    the two RESOLVE_CHOICE options and nothing else (no `PASS_TURN`, no
+    `PLAY_INK`, etc.). Matches validator/action-enumerator parity rule
+    from CLAUDE.md.
+  - Mulligan starts AFTER play-order is chosen — a test that asserts
+    `pendingChoice.type === "choose_mulligan"` only after play-order
+    resolves.
+- **Simulator** (`rl.test.ts` or similar): 100-game sim completes with no
+  stalls (bot auto-picks "first", game proceeds normally).
+- **Server**: Bo3 game 2 created after game 1 ends — `player1_id` of
+  game 2 matches the loser of game 1.
+
+### Audit improvement
+
+Per CLAUDE.md bug-fix workflow rule, every engine bug fix ships a
+regression test AND an audit improvement. For this one: add a check to
+`audit-dead-primitives` or `card-status` that validates **every
+`choosingPlayerId` in a PendingChoice points at a real player slot** and
+that **`firstPlayerId` is non-null in any state past phase
+`play_order_select`**. The latter catches future regressions where
+someone forgets to transition out of the new phase.
+
+### Scope
+
+This is a ~2-day engine + server task, then a ~2-hour UI modal task.
+Engine lands first; UI picks up the new `choose_play_order` variant
+after the engine + server changes ship. UI agent (me) is standing by —
+will pick up the modal work once engine-expert completes the reducer.
+
+### DONE — engine side landed 2026-04-22 (engine-expert)
+
+Engine work shipped. Server + UI follow-ons are unblocked.
+
+**What landed:**
+- `GamePhase` gains `play_order_select` (pre-mulligan) in
+  `packages/engine/src/types/index.ts`.
+- `PendingChoice` union gains `choose_play_order`; string choice values are
+  `"first"` / `"second"`, same shape as `choose_may`.
+- `GameConfig.chooserPlayerId?: PlayerID` (default `"player1"`) in
+  `packages/engine/src/engine/initializer.ts`. `createGame` no longer
+  hardcodes `firstPlayerId` — initial state now has
+  `firstPlayerId: undefined`, `phase: "play_order_select"`, and seeds a
+  `choose_play_order` PendingChoice for the chooser.
+- `applyResolveChoice` reducer branch for `choose_play_order` (in
+  `packages/engine/src/engine/reducer.ts`) sets
+  `firstPlayerId` / `currentPlayer` from the choice and transitions to
+  `mulligan_p1` with the starting player mulliganing first (CRD 2.2.2).
+  The existing mulligan-advance logic was reworked to key off
+  `state.firstPlayerId` instead of the hardcoded `player1`/`player2` slot
+  names, so mulligans proceed starting-player-first even when player2 is
+  the starter.
+- `validateResolveChoice` validates `choose_play_order` — accepts exactly
+  `"first"` or `"second"`, rejects everything else.
+- Bots auto-pick `"first"` (RandomBot, GreedyBot via choiceResolver,
+  RLPolicy). No new RL net head — going first is +EV in virtually every
+  matchup; a dedicated net would overfit a trivially dominated binary.
+
+**Tests:**
+- New `packages/engine/src/engine/play-draw.test.ts` — 11 tests:
+  both election branches, `chooserPlayerId` routing to player2,
+  starting-player-first mulligan ordering, validator-rejection parity
+  with the `getAllLegalActions` `[]` return during `play_order_select`
+  (per CLAUDE.md validator/enumerator pairing rule), wrong-player
+  rejection, invalid-value rejection, and the "choose_mulligan appears
+  only AFTER play-order resolves" assertion.
+- `startGame()` test helper and the rl.test.ts `createTestState` both
+  prepend a `"first"` election so pre-existing tests preserve their
+  semantics. All 598 engine tests + 50 simulator tests still green.
+
+**Audit improvement (per CLAUDE.md bug-fix workflow rule):**
+Added two invariants to the Layer 3 1000-game RandomBot/GreedyBot
+invariant check in `packages/simulator/src/simulator.test.ts`:
+1. Every `pendingChoice.choosingPlayerId` must be a real player slot.
+2. `state.firstPlayerId` must be non-null past the `play_order_select`
+   phase. The latter catches future regressions where a new mulligan or
+   transition path forgets to set the starting player.
+
+**Server follow-ons (server-specialist — unblocked):**
+- `gameService.ts` needs to pass `chooserPlayerId` to `createGame`.
+  Game 1: default `"player1"` keeps current behavior (the coin-flip
+  winner is already slotted into player1).
+- Bo3 games 2/3: slot the **previous-game loser** into `player1` AND
+  pass `chooserPlayerId: "player1"` (default). Alternative: keep the
+  previous game's slot assignment unchanged and pass
+  `chooserPlayerId: <loser-id>` — either works, but the loser-in-slot-1
+  approach means the server never has to pass a non-default config.
+- Server already routes `RESOLVE_CHOICE` through the engine generically
+  (`gameService.ts:94-95` uses `state.pendingChoice.choosingPlayerId`),
+  so no new action-type plumbing needed.
+
+**UI follow-ons (ui-specialist — unblocked):**
+- `PendingChoiceModal.tsx` needs a `choose_play_order` variant: two
+  buttons ("Go First" / "Go Second"), context subtitle per game 1 /
+  Bo3 game N.
+- Sandbox auto-resolve (`GameBoard.tsx:1099-1105`) needs to also
+  auto-resolve `choose_play_order → "first"` so sandbox flow doesn't
+  hang on the new phase. Without this one-line addition, opening the
+  sandbox will block on the play-order prompt.
+- UI already guards `firstPlayerId != null` in the mulligan subtitle
+  (`PendingChoiceModal.tsx:297-298`) so the nullable-until-resolved
+  behavior is already tolerated.
+
+---
+
+## UI agent: clip / GIF export — frame-by-frame design
+
+Discussed 2026-04-22. When we pick up clip export, don't chase smoother
+in-game animations first — they actively hurt GIF quality. GIFs sample at
+10–15fps, so a 200ms CSS transition gets 1–2 mid-transition frames and
+looks choppy. Real-world TCG clip tools (Hearthstone Deck Tracker, MTGO)
+solve this with **snapshot-per-action pacing**, not motion tweens.
+
+### Frame model
+
+One frame per engine action / meaningful `GameEvent`. Each frame = rendered
+gameboard at that `GameState` + transient overlay callouts for the event(s)
+that just resolved, held for a duration keyed to event type.
+
+Per-event hold durations (starting points):
+- Draw / ink: 400ms
+- Turn boundary banner: 500ms
+- Play a card: 700ms
+- Sing / Challenge / Quest: 800–900ms
+- Damage resolution / banish: 1000ms
+- Pass turn: 400ms
+
+Callout overlays (mostly exist already):
+- RevealPill, damage counter, stat delta badges, keyword icon badges,
+  active-effects pill, scoreboard ×N pill — reuse
+- Needed new: "+ink", "+lore", "Sang:", "Challenge", "Drew", turn banner
+  (top-of-clip only), optional caption strip (creator-authored)
+
+### Capture mode (required)
+
+Add a flag that strips `transition-*` → `transition-none` and disables
+hover states during recording, so nothing is mid-tween when the encoder
+samples. Also freezes any `animate-pulse` so the connection-status dot
+doesn't strobe.
+
+### Stack
+
+- Replay system already walks actions forward frame-by-frame — reuse
+- `html2canvas` or `dom-to-image` for per-frame rasterization
+- `gif.js` for direct GIF encoding (simpler) OR MediaRecorder → WebM →
+  `ffmpeg.wasm` → GIF (better quality, bigger bundle)
+- Clip scope selector: "last N actions" / "whole turn" / "custom range in
+  replay timeline"
+
+### What NOT to build first
+
+- Card-movement animations (hand→play slide, banish-to-discard flight)
+- Damage flash tweens
+- Anything framer-motion
+
+These are gameboard-specialist territory AND regress GIF quality. Only
+consider them after creators tell us static clips read badly.
+
+---
+
+## UI agent: iOS mobile chrome-collapse — revisit for extra vertical space
+
+Discussed 2026-04-22. On iPhone Chrome/Safari, the URL bar shrinks and the
+bottom bar hides when the document body is scrolled — reclaiming ~60px of
+vertical. PWA mode (already shipped) eliminates chrome entirely for users
+who install; this note is for non-installed browser fallback.
+
+### Constraints (verified)
+
+- iOS only collapses chrome on **user-initiated touch-scroll gestures**.
+  Programmatic `window.scrollTo` does NOT count (that trick died ~iOS 8).
+  Tap gestures don't count either.
+- Sub-container scroll (`overflow: auto` div) does NOT trigger collapse.
+  Must be document-level scroll.
+- If page isn't taller than viewport, there's nothing to scroll → bars
+  stay full-size forever. Current `100vh` layout hits this.
+
+### Proposed approach (not yet implemented)
+
+1. Global `100vh` / `h-screen` → `100dvh` sweep. `dvh` re-measures as bars
+   hide/show; board re-flows into reclaimed space. `svh` (small) and
+   `lvh` (large) available for cases where you want a fixed target.
+2. `overscroll-behavior: none` on `html, body` to kill pull-to-refresh
+   rubber-banding that un-collapses bars.
+3. On the gameboard route only: make body `minHeight: calc(100dvh + 60px)`
+   so there's a scroll buffer. Once user performs any drag/swipe past
+   threshold (~30px), set `document.body.style.overflow = "hidden"` to
+   freeze the scroll position and keep bars collapsed.
+4. Keep a `pt-safe` / `env(safe-area-inset-top)` buffer so top-edge taps
+   don't re-trigger the chrome reveal zone.
+
+### Known gotchas
+
+- Still requires a user gesture to trigger — no instant collapse on load
+- Tapping near top screen edge can re-show bars (iOS system behavior, no
+  CSS workaround)
+- iOS sometimes re-shows bars after ~5s of inactivity in non-PWA Safari,
+  undocumented behavior, varies by iOS version. Expect ~90% effectiveness.
+
+### Rejected alternatives
+
+- Programmatic auto-scroll on load → dead on modern iOS
+- Fullscreen API → only works on `<video>` elements in iOS Safari/Chrome
+- Modal-tap-triggers-collapse → taps don't count as scroll gestures
+
+Not urgent; PWA covers the engaged users. Pick this up if we see drop-off
+data suggesting first-visit mobile users bounce due to cramped layout.
+
+---
+
 ## Engine agent: Tod Knows All the Tricks IMPRESSIVE LEAPS — wrong trigger scope
 
 Discovered 2026-04-22 while fixing Vanish's action-vs-ability scope (see

@@ -28,6 +28,13 @@ export function resolveChoiceIntelligently(
 ): GameAction {
   const choice = state.pendingChoice!;
 
+  // CRD 2.1.3.2 / 2.2.1: play-draw — always go first. Going first has positive
+  // EV in virtually every matchup. Revisit if RL ever develops matchup-specific
+  // play-draw intuition (unlikely to matter enough to train a dedicated head).
+  if (choice.type === "choose_play_order") {
+    return { type: "RESOLVE_CHOICE", playerId, choice: "first" };
+  }
+
   // CRD 2.2.2: Mulligan — heuristic partial mulligan
   if (choice.type === "choose_mulligan") {
     const hand = choice.validTargets ?? [];

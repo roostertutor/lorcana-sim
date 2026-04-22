@@ -3436,6 +3436,7 @@ export interface GlobalTimedEffect {
 }
 
 export type GamePhase =
+  | "play_order_select" // CRD 2.1.3.2 / 2.2.1: play-draw rule — chooser picks who goes first
   | "mulligan_p1" // CRD 2.2.2: player1 choosing mulligan cards
   | "mulligan_p2" // CRD 2.2.2: player2 choosing mulligan cards
   | "beginning" // Draw + ready step
@@ -3457,7 +3458,7 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player" | "choose_amount";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player" | "choose_amount" | "choose_play_order";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;

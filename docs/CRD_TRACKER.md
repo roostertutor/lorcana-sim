@@ -94,12 +94,17 @@
 
 ## 2. GAMEPLAY
 
+### 2.1 Series / Match Structure
+| Rule | Quote | Status |
+|------|-------|--------|
+| 2.1.3.2 | Best-of-N play-draw rule: losing player chooses to start or not | ✅ `choose_play_order` PendingChoice fired from the `play_order_select` phase at game start. `GameConfig.chooserPlayerId` (default `player1`) controls who chooses. Engine resolves choice → sets `firstPlayerId`/`currentPlayer`, transitions to mulligan with correct starting-player-first order. Tested in `play-draw.test.ts`. Server-side Bo3 loser-slot-swap is the follow-on. |
+
 ### 2.2 Setup Stage
 | Rule | Quote | Status |
 |------|-------|--------|
 | 2.2.1.3 | Each player begins with 0 lore | ✅ `createGame` initializer |
 | 2.2.1.4 | Each player draws 7 cards (opening hand) | ✅ Tested: "deals 7 cards to each player" |
-| 2.2.2 | Players may alter their opening hand (mulligan) | ✅ Partial Paris mulligan in simulator. Generic `shouldMulligan`/`performMulligan` on BotStrategy. |
+| 2.2.2 | Players may alter their opening hand (mulligan) | ✅ Partial Paris mulligan in simulator. Generic `shouldMulligan`/`performMulligan` on BotStrategy. Mulligan ordering keyed off `firstPlayerId` (CRD 2.2.2: starting player mulligans first) so the play-draw choice feeds through correctly. |
 
 ### 2.3 In-Game Stage
 | Rule | Quote | Status |

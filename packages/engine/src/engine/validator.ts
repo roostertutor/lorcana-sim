@@ -923,6 +923,14 @@ function validateResolveChoice(
     return fail("It's not your choice to make.");
   }
 
+  // CRD 2.1.3.2 / 2.2.1: play-draw — chooser picks "first" or "second"
+  if (state.pendingChoice.type === "choose_play_order") {
+    if (choice !== "first" && choice !== "second") {
+      return fail('Play-order choice must be "first" or "second".');
+    }
+    return OK;
+  }
+
   // CRD 2.2.2: Mulligan — array of card IDs to put back (empty = keep all)
   if (state.pendingChoice.type === "choose_mulligan") {
     if (!Array.isArray(choice)) return fail("Mulligan choice must be an array of card IDs.");

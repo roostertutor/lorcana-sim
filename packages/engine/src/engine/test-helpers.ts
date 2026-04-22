@@ -52,6 +52,11 @@ export function startGame(
     { player1Deck: buildTestDeck(p1Cards), player2Deck: buildTestDeck(p2Cards), seed: TEST_SEED },
     CARD_DEFINITIONS
   );
+  // CRD 2.1.3.2: play-draw election. Default test helper sends "first" so
+  // player1 stays the starting player (preserves pre-existing test semantics).
+  // Tests that need the opposite should skip startGame and drive createGame +
+  // RESOLVE_CHOICE manually.
+  state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" }, CARD_DEFINITIONS).newState;
   state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, CARD_DEFINITIONS).newState;
   state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] }, CARD_DEFINITIONS).newState;
   return state;

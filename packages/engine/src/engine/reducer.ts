@@ -2012,6 +2012,47 @@ function applyResolveChoice(
   const { pendingChoice } = state;
   state = { ...state, pendingChoice: null };
 
+  // CRD 2.1.3.2 / 2.2.1: play-draw rule. Chooser elects first or second.
+  // The starting player then begins the mulligan (CRD 2.2.2 orders mulligans
+  // starting with the starting player).
+  if (pendingChoice.type === "choose_play_order" && typeof choice === "string") {
+    const chooserId = pendingChoice.choosingPlayerId;
+    const opponentId = getOpponent(chooserId);
+    const startingPlayerId: PlayerID = choice === "first" ? chooserId : opponentId;
+
+    state = {
+      ...state,
+      firstPlayerId: startingPlayerId,
+      currentPlayer: startingPlayerId,
+    };
+
+    // Log the election
+    const logMsg = choice === "first"
+      ? `${chooserId} chose to go first.`
+      : `${chooserId} chose to go second (${opponentId} goes first).`;
+    state = appendLog(state, { turn: state.turnNumber, playerId: chooserId, message: logMsg, type: "choice_made" });
+
+    // CRD 2.2.2: mulligan starts with the starting player. Map to the existing
+    // mulligan_p1 / mulligan_p2 phase naming — "p1" here means "the first of
+    // the two mulliganing players" (the starting player), NOT always player1.
+    // We reuse the same phase discriminator to avoid downstream consumers
+    // needing to handle a new phase; the choosingPlayerId on the pendingChoice
+    // is the authoritative source of which player is choosing.
+    const mulliganHandIds = state.zones[startingPlayerId].hand;
+    state = {
+      ...state,
+      phase: "mulligan_p1",
+      pendingChoice: {
+        type: "choose_mulligan",
+        choosingPlayerId: startingPlayerId,
+        prompt: "Choose cards to put back (you will draw the same number). Select none to keep your hand.",
+        validTargets: [...mulliganHandIds],
+        optional: true,
+      },
+    };
+    return state;
+  }
+
   // CRD 2.2.2: Mulligan — put chosen cards at bottom of deck, draw replacements
   if (pendingChoice.type === "choose_mulligan" && Array.isArray(choice)) {
     const cardsToReturn = choice as string[];
@@ -2033,17 +2074,24 @@ function applyResolveChoice(
       : `${playerId} kept their opening hand.`;
     state = appendLog(state, { turn: state.turnNumber, playerId, message: msg, type: "mulligan" });
 
-    // Advance to next mulligan phase or start the game
-    if (pendingChoice.choosingPlayerId === "player1") {
-      const p2HandIds = state.zones.player2.hand;
+    // Advance to next mulligan phase or start the game. CRD 2.2.2: the
+    // starting player mulligans first, then the other player. mulligan_p1 =
+    // "starting player's mulligan"; mulligan_p2 = "other player's mulligan".
+    // Under the play-draw rule (CRD 2.1.3.2), the starting player may be
+    // player2 — so we key the transition off firstPlayerId, not the hardcoded
+    // player1/player2 slot names.
+    const startingPlayer = state.firstPlayerId ?? "player1";
+    if (pendingChoice.choosingPlayerId === startingPlayer) {
+      const otherPlayer = getOpponent(startingPlayer);
+      const otherHandIds = state.zones[otherPlayer].hand;
       state = {
         ...state,
         phase: "mulligan_p2",
         pendingChoice: {
           type: "choose_mulligan",
-          choosingPlayerId: "player2",
+          choosingPlayerId: otherPlayer,
           prompt: "Choose cards to put back (you will draw the same number). Select none to keep your hand.",
-          validTargets: [...p2HandIds],
+          validTargets: [...otherHandIds],
           optional: true,
         },
       };
