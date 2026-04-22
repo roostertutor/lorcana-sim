@@ -1756,12 +1756,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         {/* ---- Opponent hand — hoisted OUT of the opponent zone so that
                the opponent/player zones compete for equal flex-1 vertical
                space and end up with equal effective play-area heights.
-               Only the hand strip heights differ between players. ---- */}
-        {p2Zones.hand.length > 0 && (
-          <div className="shrink-0 h-6 sm:h-16 landscape-phone:!h-6 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
-            {p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))}
-          </div>
-        )}
+               Only the hand strip heights differ between players.
+               Always rendered (even when empty) so zones below don't shift
+               when the opponent plays their last card or draws their first. ---- */}
+        <div className="shrink-0 h-6 sm:h-16 landscape-phone:!h-6 overflow-hidden flex flex-nowrap items-end justify-center -mx-3 px-2 md:mx-0">
+          {p2Zones.hand.length === 0 ? (
+            <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
+          ) : (
+            p2Zones.hand.map((id, i) => renderCardWithActions(id, "hand", true, i, p2Zones.hand.length, true))
+          )}
+        </div>
 
         {/* ---- Opponent zone ---- */}
         <div className={`flex-1 min-h-0 flex flex-col -mx-3 px-2 md:mx-0 rounded-xl bg-gradient-to-b from-red-950/10 to-transparent border p-2 transition-colors duration-300 landscape-phone:!p-0.5 landscape-phone:!gap-1 landscape-phone:!rounded-md ${!isYourTurn ? "border-red-600/50" : "border-gray-800/30"}`}>
