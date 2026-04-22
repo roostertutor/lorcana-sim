@@ -11,6 +11,7 @@
 
 import type { CardDefinition } from "@lorcana-sim/engine";
 import { getBoardCardImage } from "../utils/cardImage.js";
+import CardPlaceholder from "./CardPlaceholder.js";
 
 interface Props {
   def: CardDefinition;
@@ -63,9 +64,29 @@ export default function CardTile({
               decoding="async"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-700 text-xs p-2 text-center">
-              {def.fullName}
-            </div>
+            // Placeholder shown when a hand-entered card doesn't have an
+            // imageUrl yet (Ravensburger hasn't published, or set is pre-release).
+            <CardPlaceholder
+              compact
+              data={{
+                name: def.name,
+                subtitle: def.subtitle,
+                cardType: def.cardType,
+                inkColors: def.inkColors,
+                cost: def.cost,
+                inkable: def.inkable,
+                traits: def.traits,
+                strength: def.strength,
+                willpower: def.willpower,
+                lore: def.lore,
+                rarity: def.rarity,
+                setId: def.setId,
+                number: def.number,
+              }}
+              className={`w-full h-full transition-[filter] ${
+                atMax ? "brightness-50" : "group-hover:brightness-110"
+              }`}
+            />
           )}
         </button>
         {/* Inspect (ⓘ) — absolute sibling, not nested in the add button.

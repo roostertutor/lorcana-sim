@@ -3,6 +3,7 @@ import type { CardDefinition, GameState, GameModifiers } from "@lorcana-sim/engi
 import { getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import { getInspectCardImage } from "../utils/cardImage.js";
+import CardPlaceholder from "./CardPlaceholder.js";
 
 type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
 
@@ -91,9 +92,32 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
               className="rounded-xl shadow-lg max-h-[45vh] sm:max-h-[50vh] object-contain"
               draggable={false}
             />
+          ) : def ? (
+            // Hand-entered cards won't have an imageUrl until Ravensburger
+            // publishes them and the image-sync script runs. Render a
+            // stat-complete placeholder so the card is still identifiable.
+            <CardPlaceholder
+              data={{
+                name: def.name,
+                subtitle: def.subtitle,
+                cardType: def.cardType,
+                inkColors: def.inkColors,
+                cost: def.cost,
+                inkable: def.inkable,
+                traits: def.traits,
+                strength: def.strength,
+                willpower: def.willpower,
+                lore: def.lore,
+                rulesText: def.rulesText,
+                rarity: def.rarity,
+                setId: def.setId,
+                number: def.number,
+              }}
+              className="w-48 aspect-[5/7]"
+            />
           ) : (
             <div className="w-48 aspect-[5/7] rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center">
-              <span className="text-gray-500 text-sm text-center px-4">{def?.fullName ?? instanceId}</span>
+              <span className="text-gray-500 text-sm text-center px-4">{instanceId}</span>
             </div>
           )}
         </div>

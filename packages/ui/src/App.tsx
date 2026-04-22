@@ -10,6 +10,7 @@ import SimulationView from "./pages/SimulationView.js";
 import SandboxLobby from "./pages/SandboxLobby.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
+import DevAddCardPage from "./pages/DevAddCardPage.js";
 
 type Tab = "decks" | "multiplayer";
 
@@ -305,6 +306,7 @@ export default function App() {
       <Route path="/solo" element={<SoloGamePage />} />
       <Route path="/game/:gameId" element={<MultiplayerGamePage />} />
       <Route path="/replay/:gameId" element={<ReplayPage />} />
+      <Route path="/dev/add-card" element={<DevAddCardPage />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
