@@ -415,7 +415,7 @@ export default function DevAddCardPage() {
               <Field label="Rules text">
                 <textarea
                   className={`${inputCls} h-24 font-mono text-xs`}
-                  placeholder="Keyword abilities + card text. Server auto-wraps <Keyword> tokens."
+                  placeholder={"CREATIVE INSPIRATION While you have a character named Stitch in play, this character gets +1 {L}.\nEvasive (Only characters with Evasive can challenge this character.)"}
                   value={rulesText}
                   onChange={(e) => setRulesText(e.target.value)}
                 />
@@ -423,6 +423,7 @@ export default function DevAddCardPage() {
                   Server normalizes apostrophes, en-dashes, and wraps{" "}
                   <code className="text-gray-400">&lt;Keyword&gt;</code> tokens to match imported cards.
                 </p>
+                <RulesTextHints />
               </Field>
               <Field label="Flavor text">
                 <textarea
@@ -583,6 +584,99 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs text-gray-400">{label}</span>
       {children}
     </label>
+  );
+}
+
+/** Collapsible formatting-hint disclosure for the rulesText field.
+ *  Uses native <details>/<summary> — no extra React state, renders collapsed
+ *  by default, opens in place. */
+function RulesTextHints() {
+  return (
+    <details className="mt-2 rounded-md border border-gray-800 bg-gray-950/50 text-[11px] text-gray-400 group">
+      <summary className="cursor-pointer px-2.5 py-1.5 text-gray-400 hover:text-gray-200 select-none list-none flex items-center gap-1.5">
+        <span className="inline-block transition-transform group-open:rotate-90">▶</span>
+        <span className="font-medium">Formatting hints</span>
+      </summary>
+      <div className="px-3 py-2.5 space-y-3 border-t border-gray-800 leading-relaxed">
+        {/* Structure */}
+        <div className="space-y-1">
+          <div className="text-gray-300 font-semibold">Structure</div>
+          <ul className="list-disc list-inside space-y-0.5">
+            <li>Type it like it&rsquo;s printed on the card.</li>
+            <li>
+              Story names: <span className="text-amber-300 font-mono">ALL CAPS</span> on the same line
+              as the ability text, one space between (no colon).
+            </li>
+            <li>Multiple abilities: one per line (press Enter).</li>
+          </ul>
+        </div>
+
+        {/* Symbols */}
+        <div className="space-y-1">
+          <div className="text-gray-300 font-semibold">Game symbols — type with curly braces</div>
+          <div className="grid grid-cols-5 gap-1 font-mono text-[10px]">
+            <span><code className="text-amber-300">{"{I}"}</code> ink</span>
+            <span><code className="text-amber-300">{"{E}"}</code> exert</span>
+            <span><code className="text-amber-300">{"{L}"}</code> lore</span>
+            <span><code className="text-amber-300">{"{S}"}</code> str</span>
+            <span><code className="text-amber-300">{"{W}"}</code> will</span>
+          </div>
+        </div>
+
+        {/* Auto-normalized */}
+        <div className="space-y-1">
+          <div className="text-gray-300 font-semibold">Normalizer handles automatically</div>
+          <ul className="list-disc list-inside space-y-0.5">
+            <li>
+              Keywords (<code className="text-amber-300">Rush</code>,{" "}
+              <code className="text-amber-300">Evasive</code>,{" "}
+              <code className="text-amber-300">Challenger +2</code>, etc.) auto-wrap in{" "}
+              <code className="text-amber-300">&lt;&gt;</code>. Type them bare.
+            </li>
+            <li>
+              Keywords <span className="italic">inside reminder parens</span> are left alone
+              (that&rsquo;s the Lorcana convention).
+            </li>
+            <li>
+              Straight apostrophes <code>&apos;</code> → curly{" "}
+              <code className="text-amber-300">&rsquo;</code>.
+            </li>
+            <li>
+              Stat dashes like <code>-2 {"{S}"}</code> → en-dash{" "}
+              <code className="text-amber-300">&ndash;2 {"{S}"}</code>.
+            </li>
+            <li>
+              Straight double quotes <code>&quot;...&quot;</code> → curly{" "}
+              <code className="text-amber-300">&ldquo;...&rdquo;</code> (paired open/close).
+            </li>
+            <li>Trailing whitespace stripped.</li>
+          </ul>
+        </div>
+
+        {/* Example */}
+        <div className="space-y-1">
+          <div className="text-gray-300 font-semibold">Worked example — multi-ability character</div>
+          <div className="text-gray-500">You type:</div>
+          <pre className="bg-gray-900 border border-gray-800 rounded px-2 py-1.5 text-[10px] text-gray-300 overflow-x-auto whitespace-pre-wrap">
+{`IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item's ability, you may ready him.
+Evasive (Only characters with Evasive can challenge this character.)`}
+          </pre>
+          <div className="text-gray-500 mt-1">Stored (after normalize):</div>
+          <pre className="bg-gray-900 border border-gray-800 rounded px-2 py-1.5 text-[10px] text-gray-300 overflow-x-auto whitespace-pre-wrap">
+{`IMPRESSIVE LEAPS Twice during your turn, whenever this character is chosen for an action or an item’s ability, you may ready him.
+<Evasive> (Only characters with Evasive can challenge this character.)`}
+          </pre>
+        </div>
+
+        {/* Gotcha */}
+        <div className="text-[10px] text-gray-500 italic border-t border-gray-800 pt-2">
+          Note: the story name only appears in rulesText — it does NOT wire the ability into the
+          engine&rsquo;s{" "}
+          <code className="text-gray-400">abilities[]</code> array. Hand-editing the JSON to add
+          the wired ability is a separate engine task.
+        </div>
+      </div>
+    </details>
   );
 }
 
