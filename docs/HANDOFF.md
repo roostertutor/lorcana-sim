@@ -455,6 +455,113 @@ next analytics batch run.
 
 ---
 
+## [BLOCKED on R2 migration] GUI agent: Replay → GIF clip export
+
+**Priority: #1 creator tool per `project_near_term_priorities.md` (ranked
+above shareable URLs, annotations, scripted opponent). Strategy per
+`project_strategic_direction.md`: "Sandbox is the creator product" —
+clip export is load-bearing for the content-creation acquisition wedge.
+Viral-surface-area rationale: GIFs embed natively on Discord/Twitter/
+Reddit/forums, a creator shares a cool play in 30 seconds with no video
+workflow.**
+
+### Dependency (blocking)
+
+Canvas capture of the game board will taint because card images load from
+`api.lorcana.ravensburger.com` without `Access-Control-Allow-Origin`
+headers. `html-to-image` / `html2canvas` / raw `ctx.drawImage` + `toBlob`
+all fail or throw `SecurityError` once a tainted image is on the canvas.
+
+**Unblocked when:** the R2 image self-hosting migration lands (see
+"Engine agent (primary) + UI agent (follow-up): self-host card images
+on R2" entry above). Specifically, don't start GIF work until
+`_imageSource: "r2"` coverage is ≥95% — partial migration means some
+cards still taint canvas and the encoder silently drops those frames.
+
+No code workaround exists for the blocker. Proxying through our own
+backend (strip upstream CORS, add our own headers) would work technically
+but just re-implements the R2 migration badly. Wait for R2.
+
+### Scope (GUI agent owns this post-unblock)
+
+Replay + ReplayControls are already mine per the session intro. This is
+an additive feature on top of the existing replay infra. Est. 1-2
+sessions once unblocked.
+
+**Step 1: step-range picker UX**
+- Extend `ReplayControls.tsx` with a "Clip" mode toggle. When active,
+  the scrubber shows two handles (start / end) instead of one, plus an
+  existing-frame preview.
+- Default range: current step ± 5 (≈ 1-2 turns). User drags handles.
+- Show estimated output size + duration ("6s, ~3MB GIF @ 12fps"). Users
+  will hit Discord's 8MB free / 25MB Nitro limit often — surface size
+  live so they can clip shorter rather than discovering post-export.
+
+**Step 2: capture pipeline**
+- `ReplayControls` reuses `useReplaySession.states[i]` to render each
+  frame in a hidden mount (off-DOM or `position: absolute; top: -9999px`).
+  Avoid flashing the live board between frames.
+- Library choice: **`html-to-image`** (20KB gzipped, MIT, good React
+  support) for DOM → canvas per frame, then **`gifenc`** (10KB, faster
+  + smaller output than `gif.js`, supports quantization tuning) for
+  encoding. If motion quality is poor, fall back to `gif.js` which has
+  better temporal dithering at the cost of larger files.
+- Capture at board-native resolution; downscale on encode if size is
+  a concern. User can pick: "Fit Discord (800×600, 12fps)", "Twitter
+  GIF (500×500, 10fps)", "HD (1280×720, 15fps)". Three presets, no
+  fine-grain picker.
+
+**Step 3: output + UX**
+- Worker-based encode so the UI doesn't freeze on long clips (>20s).
+  `gifenc` has a built-in worker helper.
+- Progress bar (frame N / total + encode %). Cancellable.
+- Download as `lorcana-clip-{playerName}-turn{N}-step{M}.gif` — filename
+  encodes context so creators don't end up with 30 files all named
+  `download.gif`.
+- Optional: copy-to-clipboard button (`ClipboardItem` with `image/gif`
+  — supported in Chromium/Firefox/Safari 14+, falls back to download).
+
+**Step 4: polish (can defer)**
+- Watermark / logo corner (toggle, default on for brand awareness in
+  shared clips). Small wordmark in a corner at 60% opacity.
+- "Clip this moment" shortcut — single-button, captures ±3 seconds
+  from the current scrubber position. Low-friction "something just
+  happened" flow.
+
+### What the replay infra already gives us
+
+- `useReplaySession` reconstructs full `GameState` at every step
+  deterministically from `{seed, p1Deck, p2Deck, actions[]}`.
+- `ReplayControls` has the scrubber + play/pause + speed + Take-Over
+  UX scaffolding — the Clip mode slots in alongside.
+- The state cache (`states: GameState[]`) is eagerly computed during
+  render, so frame-by-frame iteration is O(1) per frame (no
+  reducer replay per capture).
+
+So the work is pure DOM-to-canvas-to-GIF plumbing + picker UX. Not a
+simulation / engine change.
+
+### Don't start until
+
+1. R2 migration `_imageSource:"r2"` coverage ≥95% (engine-expert's ticket).
+2. Confirm with user the strategy still prioritizes creator tools at
+   the top — the priority memory is from 2026-04-16 and flagged
+   potentially stale.
+3. Consider shipping **annotations / callout overlay** or **shareable
+   sandbox URLs** in parallel while waiting on R2 — both are GUI-scope
+   and unblocked today. They're lower-priority per the strategy doc
+   but keep creator-tool velocity visible.
+
+### Related orphans (verified 2026-04-21)
+
+- **"Branch analysis button" mentioned in `project_near_term_priorities.md`
+  as orphaned in ReplayControls.tsx**: NO LONGER PRESENT. Verified during
+  this scoping session — ReplayControls is clean (scrubber, step buttons,
+  speed toggle, Take Over fork). The memory note has aged out. Don't file
+  a cleanup task — already clean.
+
+---
+
 ## Engine agent: Lorcast importer stub extraction only captures first line
 
 Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
