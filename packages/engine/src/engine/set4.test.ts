@@ -1354,4 +1354,57 @@ describe("§4 Set 4 — Vision Slab TRAPPED! (prevent_damage_removal)", () => {
     );
     expect(getInstance(newState, patientId).damage).toBe(0);
   });
+
+  // ---------------------------------------------------------------------------
+  // Ursula - Sea Witch Queen — YOU'LL LISTEN TO ME
+  // "Other characters can't exert to sing songs."
+  // Regression: action_restriction wasn't passing sourceInstanceId to
+  // matchesFilter, so filter.excludeSelf silently no-op'd and Ursula was
+  // restricting herself from singing (reported 2026-04-22).
+  // ---------------------------------------------------------------------------
+  describe("Ursula - Sea Witch Queen YOU'LL LISTEN TO ME", () => {
+    it("Ursula herself CAN still sing (excludeSelf exempts the source)", () => {
+      let state = startGame(["friends-on-the-other-side", "ursula-sea-witch-queen"]);
+      let songId: string, ursulaId: string;
+      ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+      ({ state, instanceId: ursulaId } = injectCard(state, "player1", "ursula-sea-witch-queen", "play", { isDrying: false }));
+
+      const r = applyAction(state, {
+        type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: ursulaId,
+      }, CARD_DEFINITIONS);
+
+      expect(r.success).toBe(true);
+      expect(getInstance(r.newState, ursulaId).isExerted).toBe(true);
+    });
+
+    it("other friendly characters can NOT sing while Ursula is in play", () => {
+      let state = startGame(["friends-on-the-other-side", "ursula-sea-witch-queen", "mickey-mouse-true-friend"]);
+      let songId: string, mickeyId: string;
+      ({ state, instanceId: songId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+      ({ state } = injectCard(state, "player1", "ursula-sea-witch-queen", "play", { isDrying: false }));
+      ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+      const r = applyAction(state, {
+        type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: mickeyId,
+      }, CARD_DEFINITIONS);
+
+      expect(r.success).toBe(false);
+    });
+
+    it("opposing characters can NOT sing while Ursula is in play (affectedPlayer:both)", () => {
+      let state = startGame(["ursula-sea-witch-queen", "mickey-mouse-true-friend", "friends-on-the-other-side"]);
+      let songId: string, mickeyId: string;
+      ({ state } = injectCard(state, "player1", "ursula-sea-witch-queen", "play", { isDrying: false }));
+      ({ state, instanceId: songId } = injectCard(state, "player2", "friends-on-the-other-side", "hand"));
+      ({ state, instanceId: mickeyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+      state = passTurns(state, 1, CARD_DEFINITIONS);
+
+      const r = applyAction(state, {
+        type: "PLAY_CARD", playerId: "player2", instanceId: songId, singerInstanceId: mickeyId,
+      }, CARD_DEFINITIONS);
+
+      expect(r.success).toBe(false);
+    });
+  });
 });

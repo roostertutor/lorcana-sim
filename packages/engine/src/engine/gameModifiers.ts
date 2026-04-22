@@ -108,6 +108,11 @@ export interface GameModifiers {
     affectedPlayerId: import("../types/index.js").PlayerID;
     /** Only characters matching this filter are restricted (undefined = all) */
     filter?: import("../types/index.js").CardFilter;
+    /** The instance emitting the restriction — needed so `filter.excludeSelf`
+     *  can exempt the source card itself (Ursula Sea Witch Queen's "Other
+     *  characters can't exert to sing songs"). Without this, `excludeSelf`
+     *  in matchesFilter silently no-ops and the source restricts itself. */
+    sourceInstanceId?: string;
   }[];
 
   /** Extra ink plays allowed per turn per player. */
@@ -751,6 +756,7 @@ export function getGameModifiers(
             const entry: typeof modifiers.actionRestrictions[number] = {
               restricts: effect.restricts,
               affectedPlayerId: pid,
+              sourceInstanceId: instance.instanceId,
             };
             if (effect.filter) entry.filter = effect.filter;
             modifiers.actionRestrictions.push(entry);

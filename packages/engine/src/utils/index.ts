@@ -151,7 +151,7 @@ export function isActionRestricted(
   playerId: PlayerID,
   state: GameState,
   modifiers: {
-    actionRestrictions: { restricts: string; affectedPlayerId: PlayerID; filter?: CardFilter }[];
+    actionRestrictions: { restricts: string; affectedPlayerId: PlayerID; filter?: CardFilter; sourceInstanceId?: string }[];
     selfActionRestrictions?: Map<string, Set<RestrictedAction>>;
   }
 ): boolean {
@@ -159,10 +159,13 @@ export function isActionRestricted(
   if (instance.timedEffects.some(te => te.type === "cant_action" && te.action === action)) {
     return true;
   }
-  // Source 2: static restrictions from gameModifiers
+  // Source 2: static restrictions from gameModifiers. Pass sourceInstanceId so
+  // filter.excludeSelf ("Other characters...") correctly exempts the source —
+  // otherwise excludeSelf silently no-ops and the emitter restricts itself
+  // (Ursula Sea Witch Queen's YOU'LL LISTEN TO ME).
   for (const r of modifiers.actionRestrictions) {
     if (r.restricts !== action || r.affectedPlayerId !== playerId) continue;
-    if (!r.filter || matchesFilter(instance, definition, r.filter, state, playerId)) {
+    if (!r.filter || matchesFilter(instance, definition, r.filter, state, playerId, r.sourceInstanceId)) {
       return true;
     }
   }
