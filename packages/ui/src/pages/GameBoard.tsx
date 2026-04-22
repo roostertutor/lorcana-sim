@@ -1095,10 +1095,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sandboxMode]);
 
-  // Sandbox: auto-resolve mulligan (skip it entirely)
+  // Sandbox: auto-resolve play-order election AND mulligan (skip the pre-game
+  // ceremony entirely). CRD 2.1.3.2 play-draw fires first at game start (new
+  // in engine feat 9af2c06) and must resolve before mulligan can begin —
+  // handle both in the same effect so the second firing (post-play-order
+  // resolution) still catches the mulligan choice on the next render tick.
   useEffect(() => {
     if (!sandboxMode) return;
-    if (session.gameState?.pendingChoice?.type === "choose_mulligan") {
+    const pc = session.gameState?.pendingChoice;
+    if (pc?.type === "choose_play_order") {
+      session.resolveChoice("first");
+    } else if (pc?.type === "choose_mulligan") {
       session.resolveChoice([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -196,6 +196,78 @@ export default function PendingChoiceModal({
   }
 
   function renderContent() {
+    // CRD 2.1.3.2 / 2.2.1 — play-draw election. Handled BEFORE the generic
+    // opponent-perspective block because choose_play_order has no validTargets,
+    // and the generic fallback would render a broken disabled "Confirm (as
+    // opponent)" button. This branch handles both the chooser's view (two big
+    // buttons) and the opponent-side sandbox view (waiting state) explicitly.
+    if (pendingChoice.type === "choose_play_order") {
+      const isChooser = (pendingChoice as any).choosingPlayerId === myId;
+      // _matchScore is embedded by the server on game-over transitions; if
+      // present with any wins, we're in a Bo3 continuation (game 2 or 3).
+      // Double-cast via unknown because GameState's index signature doesn't
+      // overlap with Record<string, unknown> under exactOptionalPropertyTypes.
+      const matchScore = (gameState as unknown as Record<string, unknown>)._matchScore as
+        | { p1: number; p2: number }
+        | undefined;
+      const isBo3Continuation = !!matchScore && (matchScore.p1 + matchScore.p2 > 0);
+      const myScore = matchScore ? (myId === "player1" ? matchScore.p1 : matchScore.p2) : 0;
+      const oppScore = matchScore ? (myId === "player1" ? matchScore.p2 : matchScore.p1) : 0;
+
+      if (!isChooser) {
+        // Sandbox only — in MP, the outer GameBoard gate prevents this modal
+        // from rendering for the non-chooser (they see the floating "Opponent
+        // is thinking…" toast instead). This branch exists so sandbox / dual-
+        // perspective contexts don't fall through to the generic opponent
+        // fallback.
+        return (
+          <div className="space-y-3">
+            <div className="text-orange-300 text-sm font-bold">Opponent is choosing play order…</div>
+            <div className="text-gray-300 text-sm">
+              {isBo3Continuation
+                ? `They lost the previous game (${oppScore}–${myScore} in the match) and are picking whether to be the starting player.`
+                : "They won the coin flip and are picking whether to be the starting player."}
+            </div>
+          </div>
+        );
+      }
+
+      // Chooser's view — two prominent buttons.
+      const headline = isBo3Continuation
+        ? `Game ${matchScore!.p1 + matchScore!.p2 + 1} — your choice`
+        : "You won the coin flip";
+      const subtitle = isBo3Continuation
+        ? `Match: ${myScore}–${oppScore}. You lost the last game, so you choose who starts.`
+        : "Choose whether to be the starting player.";
+      return (
+        <div className="space-y-4">
+          <div>
+            <div className="text-amber-300 text-sm font-bold mb-1">{headline}</div>
+            <div className="text-gray-400 text-xs">{subtitle}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              className="flex flex-col items-center gap-1 px-4 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20 active:scale-[0.98]"
+              onClick={() => onResolveChoice("first")}
+            >
+              <span className="text-base">Go First</span>
+              <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the play</span>
+            </button>
+            <button
+              className="flex flex-col items-center gap-1 px-4 py-4 bg-sky-700 hover:bg-sky-600 text-white rounded-lg font-bold transition-colors shadow-lg shadow-sky-700/20 active:scale-[0.98]"
+              onClick={() => onResolveChoice("second")}
+            >
+              <span className="text-base">Go Second</span>
+              <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the draw · draw turn 1</span>
+            </button>
+          </div>
+          <div className="text-[10px] text-gray-500 text-center">
+            Going first skips turn-1 draw. Going second draws normally.
+          </div>
+        </div>
+      );
+    }
+
     // Cross-player perspective: when the choosingPlayer is the OPPONENT
     // (Tiana opponent_may_pay_to_avoid, Ursula's Plan opponent-chosen targets),
     // show a waiting indicator. In the headless analytics sim the bot auto-
