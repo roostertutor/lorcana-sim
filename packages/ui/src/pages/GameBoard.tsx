@@ -163,6 +163,13 @@ interface ActiveEffect {
   duration?: string;
   /** Target card name (for per-card effects) */
   target?: string;
+  /**
+   * When a grouped effect represents N stacked timed entries (e.g. Lady's
+   * PACK OF HER OWN fires 3× in a turn), stackCount = N > 1. Renders as
+   * "×N" pill so the label stays the original verbose ability text instead
+   * of being rewritten into a summed form.
+   */
+  stackCount?: number;
 }
 
 function getActiveEffects(
@@ -307,66 +314,50 @@ function getActiveEffects(
 
   // Per-card timed effects (Tinker Bell grants Evasive, Elsa cant_action ready, etc.)
   //
-  // Group by (target, type, sourceInstanceId) so that e.g. Lady - Decisive
-  // Dog's PACK OF HER OWN firing 3× in a turn shows ONE pill row summing to
-  // +3 STR rather than three separate +1 STR rows. Source-scoped so that
-  // a different source buffing the same card (e.g. Medallion Weights on a
-  // Lady who also has PACK OF HER OWN stacks) shows as a separate row —
-  // the "why" per row stays traceable.
+  // Group by (target, type, sourceInstanceId). Lady - Decisive Dog's
+  // PACK OF HER OWN firing 3× in a turn writes 3 identical `modify_strength`
+  // timedEffects; without grouping those become 3 pill rows. Grouped, they
+  // become ONE row with `stackCount: 3` rendered as a ×3 pill next to the
+  // ability text — label stays the verbose ability-oracle text, the pill
+  // just shows how many times it stacked.
   //
-  // With 2× Lady and 3× triggers each, you see two rows of +3 (one per
-  // Lady instance) rather than one row of +6 — per-instance grouping, not
-  // cross-instance combining.
+  // Per-instance, not cross-instance: 2 Ladies × 3 triggers each → two
+  // rows of ×3 (one per Lady), not one row of ×6.
   //
-  // Stackable types (modify_strength/willpower/lore) sum their `amount`.
-  // Non-stackable types (grant_keyword, cant_action, damage_prevention,
-  // etc.) just dedupe — the second "grant Evasive" is redundant, not
-  // additive.
-  const STACKABLE_TYPES = new Set(["modify_strength", "modify_willpower", "modify_lore"]);
-  const STAT_LABEL: Record<string, string> = {
-    modify_strength: "STR",
-    modify_willpower: "WIL",
-    modify_lore: "LORE",
-  };
+  // Source-scoped: Medallion Weights + PACK OF HER OWN both buffing the
+  // same Lady render as two separate rows since sourceInstanceId differs.
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const id of state.zones[pid].play) {
       const inst = state.cards[id];
       if (!inst || !inst.timedEffects?.length) continue;
       const target = cardName(id);
       // Group by (type, sourceInstanceId); target is fixed within this loop.
-      type Group = { type: string; sourceInstanceId?: string; amount: number; count: number; isStackable: boolean; expiresAt: string; sample: any };
+      type Group = { type: string; sourceInstanceId?: string; count: number; expiresAt: string; sample: any };
       const groups = new Map<string, Group>();
       for (const te of inst.timedEffects) {
         const teAny = te as any;
         const key = `${teAny.type}|${teAny.sourceInstanceId ?? "_nosrc"}`;
-        const isStackable = STACKABLE_TYPES.has(teAny.type);
-        const amount = isStackable ? (teAny.amount ?? 0) : 0;
         const existing = groups.get(key);
         if (existing) {
-          existing.amount += amount;
           existing.count += 1;
-          // Keep the latest expiresAt — matches the user's "most-recent stack" intuition
-          existing.expiresAt = teAny.expiresAt;
+          existing.expiresAt = teAny.expiresAt; // keep latest
         } else {
-          groups.set(key, { type: teAny.type, sourceInstanceId: teAny.sourceInstanceId, amount, count: 1, isStackable, expiresAt: teAny.expiresAt, sample: te });
+          groups.set(key, { type: teAny.type, sourceInstanceId: teAny.sourceInstanceId, count: 1, expiresAt: teAny.expiresAt, sample: te });
         }
       }
       for (const g of groups.values()) {
         const src = sourceText(g.sourceInstanceId, g.type);
-        let label: string;
-        if (g.isStackable) {
-          // Concise summed display: "+3 STR (PACK OF HER OWN) on Lady"
-          const sign = g.amount >= 0 ? "+" : "";
-          const stat = STAT_LABEL[g.type] ?? g.type.replace("modify_", "");
-          const srcTag = src ? ` (${src.name})` : "";
-          label = `${sign}${g.amount} ${stat}${srcTag} on ${target}`;
-        } else {
-          // Non-stackable — keep the existing verbose format; if the same
-          // source repeats (grant_keyword × N), show it once.
-          label = src ? `${src.text} (on ${target})` : `${g.type.replace(/_/g, " ")} on ${target}`;
-        }
+        const label = src ? `${src.text} (on ${target})` : `${g.type.replace(/_/g, " ")} on ${target}`;
         const source = src ? src.name : "";
-        effects.push({ label, source, color: "text-cyan-400", sourceName: src?.name, target, duration: formatEffectDuration(g.expiresAt) });
+        effects.push({
+          label,
+          source,
+          color: "text-cyan-400",
+          sourceName: src?.name,
+          target,
+          duration: formatEffectDuration(g.expiresAt),
+          ...(g.count > 1 ? { stackCount: g.count } : {}),
+        });
       }
     }
   }
@@ -2473,7 +2464,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               {activeEffects.map((e, i) => (
                 <div key={i} className="rounded-lg bg-gray-900 border border-gray-800 px-2.5 py-1.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold text-indigo-300 truncate">{e.sourceName ?? e.source}</span>
+                    <span className="flex-1 min-w-0 flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold text-indigo-300 truncate">{e.sourceName ?? e.source}</span>
+                      {/* Stack count pill — shows when a grouped timed effect
+                          represents N stacked entries (Lady × 3 PACK OF HER
+                          OWN triggers → ×3). Preserves the verbose oracle
+                          label while surfacing the repetition count. */}
+                      {e.stackCount && e.stackCount > 1 && (
+                        <span className="shrink-0 px-1.5 py-0.5 text-[9px] font-black text-cyan-200 bg-cyan-900/60 rounded-full border border-cyan-700/60">
+                          ×{e.stackCount}
+                        </span>
+                      )}
+                    </span>
                     {e.duration && <span className="text-[9px] text-gray-600 shrink-0">{e.duration}</span>}
                     {e.target && <span className="text-[9px] text-gray-500 shrink-0">{e.target}</span>}
                   </div>
