@@ -2318,3 +2318,175 @@ is non-empty) default to on but can be unchecked.
 - **engine-expert** gets a query-able firehose of `card_issue` reports
   keyed by `context->>'cardId'` — high-signal input for the card-issue
   backlog. Flag when the feature ships.
+
+---
+
+## End-to-end multiplayer UX improvement plan (7 phases)
+
+Planned with user 2026-04-22. Full detail in
+`C:\Users\Ryan\.claude\plans\can-we-look-at-dapper-sunrise.md`. This
+handoff entry summarizes the agent splits + sequencing so each phase can
+be picked up without re-reading the full plan.
+
+### Locked design decisions
+
+1. **No pre-match screen.** Inline "You go first" / "Opponent goes first"
+   banner appears on game load, auto-dismisses ~2s. Consistent for all Bo3
+   games — no special ceremony for game 1.
+2. **Rematch with loser-picks-first.** Same decks reused; loser of previous
+   game picks play-or-draw, winner waits for their choice. 60s window.
+3. **Emoji reactions are ephemeral** — Supabase Realtime broadcast, no DB.
+   **Do NOT emit into `game_actions`** — that table feeds clone-trainer
+   RL, polluting it with user reactions would contaminate training data.
+4. **Friends: symmetric** (mutual accept, both parties in `friends` row).
+5. **Spectators always anonymous** to players — count visible via badge,
+   individual usernames never shown. No opt-in toggle, no scouting vectors.
+6. **Both public-lobby browser AND ELO-banded matchmaking queue** — user
+   wants to test queue with two accounts (main + incognito). Queue is
+   Phase 3, not deferred.
+7. **Rich presence**: `online` / `in_lobby` / `in_game` / `idle` states.
+
+### Explicitly out of scope
+
+- Free-form in-game chat.
+- Omniscient spectator view (per-side fog-of-war only).
+- Chess-clock / per-turn timers — flagged as a separate future planning
+  session; Lorcana lacks a canonical clock spec so mechanics need their
+  own design pass. Phase 4 (reconnection) adds a minimum viable 2-min
+  opponent-dropout claim-win — NOT a real turn clock.
+
+### Phase 1 — Lobby polish + public browser + first-player banner
+
+Agent splits:
+- **server agent** (blocking): schema `lobbies.public`, `lobbies.spectator_policy`,
+  `POST /lobby/:id/cancel` endpoint. `GET /lobby/public` for the browser.
+  ~half-day.
+- **GUI agent** (me, partly parallel): client-side legality pre-check in
+  `MultiplayerLobby` (no server dep — calls engine's `isLegalFor`);
+  waiting-state countdown in host's waiting card (no server dep). Blocked
+  parts: public/private create toggle, public lobby browser section,
+  cancel button behavior (need endpoint).
+- **gameboard-specialist**: first-player banner on GameBoard (reads
+  `state.firstPlayerId`, already in game state — no server dep on their
+  side).
+
+Sequence: GUI + gameboard-specialist can start in parallel on their no-dep
+pieces; server agent unblocks the browser/cancel parts shortly after.
+
+### Phase 2 — Post-game polish
+
+Agent splits:
+- **server agent**: widen game-finish payload to include `{ eloBefore,
+  eloAfter, eloDelta }`; auto-save replay pointer on MP finish (wire the
+  existing `saveReplay` path); add `POST /lobby/rematch` endpoint creating
+  the next-game lobby with both decks pre-attached + loser-plays-first
+  marker; widen `/replay/:id` RLS if replay sharing goes public-via-link.
+- **gameboard-specialist**: game-over overlay renders ELO delta, share-
+  replay button, rematch flow with loser-picks-first radio + winner's
+  "waiting for opponent's choice" state.
+- **GUI agent**: toast on replay save ("Replay saved — fb-xxx") +
+  clipboard share. `saveReplay` wiring lives in `useGameSession` which is
+  UI-lane.
+
+Sequence: server first (new endpoint + schema), then both UI agents.
+
+### Phase 3 — Matchmaking queue (user's priority test target)
+
+Agent splits:
+- **server agent**: `matchmaking_queue` table + pairing logic (inline on
+  INSERT + poll-based safety net), `matchmaking_results` push, band-
+  widening (`±50 → ±150 → ±400 → unbounded` over 90s), rate limit
+  (10 queue-joins/hour). Routes: `POST/GET/DELETE /matchmaking`. ~half-day.
+- **GUI agent** (me): "Find Match" card added alongside Host/Join in
+  `MultiplayerLobby`; queue-wait screen with timer + widening-band hint +
+  cancel; auto-redirect to `/game/:id` on pairing via Realtime subscribe
+  to the user's `matchmaking_results` row.
+
+Sequence: server first (queue is worthless without pairing); UI follows.
+
+User's test scenario: main account + incognito account, both click "Find
+Match" with compatible format decks within 10s → both land in same
+`/game/:id` within ~3s of the second queue-join.
+
+### Phase 4 — Reconnection + resume hardening
+
+Agent splits:
+- **server agent**: `lobbies.last_heartbeat` column, `PATCH /lobby/:id/
+  heartbeat` endpoint, abandoned-lobby detection (stale > 60s →
+  `status='abandoned'`), mid-game dropout tracking + `POST /game/:id/
+  claim-win` with 2-min opponent-disconnect precondition.
+- **GUI agent** (me): heartbeat loop in `MultiplayerLobby` while waiting;
+  stale-lobby error surfacing; `mp-game` localStorage redirect to
+  `/replay/:id` when game finished while tab was closed.
+- **gameboard-specialist**: connection banner (reads the already-exposed
+  `connectionStatus` from `useGameSession`); opponent-dropout countdown +
+  claim-win button UX.
+
+Sequence: server + both UI agents mostly parallel; gameboard-specialist
+can start on the banner today since `connectionStatus` already exists.
+
+### Phase 5 — Friends + rich presence (greenfield, largest non-spectator)
+
+Agent splits:
+- **server agent**: `friends` table + RLS, `profiles.last_seen_at` +
+  `current_activity` columns, heartbeat endpoint, friend request /
+  accept / reject / unfriend endpoints, `GET /profile/search?q=username`
+  prefix search, `POST /lobby/invite` with `invited_user_id` on lobby
+  row.
+- **GUI agent** (me): new `/friends` page (friend list with presence +
+  activity + "Challenge" button), notification bell in app header
+  (extend existing chrome), profile viewing page with "Add friend"
+  affordance, invite-by-username flow in `MultiplayerLobby`.
+
+Sequence: server first (schema + endpoints); UI follows. Heartbeat loop
+wires into the presence column via `PATCH /profile/heartbeat` every 30s.
+
+### Phase 6 — Emoji reactions (ephemeral)
+
+Agent splits:
+- **server agent**: rate-limit middleware on the reactions channel (10
+  reactions/minute/user/game) — no table, no schema change. The
+  broadcast itself is a Supabase Realtime channel the server can police.
+- **GUI agent** (me): `EmojiPicker` component; wire emit via
+  `useGameSession`'s existing Realtime channel. 12-emoji curated set.
+  Client-side throttle 1 per 3s as UX guard.
+- **gameboard-specialist**: render incoming reactions on the board
+  (3s float + fade over sender's side). Reads broadcast events from the
+  game channel.
+
+Sequence: GUI + gameboard-specialist can develop in parallel against a
+mock broadcast; server rate-limit added last if abuse shows up in testing.
+
+### Phase 7 — Spectator mode (greenfield, largest overall)
+
+Agent splits:
+- **server agent**: `game_spectators` table, RLS extension on `games` +
+  `game_actions` to allow spectator reads per `spectator_policy`, extend
+  `stateFilter.ts` to `filterStateForSpectator(state, viewingAs)` with
+  per-side fog-of-war, routes `POST/DELETE /game/:id/spectate` +
+  `GET /games/watchable` (public + friends' games). **Anti-cheat
+  invariant test required**: a spectator viewing game as player1 sees
+  EXACTLY player1's filtered state, never aggregate.
+- **gameboard-specialist**: GameBoard spectator-mode variant — no action
+  buttons, "Spectating — viewing as {playerX}" banner, "Swap POV" button,
+  leave button. Spectator count badge (`👁 N watching`) for players.
+- **GUI agent** (me): new `/spectate` page with "Public games" +
+  "Friends' games" sections; [Watch] button on public-lobby browser
+  (from Phase 1); pre-game policy picker for private lobby creation
+  (4 options: public / friends / invite_only / off).
+
+Sequence: server first (filter + routes + RLS); gameboard-specialist +
+GUI in parallel on the UI. Dependency on Phase 5 for friends' games
+section only — public games section can ship without it.
+
+### Future follow-up entries (not in this plan)
+
+- **Chess-clock / per-turn timers** — needs dedicated planning session.
+  Engine + server + UI. Discussion points: per-turn budget vs total match
+  budget, pause conditions, timeout-loss rules, engine integration.
+- **Replay highlight reels** — requires persisting emoji reactions with
+  timestamps to a new `game_reactions` table (NOT `game_actions`). Only
+  pursue if Phase 6 reactions become heavily used.
+- **True MMR queue tuning** — Phase 3 ships the infrastructure; tuning
+  band-widening curves, queue-depth display, region-based matching all
+  live in a future phase once real usage data exists.

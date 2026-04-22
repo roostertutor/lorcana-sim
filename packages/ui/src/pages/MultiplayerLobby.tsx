@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { CARD_DEFINITIONS, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory } from "../lib/serverApi.js";
@@ -37,6 +37,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [error, setError]       = useState<string | null>(null);
   const [lobbyCode, setLobbyCode] = useState<string | null>(null);
   const [lobbyId, setLobbyId]   = useState<string | null>(null);
+  // Timestamp of when the host entered the waiting state — used to render
+  // the "Waiting: MM:SS" counter. Null when not waiting. Resets on cancel
+  // / on lobby match. Expressed as ms-epoch for simple subtract-then-format.
+  const [waitStartedAt, setWaitStartedAt] = useState<number | null>(null);
+  const [waitElapsedSec, setWaitElapsedSec] = useState(0);
   const [copied, setCopied]     = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   const [session, setSession]   = useState<{ email: string } | null>(null);
@@ -94,6 +99,28 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     : pasteFormat;
   const formatAccent = FORMAT_FAMILY_ACCENT[gameFormat.family];
 
+  // Client-side legality pre-check — mirrors the server's isLegalFor()
+  // validation in createLobby / joinLobby. Surfacing the issues inline
+  // before the POST avoids a round-trip for known-bad decks and gives
+  // users actionable in-place error messages instead of a generic 400.
+  // The server remains authoritative (anti-cheat); this is a UX layer.
+  const legality = useMemo(() => {
+    if (!deckReady) return { ok: true, issues: [] as { message: string; fullName: string }[] };
+    try {
+      return isLegalFor(deck, CARD_DEFINITIONS, gameFormat);
+    } catch (e) {
+      return {
+        ok: false,
+        issues: [{
+          definitionId: "",
+          fullName: "",
+          reason: "unknown_card" as const,
+          message: String(e),
+        }],
+      };
+    }
+  }, [deckReady, deck, gameFormat]);
+
   async function handleAuth() {
     setError(null);
     setStatus(authMode === "signin" ? "Signing in…" : "Creating account…");
@@ -115,6 +142,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setSession(null);
     setLobbyCode(null);
     setLobbyId(null);
+    setWaitStartedAt(null);
     setStatus(null);
   }
 
@@ -132,6 +160,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         setStatus(null);
         setLobbyCode(null);
         setLobbyId(null);
+        setWaitStartedAt(null);
         return;
       }
       const data = await getLobbyGame(lobbyId);
@@ -143,6 +172,17 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [lobbyId, session, onGameStart]);
 
+  // Tick the waiting-time counter once per second. Separate from the
+  // poll interval above so the display updates smoothly instead of
+  // jumping every 2s. Stops when we leave the waiting state.
+  useEffect(() => {
+    if (waitStartedAt === null) return;
+    const handle = setInterval(() => {
+      setWaitElapsedSec(Math.floor((Date.now() - waitStartedAt) / 1000));
+    }, 1000);
+    return () => clearInterval(handle);
+  }, [waitStartedAt]);
+
   async function handleCreateLobby() {
     if (!session || !deckReady) return;
     setError(null);
@@ -151,6 +191,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       const result = await createLobby(deck, format, gameFormat.family, gameFormat.rotation);
       setLobbyCode(result.code);
       setLobbyId(result.lobbyId);
+      setWaitStartedAt(Date.now());
+      setWaitElapsedSec(0);
       setStatus(null);
     } catch (err) {
       setError(String(err));
@@ -283,6 +325,38 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               />
               {deckErrors.length > 0 && (
                 <p className="text-red-400 text-xs">{deckErrors[0]}</p>
+              )}
+            </div>
+          )}
+
+          {/* Legality pre-check — surfaced before the user clicks Create /
+               Join so they see issues in-place instead of after a round
+               trip. Server re-validates on submit (anti-cheat authority);
+               this is a UX shortcut, not a replacement. */}
+          {deckReady && !legality.ok && (
+            <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
+              <div className="font-bold">
+                {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in {formatDisplayName(gameFormat)}
+              </div>
+              <ul className="text-red-400/80 space-y-0.5">
+                {legality.issues.slice(0, 3).map((issue, i) => (
+                  <li key={i}>· {issue.message}</li>
+                ))}
+                {legality.issues.length > 3 && (
+                  <li className="italic">· …and {legality.issues.length - 3} more</li>
+                )}
+              </ul>
+              {deckMode === "saved" ? (
+                <button
+                  className="text-amber-400 hover:text-amber-300 underline text-[11px]"
+                  onClick={() => selectedDeck && navigate(`/decks/${selectedDeck.id}`)}
+                >
+                  Fix in deckbuilder →
+                </button>
+              ) : (
+                <div className="text-red-400/80">
+                  Switch to Infinity format above, or paste a legal deck.
+                </div>
               )}
             </div>
           )}
@@ -480,7 +554,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleCreateLobby}
-                    disabled={!deckReady || !!status}
+                    disabled={!deckReady || !legality.ok || !!status}
+                    title={!legality.ok ? "Fix illegal cards before creating a lobby" : undefined}
                   >
                     {status === "Creating lobby…" ? "Creating…" : "Create Lobby"}
                   </button>
@@ -507,7 +582,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleJoinLobby}
-                    disabled={!deckReady || joinCode.length < 6 || !!status}
+                    disabled={!deckReady || !legality.ok || joinCode.length < 6 || !!status}
+                    title={!legality.ok ? "Fix illegal cards before joining" : undefined}
                   >
                     {status?.startsWith("Join") ? status : "Join"}
                   </button>
@@ -530,6 +606,14 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                 <div>
                   <div className="text-sm text-gray-400">Waiting for opponent</div>
                   <div className="text-xs text-gray-600 mt-0.5">Share this code with your opponent</div>
+                  {/* Wait-time counter. Lobby auto-times-out at 5 min
+                       (MAX_POLL_ATTEMPTS * 2s); surfacing the elapsed
+                       time gives the host a sense of how long the wait
+                       has been and when to consider cancelling. */}
+                  <div className="text-[11px] font-mono text-gray-500 mt-1 tabular-nums">
+                    {Math.floor(waitElapsedSec / 60)}:{String(waitElapsedSec % 60).padStart(2, "0")}
+                    <span className="text-gray-700"> / 5:00</span>
+                  </div>
                 </div>
 
                 {/* Lobby code with copy button */}
@@ -552,7 +636,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                 </div>
 
                 <button
-                  onClick={() => { setLobbyCode(null); setLobbyId(null); }}
+                  onClick={() => { setLobbyCode(null); setLobbyId(null); setWaitStartedAt(null); }}
                   className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
                 >
                   Cancel
