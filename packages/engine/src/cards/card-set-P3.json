@@ -2860,9 +2860,32 @@
         "storyName": "FULL DANCE CARD",
         "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 1,
-          "willpower": 1,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Princess"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "FULL DANCE CARD",
+        "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 1,
           "target": {
             "type": "all",
             "filter": {

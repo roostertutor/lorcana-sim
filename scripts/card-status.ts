@@ -136,6 +136,44 @@ function buildEffectFieldMap(source: string): Map<string, Set<string>> {
 }
 const EFFECT_FIELD_MAP = buildEffectFieldMap(typesSource);
 
+/**
+ * Whitelist of valid static-ability `effect.type` discriminators.
+ *
+ * Derived from the `StaticEffect` union in types/index.ts — each union member
+ * `XxxStatic` has a `type: "yyy"` discriminator. A static ability's `effect.type`
+ * MUST be in this set; anything else silently no-ops because the static-ability
+ * processor in gameModifiers.ts has no case handler for it.
+ *
+ * Catches the `cant_action` misuse class — `cant_action` is a TimedEffect
+ * (applied per-instance by triggered/activated abilities), NOT a static effect.
+ * Using it as a static `effect.type` is a silent bug (Mor'du Savage Cursed
+ * Prince ROOTED BY FEAR, Captain Hook Underhanded INSPIRES DREAD, Moana
+ * Self-Taught Sailor LEARNING THE ROPES, King of Hearts Picky Ruler
+ * OBJECTIONABLE STATE all shipped broken this way before the 2026-04-22 sweep).
+ *
+ * Use `action_restriction` for board-level ("opposing items can't ready") or
+ * `cant_action_self` for per-instance ("THIS character can't challenge unless…").
+ */
+function buildStaticEffectTypes(source: string): Set<string> {
+  const block = extractUnionBlock(source, "StaticEffect");
+  if (!block) return new Set();
+  const memberNames = new Set<string>();
+  for (const m of block.matchAll(/\|\s*([A-Z][A-Za-z0-9_]*)\b/g)) {
+    memberNames.add(m[1]!);
+  }
+  const types = new Set<string>();
+  for (const name of memberNames) {
+    // Find the interface body for this member and pull its `type: "..."` literal.
+    const iRe = new RegExp(`export interface ${name}\\s*\\{([\\s\\S]*?)\\n\\}`, "m");
+    const iMatch = source.match(iRe);
+    if (!iMatch) continue;
+    const tMatch = iMatch[1]!.match(/\btype:\s*"([a-z_]+)"/);
+    if (tMatch) types.add(tMatch[1]!);
+  }
+  return types;
+}
+const VALID_STATIC_EFFECT_TYPES = buildStaticEffectTypes(typesSource);
+
 // Cost types that the runtime actually processes — either via payCosts()
 // directly (exert / pay_ink / banish_self) or via applyActivateAbility's
 // cost-as-effect prepend (discard / banish_chosen, which surface a
@@ -373,7 +411,22 @@ function validateCardFields(card: any): FieldError[] {
       ab.effects.forEach((e: any, i: number) => walkEffect(e, `${path}.effects[${i}]`));
     }
     // Static ability: check the effect field
-    if (ab.effect) walkEffect(ab.effect, path + ".effect");
+    if (ab.effect) {
+      walkEffect(ab.effect, path + ".effect");
+      // Static-effect discriminator must be in the StaticEffect union.
+      // Catches `cant_action` as static.effect.type (silent no-op; use
+      // `action_restriction` or `cant_action_self` instead).
+      if (ab.type === "static" && typeof ab.effect.type === "string"
+          && VALID_STATIC_EFFECT_TYPES.size > 0
+          && !VALID_STATIC_EFFECT_TYPES.has(ab.effect.type)) {
+        errors.push({
+          path: `${path}.effect`,
+          field: "type",
+          value: ab.effect.type,
+          validValues: `not a StaticEffect union member — static-ability processor has no case handler, silent no-op (valid: ${[...VALID_STATIC_EFFECT_TYPES].sort().join(", ")})`,
+        });
+      }
+    }
   }
 
   // Walk all abilities

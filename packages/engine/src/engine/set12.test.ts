@@ -1262,3 +1262,397 @@ describe("Set 12 — You've Got a Friend in Me (scry-4 reveal up to 2 Toy to han
   });
 });
 
+// =============================================================================
+// Stub wiring regression — 24 set-12 cards wired in 2026-04-22. Covers the four
+// specials (Ranger Team-up, Kida Crystal Scion, Card Advantage, Zipper Big
+// Helper) plus one fits-grammar sanity test per novel pattern.
+// =============================================================================
+
+describe("Set 12 — Ranger Team-up (target-willpower dynamic strength)", () => {
+  it("chosen character gets +S equal to their own willpower this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    // Inject a target with known willpower (Mickey True Friend: WP 3, STR 3).
+    let tgtId: string, actionId: string;
+    ({ state, instanceId: tgtId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "ranger-team-up", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [tgtId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey's WP is 3 — the bonus should stack as +3 strength this turn.
+    const tgt = getInstance(state, tgtId);
+    const strengthBonus = tgt.timedEffects
+      .filter((te) => te.type === "modify_strength")
+      .reduce((s, te) => s + ((te as any).amount ?? 0), 0);
+    expect(strengthBonus).toBe(3);
+  });
+});
+
+describe("Set 12 — Kida Crystal Scion FLOOD OF POWER", () => {
+  it("each player may put up to 5 cards from their discard into their inkwell facedown and exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 8);
+    // Seed discards for both players.
+    let d1a: string, d1b: string, d2a: string, kidaId: string;
+    ({ state, instanceId: d1a } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    ({ state, instanceId: d1b } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
+    ({ state, instanceId: d2a } = injectCard(state, "player2", "mickey-mouse-true-friend", "discard"));
+    ({ state, instanceId: kidaId } = injectCard(state, "player1", "kida-crystal-scion", "hand"));
+
+    const p1InkBefore = getZone(state, "player1", "inkwell").length;
+    const p2InkBefore = getZone(state, "player2", "inkwell").length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kidaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Controller (player1) may prompt first.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    // Accept — surfaces chooser for which discard cards to put in inkwell.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId!, choice: "accept" }, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // Pick both p1 discards.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId!, choice: [d1a, d1b] }, CARD_DEFINITIONS);
+    state = r.newState;
+
+    // Opponent's may prompt.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [d2a] }, CARD_DEFINITIONS);
+    state = r.newState;
+
+    expect(getZone(state, "player1", "inkwell").length).toBe(p1InkBefore + 2);
+    expect(getZone(state, "player2", "inkwell").length).toBe(p2InkBefore + 1);
+    // All three put-in-inkwell cards should be exerted.
+    expect(state.cards[d1a].isExerted).toBe(true);
+    expect(state.cards[d1b].isExerted).toBe(true);
+    expect(state.cards[d2a].isExerted).toBe(true);
+  });
+
+  it("each player may decline — 'may' prompt surfaces but inkwell is unchanged on decline", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 8);
+    let kidaId: string;
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+    ({ state, instanceId: kidaId } = injectCard(state, "player1", "kida-crystal-scion", "hand"));
+
+    const p1InkBefore = getZone(state, "player1", "inkwell").length;
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kidaId }, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    // Decline on both prompts.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, CARD_DEFINITIONS);
+    state = r.newState;
+    if (state.pendingChoice?.type === "choose_may") {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "decline" }, CARD_DEFINITIONS);
+      state = r.newState;
+    }
+    expect(getZone(state, "player1", "inkwell").length).toBe(p1InkBefore);
+  });
+});
+
+describe("Set 12 — Kida Crystal Scion THE PATH REVEALED (activated 7-ink scry-2)", () => {
+  it("paying 7 ink surfaces look-at-top choose_from_top for 2 cards, maxToHand 1", () => {
+    let state = startGame();
+    // Inject Kida in play (dried), plenty of ink available.
+    let kidaId: string;
+    ({ state, instanceId: kidaId } = injectCard(state, "player1", "kida-crystal-scion", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 7);
+    const inkBefore = state.players.player1.availableInk;
+
+    // Ability index 2 = THE PATH REVEALED (0: shift, 1: FLOOD OF POWER, 2: activated).
+    const r = applyAction(
+      state,
+      { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: kidaId, abilityIndex: 2 },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // 7 ink paid.
+    expect(state.players.player1.availableInk).toBe(inkBefore - 7);
+    // look_at_top choose_from_top raises a pendingChoice surfacing the top 2.
+    expect(state.pendingChoice).toBeDefined();
+  });
+});
+
+describe("Set 12 — Card Advantage (conditional draw)", () => {
+  it("draws 2 if an opposing character was banished in a challenge this turn", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    // Simulate a prior opposing-banish-in-challenge flag.
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player2: { ...state.players.player2, aCharacterWasBanishedInChallengeThisTurn: true },
+      },
+    };
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "card-advantage", "hand"));
+
+    const handBefore = state.zones.player1.hand.length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // +2 drawn, -1 for the action card that left hand.
+    expect(state.zones.player1.hand.length).toBe(handBefore - 1 + 2);
+  });
+
+  it("does not draw when no opposing char was banished in challenge", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "card-advantage", "hand"));
+    const handBefore = state.zones.player1.hand.length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // No draw — net -1 (the action card left hand).
+    expect(state.zones.player1.hand.length).toBe(handBefore - 1);
+  });
+});
+
+describe("Set 12 — Zipper Big Helper BUZZING ENTHUSIASM", () => {
+  it("on quest, target gets +S equal to Zipper's willpower this turn", () => {
+    let state = startGame();
+    // Zipper WP is 6 per card data. Inject as dried + ready in play.
+    let zipperId: string, targetId: string;
+    ({ state, instanceId: zipperId } = injectCard(state, "player1", "zipper-big-helper", "play", { isDrying: false }));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: zipperId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Walk through any pending choices: first choose_may (the isMay gate),
+    // then choose_target for the buff recipient.
+    while (state.pendingChoice) {
+      if (state.pendingChoice.type === "choose_may") {
+        r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId!, choice: "accept" }, CARD_DEFINITIONS);
+        state = r.newState;
+      } else if (state.pendingChoice.type === "choose_target") {
+        r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId!, choice: [targetId] }, CARD_DEFINITIONS);
+        state = r.newState;
+      } else {
+        break;
+      }
+    }
+
+    const tgt = getInstance(state, targetId);
+    const strBonus = tgt.timedEffects
+      .filter((te) => te.type === "modify_strength")
+      .reduce((s, te) => s + ((te as any).amount ?? 0), 0);
+    // Zipper's printed willpower is 6 → +6 strength on the target.
+    expect(strBonus).toBe(6);
+  });
+
+  it("zipper cannot target himself (excludeSelf filter)", () => {
+    let state = startGame();
+    let zipperId: string;
+    ({ state, instanceId: zipperId } = injectCard(state, "player1", "zipper-big-helper", "play", { isDrying: false }));
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: zipperId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // No other targetable character → pendingChoice list is empty / effect fizzles.
+    while (state.pendingChoice) {
+      if (state.pendingChoice.type === "choose_may") {
+        r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId!, choice: "accept" }, CARD_DEFINITIONS);
+        state = r.newState;
+      } else if (state.pendingChoice.type === "choose_target") {
+        expect(state.pendingChoice.validTargets).not.toContain(zipperId);
+        break;
+      } else {
+        break;
+      }
+    }
+  });
+});
+
+describe("Set 12 — fits-grammar novel pattern: Buzz's Arm MISSING PIECE", () => {
+  it("static grant_play_for_free_self activates when a character named Buzz Lightyear was banished this turn", () => {
+    let state = startGame();
+    // Drop Buzz into player1's play, then drive a banish.
+    let buzzId: string, armId: string;
+    ({ state, instanceId: buzzId } = injectCard(state, "player1", "buzz-lightyear-jungle-ranger", "play", { isDrying: false, damage: 8 }));
+    // Inject Buzz's Arm in hand (before banish — static reads activeZones:["hand"]).
+    ({ state, instanceId: armId } = injectCard(state, "player1", "buzzs-arm", "hand"));
+    void buzzId;
+    void armId;
+
+    // Seed the condition directly: push "Buzz Lightyear" onto characterNamesBanishedThisTurn.
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player1: {
+          ...state.players.player1,
+          characterNamesBanishedThisTurn: ["Buzz Lightyear"],
+        },
+      },
+    };
+
+    // Now Buzz's Arm should be playable for free (cost 2 normally).
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const playForFree = legal.find(
+      (a: any) => a.type === "PLAY_CARD" && a.instanceId === armId && a.viaGrantedFreePlay === true
+    );
+    expect(playForFree).toBeDefined();
+  });
+
+  it("play-for-free does NOT activate when no matching name was banished", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 1); // only 1 available — not enough for cost-2 paid play
+    let armId: string;
+    ({ state, instanceId: armId } = injectCard(state, "player1", "buzzs-arm", "hand"));
+
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const playForFree = legal.find(
+      (a: any) => a.type === "PLAY_CARD" && a.instanceId === armId && a.viaGrantedFreePlay === true
+    );
+    expect(playForFree).toBeUndefined();
+  });
+});
+
+describe("Set 12 — Mor'du Savage Cursed Prince ROOTED BY FEAR (action_restriction with notHasName)", () => {
+  // Regression: shipped with `effect.type: "cant_action"` on a static ability,
+  // which the static-ability processor has no handler for — the restriction
+  // silently no-op'd and everything readied whether named Mor'du or not.
+  // Fixed 2026-04-22 by switching to the correct `action_restriction` shape
+  // with affectedPlayer:"self" + filter.notHasName:"Mor'du".
+  it("own non-Mor'du characters stay exerted through your ready step while Mor'du is in play", () => {
+    let state = startGame();
+    let morduId: string, mickeyId: string;
+    ({ state, instanceId: morduId } = injectCard(state, "player1", "mordu-savage-cursed-prince", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    void morduId;
+
+    // Pass two turns — next ready step for player1 fires at the start of their turn.
+    state = passTurns(state, 2, CARD_DEFINITIONS);
+
+    // Mickey stays exerted (blocked by ROOTED BY FEAR).
+    expect(getInstance(state, mickeyId).isExerted).toBe(true);
+  });
+
+  it("Mor'du himself still readies (notHasName exempts him)", () => {
+    let state = startGame();
+    let morduId: string;
+    ({ state, instanceId: morduId } = injectCard(state, "player1", "mordu-savage-cursed-prince", "play", { isDrying: false, isExerted: true }));
+
+    state = passTurns(state, 2, CARD_DEFINITIONS);
+
+    expect(getInstance(state, morduId).isExerted).toBe(false);
+  });
+
+  it("another character literally named Mor'du also readies (the filter matches by name, not instance)", () => {
+    // Mor'du - Wicked with Pride (#56) shares the name. Both should ready.
+    let state = startGame();
+    let morduPrinceId: string, morduWickedId: string;
+    ({ state, instanceId: morduPrinceId } = injectCard(state, "player1", "mordu-savage-cursed-prince", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: morduWickedId } = injectCard(state, "player1", "mordu-wicked-with-pride", "play", { isDrying: false, isExerted: true }));
+    void morduPrinceId;
+
+    state = passTurns(state, 2, CARD_DEFINITIONS);
+
+    expect(getInstance(state, morduWickedId).isExerted).toBe(false);
+  });
+
+  it("opponent's characters ready normally (affectedPlayer: self)", () => {
+    let state = startGame();
+    let morduId: string, oppCharId: string;
+    ({ state, instanceId: morduId } = injectCard(state, "player1", "mordu-savage-cursed-prince", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    void morduId;
+
+    // Pass to player2 — their ready step should ready Mickey normally.
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    expect(getInstance(state, oppCharId).isExerted).toBe(false);
+  });
+});
+
+describe("Set 12 — Vincenzo Santorini NEUTRALIZE (action_restriction on items)", () => {
+  it("while Vincenzo is in play, opposing items stay exerted through opponent's ready step", () => {
+    // Novel pattern coverage: action_restriction with cardType:["item"] filter
+    // targeting opponent. Confirms the ready step loops over items (not just
+    // characters) and consults isActionRestricted for them. Decompiler score
+    // for this card is low (0.29) because the renderer can't describe
+    // cardType:["item"] filters, but the wiring IS correct — verify here.
+    let state = startGame();
+    let vincenzoId: string, itemId: string;
+    ({ state, instanceId: vincenzoId } = injectCard(state, "player1", "vincenzo-santorini-on-the-run", "play", { isDrying: false }));
+    // Put an exerted item in player2's play.
+    ({ state, instanceId: itemId } = injectCard(state, "player2", "dinglehopper", "play", { isExerted: true }));
+    void vincenzoId;
+
+    // End player1's turn — player2's ready step runs. Vincenzo's NEUTRALIZE
+    // should keep the item exerted.
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    expect(getInstance(state, itemId).isExerted).toBe(true);
+  });
+
+  it("negative control: without Vincenzo, opposing items ready normally", () => {
+    let state = startGame();
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player2", "dinglehopper", "play", { isExerted: true }));
+
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    expect(getInstance(state, itemId).isExerted).toBe(false);
+  });
+
+  it("Vincenzo does NOT restrict his own side's items (affectedPlayer: opponent)", () => {
+    let state = startGame();
+    let vincenzoId: string, itemId: string;
+    ({ state, instanceId: vincenzoId } = injectCard(state, "player1", "vincenzo-santorini-on-the-run", "play", { isDrying: false }));
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "dinglehopper", "play", { isExerted: true }));
+    void vincenzoId;
+
+    // Pass to player2, then back to player1 — player1's ready step should
+    // ready the Dinglehopper normally.
+    state = passTurns(state, 2, CARD_DEFINITIONS);
+
+    expect(getInstance(state, itemId).isExerted).toBe(false);
+  });
+});
+
+describe("Set 12 — Luisa Madrigal SHOULDER THE BURDEN (move_damage destination:this)", () => {
+  it("moves up to 3 damage from chosen character onto this character on quest", () => {
+    let state = startGame();
+    let luisaId: string, damagedId: string;
+    ({ state, instanceId: luisaId } = injectCard(state, "player1", "luisa-madrigal-no-pressure", "play", { isDrying: false }));
+    ({ state, instanceId: damagedId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: luisaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Walk prompts: may → choose damaged source → resolve as destination "this".
+    while (state.pendingChoice) {
+      if (state.pendingChoice.type === "choose_may") {
+        r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId!, choice: "accept" }, CARD_DEFINITIONS);
+        state = r.newState;
+      } else if (state.pendingChoice.type === "choose_target") {
+        r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId!, choice: [damagedId] }, CARD_DEFINITIONS);
+        state = r.newState;
+      } else {
+        break;
+      }
+    }
+
+    // Mickey's damage moved to Luisa.
+    expect(getInstance(state, damagedId).damage).toBe(0);
+    expect(getInstance(state, luisaId).damage).toBe(2);
+  });
+});
+

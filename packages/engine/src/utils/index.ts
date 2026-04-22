@@ -1049,6 +1049,15 @@ export function evaluateCondition(
       return !!state.players[controllingPlayerId].aCharacterWasBanishedInChallengeThisTurn
         || !!state.players[opponent].aCharacterWasBanishedInChallengeThisTurn;
     }
+    case "character_named_was_banished_this_turn": {
+      // Buzz's Arm MISSING PIECE — "if a character named Buzz Lightyear was
+      // banished this turn, you may play this item for free". Name match is
+      // printed-name only; does not iterate alternateNames (oracle wording
+      // is literal). Consults both players' lists.
+      const mine = state.players[controllingPlayerId].characterNamesBanishedThisTurn ?? [];
+      const theirs = state.players[opponent].characterNamesBanishedThisTurn ?? [];
+      return mine.includes(condition.name) || theirs.includes(condition.name);
+    }
     case "opposing_character_was_damaged_this_turn": {
       // Nathaniel Flint - Notorious Pirate: "You can't play this character unless an opposing character was damaged this turn."
       return !!state.players[opponent].aCharacterWasDamagedThisTurn;
@@ -1144,6 +1153,19 @@ export function evaluateCondition(
           }).length;
         return count(controllingPlayerId) > count(opponent);
       }
+      if (condition.metric === "characters_in_play") {
+        const count = (pid: PlayerID) =>
+          getZone(state, pid, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst) return false;
+            const def = definitions[inst.definitionId];
+            return def?.cardType === "character";
+          }).length;
+        return count(controllingPlayerId) > count(opponent);
+      }
+      if (condition.metric === "lore") {
+        return (state.players[controllingPlayerId]?.lore ?? 0) > (state.players[opponent]?.lore ?? 0);
+      }
       if (condition.metric === "cards_in_inkwell") {
         return getZone(state, controllingPlayerId, "inkwell").length > getZone(state, opponent, "inkwell").length;
       }
@@ -1184,6 +1206,19 @@ export function evaluateCondition(
             return def?.cardType === "item";
           }).length;
         return count(opponent) > count(controllingPlayerId);
+      }
+      if (condition.metric === "characters_in_play") {
+        const count = (pid: PlayerID) =>
+          getZone(state, pid, "play").filter((id) => {
+            const inst = state.cards[id];
+            if (!inst) return false;
+            const def = definitions[inst.definitionId];
+            return def?.cardType === "character";
+          }).length;
+        return count(opponent) > count(controllingPlayerId);
+      }
+      if (condition.metric === "lore") {
+        return (state.players[opponent]?.lore ?? 0) > (state.players[controllingPlayerId]?.lore ?? 0);
       }
       if (condition.metric === "cards_in_inkwell") {
         return getZone(state, opponent, "inkwell").length > getZone(state, controllingPlayerId, "inkwell").length;

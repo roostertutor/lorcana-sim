@@ -769,6 +769,17 @@ export interface GainStatsEffect {
   /** +S equal to the SOURCE instance's effective strength (Olaf Carrot Enthusiast).
    *  Resolved at apply time per target. */
   strengthEqualsSourceStrength?: boolean;
+  /** +S equal to the SOURCE instance's effective willpower (Zipper Big Helper
+   *  BUZZING ENTHUSIASM — "add his {W} to another chosen character's {S}").
+   *  Parallel to strengthEqualsSourceStrength but reads the source's
+   *  willpower. Resolved at apply time per target. */
+  strengthEqualsSourceWillpower?: boolean;
+  /** +S equal to the TARGET instance's effective willpower (Ranger Team-up
+   *  — "Chosen character gets +{S} equal to their {W} this turn"). Unlike
+   *  the source variants, this reads the AFFECTED character's willpower,
+   *  making it a per-target dynamic amount (analogous to Improvise-style
+   *  scaling but keyed off the target). Resolved at apply time per target. */
+  strengthEqualsTargetWillpower?: boolean;
   /** Internal flag set by the Support trigger synthesis. When true, the
    *  choose_target resolver fires a `chosen_for_support` trigger on the
    *  picked character (Prince Phillip Gallant Defender, Rapunzel Ready for
@@ -828,10 +839,13 @@ export interface MoveDamageEffect {
   /** Destination character. "last_resolved_target" pins the destination to
    *  the previously-chosen card (Can't Hold It Back Anymore: "exert chosen
    *  opposing character" sets lastResolvedTarget, then the move_damage uses
-   *  it without prompting for a second target). */
+   *  it without prompting for a second target). "this" pins to the source
+   *  instance itself (Luisa Madrigal No Pressure SHOULDER THE BURDEN —
+   *  "move up to 3 damage from chosen character to THIS character"). */
   destination:
     | { type: "chosen"; filter: CardFilter }
-    | { type: "last_resolved_target" };
+    | { type: "last_resolved_target" }
+    | { type: "this" };
   /** Internal: stage-2 marker carrying the resolved source snapshot. */
   _resolvedSource?: ResolvedRef;
   /** CRD 6.1.4: player may decline the entire move (the source-pick prompt
@@ -2692,6 +2706,12 @@ export type Condition =
   | { type: "last_effect_result"; comparison: "gte" | "lte" | "gt" | "lt" | "eq"; amount: number }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "a_character_was_banished_in_challenge_this_turn" }
+  /** True if any character whose printed name matches `name` was banished this
+   *  turn (from either player's play zone). Backed by
+   *  PlayerState.characterNamesBanishedThisTurn. Used by Buzz's Arm
+   *  MISSING PIECE ("if a character named Buzz Lightyear was banished this
+   *  turn, you may play this item for free"). */
+  | { type: "character_named_was_banished_this_turn"; name: string }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" }
@@ -2705,13 +2725,16 @@ export type Condition =
    *  Used by Flynn Rider Frenemy ("more strength than each opposing"), Ariel Treasure Collector
    *  ("more items than each opp" → metric="items_in_play"), HeiHei Bumbling Rooster
    *  (metric="cards_in_inkwell"; inverse — opponent has more → use `not`). */
-  | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" }
+  | { type: "self_has_more_than_each_opponent"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" | "characters_in_play" | "lore" }
   /** Mirror of self_has_more_than_each_opponent — fires if AT LEAST ONE opponent
    *  strictly exceeds the controller on the given metric. Used by HeiHei
-   *  Bumbling Rooster ("if an opponent has more cards in their inkwell than you").
+   *  Bumbling Rooster ("if an opponent has more cards in their inkwell than you"),
+   *  When You Need Help, Just Call ("if an opponent has more characters in
+   *  play than you"), and The Queen - Devious Disguise JEALOUS HEART ("while
+   *  an opponent has more lore than you").
    *  Distinct from `not(self_has_more_than_each_opponent ...)` because the
    *  negation also fires on equal counts, which is wrong for "more than" wording. */
-  | { type: "opponent_has_more_than_self"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" }
+  | { type: "opponent_has_more_than_self"; metric: "strength_in_play" | "items_in_play" | "cards_in_inkwell" | "characters_in_play" | "lore" }
   /** UNDERDOG (Set 11): "If this is your first turn and you're not the first
    *  player, ...". True when the controlling player has not yet completed a
    *  turn AND they are NOT state.firstPlayerId. */
@@ -3281,6 +3304,14 @@ export interface PlayerState {
    *  Used by Julieta's Arepas THAT DID THE TRICK activated ability.
    *  Cleared at PASS_TURN. Mirror of aCharacterWasDamagedThisTurn. */
   youRemovedDamageThisTurn?: boolean;
+  /** Distinct character names banished from THIS player's play zone this
+   *  turn. Appended in zoneTransition when a character moves play→discard.
+   *  Used by Buzz's Arm MISSING PIECE ("if a character named Buzz Lightyear
+   *  was banished this turn, you may play this item for free") via the
+   *  `character_named_was_banished_this_turn` condition, which OR-combines
+   *  both players' lists (oracle doesn't restrict by owner). Cleared at
+   *  PASS_TURN for both players. */
+  characterNamesBanishedThisTurn?: string[];
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */

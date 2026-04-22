@@ -864,11 +864,12 @@
         "storyName": "KEEPING WATCH",
         "rulesText": "While you have a Puppy character in play, this character gets +1 {W}.",
         "effect": {
-          "type": "gain_stats",
-          "willpower": 1,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "willpower",
+          "amount": 1
         },
         "condition": {
           "type": "you_control_matching",
@@ -1069,9 +1070,36 @@
         "storyName": "WE'VE GOT 'EM OUTNUMBERED",
         "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
-          "lore": 2,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "amount": 3,
+          "zone": "play",
+          "owner": {
+            "type": "self"
+          },
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Puppy"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "WE'VE GOT 'EM OUTNUMBERED",
+        "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 2,
           "target": {
             "type": "this"
           }
@@ -1720,11 +1748,12 @@
         "storyName": "PUPPY BARKING",
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 1
         },
         "condition": {
           "type": "you_control_matching",
@@ -7127,11 +7156,12 @@
         "storyName": "COUNT OFF!",
         "rulesText": "While there are 5 or more characters with damage in play, this character gets +3 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 3,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 3
         },
         "condition": {
           "type": "cards_in_zone_gte",
@@ -8983,11 +9013,12 @@
         "storyName": "AT HER SIDE",
         "rulesText": "While you have 2 or more other exerted characters in play, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "cards_in_zone_gte",
@@ -9655,11 +9686,12 @@
         "storyName": "WILD RIDE",
         "rulesText": "While 2 or more characters of yours are exerted, this character gets +2 {S} and gains Evasive.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 2
         },
         "condition": {
           "type": "cards_in_zone_gte",
@@ -10001,11 +10033,12 @@
         "storyName": "PRECOCIOUS FRIEND",
         "rulesText": "While you have a character in play with more {S} than each opposing character, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "self_has_more_than_each_opponent",

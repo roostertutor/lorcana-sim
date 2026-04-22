@@ -1271,11 +1271,12 @@
         "storyName": "ENORMOUS RESPONSIBILITY",
         "rulesText": "While this character is damaged, he gets +2 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 2
         },
         "condition": {
           "type": "this_has_damage"
@@ -1734,11 +1735,12 @@
         "storyName": "PUPPY BARKING",
         "rulesText": "While you have another Puppy character in play, this character gets +1 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 1
         },
         "condition": {
           "type": "you_control_matching",

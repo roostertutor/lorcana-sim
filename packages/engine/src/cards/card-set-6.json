@@ -423,11 +423,12 @@
         "storyName": "SHOWING OFF",
         "rulesText": "While you have a character named Nani in play, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "you_control_matching",
@@ -4467,20 +4468,17 @@
         "storyName": "INSPIRES DREAD",
         "rulesText": "While this character is exerted, opposing Pirate characters can't quest.",
         "effect": {
-          "type": "cant_action",
-          "action": "quest",
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "opponent"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Pirate"
-            }
+          "type": "action_restriction",
+          "restricts": "quest",
+          "affectedPlayer": {
+            "type": "opponent"
+          },
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Pirate"
           }
         },
         "condition": {
@@ -5016,11 +5014,12 @@
         "storyName": "CAPTAIN ON DECK",
         "rulesText": "While you have a Captain character in play, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "you_control_matching",
@@ -6866,9 +6865,36 @@
         "storyName": "LOOK LIVELY, CREW!",
         "rulesText": "While you have another Pirate character in play, this character gets +1 {S} and +1 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 1,
-          "lore": 1,
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 1,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Pirate",
+            "excludeSelf": true
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "LOOK LIVELY, CREW!",
+        "rulesText": "While you have another Pirate character in play, this character gets +1 {S} and +1 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 1,
           "target": {
             "type": "this"
           }
@@ -7256,11 +7282,12 @@
         "storyName": "SOLID GROUND",
         "rulesText": "While this character is at a location, he gets +2 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 2
         },
         "condition": {
           "type": "this_at_location"
@@ -7315,11 +7342,12 @@
         "storyName": "KEEP DRIVING",
         "rulesText": "While this character has damage, she gets +1 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 1
         },
         "condition": {
           "type": "this_has_damage"
@@ -7375,11 +7403,8 @@
         "storyName": "LEARNING THE ROPES",
         "rulesText": "This character can't challenge unless you have a Captain character in play.",
         "effect": {
-          "type": "cant_action",
-          "action": "challenge",
-          "target": {
-            "type": "this"
-          }
+          "type": "cant_action_self",
+          "action": "challenge"
         },
         "condition": {
           "type": "not",
@@ -8491,8 +8516,7 @@
         "storyName": "A SUITABLE WEAPON",
         "rulesText": "Your damaged characters get +1 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 1,
+          "type": "modify_stat",
           "target": {
             "type": "all",
             "filter": {
@@ -8505,7 +8529,9 @@
               ],
               "hasDamage": true
             }
-          }
+          },
+          "stat": "strength",
+          "amount": 1
         }
       }
     ],
@@ -8634,8 +8660,7 @@
         "storyName": "FAMILIAR GROUND",
         "rulesText": "Characters get +1 {S} while here.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 1,
+          "type": "modify_stat",
           "target": {
             "type": "all",
             "filter": {
@@ -8645,7 +8670,9 @@
               ],
               "atLocation": "this"
             }
-          }
+          },
+          "stat": "strength",
+          "amount": 1
         }
       },
       {
@@ -9536,11 +9563,12 @@
         "storyName": "NICE TO HAVE A PARTNER",
         "rulesText": "While you have another character with Support in play, this character gets +2 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 2
         },
         "condition": {
           "type": "you_control_matching",
@@ -12104,11 +12132,12 @@
         "storyName": "GOOD BOY",
         "rulesText": "While this character has no damage, he gets +4 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 4,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 4
         },
         "condition": {
           "type": "not",

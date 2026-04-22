@@ -1528,3 +1528,154 @@ describe("§8 Set 8 — Pull the Lever! (choose_option action cleanup)", () => {
     expect(state.pendingChoice).toBeFalsy();
   });
 });
+
+// =============================================================================
+// Class-wide sweep (2026-04-22): static abilities that shipped with
+// `effect.type: "cant_action"` silently no-op'd — the static-ability processor
+// has no case handler for cant_action (only globalTimedEffects do).
+// Fixed by converting to the correct shapes:
+//   - board-level → action_restriction (with affectedPlayer + filter)
+//   - per-instance → cant_action_self
+// Sibling regression: Mor'du Savage Cursed Prince #57 in set12.test.ts.
+// =============================================================================
+
+describe("Set 6 — Captain Hook Underhanded INSPIRES DREAD (board-level action_restriction gated by this_is_exerted)", () => {
+  it("opposing Pirate characters can't quest while Hook is exerted", () => {
+    let state = startGame();
+    let hookId: string, pirateId: string;
+    ({ state, instanceId: hookId } = injectCard(state, "player1", "captain-hook-underhanded", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: pirateId } = injectCard(state, "player2", "captain-hook-underhanded", "play", { isDrying: false }));
+    void hookId;
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const legal = getAllLegalActions(state, "player2", CARD_DEFINITIONS);
+    const questAction = legal.find((a: any) => a.type === "QUEST" && a.instanceId === pirateId);
+    expect(questAction).toBeUndefined();
+  });
+
+  it("opposing Pirates CAN quest while Hook is ready (condition: this_is_exerted)", () => {
+    let state = startGame();
+    let pirateId: string;
+    ({ state } = injectCard(state, "player1", "captain-hook-underhanded", "play", { isDrying: false, isExerted: false }));
+    ({ state, instanceId: pirateId } = injectCard(state, "player2", "captain-hook-underhanded", "play", { isDrying: false }));
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const legal = getAllLegalActions(state, "player2", CARD_DEFINITIONS);
+    const questAction = legal.find((a: any) => a.type === "QUEST" && a.instanceId === pirateId);
+    expect(questAction).toBeDefined();
+  });
+
+  it("non-Pirate opposing characters quest normally even when Hook is exerted (filter: hasTrait Pirate)", () => {
+    let state = startGame();
+    let mickeyId: string;
+    ({ state } = injectCard(state, "player1", "captain-hook-underhanded", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const legal = getAllLegalActions(state, "player2", CARD_DEFINITIONS);
+    const questAction = legal.find((a: any) => a.type === "QUEST" && a.instanceId === mickeyId);
+    expect(questAction).toBeDefined();
+  });
+});
+
+describe("Set 6 — Moana Self-Taught Sailor LEARNING THE ROPES (cant_action_self gated by 'unless Captain')", () => {
+  it("Moana can't challenge when no Captain is in your play", () => {
+    let state = startGame();
+    let moanaId: string, enemyId: string;
+    ({ state, instanceId: moanaId } = injectCard(state, "player1", "moana-self-taught-sailor", "play", { isDrying: false }));
+    ({ state, instanceId: enemyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    void enemyId;
+
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const challenge = legal.find((a: any) => a.type === "CHALLENGE" && a.attackerInstanceId === moanaId);
+    expect(challenge).toBeUndefined();
+  });
+
+  it("Moana CAN challenge when a Captain is in your play (condition lifts restriction)", () => {
+    let state = startGame();
+    let moanaId: string, captainId: string, enemyId: string;
+    ({ state, instanceId: moanaId } = injectCard(state, "player1", "moana-self-taught-sailor", "play", { isDrying: false }));
+    ({ state, instanceId: captainId } = injectCard(state, "player1", "captain-hook-underhanded", "play", { isDrying: false }));
+    ({ state, instanceId: enemyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    void captainId;
+    void enemyId;
+
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const challenge = legal.find((a: any) => a.type === "CHALLENGE" && a.attackerInstanceId === moanaId);
+    expect(challenge).toBeDefined();
+  });
+});
+
+describe("Set 7 — King of Hearts Picky Ruler OBJECTIONABLE STATE (action_restriction gated by hasDamage)", () => {
+  it("damaged opposing characters can't challenge while King of Hearts is in play", () => {
+    let state = startGame();
+    let kingId: string, damagedEnemyId: string, defenderId: string;
+    ({ state, instanceId: kingId } = injectCard(state, "player1", "king-of-hearts-picky-ruler", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: damagedEnemyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
+    void kingId;
+    void defenderId;
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const legal = getAllLegalActions(state, "player2", CARD_DEFINITIONS);
+    const challenge = legal.find((a: any) => a.type === "CHALLENGE" && a.attackerInstanceId === damagedEnemyId);
+    expect(challenge).toBeUndefined();
+  });
+
+  it("undamaged opposing characters can still challenge (filter: hasDamage only)", () => {
+    let state = startGame();
+    let undamagedEnemyId: string, defenderId: string;
+    ({ state } = injectCard(state, "player1", "king-of-hearts-picky-ruler", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: undamagedEnemyId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    void defenderId;
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const legal = getAllLegalActions(state, "player2", CARD_DEFINITIONS);
+    const challenge = legal.find((a: any) => a.type === "CHALLENGE" && a.attackerInstanceId === undamagedEnemyId);
+    expect(challenge).toBeDefined();
+  });
+});
+
+// =============================================================================
+// Second sweep class (2026-04-22): static abilities that shipped with
+// `effect.type: "gain_stats"` silently no-op'd — gameModifiers.ts has no
+// gain_stats case handler (it's an Effect type, not a StaticEffect). 47 cards
+// across sets 6-P3 affected. Fixed in bulk via scripts/fix-static-gain-stats.ts
+// by converting to `modify_stat` and splitting multi-stat into sibling ability
+// blocks. Regression coverage here for a single-stat case and a multi-stat
+// case so re-regression would fail at least one test.
+// =============================================================================
+
+describe("Set 6 — static gain_stats → modify_stat class-wide sweep (2026-04-22)", () => {
+  it("David Impressive Surfer SHOWING OFF: +2 lore while Nani in play (single-stat)", () => {
+    let state = startGame();
+    let davidId: string;
+    ({ state, instanceId: davidId } = injectCard(state, "player1", "david-impressive-surfer", "play", { isDrying: false }));
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    // No Nani yet → condition false → no bonus.
+    expect(mods.statBonuses.get(davidId)?.lore ?? 0).toBe(0);
+
+    // Inject Nani — any Nani card works, name match is what the condition checks.
+    ({ state } = injectCard(state, "player1", "nani-protective-sister", "play", { isDrying: false }));
+    const mods2 = getGameModifiers(state, CARD_DEFINITIONS);
+    expect(mods2.statBonuses.get(davidId)?.lore ?? 0).toBe(2);
+  });
+
+  it("Wendy Darling Courageous Captain LOOK LIVELY, CREW!: +1 S and +1 L while another Pirate in play (multi-stat split)", () => {
+    let state = startGame();
+    let wendyId: string;
+    ({ state, instanceId: wendyId } = injectCard(state, "player1", "wendy-darling-courageous-captain", "play", { isDrying: false }));
+    // No other Pirate → no bonus.
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(wendyId)?.strength ?? 0).toBe(0);
+    expect(mods.statBonuses.get(wendyId)?.lore ?? 0).toBe(0);
+
+    // Inject another Pirate.
+    ({ state } = injectCard(state, "player1", "captain-hook-underhanded", "play", { isDrying: false }));
+    const mods2 = getGameModifiers(state, CARD_DEFINITIONS);
+    // Both split abilities fire from the same condition.
+    expect(mods2.statBonuses.get(wendyId)?.strength ?? 0).toBe(1);
+    expect(mods2.statBonuses.get(wendyId)?.lore ?? 0).toBe(1);
+  });
+});

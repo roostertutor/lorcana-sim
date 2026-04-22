@@ -3054,11 +3054,12 @@
         "storyName": "GRAND MACHINATIONS",
         "rulesText": "During your turn, if 1 or more cards have left a player's discard this turn, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "compound_and",
@@ -7101,11 +7102,12 @@
         "storyName": "SOMEBODY'S GOT TO USE IT",
         "rulesText": "If a character was banished this turn, this character gets +2 {S}.",
         "effect": {
-          "type": "gain_stats",
-          "strength": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "strength",
+          "amount": 2
         },
         "condition": {
           "type": "a_character_was_banished_in_challenge_this_turn"
@@ -7931,8 +7933,7 @@
         "storyName": "POWERFUL REWARD",
         "rulesText": "Your other Ruby characters with 7 {S} or more get +1 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 1,
+          "type": "modify_stat",
           "target": {
             "type": "all",
             "filter": {
@@ -7949,7 +7950,9 @@
                 "ruby"
               ]
             }
-          }
+          },
+          "stat": "lore",
+          "amount": 1
         }
       }
     ],
@@ -8005,11 +8008,12 @@
         "storyName": "SPECIAL DETAIL",
         "rulesText": "While you have 2 or more other characters in play with 5 {S} or more, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "characters_in_play_gte",
@@ -14070,11 +14074,12 @@
         "storyName": "GRAND MACHINATIONS",
         "rulesText": "During your turn, if 1 or more cards have left a player's discard this turn, this character gets +2 {L}.",
         "effect": {
-          "type": "gain_stats",
-          "lore": 2,
+          "type": "modify_stat",
           "target": {
             "type": "this"
-          }
+          },
+          "stat": "lore",
+          "amount": 2
         },
         "condition": {
           "type": "compound_and",

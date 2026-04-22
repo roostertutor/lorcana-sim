@@ -1726,6 +1726,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
+        characterNamesBanishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
@@ -1744,6 +1745,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
+        characterNamesBanishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
     },
@@ -6442,6 +6444,26 @@ function zoneTransition(
           const banishStrBonus = banishMods.statBonuses.get(instanceId)?.strength ?? 0;
           state = { ...state, lastBanishedSourceStrength: getEffectiveStrength(instance, def, banishStrBonus, banishMods) };
         }
+        // Track character names banished this turn on the owner's PlayerState
+        // (Buzz's Arm MISSING PIECE — "if a character named Buzz Lightyear was
+        // banished this turn, you may play this item for free"). Both owners'
+        // lists are consulted by the `character_named_was_banished_this_turn`
+        // condition — the oracle doesn't restrict by owner. Cleared at PASS_TURN.
+        if (def && def.cardType === "character") {
+          const prev = state.players[instance.ownerId].characterNamesBanishedThisTurn ?? [];
+          if (!prev.includes(def.name)) {
+            state = {
+              ...state,
+              players: {
+                ...state.players,
+                [instance.ownerId]: {
+                  ...state.players[instance.ownerId],
+                  characterNamesBanishedThisTurn: [...prev, def.name],
+                },
+              },
+            };
+          }
+        }
         state = queueTrigger(state, "is_banished", instanceId, definitions, {});
 
         if (ctx.fromChallenge && ctx.challengeOpponentId) {
@@ -7165,6 +7187,45 @@ function applyEffectToTarget(
         const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
         return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
       }
+      if (effect.strengthEqualsSourceWillpower) {
+        // Zipper Big Helper BUZZING ENTHUSIASM: "add his {W} to another
+        // chosen character's {S}". Read the SOURCE instance's effective
+        // willpower (post-modifier, clamped to floors) and use that as the
+        // strength bonus on the target.
+        const sourceInst = state.cards[sourceInstanceId];
+        const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
+        let srcWillpower = 0;
+        if (sourceInst && sourceDef) {
+          const srcMods = getGameModifiers(state, definitions);
+          srcWillpower = getEffectiveWillpower(
+            sourceInst,
+            sourceDef,
+            srcMods.statBonuses.get(sourceInstanceId)?.willpower ?? 0,
+            srcMods,
+          );
+        }
+        const override = { ...effect, strength: srcWillpower, strengthEqualsSourceWillpower: undefined };
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
+      }
+      if (effect.strengthEqualsTargetWillpower) {
+        // Ranger Team-up: "Chosen character gets +{S} equal to their {W}
+        // this turn." Unlike the source variants, the amount reads the
+        // TARGET's own willpower — each target resolves its own bonus.
+        const targetInst = state.cards[targetInstanceId];
+        const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
+        let tgtWillpower = 0;
+        if (targetInst && targetDef) {
+          const tgtMods = getGameModifiers(state, definitions);
+          tgtWillpower = getEffectiveWillpower(
+            targetInst,
+            targetDef,
+            tgtMods.statBonuses.get(targetInstanceId)?.willpower ?? 0,
+            tgtMods,
+          );
+        }
+        const override = { ...effect, strength: tgtWillpower, strengthEqualsTargetWillpower: undefined };
+        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
+      }
       state = applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions, sourceInstanceId);
       if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
         for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
@@ -7582,6 +7643,23 @@ function applyEffectToTarget(
         }
         // Record actually-moved count on lastResolvedTarget for follow-up effects.
         const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: moveAmt });
+        if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
+        return state;
+      }
+      // Destination "this" — pin to the source instance, skipping the second
+      // chooser (Luisa Madrigal No Pressure SHOULDER THE BURDEN).
+      if (effect.destination.type === "this") {
+        const dst = state.cards[sourceInstanceId];
+        const src = state.cards[targetInstanceId];
+        if (!dst || !src) return state;
+        const moveAmt = effect.isUpTo
+          ? Math.min(effect.amount, src.damage)
+          : Math.min(effect.amount, src.damage);
+        if (moveAmt > 0) {
+          state = updateInstance(state, targetInstanceId, { damage: src.damage - moveAmt });
+          state = updateInstance(state, sourceInstanceId, { damage: dst.damage + moveAmt });
+        }
+        const deltaRef = makeResolvedRef(state, definitions, sourceInstanceId, { delta: moveAmt });
         if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
         return state;
       }
