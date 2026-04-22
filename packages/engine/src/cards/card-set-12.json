@@ -5514,6 +5514,25 @@
     "_foilMaskSource": "ravensburger"
   },
   {
+    "name": "Sabotage",
+    "cardType": "action",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [],
+    "rulesText": "Banish chosen item or location and all other items or locations with the same name.",
+    "setId": "12",
+    "number": 96,
+    "rarity": "common",
+    "imageUrl": "https://cdn.discordapp.com/attachments/1143522764985225246/1496603284138360994/Screenshot_20260422_220659_YouTube_Morphe.jpg?ex=69ea7bec&is=69e92a6c&hm=d37ad36dd1408df9ecc69ee9506e8a32eada18c498b09bcf7f422f6f72dc5f63",
+    "id": "sabotage",
+    "fullName": "Sabotage",
+    "abilities": [],
+    "_source": "manual"
+  },
+  {
     "id": "the-family-scattered",
     "name": "The Family Scattered",
     "fullName": "The Family Scattered",
