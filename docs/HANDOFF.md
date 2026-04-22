@@ -2358,20 +2358,41 @@ be picked up without re-reading the full plan.
 ### Phase 1 — Lobby polish + public browser + first-player banner
 
 Agent splits:
-- **server agent** (blocking): schema `lobbies.public`, `lobbies.spectator_policy`,
-  `POST /lobby/:id/cancel` endpoint. `GET /lobby/public` for the browser.
-  ~half-day.
+- ~~**server agent** (blocking): schema `lobbies.public`,
+  `lobbies.spectator_policy`, `POST /lobby/:id/cancel` endpoint,
+  `GET /lobby/public` for the browser.~~ — **DONE 2026-04-22** (server-specialist).
+  Details:
+  - Schema: `lobbies.public BOOLEAN DEFAULT FALSE`, `lobbies.spectator_policy TEXT
+    DEFAULT 'off'` with CHECK constraint `('off','invite_only','friends','public')`.
+    New status `'cancelled'` documented (column has no CHECK, so no migration needed).
+  - `createLobby` accepts `{ public, spectatorPolicy }` options; `POST /lobby/create`
+    wires them through with validation (unknown policies fall back to `'off'`).
+  - `listPublicLobbies(userId)` — filters `status='waiting' AND public=true AND
+    host_id != userId`, joins `profiles!host_id` for username, returns host
+    username + format metadata only (**NO** deck fields — no scouting vector).
+    Limit 50, ordered by `created_at DESC`.
+  - `cancelLobby(userId, lobbyId)` — host-only (403 otherwise), status='waiting'
+    only (409 otherwise), 404 if lobby missing. Idempotent via race-guarded UPDATE.
+  - Route order fixed: `/public` and `/:id/cancel` registered BEFORE the
+    catch-all `/:id`.
+  - SQL to run in Supabase (idempotent, safe to re-run):
+    ```sql
+    ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS public BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS spectator_policy TEXT NOT NULL DEFAULT 'off'
+      CHECK (spectator_policy IN ('off','invite_only','friends','public'));
+    ```
 - **GUI agent** (me, partly parallel): client-side legality pre-check in
   `MultiplayerLobby` (no server dep — calls engine's `isLegalFor`);
-  waiting-state countdown in host's waiting card (no server dep). Blocked
-  parts: public/private create toggle, public lobby browser section,
-  cancel button behavior (need endpoint).
+  waiting-state countdown in host's waiting card (no server dep). Server-dep
+  work now unblocked: public/private create toggle (pass `public: true` +
+  `spectatorPolicy` in create body), public lobby browser section (hit
+  `GET /lobby/public`), cancel button (hit `POST /lobby/:id/cancel`).
 - **gameboard-specialist**: first-player banner on GameBoard (reads
   `state.firstPlayerId`, already in game state — no server dep on their
   side).
 
-Sequence: GUI + gameboard-specialist can start in parallel on their no-dep
-pieces; server agent unblocks the browser/cancel parts shortly after.
+Sequence: server unblock landed; GUI + gameboard-specialist can pick up
+their pieces any time.
 
 ### Phase 2 — Post-game polish
 

@@ -102,6 +102,29 @@ ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS guest_deck JSONB;    -- stored on j
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p1_wins INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p2_wins INTEGER NOT NULL DEFAULT 0;
 
+-- Public lobby browser (MP UX Phase 1) — hosts opt in at create time. Default
+-- FALSE so existing private-via-code behavior is preserved on backfill. Only
+-- waiting lobbies with public=true surface in GET /lobby/public.
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS public BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Spectator policy — who can watch an active game from this lobby.
+-- Phase 1 only stores the chosen policy at lobby create time; Phase 7 wires
+-- the filter in stateFilter.ts + the spectator routes. Default 'off' is
+-- conservative (no spectators). 'invite_only' = host-approved; 'friends' =
+-- host's mutual friends; 'public' = anyone on the /spectate browser.
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS spectator_policy TEXT NOT NULL DEFAULT 'off'
+  CHECK (spectator_policy IN ('off', 'invite_only', 'friends', 'public'));
+
+-- Lobby status now also supports 'cancelled' (host explicitly cancelled their
+-- waiting lobby via POST /lobby/:id/cancel). Distinct from 'finished' which is
+-- used for completed matches and the abandoned-waiting-lobby cleanup sweep.
+-- No schema change needed (the status column has no CHECK constraint), but
+-- status transitions are documented here:
+--   waiting -> active     : guest joined
+--   waiting -> cancelled  : host cancelled
+--   waiting -> finished   : abandoned cleanup (host created another lobby)
+--   active  -> finished   : match completed (Bo1 win, Bo3 decided, or resign)
+
 -- Per-format ELO ratings (replaces single elo column)
 -- Keys are {match}_{family}_{rotation} — 8 entries today for s11/s12 x core/infinity x bo1/bo3.
 -- Engine registries (CORE_ROTATIONS / INFINITY_ROTATIONS) are the source of truth for which

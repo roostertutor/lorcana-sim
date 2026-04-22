@@ -7,12 +7,17 @@ import type {
 } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
 import {
+  cancelLobby,
   createLobby,
   joinLobby,
   getLobby,
   listLobbies,
+  listPublicLobbies,
+  type SpectatorPolicy,
 } from "../services/lobbyService.js"
 import { supabase } from "../db/client.js"
+
+const SPECTATOR_POLICIES: readonly SpectatorPolicy[] = ["off", "invite_only", "friends", "public"]
 
 /** Default rotation when the client doesn't send one. Matches schema default.
  *  Flip to "s12" on 2026-05-08 (Set 12 release) alongside the SQL column default. */
@@ -28,6 +33,8 @@ lobby.post("/create", requireAuth, async (c) => {
     format?: string
     gameFormat?: string
     gameRotation?: string
+    public?: boolean
+    spectatorPolicy?: string
   }>()
 
   if (!Array.isArray(body.deck) || body.deck.length === 0) {
@@ -39,14 +46,25 @@ lobby.post("/create", requireAuth, async (c) => {
   const rotation = (body.gameRotation ?? DEFAULT_ROTATION) as RotationId
   const gameFormat: GameFormat = { family, rotation }
 
+  const isPublic = body.public === true
+  const spectatorPolicy: SpectatorPolicy =
+    body.spectatorPolicy && SPECTATOR_POLICIES.includes(body.spectatorPolicy as SpectatorPolicy)
+      ? (body.spectatorPolicy as SpectatorPolicy)
+      : "off"
+
   try {
-    const result = await createLobby(userId, body.deck, format, gameFormat)
+    const result = await createLobby(userId, body.deck, format, gameFormat, {
+      public: isPublic,
+      spectatorPolicy,
+    })
     return c.json({
       lobbyId: result.id,
       code: result.code,
       format,
       gameFormat: family,
       gameRotation: rotation,
+      public: isPublic,
+      spectatorPolicy,
     })
   } catch (err) {
     const e = err as Error & { issues?: unknown }
@@ -85,7 +103,33 @@ lobby.post("/join", requireAuth, async (c) => {
   }
 })
 
-// GET /lobby/:id
+// GET /lobby/list — the caller's own lobbies (hosting or joined)
+lobby.get("/", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbies = await listLobbies(userId)
+  return c.json({ lobbies })
+})
+
+// GET /lobby/public — browser of public waiting lobbies (MP UX Phase 1).
+// Excludes caller's own lobbies; no deck fields in response (no scouting).
+// MUST be registered before /:id so Hono's param route doesn't swallow "public".
+lobby.get("/public", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbies = await listPublicLobbies(userId)
+  return c.json({ lobbies })
+})
+
+// POST /lobby/:id/cancel — host cancels their waiting lobby (MP UX Phase 1).
+// Only valid on status='waiting'. Sets status='cancelled'.
+lobby.post("/:id/cancel", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbyId = c.req.param("id")!
+  const result = await cancelLobby(userId, lobbyId)
+  if (result.ok) return c.json({ ok: true })
+  return c.json({ error: result.error }, result.status as 404 | 403 | 409 | 500)
+})
+
+// GET /lobby/:id — MUST be last so it doesn't shadow /public or fixed routes.
 lobby.get("/:id", requireAuth, async (c) => {
   const lobbyData = await getLobby(c.req.param("id")!)
   if (!lobbyData) return c.json({ error: "Lobby not found" }, 404)
@@ -108,13 +152,6 @@ lobby.get("/:id", requireAuth, async (c) => {
   }
 
   return c.json({ lobby: lobbyData, game, hostSide })
-})
-
-// GET /lobby/list
-lobby.get("/", requireAuth, async (c) => {
-  const userId = c.get("userId")
-  const lobbies = await listLobbies(userId)
-  return c.json({ lobbies })
 })
 
 export { lobby }

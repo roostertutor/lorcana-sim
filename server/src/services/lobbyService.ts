@@ -67,11 +67,23 @@ async function checkForActiveGame(userId: string): Promise<string | null> {
   return null
 }
 
+/** Spectator policy governs who can watch an active game from this lobby.
+ *  Phase 1 stores the chosen value; Phase 7 consumes it in stateFilter. */
+export type SpectatorPolicy = "off" | "invite_only" | "friends" | "public"
+
+export interface CreateLobbyOptions {
+  /** Surface this lobby in GET /lobby/public. Default false (private via code). */
+  public?: boolean
+  /** Who can spectate when the game is active. Default "off". */
+  spectatorPolicy?: SpectatorPolicy
+}
+
 export async function createLobby(
   hostId: string,
   hostDeck: DeckEntry[],
   format: "bo1" | "bo3" = "bo1",
   gameFormat: GameFormat = { family: "infinity", rotation: "s11" },
+  options: CreateLobbyOptions = {},
 ) {
   assertRotationExists(gameFormat)
   assertDeckLegal(hostDeck, gameFormat)
@@ -111,6 +123,8 @@ export async function createLobby(
       format,
       game_format: gameFormat.family,
       game_rotation: gameFormat.rotation,
+      public: options.public ?? false,
+      spectator_policy: options.spectatorPolicy ?? "off",
     })
     .select()
     .single()
@@ -205,4 +219,90 @@ export async function listLobbies(userId: string) {
 
   if (error) return []
   return data
+}
+
+/** Host cancels their own waiting lobby (MP UX Phase 1 — cancel button).
+ *  Only valid on `status='waiting'`; active games should use /game/:id/resign.
+ *  'cancelled' is distinct from 'finished' so the UI can show the right state. */
+export async function cancelLobby(
+  userId: string,
+  lobbyId: string,
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const { data: lobby, error: findError } = await supabase
+    .from("lobbies")
+    .select("id, host_id, status")
+    .eq("id", lobbyId)
+    .single()
+
+  if (findError || !lobby) {
+    return { ok: false, error: "Lobby not found", status: 404 }
+  }
+  if (lobby.host_id !== userId) {
+    return { ok: false, error: "Only the host can cancel this lobby", status: 403 }
+  }
+  if (lobby.status !== "waiting") {
+    return {
+      ok: false,
+      error: `Cannot cancel a lobby with status "${lobby.status}". Only waiting lobbies can be cancelled.`,
+      status: 409,
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from("lobbies")
+    .update({ status: "cancelled", updated_at: new Date() })
+    .eq("id", lobbyId)
+    .eq("status", "waiting") // guard against race with join
+
+  if (updateError) {
+    return { ok: false, error: `Failed to cancel lobby: ${updateError.message}`, status: 500 }
+  }
+  return { ok: true }
+}
+
+/** Shape returned by GET /lobby/public — deliberately minimal so no deck
+ *  contents leak (no scouting vector). Host's username + format metadata only. */
+export interface PublicLobbyRow {
+  id: string
+  code: string
+  hostUsername: string
+  format: "bo1" | "bo3"
+  gameFormat: GameFormatFamily
+  gameRotation: RotationId
+  spectatorPolicy: SpectatorPolicy
+  createdAt: string
+}
+
+/** List public waiting lobbies for the browser. Excludes the caller's own
+ *  lobbies (they'd see them in `listLobbies` instead). No deck fields in the
+ *  response — joiners see format+host, never deck composition. */
+export async function listPublicLobbies(userId: string): Promise<PublicLobbyRow[]> {
+  const { data, error } = await supabase
+    .from("lobbies")
+    .select(
+      "id, code, host_id, format, game_format, game_rotation, spectator_policy, created_at, profiles!host_id(username)",
+    )
+    .eq("status", "waiting")
+    .eq("public", true)
+    .neq("host_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(50)
+
+  if (error || !data) return []
+
+  return data.map((row) => {
+    // The `profiles!host_id(username)` join returns either a single object or
+    // an array depending on Supabase version — normalize to object.
+    const prof = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
+    return {
+      id: row.id as string,
+      code: row.code as string,
+      hostUsername: (prof?.username as string) ?? "Unknown",
+      format: row.format as "bo1" | "bo3",
+      gameFormat: row.game_format as GameFormatFamily,
+      gameRotation: row.game_rotation as RotationId,
+      spectatorPolicy: row.spectator_policy as SpectatorPolicy,
+      createdAt: row.created_at as string,
+    }
+  })
 }
