@@ -110,6 +110,13 @@ function buildR2Client(config: R2Config): S3Client {
     // latter is what produced `lorcana-cards.https` hostname errors when
     // R2_ACCOUNT_ID contained junk.
     forcePathStyle: true,
+    // As of @aws-sdk/client-s3 3.729+, the SDK sends `x-amz-checksum-crc32`
+    // on every request by default — R2 doesn't fully support flexible
+    // checksums and responds with an opaque HTTP 400 that the RestXml parser
+    // chokes on ("UnknownError"). Opt out of both request/response checksums
+    // to keep requests S3-classic. See aws/aws-sdk-js-v3#6810.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
   });
 }
 
@@ -127,6 +134,25 @@ async function r2ObjectExists(
   } catch (err: any) {
     if (err?.$metadata?.httpStatusCode === 404) return false;
     if (err?.name === "NotFound") return false;
+    // R2 returns 400 on auth/signature mismatches sometimes instead of 403.
+    // Surface the full metadata so the user can diagnose (common causes:
+    // wrong Access Key ID, wrong Secret, bucket in wrong account).
+    const status = err?.$metadata?.httpStatusCode;
+    if (status === 400 || status === 403) {
+      console.error(`\n  R2 auth failure on HeadObject (${bucket}/${key}):`);
+      console.error(`    httpStatusCode: ${status}`);
+      console.error(`    errorCode: ${err?.Code ?? err?.name ?? "unknown"}`);
+      console.error(`    errorMessage: ${err?.message ?? "(no message)"}`);
+      if (err?.$response) {
+        try {
+          const body = await err.$response.body?.text?.();
+          if (body) console.error(`    responseBody: ${body.slice(0, 400)}`);
+        } catch {}
+      }
+      console.error(`  Check R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY in .env.`);
+      console.error(`  Access Key ID should be a long hex string from`);
+      console.error(`  Cloudflare Dashboard → R2 → Manage R2 API Tokens → your token.`);
+    }
     throw err;
   }
 }
