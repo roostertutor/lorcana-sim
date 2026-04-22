@@ -458,6 +458,11 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
       "foilImageUrl",
       // Image-sync fields — see matching comment in import-cards-rav.ts.
       "_imageSource", "_sourceImageUrl", "_imageSourceLock",
+      // Ravensburger stable numeric id. Lorcast-sourced cards don't set
+      // this, but if a card was previously ravensburger-sourced and is
+      // being upgraded (shouldn't happen — ravensburger > lorcast) or a
+      // sibling ravensburger entry is being merged, the id should survive.
+      "_ravensburgerId",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

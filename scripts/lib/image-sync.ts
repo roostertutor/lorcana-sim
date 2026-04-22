@@ -95,7 +95,7 @@ export function readR2ConfigFromEnv(): R2Config | null {
   return { accountId, accessKeyId, secretAccessKey, bucket, publicBaseUrl };
 }
 
-function buildR2Client(config: R2Config): S3Client {
+export function buildR2Client(config: R2Config): S3Client {
   return new S3Client({
     region: "auto",
     endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,

@@ -2973,6 +2973,17 @@ export interface CardDefinition {
    *  `_sourceLock` but for images — use when a lower-tier source has visibly
    *  better art than a higher-tier one. Rare. Set manually. */
   _imageSourceLock?: boolean;
+  /** Ravensburger's `culture_invariant_id` — a stable numeric card ID across
+   *  reprints (same printing in set 1 and a P1 reprint share the same id if
+   *  they're the same card at the gameplay level; cross-set reprints with
+   *  different art get different ids). Exposed so external consumers can
+   *  join on Ravensburger's `rav_{id}` convention (e.g. the collection-
+   *  tracker app keys on `rav_{culture_invariant_id}`).
+   *
+   *  Populated by `pnpm import-cards` on the next re-import. Undefined on
+   *  older entries; will backfill lazily as the importer is re-run. Not
+   *  required by the engine — the engine keys on the slug-based `id`. */
+  _ravensburgerId?: number;
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct

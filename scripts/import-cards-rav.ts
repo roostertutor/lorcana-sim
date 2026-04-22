@@ -142,6 +142,11 @@ interface CardDefinitionOut {
   _namedAbilityStubs?: AbilityStub[];
   _source?: "ravensburger" | "lorcast" | "manual";
   _sourceLock?: boolean;
+  /** Ravensburger's stable numeric card ID (culture_invariant_id). Persisted so
+   *  external consumers (e.g. the collection-tracker app) can join on the
+   *  `rav_{id}` convention without having to re-pull the Ravensburger API
+   *  themselves. Carried across re-imports via passthroughFields. */
+  _ravensburgerId?: number;
 }
 
 type CardSource = NonNullable<CardDefinitionOut["_source"]>;
@@ -458,6 +463,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
     number: id.number,
     rarity: mapRarity(c.rarity),
     _source: "ravensburger",
+    _ravensburgerId: c.culture_invariant_id,
   };
 
   if (c.subtitle) out.subtitle = c.subtitle;
@@ -628,6 +634,12 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       // `_sourceImageUrl` and only re-sync when Ravensburger rotates
       // content. See docs/HANDOFF.md → self-host card images on R2.
       "_imageSource", "_sourceImageUrl", "_imageSourceLock",
+      // Ravensburger stable numeric id — the importer DOES set this on
+      // Ravensburger-sourced cards, but carrying it through the merge
+      // step protects against the case where a re-import pulls a card
+      // from a different ink-color filter that lacks the field (it won't,
+      // but defensive parity with other passthroughs).
+      "_ravensburgerId",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

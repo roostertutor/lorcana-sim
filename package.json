@@ -21,6 +21,7 @@
     "sync-images-rav": "tsx scripts/sync-images-rav.ts",
     "sync-images-lorcast": "tsx scripts/sync-images-lorcast.ts",
     "sync-images-manual": "tsx scripts/sync-images-manual.ts",
+    "publish-image-manifest": "tsx scripts/publish-image-manifest.ts",
     "catalog": "tsx scripts/catalog-primitives.ts > docs/ENGINE_PRIMITIVES.md",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
     "compile-cards": "tsx scripts/compile-cards.ts",
