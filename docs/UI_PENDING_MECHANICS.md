@@ -52,16 +52,16 @@ Append to the top as new mechanics land.
 
 ---
 
-## Static once-per-turn cost reduction (Grandmother Willow)
+~~## Static once-per-turn cost reduction (Grandmother Willow)~~ **RESOLVED — surfaces in Active Effects pill via BOARD_WIDE_EFFECTS amber row (distinct from one-shot emerald)**
 
 **Engine**: Static abilities with `oncePerTurn: true` on `cost_reduction` effects. Each copy of the card independently provides a -1 cost reduction for the next character played each turn. Tracked per-instance via `oncePerTurnTriggered` — consumed when a character is played, refreshes on turn pass. Available in `gameModifiers.costReductions` entries with `sourceInstanceId` + `oncePerTurnKey` fields.
 
-**UI needs**:
-- The existing cost reduction banner (emerald text near scoreboard) only reads `player.costReductions` (one-shot entries from Lantern/Gaston). It should ALSO check `gameModifiers.costReductions` for static once-per-turn entries — these have `sourceInstanceId` set.
-- Sum all available reductions (one-shot + static once-per-turn) into a single "Next character -N ink" display.
-- After consumption (a character is played), the static entries disappear from gameModifiers on next render since `oncePerTurnTriggered` is set.
+**Resolution**: `"cost_reduction"` is already in `BOARD_WIDE_EFFECTS` (GameBoard.tsx:130), so Grandmother Willow's static surfaces in the Active Effects pill as an amber row alongside other board-wide statics (Cogsworth, etc.). The original doc proposed merging it into the emerald cost-reduction section alongside one-shot Lantern/Gaston reductions, but the color split is actually meaningful:
 
-**Watch**: `gameModifiers.costReductions.get(myId)` — entries with `sourceInstanceId` are once-per-turn statics.
+- **Amber (static)** = reduction persists while source is in play, auto-refreshes each turn (Grandmother Willow)
+- **Emerald (one-shot)** = reduction is a queued entry consumed on next play (Lantern, Gaston, Imperial Proclamation)
+
+Different mental models, different colors — leaving as-is. Marked resolved 2026-04-22.
 
 **Cards**: Grandmother Willow - Ancient Advisor (Set 11, #13 / #206).
 

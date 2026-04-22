@@ -306,17 +306,67 @@ function getActiveEffects(
   }
 
   // Per-card timed effects (Tinker Bell grants Evasive, Elsa cant_action ready, etc.)
+  //
+  // Group by (target, type, sourceInstanceId) so that e.g. Lady - Decisive
+  // Dog's PACK OF HER OWN firing 3× in a turn shows ONE pill row summing to
+  // +3 STR rather than three separate +1 STR rows. Source-scoped so that
+  // a different source buffing the same card (e.g. Medallion Weights on a
+  // Lady who also has PACK OF HER OWN stacks) shows as a separate row —
+  // the "why" per row stays traceable.
+  //
+  // With 2× Lady and 3× triggers each, you see two rows of +3 (one per
+  // Lady instance) rather than one row of +6 — per-instance grouping, not
+  // cross-instance combining.
+  //
+  // Stackable types (modify_strength/willpower/lore) sum their `amount`.
+  // Non-stackable types (grant_keyword, cant_action, damage_prevention,
+  // etc.) just dedupe — the second "grant Evasive" is redundant, not
+  // additive.
+  const STACKABLE_TYPES = new Set(["modify_strength", "modify_willpower", "modify_lore"]);
+  const STAT_LABEL: Record<string, string> = {
+    modify_strength: "STR",
+    modify_willpower: "WIL",
+    modify_lore: "LORE",
+  };
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const id of state.zones[pid].play) {
       const inst = state.cards[id];
       if (!inst || !inst.timedEffects?.length) continue;
       const target = cardName(id);
+      // Group by (type, sourceInstanceId); target is fixed within this loop.
+      type Group = { type: string; sourceInstanceId?: string; amount: number; count: number; isStackable: boolean; expiresAt: string; sample: any };
+      const groups = new Map<string, Group>();
       for (const te of inst.timedEffects) {
         const teAny = te as any;
-        const src = sourceText(teAny.sourceInstanceId, teAny.type);
-        const label = src ? `${src.text} (on ${target})` : `${teAny.type.replace(/_/g, " ")} on ${target}`;
+        const key = `${teAny.type}|${teAny.sourceInstanceId ?? "_nosrc"}`;
+        const isStackable = STACKABLE_TYPES.has(teAny.type);
+        const amount = isStackable ? (teAny.amount ?? 0) : 0;
+        const existing = groups.get(key);
+        if (existing) {
+          existing.amount += amount;
+          existing.count += 1;
+          // Keep the latest expiresAt — matches the user's "most-recent stack" intuition
+          existing.expiresAt = teAny.expiresAt;
+        } else {
+          groups.set(key, { type: teAny.type, sourceInstanceId: teAny.sourceInstanceId, amount, count: 1, isStackable, expiresAt: teAny.expiresAt, sample: te });
+        }
+      }
+      for (const g of groups.values()) {
+        const src = sourceText(g.sourceInstanceId, g.type);
+        let label: string;
+        if (g.isStackable) {
+          // Concise summed display: "+3 STR (PACK OF HER OWN) on Lady"
+          const sign = g.amount >= 0 ? "+" : "";
+          const stat = STAT_LABEL[g.type] ?? g.type.replace("modify_", "");
+          const srcTag = src ? ` (${src.name})` : "";
+          label = `${sign}${g.amount} ${stat}${srcTag} on ${target}`;
+        } else {
+          // Non-stackable — keep the existing verbose format; if the same
+          // source repeats (grant_keyword × N), show it once.
+          label = src ? `${src.text} (on ${target})` : `${g.type.replace(/_/g, " ")} on ${target}`;
+        }
         const source = src ? src.name : "";
-        effects.push({ label, source, color: "text-cyan-400", sourceName: src?.name, target, duration: formatEffectDuration(teAny.expiresAt) });
+        effects.push({ label, source, color: "text-cyan-400", sourceName: src?.name, target, duration: formatEffectDuration(g.expiresAt) });
       }
     }
   }
