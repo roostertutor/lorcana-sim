@@ -574,6 +574,213 @@ simulation / engine change.
 
 ---
 
+## Engine agent: track source storyName on `grantedActivatedAbilities` entries
+
+**Small, scoped type change. Unblocks a GUI label-polish fix that's
+user-reported. Raised 2026-04-21 after diagnosing an unrelated "buttons
+disappearing" question on Dumbo + Iago (turned out to be ink-cost
+affordability, not a bug) — BUT the label confusion remains: granted
+activated abilities render as the generic "Activate" in the popover
+because the UI can't resolve the source static ability's storyName.**
+
+### Problem
+
+When Dumbo - Ninth Wonder of the Universe's **MAKING HISTORY** static
+ability grants a "{E}, 1 {I} — draw + lore" activated to Iago (and any
+other friendly evasive character), the engine correctly enumerates an
+`ACTIVATE_ABILITY` action on Iago with `abilityIndex = def.abilities.length + j`
+— a virtual index past the card's own abilities array.
+
+The UI (`GameBoard.tsx:917-919`) tries to label the button via
+`def.abilities[abilityIndex]?.storyName`. For granted abilities that
+index is out of bounds → fallback to the literal string "Activate".
+
+Dumbo shows "BREAKING RECORDS" (his native activated), Iago shows
+"Activate" (granted). The granted ability on Iago SHOULD show
+"MAKING HISTORY" — the source static ability's storyName — so:
+- Players can see WHICH card's effect is giving them this button
+- When the source card leaves play and the button disappears, the label
+  matched the source → cause-effect is readable
+- Avoids labeling two functionally-identical buttons with two different
+  names when oracle-wise they come from different abilities
+
+### Why engine-side
+
+The UI could replicate the filter-matching logic to look up which
+`grant_activated_ability` in play targets Iago and grab its source
+storyName, but that duplicates engine predicate logic and drifts if
+filter semantics change. Clean approach: track source info at the
+grant site, surface it on the map entry the UI already consumes.
+
+### Proposed type change
+
+File: `packages/engine/src/engine/gameModifiers.ts` line 152
+
+```typescript
+// Before:
+grantedActivatedAbilities: Map<string, import("../types/index.js").ActivatedAbility[]>;
+
+// After:
+grantedActivatedAbilities: Map<string, GrantedActivatedAbility[]>;
+
+interface GrantedActivatedAbility {
+  ability: ActivatedAbility;
+  /**
+   * storyName of the source static ability that produced this grant
+   * (e.g. "MAKING HISTORY" for Dumbo's grant-to-evasives). Undefined
+   * for grants from static effects without a storyName on the outer
+   * ability. UI uses this for button labels so the recipient shows
+   * WHO is granting.
+   */
+  sourceStoryName?: string;
+  /**
+   * Instance ID of the card whose static ability produced this grant.
+   * Useful for UI "leaves play → grant removed" animations and for
+   * future tooling (hover a granted-ability button → highlight source
+   * card). Undefined for turn-scoped grants from action cards.
+   */
+  sourceInstanceId?: string;
+}
+```
+
+Same shape change needed on
+`PlayerState.timedGrantedActivatedAbilities` (types/index.ts:3194):
+
+```typescript
+// Before:
+timedGrantedActivatedAbilities?: { filter: CardFilter; ability: ActivatedAbility }[];
+
+// After:
+timedGrantedActivatedAbilities?: {
+  filter: CardFilter;
+  ability: ActivatedAbility;
+  sourceStoryName?: string;
+  sourceInstanceId?: string;
+}[];
+```
+
+### Writers to update (3 sites)
+
+1. **`gameModifiers.ts:1184-1187`** — static-effect writer (Making
+   History, Cogsworth, etc.). The outer static ability being iterated
+   already has `storyName` accessible in scope; attach it:
+   ```typescript
+   existing.push({
+     ability: effect.ability,
+     sourceStoryName: staticAbility.storyName,  // outer static ability's name
+     sourceInstanceId: instance.instanceId,      // Dumbo's instance
+   });
+   ```
+
+2. **`gameModifiers.ts:1211-1213`** — timed grant writer (merges
+   per-player timed grants into the map). Each entry in the
+   `timedGrantedActivatedAbilities[]` already has the source info from
+   the writer at reducer.ts:4442 (after this change); forward it:
+   ```typescript
+   existing.push({
+     ability: grant.ability,
+     ...(grant.sourceStoryName && { sourceStoryName: grant.sourceStoryName }),
+     ...(grant.sourceInstanceId && { sourceInstanceId: grant.sourceInstanceId }),
+   });
+   ```
+
+3. **`reducer.ts:4435-4442`** — the `grant_activated_ability_timed`
+   handler that writes into `state.players[p].timedGrantedActivatedAbilities`.
+   Populate source info at the grant site — the action is being played
+   from hand so we have its source + storyName in scope:
+   ```typescript
+   timedGrantedActivatedAbilities: [...existing, {
+     filter: effect.filter,
+     ability: effect.ability,
+     sourceStoryName: sourceAbility?.storyName,
+     sourceInstanceId: sourceInstanceId,
+   }],
+   ```
+
+### Readers to update (2 sites) — both just access `.ability`
+
+1. **`reducer.ts:433`** — legal-action enumeration. Loop variable is
+   now `GrantedActivatedAbility` shape; the enumeration itself doesn't
+   need the ability body, just the count, so this site is minimally
+   affected.
+
+2. **`reducer.ts:1539`** — ACTIVATE_ABILITY applier:
+   ```typescript
+   // Before: ability = grantedAbilities?.[grantedIndex];
+   // After:  ability = grantedAbilities?.[grantedIndex]?.ability;
+   ```
+
+### Validator impact
+
+Grep for `grantedActivatedAbilities` in `validator.ts` and patch any
+site the same way (single-level unwrap). From the GUI-side scan I did
+the validator doesn't appear to access this map directly (delegates to
+enumeration), but double-check.
+
+### Test coverage
+
+No existing tests exercise source-tracking because it's new info. Add
+to the set9 test file (or a new Dumbo-focused describe block):
+
+```typescript
+it("Making History records the source storyName on granted evasive recipients", () => {
+  // inject Dumbo + Iago-Spectral-Parrot (both evasive, both in play)
+  // const modifiers = getGameModifiers(state, definitions);
+  // const granted = modifiers.grantedActivatedAbilities.get(iagoId);
+  // expect(granted).toHaveLength(1);
+  // expect(granted[0].sourceStoryName).toBe("MAKING HISTORY");
+  // expect(granted[0].sourceInstanceId).toBe(dumboId);
+});
+
+it("Food Fight! timed grant records the action's storyName", () => {
+  // play Food Fight!, same assertion against a timed entry on friendly characters
+});
+
+it("grants flow through `.ability` at ACTIVATE_ABILITY dispatch", () => {
+  // regression: activating a granted ability still resolves via the
+  // new .ability field — covers the reducer.ts:1539 unwrap
+});
+```
+
+### UI follow-up (self, GUI agent)
+
+Once the map value shape is `GrantedActivatedAbility[]`, the fix at
+`GameBoard.tsx:917-919` is trivial:
+
+```typescript
+if (action.abilityIndex >= def.abilities.length) {
+  const grantedIndex = action.abilityIndex - def.abilities.length;
+  const granted = gameModifiers.grantedActivatedAbilities.get(action.instanceId)?.[grantedIndex];
+  abilityName = granted?.sourceStoryName ?? "Activate";
+} else {
+  abilityName = (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate";
+}
+```
+
+I'll handle this in a follow-up UI session once the engine change lands.
+
+### Urgency
+
+Low. Cosmetic label polish — no incorrect game behavior. But it's
+user-visible confusion, and the type change is small and self-contained
+(~20 lines across 3 writers + 2 readers + the type definitions). Good
+"next session" pickup for engine-expert.
+
+### Blast radius
+
+All cards with `grant_activated_ability` + `grant_activated_ability_timed`:
+Dumbo (set 9), Cogsworth-Talking-Clock, plus grants from sets 2/6/7/9/10/11/P3/C2
+(grep surfaced ~10 card hits across JSON). UI label becomes accurate on
+every single one — same one-line fix applies everywhere.
+
+Cards with `grant_activated_ability_timed` (turn-scoped): Food Fight!,
+Donald Duck Coin Collector, Walk the Plank! — these need source tracking
+at the action-resolution site (reducer.ts:4442). UI labels on those get
+the source card's name which is accurate — the grant is from playing
+that action, and the ability expires at turn end.
+
+---
+
 ## Engine agent: Lorcast importer stub extraction only captures first line
 
 Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
