@@ -2123,6 +2123,15 @@ function applyResolveChoice(
       state = applyEffect(state, subEffect, sourceId, playerId, definitions, events);
       if (state.pendingChoice) return state; // Sub-effect needs choice — pause
     }
+    // Resume any queued follow-up effects (same as the other choose branches).
+    state = resumePendingEffectQueue(state, definitions, events);
+    // CRD 4.3.3.2: action card moves to discard after its effect resolves.
+    // Without this call, a "Choose one: • X • Y" action (Pull the Lever!,
+    // Trust In Me, Mrs. Incredible FLEXIBLE THINKING) whose picked branch
+    // resolved without spawning a further pendingChoice would stay stuck in
+    // play. Safe for non-action sources too — cleanupPendingAction checks
+    // state.pendingActionInstanceId and no-ops when it's undefined.
+    state = cleanupPendingAction(state, playerId);
     return state;
   }
 

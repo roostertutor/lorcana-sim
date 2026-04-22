@@ -1447,3 +1447,84 @@ describe("§6 Set 6 — Captain Amelia EVERYTHING SHIPSHAPE (grant_keyword_while
     expect(whileBeingChallenged).toContainEqual({ keyword: "resist", value: 1 });
   });
 });
+
+// =============================================================================
+// Pull the Lever! — "Choose one: • Draw 2 cards. • Each opponent chooses and
+// discards a card." Regression: the choose_option RESOLVE_CHOICE branch
+// returned without calling cleanupPendingAction, leaving the action card
+// stuck in play after its effect resolved. CRD 4.3.3.2: actions go to
+// discard after their effect + all sub-choices resolve.
+// =============================================================================
+
+describe("§8 Set 8 — Pull the Lever! (choose_option action cleanup)", () => {
+  // interactive=true forces the choose handler to surface a pendingChoice
+  // instead of auto-resolving. The bug (action stuck in play) only
+  // manifests in this mode — which is what the sandbox/UI hits.
+  const interactiveStartGame = () => ({ ...startGame(), interactive: true } as const);
+
+  it("draws 2 cards and moves to discard after choose_option resolves", () => {
+    let state = interactiveStartGame();
+    state = giveInk(state, "player1", 3);
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let pullId: string;
+    ({ state, instanceId: pullId } = injectCard(state, "player1", "pull-the-lever", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: pullId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_option");
+    // Action still in play while the choice is pending.
+    expect(getInstance(state, pullId).zone).toBe("play");
+
+    // Pick option 0 — "Draw 2 cards."
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Action moves to discard after resolve (regression: previously stuck in play).
+    expect(getInstance(state, pullId).zone).toBe("discard");
+    // Draw applied: hand net +2 from where it was at inject-time (one leaves on
+    // play, two draw in).
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
+    // No residual pending state.
+    expect(state.pendingChoice).toBeFalsy();
+    expect(state.pendingActionInstanceId).toBeUndefined();
+  });
+
+  it("opponent-discard branch also cleans up the action after the nested sub-choice resolves", () => {
+    // Option 1 opens a nested choose_discard for the opponent. Both choices
+    // must resolve before the action moves to discard.
+    let state = interactiveStartGame();
+    state = giveInk(state, "player1", 3);
+
+    let pullId: string;
+    ({ state, instanceId: pullId } = injectCard(state, "player1", "pull-the-lever", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: pullId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_option");
+
+    // Pick option 1 — "Each opponent chooses and discards a card."
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Nested pendingChoice for opponent to pick which card to discard.
+    expect(state.pendingChoice?.type).toBe("choose_discard");
+    // Pull should still be in play while the nested choice is pending.
+    expect(getInstance(state, pullId).zone).toBe("play");
+
+    // Opponent discards a hand card.
+    const oppHand = getZone(state, "player2", "hand");
+    expect(oppHand.length).toBeGreaterThan(0);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppHand[0]!] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Now Pull should be in discard.
+    expect(getInstance(state, pullId).zone).toBe("discard");
+    expect(state.pendingChoice).toBeFalsy();
+  });
+});

@@ -110,7 +110,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   if (faceDown) {
     return (
       <div
-        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-md sm:rounded-xl overflow-hidden shrink-0`}
+        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] xl:w-[140px] 2xl:w-[160px] aspect-[5/7] rounded-md sm:rounded-xl overflow-hidden shrink-0`}
         onClick={onClick}
         tabIndex={0}
         onKeyDown={handleKey}
@@ -235,7 +235,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const rotationClass = isExerted && !skipRotation
     ? `rotate-90 ${isTarget ? "" : "brightness-50"}`
     : isLocation && zone === "play" ? "rotate-90" : "";
-  const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+  const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] xl:w-[140px] 2xl:w-[160px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
     ${rotationClass}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
