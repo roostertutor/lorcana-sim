@@ -583,41 +583,78 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Option picker — quote the source card's ability text
+    // Option picker — quote the source card's ability/action text and split
+    // the options by bulleted list (Lorcana's standard "Choose one:\n• A\n• B"
+    // format), falling back to " or " split, falling back to "Option N".
     if (pendingChoice.type === "choose_option" && pendingChoice.options) {
       const srcId = (pendingChoice as any).sourceInstanceId;
       const srcInst = srcId ? gameState.cards[srcId] : undefined;
       const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-      // Find the ability with type "choose" to get the rulesText
+
+      // "choose" can live in THREE places:
+      //   1. srcDef.abilities[].effects — triggered/activated abilities (characters, items)
+      //   2. srcDef.actionEffects — action cards (Pull the Lever!, Wrong Lever!, Trust In Me)
+      //   3. srcDef.rulesText — always present as human-readable copy
+      //
+      // Only #1 carries a storyName; actions have none. The source's fullName
+      // + rulesText is enough for the header on every shape.
       const chooseAbility = srcDef?.abilities.find((a: any) =>
         (a.type === "triggered" || a.type === "activated") &&
         a.effects?.some((e: any) => e.type === "choose")
       ) as { storyName?: string; rulesText?: string } | undefined;
-      const abilityText = chooseAbility
-        ? (chooseAbility.storyName ? `${chooseAbility.storyName} ${chooseAbility.rulesText ?? ""}` : (chooseAbility.rulesText ?? ""))
-        : "";
-      // Split on " or " to get per-option labels from the rules text
-      const orParts = abilityText.split(/ or /i);
+      const abilityStoryName = chooseAbility?.storyName;
+      // Prefer the ability-scoped rulesText when we found one — it's narrower
+      // than the whole-card rulesText and avoids pulling in text from other
+      // abilities on multi-ability cards. Action cards have no chooseAbility,
+      // so we fall back to srcDef.rulesText which is their only text.
+      const rulesText = chooseAbility?.rulesText ?? srcDef?.rulesText ?? "";
+
+      // Extract per-option labels by trying text shapes in order:
+      //   1. Bulleted list: "Choose one:\n• A\n• B" → split on lines starting with •
+      //   2. " or " split: "Do X, or do Y" → comma-or and plain-or
+      //   3. Fallback: generic "Option 1"/"Option 2"
+      function extractOptionTexts(text: string, count: number): string[] {
+        // Try bullet format. Lorcana uses • (U+2022) as its canonical bullet.
+        const bulletLines = text
+          .split(/\n/)
+          .map(s => s.trim())
+          .filter(s => s.startsWith("•"))
+          .map(s => s.replace(/^•\s*/, "").trim());
+        if (bulletLines.length === count) return bulletLines;
+        // Try " or " split on everything after an optional "Choose one:" prefix.
+        const afterChoose = text.replace(/^.*?choose one:?\s*/i, "").trim();
+        const orParts = afterChoose.split(/\s*,?\s+or\s+/i);
+        if (orParts.length === count) {
+          return orParts.map(p => p.replace(/^(when you play this character, |choose and )/i, "").trim());
+        }
+        // Fallback
+        return Array.from({ length: count }, (_, i) => `Option ${i + 1}`);
+      }
+
+      const optionTexts = extractOptionTexts(rulesText, pendingChoice.options.length);
+      const headerLine = abilityStoryName
+        ? `${abilityStoryName} — ${srcDef?.fullName ?? "Choose one"}`
+        : (srcDef?.fullName ?? "Choose one");
       return (
         <div className="space-y-3">
           <div>
-            <div className="text-yellow-300 text-sm font-medium">
-              {srcDef ? srcDef.fullName : "Choose one:"}
-            </div>
-            {abilityText && (
-              <div className="text-gray-400 text-xs mt-0.5">{abilityText.trim()}</div>
-            )}
+            <div className="text-yellow-300 text-sm font-bold">{headerLine}</div>
+            <div className="text-gray-500 text-[10px] uppercase tracking-wider mt-0.5">Choose one</div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          {/* Full-width stacked buttons — each option can be long (see Wrong
+              Lever's second branch). Numbered badge keeps orientation; option
+              text is the primary content, left-aligned for readability. */}
+          <div className="flex flex-col gap-1.5">
             {pendingChoice.options.map((_: any, i: number) => (
               <button
                 key={i}
-                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg border border-gray-600 font-medium transition-colors"
+                className="flex items-start gap-2.5 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 active:bg-gray-700/80 text-gray-100 rounded-lg border border-gray-700 hover:border-indigo-500 text-left transition-colors"
                 onClick={() => onResolveChoice(i)}
               >
-                {orParts.length === pendingChoice.options.length
-                  ? orParts[i]!.replace(/^(when you play this character, |choose and )/i, "").trim()
-                  : `Option ${i + 1}`}
+                <span className="shrink-0 w-5 h-5 rounded-full bg-indigo-700/80 text-white text-[10px] font-black flex items-center justify-center mt-0.5">
+                  {i + 1}
+                </span>
+                <span className="flex-1 text-xs leading-snug">{optionTexts[i]}</span>
               </button>
             ))}
           </div>
