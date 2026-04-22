@@ -49,8 +49,12 @@ CREATE TABLE game_actions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for clone trainer queries: filter by ELO at time of game
-ALTER TABLE game_actions ADD COLUMN player_elo_at_time INTEGER;
+-- DROPPED 2026-04-22: `game_actions.player_elo_at_time` was redundant with
+-- game-level ELO snapshots (ELO only updates at match-end, so every action
+-- in a match had the same stamp). Moved to games.p1_elo_at_start /
+-- p2_elo_at_start below. game_actions stays strictly action data; per-user
+-- context lives on the aggregating rows (games, lobbies, profiles).
+ALTER TABLE game_actions DROP COLUMN IF EXISTS player_elo_at_time;
 
 -- Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -309,3 +313,41 @@ CREATE POLICY "Replays public-toggle by players"
 ALTER TABLE games REPLICA IDENTITY FULL;
 -- Realtime on lobbies too — rematch flow needs both clients to see status changes.
 ALTER TABLE lobbies REPLICA IDENTITY FULL;
+
+-- ── Clone-trainer data shape (game-level context) ──────────────────────────
+-- Added 2026-04-22 after an audit of what training data needs to be
+-- "in good form." The principle: game_actions stays strictly per-action
+-- (state + action + who + when); all per-user + per-match context lives
+-- on the aggregating rows. Prevents massive duplication across the
+-- hundreds of actions in each match.
+
+-- Game-level ELO snapshots. ELO only updates at match-end, so every action
+-- in a single match has identical ELO — storing it per-row was ~60-180x
+-- duplicated. Stamp once per game on creation. Nullable because older
+-- pre-cleanup games won't have values (existing rows can stay as-is; MP
+-- data pre-release is disposable anyway).
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p1_elo_at_start INTEGER;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_elo_at_start INTEGER;
+
+-- Engine version stamp. The lorcana-sim engine evolves over time — new
+-- cards, reducer fixes, trigger-order tweaks. An action recorded under
+-- engine v1 may not apply cleanly through engine v2 (the action shape
+-- might be unchanged, but the resulting state can diverge). Training
+-- pipelines want to filter to "actions recorded under the same engine
+-- version that will replay them" OR know when historical data needs
+-- replaying through a snapshot build.
+--
+-- Format: YYYY-MM-DD[-N] per the ENGINE_VERSION constant in
+-- packages/engine/src/version.ts. Nullable — populated going forward by
+-- createNewGame; legacy rows stay null.
+ALTER TABLE games ADD COLUMN IF NOT EXISTS engine_version TEXT;
+
+-- Bot flag on profiles. No rows today — MP is strictly human-vs-human
+-- (processAction requires requireAuth middleware with a real user
+-- token). Future-proofs bot-vs-human queues: when a bot account lands,
+-- flip its is_bot=true and clone-trainer exports can filter to
+-- p1.is_bot = false AND p2.is_bot = false in a single join.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_bot BOOLEAN NOT NULL DEFAULT FALSE;
+-- Partial index — 99%+ of rows are humans; only bots get indexed. Small,
+-- fast, and the filter condition `is_bot = false` can use the main heap scan.
+CREATE INDEX IF NOT EXISTS profiles_is_bot_idx ON profiles (is_bot) WHERE is_bot = true;

@@ -2,6 +2,7 @@ import {
   applyAction,
   CARD_DEFINITIONS,
   CORE_ROTATIONS,
+  ENGINE_VERSION,
   INFINITY_ROTATIONS,
   createGame,
   type GameConfig,
@@ -54,6 +55,19 @@ export async function createNewGame(
   }
   const initialState = createGame(config, definitions)
 
+  // Snapshot both players' current ELO at game-start. Per-action ELO stamping
+  // was redundant (ELO only updates at match-end, so every action in a match
+  // had the same value) — the clone-trainer pipeline now reads ELO from this
+  // row instead of joining through game_actions. Parallel fetch since it
+  // blocks the insert; default 1200 if a profile row is missing (shouldn't
+  // happen, but don't crash game creation on a profile lookup miss).
+  const [{ data: p1Profile }, { data: p2Profile }] = await Promise.all([
+    supabase.from("profiles").select("elo").eq("id", p1Id).single(),
+    supabase.from("profiles").select("elo").eq("id", p2Id).single(),
+  ])
+  const p1EloAtStart = (p1Profile?.elo as number | undefined) ?? 1200
+  const p2EloAtStart = (p2Profile?.elo as number | undefined) ?? 1200
+
   const { data, error } = await supabase
     .from("games")
     .insert({
@@ -64,6 +78,12 @@ export async function createNewGame(
       player2_deck: p2Deck,
       state: initialState,
       game_number: gameNumber,
+      p1_elo_at_start: p1EloAtStart,
+      p2_elo_at_start: p2EloAtStart,
+      // Engine version stamp — enables training pipelines to filter actions
+      // to the engine that can correctly replay them. See
+      // packages/engine/src/version.ts for the bump policy.
+      engine_version: ENGINE_VERSION,
     })
     .select()
     .single()
@@ -124,15 +144,6 @@ export async function processAction(
 
   let newState = result.newState
 
-  // Get current player ELO for clone trainer annotation
-  const { data: playerProfile } = await supabase
-    .from("profiles")
-    .select("elo")
-    .eq("id", userId)
-    .single()
-
-  const playerElo = (playerProfile?.elo as number | undefined) ?? 1200
-
   // Save new state (triggers Supabase Realtime broadcast to both clients)
   const isFinished = newState.isGameOver
   await supabase
@@ -150,7 +161,16 @@ export async function processAction(
     })
     .eq("id", gameId)
 
-  // Log action with state snapshots for clone trainer
+  // Log action with state snapshots for clone trainer.
+  //
+  // Shape philosophy: game_actions is STRICTLY per-action data — action,
+  // state, turn, who, when. Per-match context (ELO, format, rotation,
+  // engine version) lives on the aggregating `games` / `lobbies` /
+  // `profiles` rows. Storing ELO per-action was a ~60-180x duplication
+  // (ELO only updates at match-end, so every action in a match had the
+  // same value). Removed 2026-04-22 — see games.p1_elo_at_start /
+  // p2_elo_at_start for the snapshot, games.engine_version for the
+  // engine stamp, and profiles.is_bot for bot-vs-human filtering.
   await supabase.from("game_actions").insert({
     game_id: gameId,
     player_id: userId,
@@ -158,7 +178,6 @@ export async function processAction(
     state_before: stateBefore,
     state_after: newState,
     turn_number: state.turnNumber,
-    player_elo_at_time: playerElo,
   })
 
   // Handle match completion (Bo1 or Bo3)
