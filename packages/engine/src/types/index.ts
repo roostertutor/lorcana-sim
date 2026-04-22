@@ -2984,6 +2984,66 @@ export interface CardDefinition {
    *  older entries; will backfill lazily as the importer is re-run. Not
    *  required by the engine — the engine keys on the slug-based `id`. */
   _ravensburgerId?: number;
+
+  // ── Foil / holographic treatment metadata ─────────────────────────────
+  // Populated by the Ravensburger importer from variants[].{Foiled | Regular}
+  // (Foiled variant preferred; some Enchanteds carry the data on Regular
+  // because they ship foil-only). All optional — Lorcast-sourced cards and
+  // pre-foil-era entries may have none. Pure display metadata — the engine
+  // does not read these; intended for UI renderers (card modal shader,
+  // clip export, creator tooling with foil preview) and external consumers
+  // that want to re-render the holographic effect.
+  //
+  // Data comes directly from Ravensburger's official API; the field names
+  // below are snake_case normalizations of the PascalCase strings Rav emits
+  // (Ravensburger's `"FreeForm1"` → `"freeform_1"`, etc.).
+
+  /** Base foil treatment. Identifies which holographic shader pattern to
+   *  apply. `undefined` means no foil treatment (rare — pre-foil-era stock
+   *  or Ravensburger's literal `"None"`).
+   *
+   *  Note: `calendar_wave` and `sea_wave` are limited-edition holiday/themed
+   *  foils Ravensburger emits on specific sets (CalendarWave in 4/6, SeaWave
+   *  in 6/7/8). They're legitimate Ravensburger data — renderers that don't
+   *  have shader code for them should degrade gracefully (render plain art
+   *  with no shine). Same applies to any future foil types not yet in this
+   *  enum; the importer logs a warning and skips the field. */
+  foilType?:
+    | "silver"
+    | "lava"
+    | "tempest"
+    | "satin"
+    | "freeform_1"
+    | "freeform_2"
+    | "vertical_wave"
+    | "glitter"
+    | "magma"
+    | "lore"
+    | "rainbow_pillars"
+    | "calendar_wave"
+    | "sea_wave";
+  /** URL of the grayscale luminance mask the shader multiplies with the
+   *  foil texture to gate the effect to art-directed regions (character
+   *  silhouette, highlights). Ravensburger CDN URL today; will migrate to
+   *  self-hosted R2 in Phase 2 alongside card art. */
+  foilMaskUrl?: string;
+  /** Optional secondary mask for two-layer foil effects (e.g. HighGloss on
+   *  Set 5+, MetallicHotFoil on Set 11+). Not present on every card with
+   *  a base foilType. */
+  foilTopLayerMaskUrl?: string;
+  /** Identifies which top-layer shader variant pairs with `foilTopLayerMaskUrl`.
+   *  Only populated when a top-layer mask exists. `rainbow_hot_foil` /
+   *  `matte_hot_foil` are themed limited-edition variants on specific sets. */
+  foilTopLayer?:
+    | "high_gloss"
+    | "metallic_hot_foil"
+    | "snow_hot_foil"
+    | "rainbow_hot_foil"
+    | "matte_hot_foil";
+  /** Per-card art-directed tint color for MetallicHotFoil / SnowHotFoil
+   *  top-layer treatments. Hex string like `"#8FD262"`. Missing values fall
+   *  back to `#aaa` silver in the renderer. */
+  hotFoilColor?: string;
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct

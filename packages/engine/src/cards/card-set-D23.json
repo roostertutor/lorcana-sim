@@ -23,6 +23,7 @@
     "number": 1,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1191,
     "subtitle": "Brave Little Tailor",
     "strength": 5,
     "willpower": 5,
@@ -30,6 +31,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)",
     "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/1_0aa6a35b8dc7cf39_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_12b884d933230cee29e653eef35eabd5ea3f0b80.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
   },
@@ -88,6 +91,7 @@
     "number": 2,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1192,
     "subtitle": "Stouthearted",
     "strength": 5,
     "willpower": 5,
@@ -95,6 +99,8 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/2_1dc059e9f58956e1_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_1f6f7941f3330d548c28cccbbab7eb60142526b5.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
@@ -156,12 +162,15 @@
     "number": 3,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1193,
     "subtitle": "Deceiver",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
     "rulesText": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/3_690f63bbcb26c46a_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_1d7b295ff41b9762ca77a25a3d22c5cf21c0659a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'LL NEVER EVEN MISS IT",
@@ -216,12 +225,15 @@
     "number": 4,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1194,
     "subtitle": "Undetected Uncle",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nYOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/4_1e4507f9ad2b8c45_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_266cabe645ba502723e4ae1dc78bfbabd23c33d3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU JUST HAVE TO SEE IT",
@@ -293,6 +305,7 @@
     "number": 5,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1195,
     "subtitle": "Sugar Rush Princess",
     "strength": 2,
     "willpower": 4,
@@ -300,6 +313,8 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get –1 {S} until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/5_7f903b4fef824798_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_03ffe1bc47f41f18daadf94af6ce3e07395db753.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HEREBY DECREE",
@@ -362,12 +377,15 @@
     "number": 6,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1422,
     "subtitle": "The Lucky Rabbit",
     "strength": 2,
     "willpower": 1,
     "lore": 2,
     "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/6_43c2b8fd8cd91fda_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_14b68595636cc45bcde28c6d48d027e067490f40.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAVORABLE CHANCE",
@@ -444,6 +462,7 @@
     "number": 7,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1432,
     "subtitle": "Playful Sorcerer",
     "strength": 3,
     "willpower": 4,
@@ -451,6 +470,10 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\n<Resist> +1 (Damage dealt to this character is reduced by 1.)\nSWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/7_bbc3342e126ac1e4_normal.jpg",
+    "foilType": "freeform_2",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_966dc4f344031968d13f523b251be6cff3bb69e0.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_0b31b634289105bfe78102edb68e0bf0d5e54c53.jpg",
+    "foilTopLayer": "rainbow_hot_foil",
     "_namedAbilityStubs": [
       {
         "storyName": "SWEEP AWAY",
@@ -506,6 +529,7 @@
     "number": 8,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1895,
     "subtitle": "Out of Reach",
     "strength": 3,
     "willpower": 3,
@@ -513,6 +537,8 @@
     "rulesText": "SELF-PRESERVATION While you have another exerted character in play, this character can’t be challenged.",
     "flavorText": "“Nice try, chumps! Too bad I’m all the way up here!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/8_085bcbc404415649_normal.jpg",
+    "foilType": "sea_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_d12e5328a36ced921c6ca69b6c598f3025896436.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SELF-PRESERVATION",
@@ -568,6 +594,7 @@
     "number": 16,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 2715,
     "subtitle": "Unruly Eccentric",
     "strength": 3,
     "willpower": 5,
@@ -575,6 +602,8 @@
     "rulesText": "UNBIRTHDAY PRESENT Whenever a damaged character challenges another character, you may draw a card.",
     "flavorText": "\"Don't you care for tea?\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/16_4858e74a5c7fd735_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_ac53c373b9441fdaefd66a7bbdbf837b276672ee.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNBIRTHDAY PRESENT",

@@ -46,6 +46,7 @@
     "number": 1,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1180,
     "subtitle": "Gold Lover",
     "strength": 3,
     "willpower": 4,
@@ -53,6 +54,8 @@
     "rulesText": "BEAUTIFUL, LOVELY TAXES {E} — Play an item from your hand or discard with cost 5 or less for free, exerted.",
     "flavorText": "A villainous schemer from day to night.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/1_2a0688b32f6a4a24_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/1_f2c21a2cc91376d90b56fa5c072ac3d4df19cf8b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BEAUTIFUL, LOVELY TAXES",
@@ -109,12 +112,15 @@
     "number": 2,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1181,
     "subtitle": "Reindeer Keeper",
     "strength": 3,
     "willpower": 7,
     "lore": 3,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nSONG OF THE HERD For each song card in your discard, you pay 1 {I} less to play this character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/2_0d6522e468df9c88_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/2_8ccbee609ed0981fe81f1b639e8e7db61881d00a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SONG OF THE HERD",
@@ -144,12 +150,15 @@
     "number": 3,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1182,
     "subtitle": "Mischievous Cub",
     "strength": 0,
     "willpower": 4,
     "lore": 1,
     "flavorText": "The Lorcana Hide-and-Seek Championship was hers for the taking.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/3_a5cc4163cea3a1b6_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/3_d661fe62f7c0f081f359961b064f79cbe3e1df18.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/3_9705f53212ce1d4e4289326182a7f0d0c6611aa6.jpg"
   },
@@ -169,9 +178,12 @@
     "number": 4,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1183,
     "rulesText": "Draw 3 cards.",
     "flavorText": "“Three wishes, comin' right up!\"\n—Iago",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/4_76f39e76fe29b367_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/4_2ce7f8afc51e1866b1be0889349beead9a46ba92.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -241,12 +253,15 @@
     "number": 5,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1184,
     "subtitle": "Dedicated Mother",
     "strength": 2,
     "willpower": 1,
     "lore": 1,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nONE ON THE WAY During your turn, when you put a card into your inkwell, if it’s the second card you’ve put into your inkwell this turn, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/5_25d1fdb2e65d6314_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/5_d0ba757da7ecc1c91a2c473ec4931a75b9de2746.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ONE ON THE WAY",
@@ -301,6 +316,7 @@
     "number": 6,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1185,
     "subtitle": "Team Underdog",
     "strength": 1,
     "willpower": 4,
@@ -308,6 +324,8 @@
     "rulesText": "HEAVE HO! When you play this character, you may deal 2 damage to chosen character.",
     "flavorText": "He’s not the biggest glimmer on the team, but he still packs a wallop.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/6_d6729efcc538e3bb_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/6_43b2cd47ae7377d00de41f31d264105c37b0ef1d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEAVE HO!",
@@ -338,6 +356,7 @@
     "number": 7,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1186,
     "subtitle": "Family Gatherer",
     "strength": 5,
     "willpower": 5,
@@ -345,6 +364,8 @@
     "rulesText": "NOT WITHOUT MY FAMILY You can’t play this character unless you have 5 or more characters in play.",
     "flavorText": "“There’s nothing we can’t accomplish together!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/7_92c2610f4c1a7ba7_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/7_247b16726fab72c9b654c291cade4cbe21ce7229.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NOT WITHOUT MY FAMILY",
@@ -415,6 +436,7 @@
     "number": 8,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1423,
     "subtitle": "Alien Buccaneer",
     "strength": 3,
     "willpower": 4,
@@ -422,6 +444,8 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Stitch.)\nREADY FOR ACTION When you play this character, if you used <Shift> to play him, you may put an action card from your discard on the top of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/8_0f7d67522aff6877_normal.jpg",
+    "foilType": "sea_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/8_594167625e4055f80ba0bec894e3849ac1999bed.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "READY FOR ACTION",
@@ -484,6 +508,7 @@
     "number": 9,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1424,
     "subtitle": "Intrepid Commander",
     "strength": 1,
     "willpower": 4,
@@ -491,6 +516,8 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Aladdin.)\nREMEMBER YOUR TRAINING When you play this character, your characters get +2 {S} this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/9_9a6ad479c11ab9eb_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/9_d44118a5bc1dcbd4019d10b3ab1ab8a1081c66fe.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "REMEMBER YOUR TRAINING",
@@ -517,8 +544,11 @@
     "number": 10,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1425,
     "rulesText": "Count the number of characters you have in play. Chosen character loses {S} equal to that number until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/10_809e279f50e06333_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/10_8a56cbd11fa749748a716e559cb1c4ae2de28c2e.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -606,6 +636,7 @@
     "number": 11,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1426,
     "subtitle": "Chemical Genius",
     "strength": 1,
     "willpower": 1,
@@ -613,6 +644,8 @@
     "rulesText": "HERE’S THE BEST PART When you play this character, you may pay 2 {I} to have each opponent choose and discard a card.",
     "flavorText": "\"You're going to love this!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/11_0d8894317b93d802_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/11_a58d3ad18da8e0c44ad05f2025a599d824572b73.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HERE'S THE BEST PART",
@@ -674,6 +707,7 @@
     "number": 12,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1427,
     "subtitle": "Pirate Lookout",
     "strength": 3,
     "willpower": 2,
@@ -681,6 +715,8 @@
     "rulesText": "LAND, HO! Once during your turn, whenever a card is put into your inkwell, you may return a location card from your discard to your hand.",
     "flavorText": "Minnie leaned forward. Could it be true? Was this the island at last?",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/12_c09cd1f29b2b72b4_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/12_4b624540bb72c4a8ea2167d8f8e5301ead9ea61c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LAND, HO!",
@@ -759,12 +795,15 @@
     "number": 13,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1428,
     "subtitle": "Methodical Engineer",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
     "rulesText": "BLADES OF FURY When you play this character, you may banish chosen item. Its player gains 1 lore.\nQUICK REFLEXES During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/13_fe7bf26a952f7298_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/13_028564a237d171ebfceaafb5b37a164a98c3d42d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BLADES OF FURY",
@@ -846,6 +885,7 @@
     "number": 14,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1429,
     "subtitle": "Heartless Hunter",
     "strength": 4,
     "willpower": 2,
@@ -853,6 +893,8 @@
     "rulesText": "TEETH AND AMBITIONS When you play this character, deal 2 damage to chosen character of yours to deal 2 damage to another chosen character.",
     "flavorText": "“It’s for the greater good. I’m sure you understand.” \n—Scar",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/14_59fae22dc8bf290d_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/14_d8a2d8c378e241086935331f3083eee414edc4ba.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TEETH AND AMBITIONS",
@@ -928,6 +970,7 @@
     "number": 18,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1430,
     "subtitle": "Pirate Captain",
     "strength": 4,
     "willpower": 4,
@@ -935,6 +978,8 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\nMARINER’S MIGHT Whenever this character quests, chosen Pirate character gets +2 {S} and gains “This character takes no damage from challenges” this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/18_b04ac08092927536_normal.jpg",
+    "foilType": "glitter",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/18_8ba4d7c6e28bf6aae7cd257656b1e120586f790a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MARINER'S MIGHT",
@@ -999,12 +1044,15 @@
     "number": 19,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1656,
     "subtitle": "Ice Breaker",
     "strength": 2,
     "willpower": 3,
     "lore": 2,
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nWINTER AMBUSH When you play this character, chosen opposing character can’t ready at the start of their next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/19_58d4dc09bc1504eb_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/19_2e7c80b137cabc5cca23b4c740dfc469900db2e5.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WINTER AMBUSH",
@@ -1048,12 +1096,15 @@
     "number": 20,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1657,
     "subtitle": "Laid Back",
     "strength": 4,
     "willpower": 4,
     "lore": 2,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nI’M LOVIN’ THIS If an effect would cause you to discard one or more cards, you don’t discard.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/20_6fa146926a6875a4_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/20_9dd039b4c3bdfdd0fef6932168cf0da99262068e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'M LOVIN' THIS",
@@ -1127,12 +1178,15 @@
     "number": 21,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1658,
     "subtitle": "Playful Mother",
     "strength": 1,
     "willpower": 4,
     "lore": 2,
     "rulesText": "WHO’S NEXT? Whenever this character quests, you pay 2 {I} less for the next Puppy character you play this turn.\nDON’T BE AFRAID Your Puppy characters gain <Ward>. (Opponents can’t choose them except to challenge.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/21_285541cebafafb52_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/21_6e61c5872cd4bc96e96a278af36a86826b57fc24.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHO'S NEXT?",
@@ -1196,12 +1250,15 @@
     "number": 22,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1659,
     "subtitle": "Newly Promoted",
     "strength": 2,
     "willpower": 3,
     "lore": 1,
     "rulesText": "I WON’T LET YOU DOWN This character can challenge ready characters.\nENORMOUS RESPONSIBILITY While this character has damage, he gets +2 {S}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/22_269886c6390cfbd0_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/22_5052f1c293067282b8238907fdea64970e8b5e29.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I WON'T LET YOU DOWN",
@@ -1249,6 +1306,7 @@
     "number": 23,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1660,
     "subtitle": "Fairest in the Land",
     "strength": 2,
     "willpower": 2,
@@ -1256,6 +1314,8 @@
     "rulesText": "HIDDEN AWAY This character can’t be challenged.",
     "flavorText": "A true heart can thwart many an evil scheme.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/23_d6f2faf3fe22df04_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/23_587807e343d34823c391d72bcd555297ae2acb89.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HIDDEN AWAY",
@@ -1312,6 +1372,7 @@
     "number": 25,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1431,
     "subtitle": "Escape Artist",
     "strength": 1,
     "willpower": 2,
@@ -1319,6 +1380,8 @@
     "rulesText": "NO PLACE I’D RATHER BE At the start of your turn, if this card is in your discard, you may play her and she enters play exerted.",
     "flavorText": "“You can’t keep me away from the fun!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/25_d046210cae2e0ad3_normal.jpg",
+    "foilType": "glitter",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/25_920edd67d5c3557e76e6d15c41374e964819a367.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO PLACE I'D RATHER BE",
@@ -1349,12 +1412,15 @@
     "number": 26,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1433,
     "subtitle": "Adventurer of Land and Sea",
     "strength": 1,
     "willpower": 6,
     "lore": 1,
     "flavorText": "Moana receives a call from the ancestors to sail to new skies and reconnect people across the entire ocean.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/26_e284ed4ecc4007a8_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/26_03409805010b3c1fb5837931ff5bcb23d2a3bf1d.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/26_26ba867eeb259ee4382e9242e692c98a9bf7d7ff.jpg"
   },
@@ -1411,12 +1477,15 @@
     "number": 27,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1887,
     "subtitle": "Tried and True",
     "strength": 2,
     "willpower": 7,
     "lore": 2,
     "rulesText": "HAPPY HELPER While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/27_73a8179fb63f4b35_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/27_3a2040e0acea1c206218f558b91b8c38f478615a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HAPPY HELPER",
@@ -1492,12 +1561,15 @@
     "number": 28,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1888,
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
     "lore": 1,
     "rulesText": "PACK OF HER OWN Whenever you play a character, this character gets +1 {S} this turn.\nTAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/28_0a78024469227609_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/28_c5bb05d72523cffbfe3fe0519f63a2cdf2c78cad.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PACK OF HER OWN",
@@ -1568,12 +1640,15 @@
     "number": 29,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1889,
     "subtitle": "Vigilant Guard",
     "strength": 1,
     "willpower": 9,
     "lore": 1,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nSAFE PASSAGE Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/29_797795d9688cb0a8_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/29_83552199caacc90bc7d310cd312b74b3ef3dad3a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SAFE PASSAGE",
@@ -1635,6 +1710,7 @@
     "number": 30,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1890,
     "subtitle": "Playful Pup",
     "strength": 0,
     "willpower": 2,
@@ -1642,6 +1718,8 @@
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nPUPPY BARKING While you have another Puppy character in play, this character gets +1 {L}.",
     "flavorText": "Sand sure was more fun than it looked!",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/30_78e97279287e8ae4_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/30_7df0ec5424722b61523ccd887339e4c9550399f4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PUPPY BARKING",
@@ -1669,8 +1747,11 @@
     "number": 31,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1891,
     "rulesText": "Choose one:\n• Draw 2 cards.\n• Each opponent chooses and discards a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/31_47de6c32f954e6a9_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/31_ad8bfc9bcb98f5ae730e633baca18988939bb83b.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -1779,6 +1860,7 @@
     "number": 32,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1892,
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
@@ -1868,12 +1950,15 @@
     "number": 33,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1893,
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
     "lore": 3,
     "rulesText": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/33_0e6d69be539a1993_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/33_cd5de1481a727ff78cc386c26cbf8ce554447ecc.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DARK POWER",
@@ -1967,12 +2052,18 @@
     "number": 34,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1935,
     "subtitle": "Resourceful Owl",
     "strength": 2,
     "willpower": 2,
     "lore": 2,
     "rulesText": "YOU DON’T NEED THAT When you play this character, you may banish chosen item.\nNOW, THAT’S NOT BAD During your turn, whenever an item is banished, you may draw a card, then choose and discard a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/34_ddd74773f78901f7_normal.jpg",
+    "foilType": "sea_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/34_1f5c2542255a529f5e9a10886e32371156c24661.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/34_86065d2786040d8d5f4ed31b5272373ec1ef350b.jpg",
+    "foilTopLayer": "matte_hot_foil",
+    "hotFoilColor": "#79cc5e",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU DON'T NEED THAT",
@@ -2026,12 +2117,15 @@
     "number": 35,
     "rarity": "special",
     "_source": "ravensburger",
+    "_ravensburgerId": 1894,
     "subtitle": "Daring Defender",
     "strength": 0,
     "willpower": 8,
     "lore": 1,
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nTRUE VALOR This character gets +1 {S} for each 1 damage on her.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP2/35_ca9082e1f17bc417_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo2/35_255aef1fbfd589089bfbc61289af31e49b19c044.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TRUE VALOR",

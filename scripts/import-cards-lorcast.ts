@@ -463,6 +463,12 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
       // being upgraded (shouldn't happen — ravensburger > lorcast) or a
       // sibling ravensburger entry is being merged, the id should survive.
       "_ravensburgerId",
+      // Foil metadata. Lorcast doesn't publish foil_type / foil_mask_url,
+      // so Lorcast-sourced cards will have these fields unset. But if a
+      // previously-ravensburger-sourced card somehow hits this merge path,
+      // the foil data should survive (same tier-refusal logic as _source
+      // means this is unreachable today, but defensive).
+      "foilType", "foilMaskUrl", "foilTopLayerMaskUrl", "foilTopLayer", "hotFoilColor",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

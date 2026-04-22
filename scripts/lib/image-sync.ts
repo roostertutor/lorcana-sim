@@ -258,10 +258,25 @@ export async function syncSingleCard(
   // upstream hasn't rotated: the re-sync restores `imageUrl` to R2 (and
   // since the bytes are unchanged, produces the same content hash, so R2
   // PutObject is effectively a no-op on the backend — just network cost).
+  //
+  // The check must be STRICT about R2-shape. A previous implementation used
+  // `imageUrl.includes("/set{N}/{num}_")` which matched both R2 keys
+  // (`set1/1_hash_normal.jpg`) AND upstream Rav URLs
+  // (`images/en/set1/1_hash.jpg`) — both contain `/set1/1_`. Post-import the
+  // check would wrongly skip cards whose imageUrl had just been reset to
+  // upstream, leaving 2/3 of the catalog pointing at Ravensburger CDN after
+  // the "restore" sync. Fix: require imageUrl to start with the configured
+  // R2 public base and end with a known size suffix.
+  const r2Base = ctx.r2 ? ctx.r2.config.publicBaseUrl.replace(/\/$/, "") : null;
+  const isR2Shaped =
+    r2Base != null &&
+    !!card.imageUrl &&
+    card.imageUrl.startsWith(r2Base + "/") &&
+    /_(small|normal|large)\.jpg$/.test(card.imageUrl);
   if (
     card._imageSource === ctx.tier &&
     card._sourceImageUrl === sourceUpstreamUrl &&
-    card.imageUrl?.includes(`/set${card.setId}/${card.number}_`)
+    isR2Shaped
   ) {
     return { status: "skipped_already_synced" };
   }

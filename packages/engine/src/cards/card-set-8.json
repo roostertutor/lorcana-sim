@@ -30,6 +30,7 @@
     "number": 1,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1665,
     "subtitle": "One Cool Duck",
     "strength": 2,
     "willpower": 3,
@@ -38,6 +39,8 @@
     "flavorText": "\"The snakes are cool, I guess. Pretty standard trap, though.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/1_8eb7975c3cb9378a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/1_7cfa5a75f47aa865e9553aff888ddc654a597d20.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/1_1123f34eb8cd806bdc60ccb5da04bd0e150c7c32.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SPRING THE TRAP",
@@ -67,6 +70,7 @@
     "number": 2,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1666,
     "subtitle": "Lovable Showoff",
     "strength": 4,
     "willpower": 4,
@@ -74,6 +78,8 @@
     "flavorText": "\"Snakes? Firing lasers? In a secret underground lair? No problem!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/2_000e2ecee1ed9dfc_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_6cec6eb943b01c137a813cb8062fd5f94a7a1b7c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_10909cc2e7ad1f5f9a3797e7f7119355ccad7f43.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/2_aad08999a87d6db777ecba6bcc93d791c3ea7f25.jpg"
   },
@@ -116,6 +122,7 @@
     "number": 3,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1667,
     "subtitle": "Reliable Leader",
     "strength": 2,
     "willpower": 3,
@@ -124,6 +131,8 @@
     "flavorText": "\"Forget the magical snakes. There's the way out of the trap!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/3_6b3fa8dd5709d21e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/3_53cdf1bdc680a7f4a018994e83307fedd144e567.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/3_5313c2f523592ed883a56208dcec5ae8350dd643.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I KNOW THE WAY",
@@ -203,6 +212,7 @@
     "number": 4,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1668,
     "subtitle": "Groundbreaking Chef",
     "strength": 3,
     "willpower": 4,
@@ -211,6 +221,10 @@
     "flavorText": "\"You're just in time for Surprise à la Goof!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/4_917337b781e8b21a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/4_3a2a40edffea199450bd3c375de67eece9048463.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/4_cdd21f55d65fdd4b35ce3d70fad6cc0c8d80a810.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/4_b009c6454a9ed2a00bf9a8e9b89292ec79dd48fc.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "PLENTY TO GO AROUND",
@@ -277,6 +291,7 @@
     "number": 5,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1669,
     "subtitle": "Friend to All",
     "strength": 2,
     "willpower": 2,
@@ -284,6 +299,8 @@
     "rulesText": "OF COURSE THEY CAN COME Once during your turn, whenever one of your characters sings a song, you may search your deck for a character card with cost 3 or less and reveal that card to all players. Put that card into your hand and shuffle your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/5_e30cb1a6050b141e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/5_bf271ecbae8a6b98fd824225615c8bbc26aedda6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/5_f8d4c75a72f12084cb3dd40c2c399b78d70ee4e1.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "OF COURSE THEY CAN COME",
@@ -332,6 +349,7 @@
     "number": 6,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1670,
     "subtitle": "Daring Defender",
     "strength": 0,
     "willpower": 8,
@@ -339,6 +357,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nTRUE VALOR This character gets +1 {S} for each 1 damage on her.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/6_52a7104c641a84a8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/6_d10ecdbd72163040d492f32be6a55a080c887f13.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/6_7786120578adf1524766b1189ec8e347a71f00ca.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TRUE VALOR",
@@ -419,6 +439,7 @@
     "number": 7,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1671,
     "subtitle": "All-Around Expert",
     "strength": 1,
     "willpower": 1,
@@ -426,6 +447,8 @@
     "rulesText": "SUPERIOR MIND When you play this character, chosen opponent reveals their hand and discards a non-character card of your choice.\nLASTING LEGACY When this character is banished, you may put this card into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/7_b371885f2e20fe5b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/7_146aa30159bd0b2674af16ebc9a8e40ef175ddf7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/7_c9a87b68e96e13cb940e91bcde1c7cbda1503377.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SUPERIOR MIND",
@@ -461,6 +484,7 @@
     "number": 8,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1672,
     "subtitle": "Mardi Gras Princess",
     "strength": 1,
     "willpower": 3,
@@ -468,6 +492,8 @@
     "flavorText": "“Seems like only yesterday we were both little girls dreaming our fairy tale dreams, and tonight they’re finally coming true.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/8_4ac196182f52ac14_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_6a15d969d48b031c16f11774e6e1efbb1f9cb77d.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/8_c30b13e3678be0a6459a7d9bac3ef911b9673910.jpg"
   },
@@ -533,6 +559,7 @@
     "number": 9,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1673,
     "subtitle": "Natural Talent",
     "strength": 2,
     "willpower": 4,
@@ -540,6 +567,8 @@
     "rulesText": "<Singer> 6 (This character counts as cost 6 to sing songs.)\nCAPTIVATING MELODY Whenever you play a song, each opposing character gets –1 {S} until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/9_eba2cad6eae83625_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/9_a6ee69067eeb48524ffc9e5fa83e6feeabd756e6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/9_151c0169057ece3b4d707196a8f48182da2fdc90.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CAPTIVATING MELODY",
@@ -602,6 +631,7 @@
     "number": 10,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1674,
     "subtitle": "Curious Child",
     "strength": 0,
     "willpower": 2,
@@ -610,6 +640,8 @@
     "flavorText": "“Whatever gift awaits will be just as special as you.” \n—Alma Madrigal",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/10_e26faf1433909a52_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/10_8904112535cbbf463890309a17e7203e576604d3.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/10_260846abb71616537657d973d357655cbbe8d754.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU ARE A WONDER",
@@ -661,6 +693,7 @@
     "number": 11,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1675,
     "subtitle": "Family Dog",
     "strength": 2,
     "willpower": 2,
@@ -669,6 +702,8 @@
     "flavorText": "She's happiest in the company of those she loves.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/11_355cc9e2e0c9396f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/11_d6998b53bfecbfea381324fc620ea3a04340f202.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/11_da4767e146142cd3a2b1d02c2824e2f81f07293a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SOMEONE TO CARE FOR",
@@ -703,6 +738,7 @@
     "number": 12,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1676,
     "subtitle": "Beloved Husband",
     "strength": 0,
     "willpower": 4,
@@ -711,6 +747,8 @@
     "flavorText": "Family is family no matter what.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/12_58b6baf355af07ec_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_ec9c2c3301d9cc4e3012bd3c80ba7c57dded81bf.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/12_57074a2f026742ac52146c1a4a9392ae034c852b.jpg"
   },
@@ -758,6 +796,7 @@
     "number": 13,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1677,
     "subtitle": "Niceland Resident",
     "strength": 1,
     "willpower": 2,
@@ -766,6 +805,8 @@
     "flavorText": "“Getting a medal feels pretty great. Making Gene squirm feels even better.”\n—Wreck-It Ralph",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/13_714319ba6dd8bcb9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/13_84b5941d1f232c4df9c192e2b3f47d0dda08600a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/13_ef32fe4097c869e1ad4e9549af90bab26f0624f2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I GUESS YOU EARNED THIS",
@@ -821,6 +862,7 @@
     "number": 14,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1678,
     "subtitle": "On the Lookout",
     "strength": 1,
     "willpower": 4,
@@ -829,6 +871,8 @@
     "flavorText": "“Where did the forest go? Stay close, my darlings. Something's amiss here.\"\n—Perdita",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/14_ca6cb4f3e9cf594e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/14_fc822242c47db25e960a7e575523bbf85b675cb5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/14_ba9e6a6eee4c049e359f6a0744f0a35996f9d365.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KEEPING WATCH",
@@ -886,6 +930,7 @@
     "number": 15,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1679,
     "subtitle": "One-Sixteenth Wolf",
     "strength": 1,
     "willpower": 2,
@@ -894,6 +939,8 @@
     "flavorText": "“I eat danger for breakfast.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/15_1e5f88b50a131bd3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/15_8f7a8fcc8d6fb2352e4ece795f0d89a5c86caf90.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/15_37770dd65758b0bbbc8b713fec65087c7de2224e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TINY HOWL",
@@ -948,6 +995,7 @@
     "number": 16,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1680,
     "subtitle": "Beloved Wife",
     "strength": 4,
     "willpower": 4,
@@ -956,6 +1004,8 @@
     "flavorText": "“I don't imagine anything could ever take her place in our hearts.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/16_da048728d064c060_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/16_cc7bf63e658769c81e79835f0fa6708f8888f0b4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/16_6a8635ba8d21618c404f7d8ef857e9456d2e26e7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HOW SWEET",
@@ -1013,6 +1063,7 @@
     "number": 17,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1681,
     "subtitle": "Old Sheepdog",
     "strength": 3,
     "willpower": 6,
@@ -1021,6 +1072,8 @@
     "flavorText": "His training was invaluable in infiltrating the palace.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/17_c8be30872d726d7f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/17_4a884ae223bed84b0614bb26a2b8e6c2247f6b01.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/17_496de9137573df994555fdf41c4d066f7b47d769.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WE'VE GOT 'EM OUTNUMBERED",
@@ -1091,6 +1144,7 @@
     "number": 18,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1682,
     "subtitle": "Commanding Officer",
     "strength": 5,
     "willpower": 5,
@@ -1098,6 +1152,10 @@
     "rulesText": "SENDING BACKUP During an opponent’s turn, whenever one of your characters with <Bodyguard> is banished, you may reveal the top card of your deck. If it’s a character card with cost 5 or less, you may play that character for free. Otherwise, put it on the top of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/18_d8dbedaa7d2b09a0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/18_6d52cd45d57b94826f8d8a01b7cf5e7b92878cde.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/18_b74aa86b5db3520344784f31b182e73f3640249b.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/18_f7680d591b50855f7c06c0b5ef585f8cfbe30d77.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "SENDING BACKUP",
@@ -1151,6 +1209,7 @@
     "number": 19,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1683,
     "subtitle": "Protective Pig",
     "strength": 2,
     "willpower": 2,
@@ -1158,6 +1217,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nFREE FRUIT When this character is banished, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/19_6282b0978d02c311_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/19_d8cf0a8082db1eea7ecfeb8283edf09b6f4af176.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/19_12263bb01609c48bc753827f7b179633482df3de.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FREE FRUIT",
@@ -1224,6 +1285,7 @@
     "number": 20,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1684,
     "subtitle": "Singing Seer",
     "strength": 3,
     "willpower": 7,
@@ -1232,6 +1294,8 @@
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Bruno Madrigal.)\nBRIGHT FUTURE Whenever this character sings a song, you may draw a card for each character you have in play.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/20_6b2247001644b8e8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/20_a4f7d1bbdbae3cbde752d4f05917a1abee3c156d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/20_c6529eaa9fe7042ac21c158f73300ada3a23150a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BRIGHT FUTURE",
@@ -1307,6 +1371,7 @@
     "number": 21,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1685,
     "subtitle": "Hypnotizing Python",
     "strength": 3,
     "willpower": 3,
@@ -1315,6 +1380,8 @@
     "flavorText": "\"You have just made a s-serious mis-sstake, my friend.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/21_8f568c547821a6e2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/21_c0d51f05ad2c3b9b3be3c3b1c6027e08e0d5d2cd.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/21_91eb6455faf9118a979077ae679912afc09263f0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK ME IN THE EYE",
@@ -1383,6 +1450,7 @@
     "number": 22,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1686,
     "subtitle": "Dapper Rascal",
     "strength": 2,
     "willpower": 8,
@@ -1391,6 +1459,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Tramp.)\nPLAY IT COOL During an opponent’s turn, whenever one of your characters is banished, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/22_a99476c3874c1e1e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/22_95c1b5f4ef58855b3682dd8230416006c16da474.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/22_1425e0ca7a1423cd09e184821c098c1f905a9bc5.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLAY IT COOL",
@@ -1451,6 +1521,7 @@
     "number": 23,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1687,
     "subtitle": "Sugar Rush Nightmare",
     "strength": 3,
     "willpower": 2,
@@ -1458,6 +1529,8 @@
     "rulesText": "A NEW ROSTER When this character is banished, you may return another Racer character card from your discard to your hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/23_d658bbed38b4ad03_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/23_f506399c694872f96d1b8c3882ba8a9cf41281d4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/23_3d852d6b9e3d20c430127e927754d08aca7314de.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "A NEW ROSTER",
@@ -1551,6 +1624,7 @@
     "number": 24,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1688,
     "subtitle": "Big Lug",
     "strength": 7,
     "willpower": 5,
@@ -1559,6 +1633,8 @@
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Wreck-It Ralph.)\nBACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/24_c4c5fce87666222d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/24_a540249f7ebc405087edfb18ccb1cff3bf438508.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/24_d8780710fdf40979ddc6829cdcf0572731175b40.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BACK ON TRACK",
@@ -1620,6 +1696,7 @@
     "number": 25,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1689,
     "subtitle": "Playful Pup",
     "strength": 0,
     "willpower": 2,
@@ -1628,6 +1705,8 @@
     "flavorText": "Sand sure was more fun than it looked!",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/25_54ca159b999e67d6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/25_302070fdd52b38e22511df29cf99fc9c38c34521.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/25_4e0fdb7dd058de9178385797ec6544421f8ee3ee.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PUPPY BARKING",
@@ -1691,6 +1770,7 @@
     "number": 26,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1690,
     "subtitle": "Chubby Puppy",
     "strength": 2,
     "willpower": 3,
@@ -1698,6 +1778,8 @@
     "rulesText": "<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nADORABLE ANTICS When you play this character, you may put a character card from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/26_59d2ea385723dc18_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/26_464934dd83d225abfdee16451b71ecbde6031852.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/26_af975af4eb669d4759ce77bc5c015c0a989b60d3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ADORABLE ANTICS",
@@ -1761,6 +1843,7 @@
     "number": 27,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1691,
     "subtitle": "Determined Mother",
     "strength": 4,
     "willpower": 6,
@@ -1769,6 +1852,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Perdita.)\nQUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/27_4a9ebac074d4655e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/27_bc3bad4b597adb23e4d4ddd659dfac2011e65b61.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/27_efb1b6e4e68801cdcc106255892d6c5004e82c93.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "QUICK, EVERYONE HIDE",
@@ -1832,6 +1917,7 @@
     "number": 28,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1692,
     "subtitle": "Tried and True",
     "strength": 2,
     "willpower": 7,
@@ -1839,6 +1925,8 @@
     "rulesText": "HAPPY HELPER While this character has no damage, he gets +2 {S} and gains <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/28_0a331fc9967acc74_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/28_5ce64b28bceee0406ee9d2045038fcb718676003.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/28_a4ca51c04d81e7719de2d797054d600409c8741e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HAPPY HELPER",
@@ -1878,6 +1966,7 @@
     "number": 29,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1693,
     "subtitle": "Down but Not Out",
     "strength": 0,
     "willpower": 4,
@@ -1886,6 +1975,8 @@
     "flavorText": "\"The only power you need is the power of AWESOMENESS!\"\n—Rhino",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/29_456303b96067afcc_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/29_097df379f5dddd039f672e02060690a0c3102627.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/29_767a5d397da066e472840b9c676cf67d2e3fb45e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NONE OF YOUR POWERS ARE WORKING",
@@ -1938,6 +2029,7 @@
     "number": 30,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1694,
     "subtitle": "Power Hamster",
     "strength": 4,
     "willpower": 3,
@@ -1946,6 +2038,8 @@
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Rhino.)\nEPIC BALL OF AWESOME While this character has no damage, he gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/30_7c6a15678dea0de7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/30_3762ba7b0954eb087f207116661f83a37f3a5e50.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/30_112a5bf8de028a71f456f9b03ff68674d9f5d415.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EPIC BALL OF AWESOME",
@@ -2006,6 +2100,7 @@
     "number": 31,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1695,
     "subtitle": "Faithful Companion",
     "strength": 1,
     "willpower": 4,
@@ -2014,6 +2109,8 @@
     "flavorText": "\"He knows the way through. Just try to keep up!\"\n—Antonio",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/31_f32bac0a356a330f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/31_2212f4811076b4f8ea17f6741ac3326f6be9e7f3.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/31_f576595cd96f926fd86bbed024c55a97d5a3ee96.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU WANT TO GO WHERE?",
@@ -2065,6 +2162,7 @@
     "number": 32,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1696,
     "subtitle": "Hard-Nosed Leader",
     "strength": 4,
     "willpower": 5,
@@ -2072,6 +2170,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nLOOT DROP When this character is banished, gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/32_6eb301e1d07fd658_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/32_08d91f499432be9fcd15cc50fbfa13e806a757cb.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/32_f44a55fa6be835b1f08e3451bda4c2eac5096cbb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOT DROP",
@@ -2147,6 +2247,7 @@
     "number": 33,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1697,
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
@@ -2154,6 +2255,8 @@
     "rulesText": "PACK OF HER OWN Whenever you play a character, this character gets +1 {S} this turn.\nTAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/33_39e7f63c6908c8b3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/33_eaa6939bc4d6f87e78f358fa15d458aefedc27cf.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/33_90ffd3712b96be35666a2024ad6d02507a71290b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PACK OF HER OWN",
@@ -2217,6 +2320,7 @@
     "number": 34,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1698,
     "subtitle": "Accepting Grandmother",
     "strength": 5,
     "willpower": 5,
@@ -2225,6 +2329,8 @@
     "flavorText": "“I’m sorry I held on too tight.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/34_7dc24e1bf5cdbf98_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/34_12e0cf5eb52d8517d49ad8b2b884bea6808686f0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/34_6567901343a2631581fe79b9bfca15b16d7d3f0b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE MIRACLE IS YOU",
@@ -2265,6 +2371,7 @@
     "number": 35,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1699,
     "subtitle": "Front Desk Officer",
     "strength": 1,
     "willpower": 4,
@@ -2272,6 +2379,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\n<Singer> 4 (This character counts as cost 4 to sing songs.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/35_c911cb7b75c21187_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_519a6b1937d669a6d7b1f360179c5342efafaa67.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/35_de6ee0e0a6cc943e7eb7c5d386cfbf711e6bf592.jpg"
   },
@@ -2323,6 +2432,7 @@
     "number": 36,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1700,
     "subtitle": "Blue Pigeon",
     "strength": 3,
     "willpower": 3,
@@ -2331,6 +2441,8 @@
     "flavorText": "\"If you need fixin’, ol' Joey’s on the job.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/36_3215548d94117248_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/36_a9c9153420c4c5efe9a16e15f3d4d6cf8cd14173.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/36_abde84302f14fa87f849679a36fa90c4c402a6eb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'VE GOT JUST THE THING",
@@ -2427,6 +2539,7 @@
     "number": 37,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1701,
     "subtitle": "Coin Collector",
     "strength": 4,
     "willpower": 8,
@@ -2434,6 +2547,8 @@
     "rulesText": "HERE, PIGGY, PIGGY For each item named The Nephews’ Piggy Bank you have in play, you pay 2 {I} less to play this character.\nMONEY EVERYWHERE When you play this character, your other characters gain “{E} — Draw a card” this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/37_540f9991f5c8817d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/37_f5ff3d0990d1484b4463afe29cdcd6b3db510fbf.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/37_45a8751ed966e3f556068bd29e5cf01d80abac6d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HERE, PIGGY, PIGGY",
@@ -2478,6 +2593,7 @@
     "number": 38,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1702,
     "subtitle": "Tail Wagger",
     "strength": 2,
     "willpower": 3,
@@ -2486,6 +2602,8 @@
     "flavorText": "“Oh boy! A new friend to play with!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/38_2c253da3fdee1662_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/38_c1ed379c94979766fee74cf422f799e216644803.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/38_10b9fda39c7f5ee281de41823f8074404c249d34.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHERE DID THEY ALL COME FROM?",
@@ -2493,9 +2611,9 @@
         "raw": "WHERE DID THEY ALL COME FROM? You may have up to 99 copies of Dalmatian Puppy – Tail Wagger in your deck."
       }
     ],
-    "maxCopies": 99,
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/38_c1ed379c94979766fee74cf422f799e216644803.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/38_c1ed379c94979766fee74cf422f799e216644803.jpg",
+    "maxCopies": 99
   },
   {
     "id": "candy-drift",
@@ -2514,10 +2632,13 @@
     "number": 39,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1703,
     "rulesText": "Draw a card. Chosen character of yours gets +5 {S} this turn. At the end of your turn, banish them.",
     "flavorText": "“This will overheat your engine like a sack of cinnamon candy, so you better win quick!”\n—Vanellope von Schweetz",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/39_91bcd1bc13d633e5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/39_5bddc69de1a5257439e3f3a6d1fe5289fb04204e.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/39_712e0d318c7c582d08d7c1bd759602ddccb4a0dc.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -2577,9 +2698,12 @@
     "number": 40,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1704,
     "rulesText": "Choose one:\n• Remove up to 3 damage from chosen character.\n• Remove up to 3 damage from each of your characters with <Bodyguard>.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/40_c7a5aaf5a561c599_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/40_a5f99850936e8e0bbde2db0c1d09d5e6c86139a3.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/40_12b385d87ef1186ba16e70cc9a20d586f6f95aac.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -2644,10 +2768,13 @@
     "number": 41,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1705,
     "rulesText": "Return chosen character with 2 {S} or less to their player’s hand. Return a character card from your discard to your hand.",
     "flavorText": "\"Home wreckers! That’s what they are!\"\n—Tramp",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/41_1301ccc1f389561a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/41_004db87f51a8fcaa39fadf4653178ba08934f74d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/41_d2d35df8fe299a4e5819a4611e9eddd5beccbd13.jpg",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -2709,9 +2836,12 @@
     "number": 42,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1706,
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nReturn up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/42_c92984d7cfea22a4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/42_d3b8c9c2bcf02f2ae1912235b4d83a1c0793ece4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/42_bdaa8bc87ec6ecf765d2ab2c43762652a26ab7cb.jpg",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -2761,9 +2891,12 @@
     "number": 43,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1707,
     "rulesText": "(A character with cost 2 or more can {E} to sing this song for free.)\nChosen character gets –4 {S} until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/43_1ca2d9ea2124cafa_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/43_4b745bc1bf50cd2488058cfda44e4cb20879941c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/43_e0bc5d76003ae5deb4c9fc372ddce57533d22ffb.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -2842,9 +2975,12 @@
     "number": 44,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1708,
     "rulesText": "INSIDE JOB If you have a character named Donald Duck in play, you pay 1 {I} less to play this item.\nPAYOFF {E} — Chosen character gets –1 {S} until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/44_c6204635ef967035_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/44_6f3c2ad1837f2a60a79c4e919fac98342d29d859.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/44_7361086094d66fd63f479f6eabf7dbb8c20564de.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "INSIDE JOB",
@@ -2885,6 +3021,7 @@
     "number": 45,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1709,
     "subtitle": "Spectral Sentry",
     "strength": 1,
     "willpower": 4,
@@ -2893,6 +3030,8 @@
     "flavorText": "\"All of the power of the normal guards, with none of the insolence.\"\n—Jafar",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/45_a55cc2d58dc4adb2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_879474c451b02781343b7de9a28f92785d9e21c6.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/45_53c6068ec4c0ecfc6f3f9116983a8bf5f9245e53.jpg"
   },
@@ -2921,6 +3060,7 @@
     "number": 46,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1710,
     "subtitle": "Ravenous Plague",
     "strength": 1,
     "willpower": 5,
@@ -2929,6 +3069,8 @@
     "flavorText": "“They’ve always been here. Waiting for a moment of weakness to attack.” \n—Sisu",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/46_99b9cead6cbbf728_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_d03a71daf5919064174a3ea6c2c766c6e3a4d104.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/46_2dfdf98a63156050abb7c3b355a1f06a9b92e354.jpg"
   },
@@ -2977,6 +3119,7 @@
     "number": 47,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1711,
     "subtitle": "Deceiving Partner",
     "strength": 3,
     "willpower": 3,
@@ -2984,6 +3127,8 @@
     "rulesText": "DOUBLE-CROSS When you play this character, you may deal 2 damage to another chosen character of yours to return chosen character with cost 2 or less to their player’s hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/47_24809a3a5df5d21b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/47_d04add8b4ca34be87236dfec5a4fab6e870b66bd.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/47_40b2afee8a7e777c125af5886c1d072713ee6beb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DOUBLE-CROSS",
@@ -3052,6 +3197,7 @@
     "number": 48,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1712,
     "subtitle": "Ruthless Tyrant",
     "strength": 3,
     "willpower": 6,
@@ -3060,6 +3206,8 @@
     "flavorText": "\"Don't forget—I'm the guy with the leverage here.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/48_5cb5ac3c448a8178_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/48_1af6e9e7363bde226e8afb1eeb23872d5574b8ac.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/48_9e3a383b08fb878cfa10fadcd73ec97818d50fcd.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SHORT ON PATIENCE",
@@ -3121,6 +3269,7 @@
     "number": 49,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1713,
     "subtitle": "Pure Energy",
     "strength": 1,
     "willpower": 3,
@@ -3128,6 +3277,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nSUPERNATURAL VENGEANCE {E} — Deal 1 damage to chosen character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/49_3d03fd3fc5ceee1d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/49_8027d01768bfb6ee3cc87cb2fcdd0d1b2403aad5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/49_6897e84f3d74c40e95f02e60708e271f0d62078d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SUPERNATURAL VENGEANCE",
@@ -3202,6 +3353,7 @@
     "number": 50,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1714,
     "subtitle": "Illusory Pachyderm",
     "strength": 3,
     "willpower": 7,
@@ -3209,6 +3361,8 @@
     "rulesText": "<Vanish> (When an opponent chooses this character for an action, banish them.)\nGRASPING TRUNK Whenever this character quests, gain lore equal to the {L} of chosen opposing character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/50_d14acf373c012b4f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/50_10f1b3e9830d286bb1d8bfd37436fa5f5b3a8cc1.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/50_f1481eedefe05b83bed1f225ca892b482b158286.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GRASPING TRUNK",
@@ -3267,6 +3421,7 @@
     "number": 51,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1715,
     "subtitle": "Single-Minded",
     "strength": 3,
     "willpower": 4,
@@ -3275,6 +3430,8 @@
     "flavorText": "“I’m not in the vision business right now. I’m in the stopping you business.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/51_686a0ebd12a6d65e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/51_580932d7ccbb709b55a56eefb4190a5041bb2083.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/51_daa86e8a5bbfa9eb60e425c757d9dacf9944fecb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STANDING TALL",
@@ -3328,6 +3485,7 @@
     "number": 52,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1716,
     "subtitle": "Octopus Soldier",
     "strength": 1,
     "willpower": 2,
@@ -3335,6 +3493,8 @@
     "rulesText": "HEAVILY ARMED Whenever you draw a card, this character gains <Challenger> +1 this turn. (They get +1 {S} while challenging.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/52_b3ed196d3563fcc9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/52_46b887641c602e48a5aa4365ea90f24c67e2b131.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/52_977330572852a4659d089bdf592514bf38714754.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEAVILY ARMED",
@@ -3391,6 +3551,7 @@
     "number": 53,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1717,
     "subtitle": "Bored Royal",
     "strength": 1,
     "willpower": 3,
@@ -3399,6 +3560,8 @@
     "flavorText": "\"Wait'll they get a whiff of this . . .\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/53_10e206fc565f07a3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/53_a5a6adb98d2d543bda1b489255eae2fda8b264ee.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/53_b43dccc208d04757bec430a267801d06a45fdfa9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LLAMA BREATH",
@@ -3455,6 +3618,7 @@
     "number": 54,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1718,
     "subtitle": "Part of the Plan",
     "strength": 2,
     "willpower": 5,
@@ -3463,6 +3627,8 @@
     "flavorText": "“The sooner we get this done, the sooner I'm free . . . of you.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/54_ab8cd2a7e2ee12bb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/54_9e02019d197fc71f58fb9ba0faa8ea8a5df021ab.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/54_988bde2e6ff47deb1c1c1d05302076ded1a4fe89.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CONTENTIOUS ALLIANCE",
@@ -3518,6 +3684,7 @@
     "number": 55,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1719,
     "subtitle": "Northuldra Leader",
     "strength": 2,
     "willpower": 3,
@@ -3525,6 +3692,8 @@
     "rulesText": "WE ONLY TRUST NATURE When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/55_93ffd5de9e86fe07_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/55_60d3201bb1ffe69925bf6412311357a1f8df2e17.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/55_9cfe4509decdc40ee106c8334fb0197e7aaa2f4b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WE ONLY TRUST NATURE",
@@ -3559,6 +3728,7 @@
     "number": 56,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1720,
     "subtitle": "Fleet-Footed Infiltrator",
     "strength": 3,
     "willpower": 4,
@@ -3567,6 +3737,8 @@
     "flavorText": "\"Sheesh, what is it with this high sultan guy? Can't he put in stairs like a normal person?\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/56_52fabf41d51c9bd6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_dfc477e240347f21f65e180d1e6290bbf73e331e.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/56_0a3edc86209f673d727a8e6d9ab33fc13e5824ac.jpg"
   },
@@ -3590,6 +3762,7 @@
     "number": 57,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1721,
     "subtitle": "Prince of the Forest",
     "strength": 3,
     "willpower": 2,
@@ -3597,6 +3770,8 @@
     "flavorText": "As he grew older, he began to understand his responsibilities to all the creatures of the woods.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/57_9f38c370710de667_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_20e8e8024a2149aaccfb8eb218c08541e308edbc.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/57_4bdbf4d15c02b5d2497c50d9b84a0ec6fbf556b4.jpg"
   },
@@ -3620,6 +3795,7 @@
     "number": 58,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1722,
     "subtitle": "Magica's Brother",
     "strength": 3,
     "willpower": 4,
@@ -3627,6 +3803,8 @@
     "flavorText": "“Sister, dear, if we turn all the townspeople into frogs, who will give us our gold and turnips?”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/58_81140230265c761f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_bed75186e0ee19d108907af0d1dfc41e83fbf1ed.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/58_07056688954432acb51b30be595eb7c7b5b38f65.jpg"
   },
@@ -3650,6 +3828,7 @@
     "number": 59,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1723,
     "subtitle": "Up to No Good",
     "strength": 4,
     "willpower": 3,
@@ -3657,6 +3836,8 @@
     "flavorText": "“They think they know my tricks . . . Oh, this one’s going to be marvelously malicious!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/59_9a640297b616a03c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73aa2be8fb53b42e553643184720cb959484357b.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/59_73b501ab955c626a000c3ef4290d90c7efa49484.jpg"
   },
@@ -3714,6 +3895,7 @@
     "number": 60,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1724,
     "subtitle": "Fierce Protector",
     "strength": 3,
     "willpower": 4,
@@ -3722,6 +3904,8 @@
     "flavorText": "“I have to protect my sister. You're not going anywhere!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/60_cb75822f0aae9376_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/60_7b15000c8441a16a5078f04ec514d1d304b3aad6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/60_1ff72b0783981ce8e7e20954d2bff1c51e790471.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ICE OVER",
@@ -3778,6 +3962,7 @@
     "number": 61,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1725,
     "subtitle": "Strings Attached",
     "strength": 0,
     "willpower": 4,
@@ -3785,6 +3970,10 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nGOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/61_20c7c539d9eaa605_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/61_4a05eb9450e04f1a844bfa1df1e153b08f0a82c4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/61_82623185e9c851d481f6d40d8764062912d6d3d3.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/61_e8ef51a382ebd123f56a5bf9144275cd13725d6d.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "GOT TO KEEP REAL QUIET",
@@ -3839,6 +4028,7 @@
     "number": 62,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1726,
     "subtitle": "Level-Headed and Wise",
     "strength": 1,
     "willpower": 1,
@@ -3846,6 +4036,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nENOUGH’S ENOUGH While this character is exerted, opposing characters with <Rush> enter play exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/62_5cf4c28febe1d07e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/62_e662995e14c5b3332380f657cd6226c886381c8e.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/62_862f799cc88c33ace6686cd413dc1a6b5cd7367a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ENOUGH'S ENOUGH",
@@ -3918,6 +4110,7 @@
     "number": 63,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1727,
     "subtitle": "Little Prince",
     "strength": 1,
     "willpower": 1,
@@ -3925,6 +4118,10 @@
     "rulesText": "SAY HELLO When you play this character, gain 1 lore.\nKIND OF BASHFUL When an opponent plays a character, return this character to your hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/63_25772df7e00db37e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/63_4bc96b78fb2ba12dff226ea9d12415dc98846835.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/63_256eabbed14a710e1d9d99e996ed1b679eecdb3c.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/63_ce5453ae194304338919b426dfb1163c41499c59.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "SAY HELLO",
@@ -3992,6 +4189,7 @@
     "number": 64,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1728,
     "subtitle": "Infamous Whale",
     "strength": 6,
     "willpower": 8,
@@ -3999,6 +4197,8 @@
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nFULL BREACH Choose and discard a card — Ready this character. He can’t quest for the rest of this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/64_797c882251f3cb60_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/64_a235aab75c9722ec3a8b0ec018c736603fc33f86.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/64_cf0c655af3a64b11813b3352446c1a8d2be6fb18.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FULL BREACH",
@@ -4060,6 +4260,7 @@
     "number": 65,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1729,
     "subtitle": "Fearsome Crocodile",
     "strength": 2,
     "willpower": 3,
@@ -4068,6 +4269,8 @@
     "flavorText": "He's identical to Brutus in temperament and toothiness.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/65_c7db78ee30d999e3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/65_d82a1d663f6bcb92754c9d77d9dcb6ac65c5d38b.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/65_98b81aecb0dcf0698754884ef61277fa2c76d834.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AND MEAN",
@@ -4139,6 +4342,7 @@
     "number": 66,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1730,
     "subtitle": "Shadow Form",
     "strength": 3,
     "willpower": 3,
@@ -4146,6 +4350,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nDANCE OF DARKNESS When you play this character, you may return another chosen character of yours to your hand to draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/66_8dd5f40f13ddfeb8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/66_5590ad928d7e71c6e8136f630a34b6cf5f0c957f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/66_b13cfe10f6f51ea63f3b4c751a39117ec42dbe6d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DANCE OF DARKNESS",
@@ -4217,6 +4423,7 @@
     "number": 67,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1731,
     "subtitle": "Impulsive Llama",
     "strength": 5,
     "willpower": 5,
@@ -4225,6 +4432,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Kuzco.)\nWHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/67_c10b11701dd04ebf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/67_c48d584577b7e6e10f7b42e4667ff335e8284955.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/67_2b6b27c130f589dc51fd7b798586ab4f3073c923.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT DOES THIS DO?",
@@ -4289,6 +4498,7 @@
     "number": 68,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1732,
     "subtitle": "On Edge",
     "strength": 3,
     "willpower": 6,
@@ -4296,6 +4506,8 @@
     "rulesText": "WHY DO WE EVEN HAVE THAT LEVER? When you play this character, if you have a card named Pull the Lever! in your discard, you may search your deck for a card named Wrong Lever! and reveal that card to all players. Put that card into your hand and shuffle your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/68_b16670821ecc0b62_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/68_53c741362dad2c7bca84909b6d174c380484d327.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/68_fe5f1a2796bd14b6a9ab52f28c7ec28e1e8fd696.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHY DO WE EVEN HAVE THAT LEVER?",
@@ -4374,6 +4586,7 @@
     "number": 69,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1733,
     "subtitle": "Rhino",
     "strength": 6,
     "willpower": 5,
@@ -4382,6 +4595,8 @@
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Madam Mim.)\nMAKE WAY, COMING THROUGH! When you play this character, banish her or return another chosen character of yours to your hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/69_79fdbde817e13c83_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/69_07c456151be28771ba9ab2298722d8403f11573a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/69_cb34e8e10202ac7e9149b6d819f5e917446d436b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MAKE WAY, COMING THROUGH!",
@@ -4473,6 +4688,7 @@
     "number": 70,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1734,
     "subtitle": "Knows What's Best",
     "strength": 1,
     "willpower": 3,
@@ -4480,6 +4696,8 @@
     "rulesText": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and “When this character is banished in a challenge, return this card to your hand” this turn. (They get +1 {S} while challenging.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/70_3d7e2c390f84b32b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/70_ae9ff9045f3946841e4db90edd5c65558967d647.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/70_39451eeb39fc2faaf046e7e39e3dc8e9def59b17.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK WHAT YOU'VE DONE",
@@ -4520,6 +4738,7 @@
     "number": 71,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1735,
     "subtitle": "Guiding Light",
     "strength": 2,
     "willpower": 2,
@@ -4527,6 +4746,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/71_be308abfd2899c1c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_af4ec0eca175afcb639ee0ccadcf8f5e89e1d810.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/71_54bb7279891728e7a17c952cbd7aec9746e0e684.jpg"
   },
@@ -4593,6 +4814,7 @@
     "number": 72,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1736,
     "subtitle": "Magical Mission",
     "strength": 3,
     "willpower": 6,
@@ -4601,6 +4823,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Anna.)\n<Support> (Whenever this character quests, you may add their {S} to another chosen character’s {S} this turn.)\nCOORDINATED PLAN Whenever this character quests, if you have a character named Elsa in play, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/72_38ef23a11f195240_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/72_9ee84ec10a2d5ae8462eefdf386b37fb99e3cf59.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/72_b7eb2b1541ade7ebf84b4c3da0d259521cade888.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COORDINATED PLAN",
@@ -4673,6 +4897,7 @@
     "number": 73,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1737,
     "subtitle": "Royal Apparition",
     "strength": 5,
     "willpower": 5,
@@ -4680,6 +4905,8 @@
     "rulesText": "<Vanish> (When an opponent chooses this character for an action, banish them.)\nCOMMANDING PRESENCE Whenever one of your Illusion characters quests, exert chosen opposing character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/73_bf032881cce598cc_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/73_83b3589488f2a62af73e94fb219fdff0ef73a1f6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/73_39d8ca4e405da14d507db1c5e82445654052770e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COMMANDING PRESENCE",
@@ -4763,6 +4990,7 @@
     "number": 74,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1738,
     "subtitle": "High Sultan of Lorcana",
     "strength": 4,
     "willpower": 4,
@@ -4770,6 +4998,8 @@
     "rulesText": "DARK POWER Whenever this character quests, you may draw a card, then choose and discard a card. If an Illusion character card is discarded this way, you may play that character for free.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/74_0915f1643b51e222_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/74_195b797e7636b8d60ff061cbb3352d557fc17b2d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/74_ca33e4855dd8c65116e6a8f30def4ca26135e4cb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DARK POWER",
@@ -4817,6 +5047,7 @@
     "number": 75,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1739,
     "subtitle": "Center Stage",
     "strength": 4,
     "willpower": 4,
@@ -4825,6 +5056,8 @@
     "flavorText": "“My primo Camilo won’t stop until he makes you smile today.”\n—Mirabel",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/75_ab99213f6e0e55b8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/75_4f8966284c051ea657db6ffde4072e219105c532.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/75_855379eeb252831d0d1e9701ffef9409b9abdb50.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ENCORE! ENCORE!",
@@ -4881,6 +5114,7 @@
     "number": 76,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1740,
     "subtitle": "Shy Skunk",
     "strength": 3,
     "willpower": 3,
@@ -4889,6 +5123,8 @@
     "flavorText": "His sweet nature outmatches all the blooms in the meadow.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/76_8464404d9b38f5c3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/76_7eada0448a07ed0ca02e1d4eb6acc57ae4690807.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/76_55326a4797fc2444f1b1aaf964076565a3ee1b25.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOKING FOR FRIENDS",
@@ -4915,10 +5151,13 @@
     "number": 77,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1741,
     "rulesText": "Your characters gain <Challenger> +2 and “When this character is banished in a challenge, return this card to your hand” this turn. (They get +2 {S} while challenging.)",
     "flavorText": "Fight with honor, win with dignity.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/77_74b049485aa14ecb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/77_4f676de3b01ac5e09bff758f970da3adc20e2751.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/77_ebd543871656cd66eaedc641c6ff9e71cb9726be.jpg",
     "actionEffects": [
       {
         "type": "grant_keyword",
@@ -4982,10 +5221,13 @@
     "number": 78,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1742,
     "rulesText": "Up to 2 chosen characters can’t ready at the start of their next turn. Draw a card.",
     "flavorText": "\"You boys have had your fun. Now, pay for it.\"\n—The Coachman",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/78_66ae202366b6ecd5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/78_a536cf1fc707534ce9ff7b134575801f49f15491.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/78_dfb11fc51e70579e03d37fa6d2148266765e8ed4.jpg",
     "actionEffects": [
       {
         "type": "cant_action",
@@ -5041,9 +5283,12 @@
     "number": 79,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1743,
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nFor each character that sang this song, draw a card and gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/79_e2440316431e79bf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/79_4f6a9d5abb7ab8455c9e4339d349b584320ec7be.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/79_d353bffd9f480a82e7c8acd20b9168968d2626d6.jpg",
     "actionEffects": [
       {
         "type": "each_target",
@@ -5090,9 +5335,12 @@
     "number": 80,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1744,
     "rulesText": "Choose one:\n• Draw 2 cards.\n• Each opponent chooses and discards a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/80_66d29ef1ae4f5ca4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/80_2406b5aef7276513c3c81661726d134ad3ca90f8.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/80_9153401f9dc46485a24ac049504b34e699459257.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -5147,9 +5395,12 @@
     "number": 81,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1745,
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nPut chosen exerted character into their player’s inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/81_f568bd020cc864d3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/81_25e0f1bfa276bb0f8b57d0e592405353d71b757b.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/81_b2d71be0c3865d4ad9461517d9f13a043888a4cc.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -5186,9 +5437,12 @@
     "number": 82,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1746,
     "rulesText": "Move 1 damage counter from each damaged character you have in play to chosen opposing character. Draw a card for each damage counter moved this way.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/82_fd34446a96012730_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/82_cf2ea1fc54a5bc230366db04a695687eebd4bf58.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/82_fd375cf7b4baac7b9943d32e95f67c48a91ddd47.jpg",
     "actionEffects": [
       {
         "type": "sequential",
@@ -5281,10 +5535,13 @@
     "number": 83,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1747,
     "rulesText": "SEARCH THE SANDS {E}, 2 {I} — Return an Illusion character card from your discard to your hand.",
     "flavorText": "“If we can catch one, maybe we can recalibrate it to help us get rid of Jafar's illusions!”\n—Venturo, an Illumineer",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/83_61cef18d008e2371_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/83_079beb48eb8393818e25e50a67e65be612b12eb9.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/83_17c6be4e72e86517938bafaeaa27bfaf80f92e52.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SEARCH THE SANDS",
@@ -5377,9 +5634,12 @@
     "number": 84,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1748,
     "rulesText": "HOLD STILL When you play this item, exert chosen opposing character.\nIT’S STUCK {E}, 1 {I} — Exert chosen opposing item. It can’t ready at the start of its next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/84_2d36d8605002d692_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/84_684ee493fd2767a14f07d6e357ab84ac673773a9.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/84_46e0a31d842d7e970a8529999d1b9a9840459657.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HOLD STILL",
@@ -5414,6 +5674,7 @@
     "number": 85,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1749,
     "subtitle": "The Radio Operator",
     "strength": 3,
     "willpower": 4,
@@ -5421,6 +5682,8 @@
     "flavorText": "Helga: “Sounds metallic. Could be an echo off one of the rocks.”\nWilhelmina: “Do you want to do my job? Be my guest.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/85_b89fe06e565a8a19_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_feeef211203700ad0b86bd468bac393c6075f1fc.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/85_360ef467c550593ff6f3fec72b7f6585e242905c.jpg"
   },
@@ -5486,6 +5749,7 @@
     "number": 86,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1750,
     "subtitle": "Undercover Detective",
     "strength": 5,
     "willpower": 4,
@@ -5493,6 +5757,8 @@
     "rulesText": "INCAPACITATE When you play this character, you may return chosen character to their player’s hand.\nINTERFERE Whenever this character quests, chosen opponent discards a card at random.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/86_a958cfa9a606af73_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/86_08ccb52387556ce62c14f436da95f8720baaa68a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/86_4f88b62117ff6e6f8556541c77ba368a55024e9f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "INCAPACITATE",
@@ -5552,6 +5818,7 @@
     "number": 87,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1751,
     "subtitle": "Observant Guardian",
     "strength": 3,
     "willpower": 3,
@@ -5560,6 +5827,8 @@
     "flavorText": "One glance at the tiny tracks, and his protective instincts kicked in.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/87_6f205f93f42f5b09_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/87_01e6e0a7579db9740ac3085d669e4ba402e13d36.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/87_5bf7ea7f951d7ee27f76012542b0679699a3d8a3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HOW DO I GET IN?",
@@ -5630,6 +5899,7 @@
     "number": 88,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1752,
     "subtitle": "Junior Chipmunk",
     "strength": 3,
     "willpower": 3,
@@ -5637,6 +5907,8 @@
     "rulesText": "IN CAHOOTS When you play this character, if you have a character named Tipo in play, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/88_e9922a957e0d9c22_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/88_bc2b7130b04c7200db4790b39889f2e2cd84098e.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/88_d828ecacde71c574177e0e7f133f980a6ac1b261.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IN CAHOOTS",
@@ -5671,6 +5943,7 @@
     "number": 89,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1753,
     "subtitle": "Junior Chipmunk",
     "strength": 2,
     "willpower": 2,
@@ -5679,6 +5952,8 @@
     "flavorText": "\"This is so much fun, Chaca! I want to go higher!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/89_21c254b5b2470ba1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_d846adfe58fe3fa9c97d8b6a67a2c53e3339ea0e.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/89_8af8976d364cdf9584c68d7dc8b77fcef5b8860f.jpg"
   },
@@ -5724,6 +5999,7 @@
     "number": 90,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1754,
     "subtitle": "Chimney Sweep",
     "strength": 1,
     "willpower": 2,
@@ -5732,6 +6008,8 @@
     "flavorText": "\"We need a lazard with a lizard!\"\n—White Rabbit",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/90_4bc1cc78fe08780d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/90_b0f2931c1aec674bb28cd9ae54471dc4a22cb6c7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/90_c3a985b5e1454d5376a26dee808198608dbc7e60.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NOTHING TO IT",
@@ -5786,6 +6064,7 @@
     "number": 91,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1755,
     "subtitle": "Hare-Brained Eccentric",
     "strength": 3,
     "willpower": 4,
@@ -5794,6 +6073,8 @@
     "flavorText": "He really knows how to light up a room.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/91_c600b7ae777d01cd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/91_2d0992163394b65487a2ef20ec77df014a47a3fa.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/91_969a49b568f5369158f00e8a0d89927368898484.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LIGHT THE CANDLES",
@@ -5847,6 +6128,7 @@
     "number": 92,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1756,
     "subtitle": "Major Science Enthusiast",
     "strength": 2,
     "willpower": 3,
@@ -5855,6 +6137,8 @@
     "flavorText": "“Don’t be alarmed. It is just a suit. This is not my real face and body.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/92_191e1b7351ab57d0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/92_24c4c2b08319c4dbc231d640dfcdee7158ffa10c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/92_f8377bfe071e8b2e180776e7fbafbd5a8f0f7e9a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SPITTING FIRE!",
@@ -5902,6 +6186,7 @@
     "number": 93,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1757,
     "subtitle": "Karnage's First Mate",
     "strength": 4,
     "willpower": 4,
@@ -5910,6 +6195,8 @@
     "flavorText": "He certainly isn't the brains of the operation.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/93_c377d2ffdf75ccec_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/93_509130ff42ca870b5e2c39febf23d6a3e38d7de7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/93_b0329a1778bea3f69ed3032094d5813cc9285bfe.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ARE YOU SURE THIS IS SAFE, CAPTAIN?",
@@ -5939,6 +6226,7 @@
     "number": 94,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1758,
     "subtitle": "Bumbler",
     "strength": 1,
     "willpower": 3,
@@ -5946,6 +6234,8 @@
     "flavorText": "“You’re the fearless copilot who can handle any job. . . . Did I say fearless? I meant brainless!”\n—Chip",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/94_382a81809d7783cd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d5a94197cc5e006b5c32a3d453fb04bd9b9a3628.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/94_d9cdcac87116234fc9cbd461b24ba2f7206a9929.jpg"
   },
@@ -6004,6 +6294,7 @@
     "number": 95,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1759,
     "subtitle": "Endearing Alligator",
     "strength": 4,
     "willpower": 3,
@@ -6011,6 +6302,8 @@
     "rulesText": "SENSITIVE SOUL This character enters play exerted.\nFRIENDLIER THAN HE LOOKS When you play this character, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/95_556be519b1ab91b9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/95_5b907a5ac16f71de91ebd0308d132565feaba67c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/95_0f1ab9821b2bf7be6b18029ee8ff34b6ffbe1a4a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SENSITIVE SOUL",
@@ -6044,6 +6337,7 @@
     "number": 96,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1760,
     "subtitle": "Clever Bloodhound",
     "strength": 3,
     "willpower": 6,
@@ -6051,6 +6345,8 @@
     "flavorText": "“Everyone knows that without rations, an operation'll be a failure. And this is why I outrank you, Lafayette. 'Cause I see the big picture.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/96_f59bad1e36d1babd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_7ad5b1a9e966a18678f6167356c56cfbb45336c8.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/96_b6a1340dd22233648675aa542fc61d49b6ae3524.jpg"
   },
@@ -6092,6 +6388,7 @@
     "number": 97,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1761,
     "subtitle": "Quick Thinker",
     "strength": 3,
     "willpower": 2,
@@ -6100,6 +6397,8 @@
     "flavorText": "\"Don't worry, Dale! I've got you!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/97_29d04316aa739856_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/97_54788faea60e5cab35d2d2240588d4d8c8f94e85.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/97_5bbd0a590cc285c428ad98bb1f2f70b3c38e1eba.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'LL HANDLE THIS",
@@ -6156,6 +6455,7 @@
     "number": 98,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1762,
     "subtitle": "Giant-Sized",
     "strength": 5,
     "willpower": 6,
@@ -6164,6 +6464,8 @@
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Fred.)\nI LIKE WHERE THIS IS HEADING Whenever this character quests, reveal cards from the top of your deck until you reveal a Floodborn character card. Put that card into your hand and shuffle the rest into your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/98_9f1d749e9960203f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/98_c845f1576380bb016047090ebcaf6d09a4ea05b1.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/98_67d98ed612f1625a822c9415d810e12ceb31df20.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I LIKE WHERE THIS IS HEADING",
@@ -6216,6 +6518,7 @@
     "number": 99,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1763,
     "subtitle": "Quirky Scientist",
     "strength": 3,
     "willpower": 2,
@@ -6224,6 +6527,8 @@
     "flavorText": "\"The scarab's power source! I knew that if I dug around I'd find it!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/99_df2cb092eb3f9f93_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/99_22615c491d4ffed7f36ae0e9be8d00da6da0d593.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/99_916ce8f47944207945e36878ea77d7617ccf0d3d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GOLLY!",
@@ -6290,6 +6595,7 @@
     "number": 100,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1764,
     "subtitle": "Infiltration Expert",
     "strength": 5,
     "willpower": 5,
@@ -6297,6 +6603,10 @@
     "rulesText": "UNCONVENTIONAL TACTICS Whenever this character quests, you may pay 2 {I} to ready another chosen character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/100_b4e3179afc5d0934_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/100_b0199315f7843a4298e44e697f987aceb0bb7c6f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/100_148afc89f6783b1b23002fe33b1b4cf08552d044.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/100_b436585ea78b6862efd6403e630ca85a8edf5fe9.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "UNCONVENTIONAL TACTICS",
@@ -6359,6 +6669,7 @@
     "number": 101,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1765,
     "subtitle": "High Climber",
     "strength": 2,
     "willpower": 5,
@@ -6366,6 +6677,10 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nWRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/101_cd258def7eed70a8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/101_fc98fe9c34523ce5788e4800a735e7c68630f9fe.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/101_c7087f21cd888a873cd6bccbf2928639940c7b70.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/101_fbd50d98044f2363a9dec8bbe553f1504e062405.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "WRAPPED UP",
@@ -6417,6 +6732,7 @@
     "number": 102,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1766,
     "subtitle": "Breaking and Entering",
     "strength": 1,
     "willpower": 4,
@@ -6425,6 +6741,8 @@
     "flavorText": "\"One way or another, I get what I want.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/102_24eb0560463422ef_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/102_deed1ba7dd28e4b0aa88a1dc955f68a977164e4f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/102_3f8ddc9b1bca87c28d95282125533901f3ca06aa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS IS A VERY BIG DAY",
@@ -6480,6 +6798,7 @@
     "number": 103,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1767,
     "subtitle": "Easily Agitated",
     "strength": 1,
     "willpower": 2,
@@ -6488,6 +6807,8 @@
     "flavorText": "The tea is strong, even if he isn’t.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/103_5f741691444dbe0a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/103_9ba90f5c7ea24182e507aef2fac1b1b7f781f8ea.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/103_d1ee807aa9f42520067f483c15441a9ba0683e27.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "VERY RUDE INDEED",
@@ -6549,6 +6870,7 @@
     "number": 104,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1768,
     "subtitle": "Clumsy as Can Be",
     "strength": 2,
     "willpower": 6,
@@ -6557,6 +6879,8 @@
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Alice.)\nACCIDENT PRONE Whenever this character quests, put 1 damage counter on each other character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/104_1002b6f81adf6784_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/104_e6732aa858a85d279a36dd2747771f2f4ce76057.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/104_9928018d8fc7d6f12ca3238cf71b4b6f39753154.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ACCIDENT PRONE",
@@ -6612,6 +6936,7 @@
     "number": 105,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1769,
     "subtitle": "Haughty Monarch",
     "strength": 2,
     "willpower": 3,
@@ -6620,6 +6945,8 @@
     "flavorText": "She’ll go wherever she pleases, no matter who she has to step on to get there.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/105_c6c3fa2cf1f9b8b7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/105_210f51940ca9ae5719f44b87ba7a438739a91659.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/105_f1141e6f614e7a62be69ce0d1623a4b9b11d6f31.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COUNT OFF!",
@@ -6677,6 +7004,7 @@
     "number": 106,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1770,
     "subtitle": "Intuitive Thinker",
     "strength": 1,
     "willpower": 3,
@@ -6684,6 +7012,8 @@
     "rulesText": "LOOK FOR A NEW ANGLE {E} — Ready chosen Floodborn character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/106_9de798713af82dde_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/106_9932b39a21df70fe7866e977a459b9dcdb1b827d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/106_560c51c63ce7368ed7cc3a878465dd803ae45e3f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK FOR A NEW ANGLE",
@@ -6752,6 +7082,7 @@
     "number": 107,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1771,
     "subtitle": "Cutting Edge",
     "strength": 3,
     "willpower": 3,
@@ -6760,6 +7091,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Go Go Tomago.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nZERO RESISTANCE When you play this character, if you used <Shift> to play her, you may put chosen character into their player’s inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/107_7394289c7acc25e2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/107_df39c0c74fba4299f8fdfc78002d161dccf091fb.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/107_4075dac10fd8aed2adfa54ebb73d4afeaa82d335.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ZERO RESISTANCE",
@@ -6833,6 +7166,7 @@
     "number": 108,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1772,
     "subtitle": "Air Pirate Leader",
     "strength": 3,
     "willpower": 2,
@@ -6840,6 +7174,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nSCORNFUL TAUNT Whenever you play an action that isn’t a song, chosen opposing character gains <Reckless> during their next turn. (They can’t quest and must challenge if able.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/108_d8d8c2fdb1a8586e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/108_a38bbd306f5fedea6b7b2a5979a571eca86b25ab.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/108_c3a8e36c37d09c5df3fb8a65bffc09d639d61a69.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SCORNFUL TAUNT",
@@ -6939,6 +7275,7 @@
     "number": 109,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1773,
     "subtitle": "The Pirate King",
     "strength": 4,
     "willpower": 5,
@@ -6947,6 +7284,8 @@
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Captain Hook.)\nGIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/109_5ae33b99f5aa81d6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/109_bf1b76255dafbf9e0e26b89b7a5a04edace5e3fe.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/109_ddc5c9511b5bcc1420e0940b72eb5a32e49b71d0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GIVE 'EM ALL YOU GOT!",
@@ -7048,6 +7387,7 @@
     "number": 110,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1774,
     "subtitle": "Stubborn Trickster",
     "strength": 4,
     "willpower": 4,
@@ -7055,6 +7395,8 @@
     "rulesText": "I’M NOT FINISHED YET When this character is banished, choose one:\n• Put 2 damage counters on all opposing characters.\n• Banish all opposing items.\n• Banish all opposing locations.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/110_cb7e9659b897b80f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/110_048dd59e0774575666d5c0638d45dc571eadc339.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/110_299ab75d8bb245e5098ea773073860a5917ea2eb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'M NOT FINISHED YET",
@@ -7122,6 +7464,7 @@
     "number": 111,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1775,
     "subtitle": "Costumed Catalyst",
     "strength": 3,
     "willpower": 3,
@@ -7129,6 +7472,8 @@
     "rulesText": "LET’S DO THIS! Whenever you play a Floodborn character, if you used <Shift> to play them, you may return chosen character to their player’s hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/111_2edba3debdb0de54_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/111_9815104f2881c9d5820e22e6ac6119e83e7f423b.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/111_f58211c011c666833d8696249d15b465c0aa7442.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S DO THIS!",
@@ -7190,6 +7535,7 @@
     "number": 112,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1776,
     "subtitle": "Attentive Uncle",
     "strength": 3,
     "willpower": 4,
@@ -7198,6 +7544,8 @@
     "flavorText": "“Settle in, ye wee pups, and let Uncle Jock tell ye a story about some Illumineers and a mad adventure . . .”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/112_1b08e0713fc56ebb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/112_7a5cd74eb4114c5004e3233827d0586f9ba32d63.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/112_6081bfed32b1daa767fe056a446f313e5f501de4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "VOICE OF EXPERIENCE",
@@ -7291,6 +7639,7 @@
     "number": 113,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1777,
     "subtitle": "Resourceful Owl",
     "strength": 2,
     "willpower": 2,
@@ -7298,6 +7647,8 @@
     "rulesText": "YOU DON’T NEED THAT When you play this character, you may banish chosen item.\nNOW, THAT’S NOT BAD During your turn, whenever an item is banished, you may draw a card, then choose and discard a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/113_f8da4573fcf5c2a0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/113_b0e854c5f20ad211457c996f212487fe1b8cd695.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/113_a3b0b97eed3a41e4b59ea84718191a3bdd2d52ca.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU DON'T NEED THAT",
@@ -7329,10 +7680,13 @@
     "number": 114,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1778,
     "rulesText": "Banish chosen item. Draw a card.",
     "flavorText": "Lives to steal another day!",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/114_c6c685f1fcb1d1f5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/114_ca6babf290e1ec435ee47fea96aadc5671756867.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/114_9b28c1901be21f781d474a4ec0380fc06e84cb9e.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -7385,9 +7739,12 @@
     "number": 115,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1779,
     "rulesText": "<Sing Together> 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.)\nReturn up to 2 chosen characters with 3 {S} or less each to their player’s hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/115_e5b3e275b2977dfb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/115_762df6e061fa8e3faa70bfa789620fb5990bf18a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/115_c5f472ce79666dcd57106203bd76cb84b3aa16f5.jpg",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -7424,9 +7781,12 @@
     "number": 116,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1780,
     "rulesText": "Choose one:\n• Return chosen character to their player’s hand.\n• Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player’s deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/116_3a8198ddb5b74b22_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/116_7abbbb8cd3265648a7365b76851755193fda6f27.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/116_f9cb231ec226faf4883a2799c98d1c51edf11b73.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -7491,10 +7851,13 @@
     "number": 117,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1781,
     "rulesText": "Chosen opponent chooses and discards a card. Chosen character gets +2 {S} this turn.",
     "flavorText": "“It's a real shame I didn't even get a chance to study it.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/117_faa4bc7d2b26dedb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/117_9674c713f088e9b661cac2aa6d86cc6403465a5f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/117_b3e652ec20b61eb94a515ee6cec6a3545e70f86f.jpg",
     "actionEffects": [
       {
         "type": "discard_from_hand",
@@ -7538,10 +7901,13 @@
     "number": 118,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1782,
     "rulesText": "Your Pirate characters gain “{E} — Banish chosen damaged character” this turn.",
     "flavorText": "It was at this point that John decided he'd had quite enough adventure.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/118_598fb2d6e6fa1c6e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/118_3f8f19bd4f7219e9c8b5d0d8b9b6c8ffd509eb2a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/118_c607e53ab401c14f7a8d5ef34d731bce2dbbde48.jpg",
     "actionEffects": [
       {
         "type": "grant_activated_ability_timed",
@@ -7631,10 +7997,13 @@
     "number": 119,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1783,
     "rulesText": "HERE’S THE BEST PART Whenever you play a character, if you used <Shift> to play them, they get +4 {S} this turn.",
     "flavorText": "“Cute, but also potentially devastating. Perfect.” \n—Honey Lemon",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/119_214bfbd83ac35624_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/119_960584354e8dcea8b364285abd322ca9bc463d39.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/119_a9e90009a8e75ff596e55afd9f38bbe23fd2813d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HERE'S THE BEST PART",
@@ -7691,10 +8060,13 @@
     "number": 120,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1784,
     "rulesText": "WELCOME EXTRAVAGANCE Whenever one of your characters is challenged, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "Archazia created many wondrous things, but none as beautiful as this.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/120_fbd14dcc34392da8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/120_f9ab6bf84bd022d4309b8e647cf16923d3a12afa.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/120_5b002b731c9a9f5f60ba4ae8f72355ed6be16e5a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WELCOME EXTRAVAGANCE",
@@ -7756,6 +8128,7 @@
     "number": 121,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1785,
     "subtitle": "Fierce Competitor",
     "strength": 1,
     "willpower": 2,
@@ -7764,6 +8137,8 @@
     "flavorText": "\"I’ve got tricks for my opponents <and> treats for my fans!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/121_965cdc5397683c66_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/121_697e10e0458aa3d8827fef3871b3e6ce8b17f230.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/121_7c6225d826c919c49c4670e061219401ef864c2c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PUMPKIN SPICE",
@@ -7793,6 +8168,7 @@
     "number": 122,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1786,
     "subtitle": "Shameless Schemer",
     "strength": 7,
     "willpower": 5,
@@ -7800,6 +8176,8 @@
     "flavorText": "\"Say, jewels just lying around in a fancy joint like this? It would be a shame if a few went missing . . .\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/122_aebb9127d4c82e95_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_14e80f018354e44a7d3941496b788be1f17c691a.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/122_eb189fb80ceb96df7f9d99b14e2db72481de5f0f.jpg"
   },
@@ -7855,6 +8233,7 @@
     "number": 123,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1787,
     "subtitle": "Eccentric Inventor",
     "strength": 1,
     "willpower": 3,
@@ -7862,6 +8241,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nI’LL SHOW YOU! When you play this character, chosen opposing character gets –3 {S} this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/123_0a0a9274fba90a7b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/123_78701e6d2a5b3b8f9623ec2dc2e2d192646fb6ea.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/123_278b612dca568db6e1af68c221560d9cdc1c8d3a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'LL SHOW YOU!",
@@ -7898,6 +8279,7 @@
     "number": 124,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1788,
     "subtitle": "Spunky Speedster",
     "strength": 3,
     "willpower": 1,
@@ -7906,6 +8288,8 @@
     "flavorText": "“I can handle anything you throw at me . . . Wait, are those <laser snakes>? This is the best track ever!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/124_56dfd21a6e189288_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_dc4f627e4191545dc88e639f11989e38ad3a5b1a.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/124_3c2d4a95240db03bbeb15b16b3c8758b916ddb89.jpg"
   },
@@ -7962,6 +8346,7 @@
     "number": 125,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1789,
     "subtitle": "Fearsome Crocodile",
     "strength": 4,
     "willpower": 3,
@@ -7970,6 +8355,8 @@
     "flavorText": "He's identical to Nero in cruelty and classiness.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/125_7e820e337e7206bf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/125_2a3129d2b8d8aee76b1d7925f3814ded2de9bbe6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/125_091d42010b85733b563a05da2668ac5d94dbd120.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SPITEFUL",
@@ -8012,6 +8399,7 @@
     "number": 126,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1790,
     "subtitle": "Outlandish Storyteller",
     "strength": 0,
     "willpower": 6,
@@ -8020,6 +8408,8 @@
     "flavorText": "\"And there I was in the cave below the palace when suddenly sand began pouring down. Did I stop? No! What's a little sand?\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/126_9cdcce3e43cf2321_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/126_b2b34253992ae784f7da0eb60d8e441e55e32f31.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/126_919331d178e734e59d728fbd72ce9c36ec70b6d9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EXTRAORDINARY SITUATION",
@@ -8087,6 +8477,7 @@
     "number": 127,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1791,
     "subtitle": "Courageous Keyholder",
     "strength": 2,
     "willpower": 4,
@@ -8095,6 +8486,8 @@
     "flavorText": "\"Goodness, those scarabs are awfully close! We must find the way out!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/127_ee8b473fbd222a38_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/127_e2b1cea3da55e534d41df0c269a5103a71873fa6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/127_e5f949af7573a32f93ea6dc389d94eacd91d5278.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS WAY OUT",
@@ -8149,6 +8542,7 @@
     "number": 128,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1792,
     "subtitle": "Nimble Candelabra",
     "strength": 1,
     "willpower": 1,
@@ -8157,6 +8551,8 @@
     "flavorText": "\"Sacrebleu! This is no way to treat a guest in your palace!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/128_c494a881abf54bd2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/128_7968de639d8a4f5cf383de3c8c1f2d65b99cf016.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/128_c6d13cb21fb8f6f7ec6d8fc59299a4e94021be1f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "QUICK-STEP",
@@ -8212,6 +8608,7 @@
     "number": 129,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1793,
     "subtitle": "Arrogant Showoff",
     "strength": 4,
     "willpower": 4,
@@ -8220,6 +8617,8 @@
     "flavorText": "\"Take this magical stone. You'll need it to keep up with me!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/129_057e0cabfa61c311_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/129_553e014d605c4039f1177e61667d1ca5b38d18f5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/129_56d2fa61c4401401c4ddea8a1fe659ba4572f77c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BREAK APART",
@@ -8277,6 +8676,7 @@
     "number": 130,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1794,
     "subtitle": "Fast-Talking Dragon",
     "strength": 2,
     "willpower": 3,
@@ -8285,6 +8685,8 @@
     "flavorText": "“Move, move, move! There’s no time to explain. Well, maybe a little time, so listen up . . .”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/130_4c1d2d882fdfb22d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/130_d4e328fbdfacdf00aaef0eabdc04704a162960c0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/130_73755506fa0d9a069f5d7eccf05faf6eaa3b7243.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S GET THIS SHOW ON THE ROAD",
@@ -8342,6 +8744,7 @@
     "number": 131,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1795,
     "subtitle": "Part of the Team",
     "strength": 4,
     "willpower": 3,
@@ -8350,6 +8753,8 @@
     "flavorText": "\"You were so focused on me and Mulan that you forgot about my man Cri-Kee here. And that was a <mistake>!\"\n—Mushu",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/131_36bb220f83120434_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/131_30cef4186fdcffcc9778e8e54379c6c2f12c7f2e.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/131_d5e0fa9ecbddb09191c06b413f3b8023a8162bbe.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "AT HER SIDE",
@@ -8378,6 +8783,7 @@
     "number": 132,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1796,
     "subtitle": "Sleepy Basset Hound",
     "strength": 7,
     "willpower": 4,
@@ -8385,6 +8791,8 @@
     "flavorText": "\"What are we guarding the kitchen for, Napoleon? There ain't no scarabs 'round here. Call me when there's somethin' serious that needs fixin'.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/132_e3c5c5da4d246b94_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_197f36fbd56f72ebe007717ba6dc447938e5ff8a.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/132_aeb810d0c742082a87b562771e79be1736d47686.jpg"
   },
@@ -8424,6 +8832,7 @@
     "number": 133,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1797,
     "subtitle": "Tuxedo Cat",
     "strength": 3,
     "willpower": 3,
@@ -8432,6 +8841,8 @@
     "flavorText": "\"Say hello to Figaro. Up to mischief already!\"\n—Geppetto",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/133_511fac567dde311c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/133_d753c244d66de6398f42389407627d8041a178f0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/133_de6536aba6ad096e974723d2b02ea61a13133a72.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLAYFULNESS",
@@ -8488,6 +8899,7 @@
     "number": 134,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1798,
     "subtitle": "Young Bunny",
     "strength": 0,
     "willpower": 3,
@@ -8496,6 +8908,8 @@
     "flavorText": "\"C'mon! Let's show that mean old high sultan what’s what.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/134_e1ba57079cdba89c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/134_12a485f10892a5d7623888b33e72a21c42acaf69.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/134_fe0baccbc85de1d1f8fd31631e449293a6fdf498.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU CAN DO IT!",
@@ -8551,6 +8965,7 @@
     "number": 135,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1799,
     "subtitle": "Back Seat Driver",
     "strength": 4,
     "willpower": 2,
@@ -8559,6 +8974,8 @@
     "flavorText": "“Let's burn rubber, kid!”\n—Wreck-It Ralph",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/135_275dc4764459821b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/135_f49fc5b37feb18038abe238da6f26eab352735ad.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/135_7f4ff979e5f8e60224697214bee215cbcde4844e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CHARGED UP",
@@ -8634,6 +9051,7 @@
     "number": 136,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1800,
     "subtitle": "Insistent Fairy",
     "strength": 1,
     "willpower": 1,
@@ -8641,6 +9059,10 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nPAY ATTENTION Whenever you play a character with 5 {S} or more, you may exert them to gain 2 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/136_a616f0b735aa770f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/136_3d51db5f39f45529fb25087a8025b1e7a9a8a2e9.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/136_7faa34320a2f606defcc6d1061118bc427a6001b.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/136_e0812ae04b281541eca9142cd247b48dca3e4a42.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "PAY ATTENTION",
@@ -8731,6 +9153,7 @@
     "number": 137,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1801,
     "subtitle": "Causing an Uproar",
     "strength": 4,
     "willpower": 4,
@@ -8738,6 +9161,10 @@
     "rulesText": "STOMPIN’ TIME! During your turn, if you’ve played 3 or more actions this turn, you may play this character for free.\nRAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/137_0e20d8d734201f50_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/137_7861718d402199ea506554691e4d405947eb21d4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/137_b63cfe5dbfc5d1109d060bdfea1ec7581a5a10a7.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/137_511311c061c9c62d1e692fa5ca08964a4eb3f11f.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "STOMPIN' TIME!",
@@ -8823,6 +9250,7 @@
     "number": 138,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1802,
     "subtitle": "Cake Thief",
     "strength": 2,
     "willpower": 2,
@@ -8831,6 +9259,8 @@
     "flavorText": "\"LeFou, sometimes you really take the cake.\"\n—Gaston",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/138_f2903e1cdfd68ce7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/138_acbebdf65123af9d5a813f1129f69182d63972ef.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/138_8441228e717814bb9cfb2c29ef1b45db61f638d3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ALL FOR ME",
@@ -8897,6 +9327,7 @@
     "number": 139,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1803,
     "subtitle": "Fired Up",
     "strength": 4,
     "willpower": 3,
@@ -8905,6 +9336,8 @@
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Lumiere.)\n<Evasive> (Only characters with Evasive can challenge this character.)\nSACREBLEU! Whenever one of your items is banished, this character gets +1 {L} this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/139_0aec268bb20235f0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/139_245ab9b58ba0c49db1258ee24e24e23b7ae90460.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/139_ec585e981bf86f092287dd0948df087b53f7e136.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SACREBLEU!",
@@ -8966,6 +9399,7 @@
     "number": 140,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1804,
     "subtitle": "Greedy Deceiver",
     "strength": 2,
     "willpower": 2,
@@ -8973,6 +9407,8 @@
     "rulesText": "WILD RIDE While 2 or more characters of yours are exerted, this character gets +2 {S} and gains <Evasive>. (Only characters with Evasive can challenge them.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/140_ab374db9cfd42aae_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/140_72471be6dddeeb754476e213c78d82eb7a713652.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/140_cfdf11b110bea4847b28590415ac24fc71081e49.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WILD RIDE",
@@ -9035,6 +9471,7 @@
     "number": 141,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1805,
     "subtitle": "Charging Ahead",
     "strength": 3,
     "willpower": 3,
@@ -9042,6 +9479,8 @@
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/141_5d5b783f8cc76a2d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/141_d1050420f3b320a39afbf55872372ac64d19a7f8.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/141_f22a64dd0f4dbf408b78f0f88d8dd5b05cb49af7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURST OF SPEED",
@@ -9127,6 +9566,7 @@
     "number": 142,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1806,
     "subtitle": "Your Worst Nightmare",
     "strength": 4,
     "willpower": 6,
@@ -9135,6 +9575,8 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Mushu.)\nALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/142_f153a1ed7bd2c9a5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/142_e895ef11204117f8364202a038cfb6e81f8a4f64.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/142_b5c700837c4e3f5e564ae445e598f04c127fd302.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ALL FIRED UP",
@@ -9186,6 +9628,7 @@
     "number": 143,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1807,
     "subtitle": "Betrayed Partner",
     "strength": 3,
     "willpower": 3,
@@ -9194,6 +9637,8 @@
     "flavorText": "“You can't do this to me, you swindler! We had a verbal agreement!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/143_dc2aa3335f0bd0ee_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/143_8408e2308a9c10c88d06fadcb2c1f9762c450016.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/143_ab5b0bddfeeabfc462acd5075a1c0f16839e8c46.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DOUBLE-CROSSING CROOK!",
@@ -9223,6 +9668,7 @@
     "number": 144,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1808,
     "subtitle": "Cantankerous Neighbor",
     "strength": 2,
     "willpower": 2,
@@ -9230,6 +9676,8 @@
     "flavorText": "“Sand? In the forest? I’ll bet some magical miscreant’s up to no good. Well, it’s none of my concern. I’m going back to bed.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/144_11f53ab3941f7e95_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_e2abad51d4837cb352d28fed58a7b504929c9604.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/144_88136f41b62afba04948e5408d3d1ddc37bab782.jpg"
   },
@@ -9273,6 +9721,7 @@
     "number": 145,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1809,
     "subtitle": "Playful Fawn",
     "strength": 2,
     "willpower": 4,
@@ -9280,6 +9729,8 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nPRECOCIOUS FRIEND While you have a character in play with more {S} than each opposing character, this character gets +2 {L}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/145_cc3c0473361cfed3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/145_6054f34ea8b2c901e6084d19f4314a0931a240c0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/145_bf720f84c2fb8d1789170931d1ee85f05af526f7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PRECOCIOUS FRIEND",
@@ -9336,6 +9787,7 @@
     "number": 146,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1810,
     "subtitle": "Fraidy-Cat",
     "strength": 5,
     "willpower": 5,
@@ -9344,6 +9796,8 @@
     "flavorText": "Even a frightened lion still has claws.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/146_d936f616cc97812d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/146_43c2e2266e6098516a775fef516bceb00f27b504.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/146_0daaa5984dab7bc032f4d72b556fbd0c737695e6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HELP! HELP!",
@@ -9382,9 +9836,12 @@
     "number": 147,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1811,
     "rulesText": "<Sing Together> 8 (Any number of your or your teammates’ characters with total cost 8 or more may {E} to sing this song for free.)\nReady all your characters. For the rest of this turn, they take no damage from challenges and can’t quest.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/147_83c324ab4d554bd5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/147_f336c86deceeacbc375228a8719fdceabdce2100.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/147_50c8332790427888139cdc742ed512bb6c003b74.jpg",
     "actionEffects": [
       {
         "type": "ready",
@@ -9457,10 +9914,13 @@
     "number": 148,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1812,
     "rulesText": "Banish chosen character, then return an item card from your discard to your hand.",
     "flavorText": "“Leave now. Before I change my mind.”\n—The Beast",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/148_55b10f6d69be4e88_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/148_4ea26f3311c66811a30511439ac9b93cc426d272.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/148_344c9ba58b4e9e3a229c8d214022f2010a6a7b57.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -9510,10 +9970,13 @@
     "number": 149,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1813,
     "rulesText": "Deal 1 damage to chosen character for each exerted character you have in play.",
     "flavorText": "A bold act can change the course of battle.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/149_353f4b5c8190b3ea_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/149_3840cd7cebbae4d7a792e9b85207ec95a046fd81.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/149_a59c824b8a3731aa4fc6e8452db9a1c05761a699.jpg",
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -9560,10 +10023,13 @@
     "number": 150,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1814,
     "rulesText": "Chosen character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
     "flavorText": "A mysterious phenomenon that makes you feel both invincible and vulnerable at the same time.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/150_00525b8f3126651f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/150_e21e79976afcdb2b30a0815f2412ca02372e16cc.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/150_8096c8b5cfd8fa0be8fa9a00bf2a154bbd2aa206.jpg",
     "actionEffects": [
       {
         "type": "grant_keyword",
@@ -9599,10 +10065,13 @@
     "number": 151,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1815,
     "rulesText": "Gain lore equal to the damage on chosen character, then banish them.",
     "flavorText": "\"Well, some go this way, some go that way. But as for me, myself, personally, I prefer the shortcut.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/151_f2e396c8be341962_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/151_bf364e1238cf57c956b0561da39a1e5061fb128c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/151_0f8432172aa01df22efed8b9fdf9747e316f5e3f.jpg",
     "actionEffects": [
       {
         "type": "self_replacement",
@@ -9702,10 +10171,13 @@
     "number": 152,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1816,
     "rulesText": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
     "flavorText": "\"I know what this means to you.\"\n—The Emperor",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/152_d644cd5a529fe720_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/152_78f0d8c945a8447bf056ecf8541655485dd48eba.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/152_e7e9e606f136057664185ae256cead8a41d8099f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WORTHY WEAPON",
@@ -9736,6 +10208,7 @@
     "number": 153,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1817,
     "subtitle": "Ruler of Mousedom",
     "strength": 3,
     "willpower": 6,
@@ -9743,6 +10216,8 @@
     "flavorText": "\"After that dreadful Ratigan business, I know about villains. This Jafar is certainly a villain of the highest order.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/153_81cfcc3977a5ba8e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a0bca2303cec0bdae1d91356274964240dc73eeb.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/153_a860167e59be54be85220db65c2c6851fe765305.jpg"
   },
@@ -9794,6 +10269,7 @@
     "number": 154,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1818,
     "subtitle": "Seasoned Knight",
     "strength": 1,
     "willpower": 4,
@@ -9802,6 +10278,8 @@
     "flavorText": "\"Together, lads, we prevail!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/154_017fb903f6e89bcc_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/154_d0faa2b5b11e398a9fe03bbdabf2ebee9a303e2f.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/154_1ff4aa5169cedcb8c9d2b73024ffddf57ccbf244.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CODE OF HONOR",
@@ -9859,6 +10337,7 @@
     "number": 155,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1819,
     "subtitle": "Dog Lover",
     "strength": 3,
     "willpower": 3,
@@ -9866,6 +10345,8 @@
     "rulesText": "I’LL TAKE CARE OF YOU When you play this character, you may give chosen Puppy character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/155_6d49cec1bd15ebf2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/155_a561ae9b0e7e0877a2eca23c34e990f5e1f39372.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/155_1eabdd5bdf7100642a6c5acc66629ae4b44fce0d.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I'LL TAKE CARE OF YOU",
@@ -9922,6 +10403,7 @@
     "number": 156,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1820,
     "subtitle": "Recapping the Story",
     "strength": 2,
     "willpower": 1,
@@ -9930,6 +10412,8 @@
     "flavorText": "\"It began with two sisters. One born with magical powers, and one born powerless. Their love of snowmen, infinite.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/156_7527b451a81dac1c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/156_3a643876deb8cd4f0b8311fa4f2b61f12507d453.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/156_e4a00844a5a4cb64baa9428d1863dbeb5a8650af.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ENDLESS TALE",
@@ -9993,6 +10477,7 @@
     "number": 157,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1821,
     "subtitle": "Trusting Sister",
     "strength": 2,
     "willpower": 2,
@@ -10000,6 +10485,8 @@
     "rulesText": "WE CAN DO THIS TOGETHER When you play this character, if you have a character named Elsa in play, you may put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/157_810763705f400f62_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/157_d78685317d1d1413d89b102f2117712f66e9cd30.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/157_d16224595a5f7b1716b0e0f4c98e21616cd64daa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WE CAN DO THIS TOGETHER",
@@ -10035,6 +10522,7 @@
     "number": 158,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1822,
     "subtitle": "Always Prepared",
     "strength": 3,
     "willpower": 5,
@@ -10043,6 +10531,8 @@
     "flavorText": "“Okay, so the plan is ‘leave Wasabi to watch our backs while we steal the crown.' Good to know.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/158_35b1fc146c7c4d14_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_0512c1b8511f8f39b072284e4cf93206a214b709.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/158_638d512ab37245c8830820cfd3e5150eecea3198.jpg"
   },
@@ -10092,6 +10582,7 @@
     "number": 159,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1823,
     "subtitle": "Mechanical Engineer",
     "strength": 1,
     "willpower": 3,
@@ -10100,6 +10591,8 @@
     "flavorText": "“Check it out! This ‘ink’ offers so many possibilities.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/159_f0be4451b13f82b6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/159_4c5f86758420395230649620bd2b2d7ffd4625ba.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/159_7f3885b2d6c85cb876aec31a99ddb98958a4bacc.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NEED THIS!",
@@ -10158,6 +10651,7 @@
     "number": 160,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1824,
     "subtitle": "Perceptive Friend",
     "strength": 3,
     "willpower": 4,
@@ -10166,6 +10660,8 @@
     "flavorText": "\"Time to try something new, dear.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/160_be1a23e89d1ccb2f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/160_100410aca309eb1b9cb8f6460eb617dbd00e79f0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/160_48c095722d90f6e39cfa83590b6fc588d0733bbd.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HAVE JUST THE THING!",
@@ -10238,6 +10734,7 @@
     "number": 161,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1825,
     "subtitle": "Head Housekeeper",
     "strength": 2,
     "willpower": 4,
@@ -10246,6 +10743,8 @@
     "flavorText": "\"Now, don't fret over the mess, love. We'll have everything shipshape in no time.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/161_ed3edd33fc61ebad_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/161_bfdbb85fe9431bf65a3dd636cd355e9979923fee.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/161_42a2b09e7a80e2e05e9b9d0b24e2d66d31e5883b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CLEAN UP",
@@ -10304,6 +10803,7 @@
     "number": 162,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1826,
     "subtitle": "Resourceful Infiltrator",
     "strength": 1,
     "willpower": 2,
@@ -10311,6 +10811,8 @@
     "rulesText": "JUST WHAT YOU NEED When you play this character, you may give another chosen character <Resist> +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/162_ba5bca1d39821536_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/162_eeb1a4ef233fc727285d6901965a9eba4571fc27.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/162_26801a1f326a6fd1abdec5320ffc99b4b2120e8f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "JUST WHAT YOU NEED",
@@ -10366,6 +10868,7 @@
     "number": 163,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1827,
     "subtitle": "Responsible Rabbit",
     "strength": 1,
     "willpower": 2,
@@ -10374,6 +10877,8 @@
     "flavorText": "As Skippy's older sister, she's had lots of experience putting things back together.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/163_6b7e8479e72b54b5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/163_4249667070bf948b626a4a76962ae4877fe4f082.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/163_978058c033d3c6e5a4f5acc6cfabc1633dbcf10a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET ME HELP",
@@ -10403,6 +10908,7 @@
     "number": 164,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1828,
     "subtitle": "Patron of the Arts",
     "strength": 2,
     "willpower": 3,
@@ -10410,6 +10916,8 @@
     "flavorText": "“Beautiful music can ennoble one’s spirit, no matter how dire things seem.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/164_e710abaa38972119_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_a893bcc463051d5837af18e25bccd9f01406ff50.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/164_4434441b88c2b1217d99ddc69b63e9f9fd7eceda.jpg"
   },
@@ -10483,6 +10991,7 @@
     "number": 165,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1829,
     "subtitle": "Heist Mastermind",
     "strength": 3,
     "willpower": 3,
@@ -10490,6 +10999,8 @@
     "rulesText": "STICK TO THE PLAN {E} — Another chosen character gains <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)\nIT’S UP TO YOU, LILO Your characters named Lilo gain <Support>. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/165_143126cfbe33f45b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/165_d685d6c6821424eeb1b6b9d8fd7f731af4eccf24.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/165_602ae1486fb445f86bf74e4cb41d9445bfd950b4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STICK TO THE PLAN",
@@ -10587,6 +11098,7 @@
     "number": 166,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1830,
     "subtitle": "Experiment 626",
     "strength": 3,
     "willpower": 3,
@@ -10594,6 +11106,10 @@
     "rulesText": "SO NAUGHTY When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted.\nSTEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/166_f618b7f6f8a99739_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/166_f74490ff985b8435cfb0332eded60745051af08a.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/166_e945931bc7adb47ca37495ccc9f1f2d124718a4e.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/166_35de7c541f867e951a5b1370259c5b488e45800b.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "SO NAUGHTY",
@@ -10656,6 +11172,7 @@
     "number": 167,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1831,
     "subtitle": "Greedy Genius",
     "strength": 6,
     "willpower": 7,
@@ -10663,6 +11180,10 @@
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nTIME RUNS OUT At the end of your turn, if you didn’t put any cards into your inkwell this turn, banish this character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/167_3e7c04107e53c6c2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/167_767da596cb625d8c18ef3d11aacb85dd6c16bca1.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/167_f451aa59ce93d275ead365828088a8ccc127629e.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/167_e85d22eb311b207aac25a987c79918200ee09dc1.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "TIME RUNS OUT",
@@ -10702,6 +11223,7 @@
     "number": 168,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1832,
     "subtitle": "Determined Squire",
     "strength": 6,
     "willpower": 6,
@@ -10710,6 +11232,8 @@
     "flavorText": "\"Do you want to be all muscle and no brain?\"\n—Merlin",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/168_57ba90adc8444838_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/168_5fdb3e89478347684a933d57d1b6c27a09c9b78d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/168_9a707457877dc5bfcd2100620b7afa3588e93a48.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO MORE BOOKS",
@@ -10772,6 +11296,7 @@
     "number": 169,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1833,
     "subtitle": "Over-Prepared",
     "strength": 2,
     "willpower": 2,
@@ -10780,6 +11305,8 @@
     "flavorText": "“Miss Bianca, over here! I found something!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/169_6771388646a474de_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/169_5d1b5d5ed135b36074c69448f4d1637e10308535.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/169_3266c1a386e778826bfca49e2fd4b819772024d1.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GO DOWN THERE AND INVESTIGATE",
@@ -10845,6 +11372,7 @@
     "number": 170,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1834,
     "subtitle": "Vigilant Guard",
     "strength": 1,
     "willpower": 9,
@@ -10852,6 +11380,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nSAFE PASSAGE Whenever one of your Ally characters quests, you may remove up to 2 damage from this character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/170_ca93be108c7d1f0d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/170_dba86df76650ce61834383c6dc17cd1410020eb7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/170_618a00075f17c06ae7580aa72a8ae9c6ba0de586.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SAFE PASSAGE",
@@ -10916,6 +11446,7 @@
     "number": 171,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1835,
     "subtitle": "Steady Strategist",
     "strength": 2,
     "willpower": 5,
@@ -10924,6 +11455,8 @@
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Jasmine.)\nALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/171_3e40a639b6c63cbf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/171_d709513c423116e2ef43fe17fce315a3f8452ee6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/171_8ef5f59458ae1818f0f1efeb9f700b996511dcac.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ALWAYS PLANNING",
@@ -10979,6 +11512,7 @@
     "number": 172,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1836,
     "subtitle": "Lock Expert",
     "strength": 2,
     "willpower": 2,
@@ -10987,6 +11521,8 @@
     "flavorText": "“Jafar will never expect us to hide lore from him in his own safe! How exciting!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/172_e31b8d82c0061461_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/172_897318cbd3f79b0ca05b4286ab7cf263589ff0b9.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/172_ba5d1a6644f1af1373949934f83a9501ff6d9ffa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SAFEKEEPING",
@@ -11017,6 +11553,7 @@
     "number": 173,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1837,
     "subtitle": "Critical Scientist",
     "strength": 1,
     "willpower": 6,
@@ -11024,6 +11561,8 @@
     "flavorText": "“This little thing has a much more rudimentary design than if I had created it. But if you were rushing development, then this makes sense.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/173_391a79a22e51ffca_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_35ce058da0b688ca393261a2cf366bd955b7216d.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/173_65ae3773d13e991d1e02b6db9ff5aaf083dbb72e.jpg"
   },
@@ -11086,6 +11625,7 @@
     "number": 174,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1838,
     "subtitle": "Skilled Craftsman",
     "strength": 4,
     "willpower": 4,
@@ -11094,6 +11634,8 @@
     "flavorText": "Everything he carves is a work of art.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/174_d09666bf37c036f4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/174_8ed3bf0e61edaf2c9175aa12ab25b6e340d67cde.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/174_63a6698eb4f9291377060bb7cc7aec2b1c272a25.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SEEKING INSPIRATION",
@@ -11132,9 +11674,12 @@
     "number": 175,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1839,
     "rulesText": "<Sing Together> 6 (Any number of your or your teammates’ characters with total cost 6 or more may {E} to sing this song for free.)\nRemove up to 3 damage from any number of chosen characters. All opposing characters get –3 {S} this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/175_d9c879c398959f7c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/175_5d72d182b00644de55a65ae26d2bd0c6470aa4fd.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/175_9e72c0f788bc15ddf06475acc23ad23458858b3c.jpg",
     "actionEffects": [
       {
         "type": "remove_damage",
@@ -11192,10 +11737,13 @@
     "number": 176,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1840,
     "rulesText": "Chosen character gets –2 {S} this turn. Chosen character of yours gains <Evasive> this turn. (They can challenge characters with Evasive.)",
     "flavorText": "\"Check out this cool trick my dad taught me!\"\n—Simba",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/176_3622d23657f91223_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/176_e6dd3216e5a0da1eb2c19c3c833d28f7461bc7c6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/176_9e365c0fd3c71959204a82d6aa520d72f28eea19.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -11248,9 +11796,12 @@
     "number": 177,
     "rarity": "super_rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1841,
     "rulesText": "(A character with cost 6 or more can {E} to sing this song for free.)\nLook at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/177_ee1f95d1f278c62f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/177_4085ca9a3882b3be4ab3e05a9c175a8f22667f32.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/177_2e4c1c1b73cb32a9c53cbbb41b9b5acb73b65c19.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -11318,10 +11869,13 @@
     "number": 178,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1842,
     "rulesText": "IS IT ON YET? {E}, 1 {I} — Look at the top card of your deck. If it’s a Puppy character card, you may reveal it and put it into your hand. Otherwise, put it on the bottom of your deck.",
     "flavorText": "Thunderbolt's show was one thing all the puppies could agree on.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/178_1a85d11c022601d4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/178_6c7a686e16bb45e8640d02b82f1739e3e453d0ba.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/178_f214c4698a15b74f6c769ad158da2f9360c50a9e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IS IT ON YET?",
@@ -11393,10 +11947,13 @@
     "number": 179,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1843,
     "rulesText": "CHAPTER THREE {E}, Banish one of your other items — Put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "Some stories stay with you forever.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/179_7ed826cc53aab548_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/179_d6211504eaef872134d689f8c3e7949d78b08ae7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/179_781ed872ee055a300cebe04daef332dc28ef3845.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CHAPTER THREE",
@@ -11469,9 +12026,12 @@
     "number": 180,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1844,
     "rulesText": "SHIELDING LIGHT {E}, 2 {I} — Chosen character gains <Resist> +2 and <Support> until the start of your next turn. (Damage dealt to them is reduced by 2. Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/180_9cd0282762ad2189_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/180_73a5eed582d9b98284622bba69afdce1c2315207.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/180_7b6c19a9e489cd48b6f3f95986c8877b0a55a739.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SHIELDING LIGHT",
@@ -11501,6 +12061,7 @@
     "number": 181,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1845,
     "subtitle": "Fang General",
     "strength": 7,
     "willpower": 7,
@@ -11508,6 +12069,8 @@
     "flavorText": "\"Spears of Fang, stand strong and tall. We are the last line of defense and we will not fall!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/181_11d51b9e2970f24f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_6947d94f9de821355395c922fb8a908243b8b6a9.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/181_701556fd427823de597b56a15f795b906d9ed865.jpg"
   },
@@ -11534,6 +12097,7 @@
     "number": 182,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1846,
     "subtitle": "Purple Pigeon",
     "strength": 4,
     "willpower": 2,
@@ -11542,6 +12106,8 @@
     "flavorText": "“You come at me, you get the beak, capisce?”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/182_9004f19c4d27b7e0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_b554a2d060de359716b96372edf314c8134e4b56.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/182_57b39ee3ce63e2cecf953daa3d16fc73d625332d.jpg"
   },
@@ -11594,6 +12160,7 @@
     "number": 183,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1847,
     "subtitle": "Phantom Rug",
     "strength": 2,
     "willpower": 4,
@@ -11601,6 +12168,8 @@
     "rulesText": "<Vanish> (When an opponent chooses this character for an action, banish them.)\nSPECTRAL FORCE Your other Illusion characters gain <Challenger> +1. (They get +1 {S} while challenging.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/183_95ee0b2592f6ad39_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/183_8ea03f473205138971bfb00aad16d0e5336764b7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/183_5e271fa647d712bf9ab0af3d20ed0147780e49b5.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SPECTRAL FORCE",
@@ -11655,6 +12224,7 @@
     "number": 184,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1848,
     "subtitle": "Rival Suitor",
     "strength": 2,
     "willpower": 2,
@@ -11663,6 +12233,8 @@
     "flavorText": "“Talk about overdressed and self-absorbed!” \n—Jasmine",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/184_e7fce584c9a4b8a5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/184_a2214b78666f479bc6a60e9b57c53a79b11a8968.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/184_c89a8e08e8621566072bcd065821e1af3dc40fc9.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNWELCOME PROPOSAL",
@@ -11718,6 +12290,7 @@
     "number": 185,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1849,
     "subtitle": "Karnage's Second Mate",
     "strength": 0,
     "willpower": 1,
@@ -11726,6 +12299,8 @@
     "flavorText": "\"Say, let me do it, Mad Dog. It's my turn.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/185_4aa1fa1c94d48b25_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/185_9fc1395b3d8a410c75c2c6443b5f987ab5a851d3.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/185_6e0011cc92c40ae3764fa6356198d35ddb36df40.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET ME AT 'EM",
@@ -11763,6 +12338,7 @@
     "number": 186,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1850,
     "subtitle": "Forceful Duelist",
     "strength": 1,
     "willpower": 2,
@@ -11771,6 +12347,8 @@
     "flavorText": "“How dare you? Arm yourself, scoundrel!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/186_cf8684056c5edae4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_3198f68bc59021f62212c6137040953cffeea0b2.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/186_1002fc44d95f3cf307806278ac008aa39eae486b.jpg"
   },
@@ -11799,6 +12377,7 @@
     "number": 187,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1851,
     "subtitle": "Head of the Imperial Army",
     "strength": 2,
     "willpower": 4,
@@ -11807,6 +12386,8 @@
     "flavorText": "\"A single grain of rice can tip the scale. One man may be the difference between victory and defeat.\"\n—The Emperor",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/187_3cf6f64b95d0a1fd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_342bcb21ac4023581bac2be0429b34f63ca8a2a8.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/187_6122c9090e5d367488b3ab77155e9a90eed85805.jpg"
   },
@@ -11834,6 +12415,7 @@
     "number": 188,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1852,
     "subtitle": "Defiant Protector",
     "strength": 4,
     "willpower": 5,
@@ -11841,6 +12423,8 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/188_4e8ad95bd8440219_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_356ff116823b1a3e9f37e782663fc0e748682973.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/188_2121a33a34ffab89734e29f58a28d5939e22df18.jpg"
   },
@@ -11880,6 +12464,7 @@
     "number": 189,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1853,
     "subtitle": "Satisfied Dragon",
     "strength": 3,
     "willpower": 4,
@@ -11887,6 +12472,8 @@
     "rulesText": "BUG CATCHER During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/189_51881b5102d28d80_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/189_405a2b04bd88d4c91e957c7dda5b012b7892b4cc.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/189_d6c10ab6961cc0a6ac94bb2e1be166786cdd0dff.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BUG CATCHER",
@@ -11933,6 +12520,7 @@
     "number": 190,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1854,
     "subtitle": "Wary Friend",
     "strength": 0,
     "willpower": 4,
@@ -11941,6 +12529,8 @@
     "flavorText": "“This place is scarier than Prince John.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/190_7213ef357820c3d2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/190_804560fc1ccb3c880e57f07bed0de7ac0e0eb647.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/190_cba5c141da67086e2d93d588fa56450b8574ca39.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HARD SHELL",
@@ -11970,6 +12560,7 @@
     "number": 191,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1855,
     "subtitle": "Queen of Corona",
     "strength": 5,
     "willpower": 5,
@@ -11977,6 +12568,8 @@
     "flavorText": "“In dark times, a crown is a weighty honor we must bear with grace and courage.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/191_93183094120ed12b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_1ef6467d3a2c0d0a673287766d59be687ed03853.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/191_cccd06d002dee4f7acb0c0d446af91e0663abd69.jpg"
   },
@@ -12031,6 +12624,7 @@
     "number": 192,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1856,
     "subtitle": "Flying Ranger",
     "strength": 2,
     "willpower": 4,
@@ -12038,6 +12632,8 @@
     "rulesText": "BEST MATES If you have a character named Monterey Jack in play, you pay 1 {I} less to play this character.\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/192_af458fb10ee06abf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/192_574c44033adf32ba5decfb33cf4056fe042e7fa7.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/192_e099d7e4298b2ff3dd625ed1d8805a3daad15c2a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BEST MATES",
@@ -12072,6 +12668,7 @@
     "number": 193,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1857,
     "subtitle": "War Horse",
     "strength": 2,
     "willpower": 7,
@@ -12079,6 +12676,8 @@
     "flavorText": "“When the whole world changes around you, remember that Khan will always be the same—steadfast and true.”\n—Fa Zhou",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/193_8b45160faeec9b7d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_3f082d1970cc09313c2176793cf3b85f9d0fe206.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/193_8fffa6e18fe2cd18109f3134a4064aae472aaeb2.jpg"
   },
@@ -12133,6 +12732,7 @@
     "number": 194,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1858,
     "subtitle": "Green Pigeon",
     "strength": 1,
     "willpower": 4,
@@ -12141,6 +12741,8 @@
     "flavorText": "“That’s quite a predicament you’re in. Glad it ain’t me.”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/194_917d2dc04a8ce318_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/194_18286ffb940afc8c45fd1333d611c1ef01c7490d.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/194_b67e3965330347f0af273a63c681f253ef32d71c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LEARNING EXPERIENCE",
@@ -12196,6 +12798,7 @@
     "number": 195,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1859,
     "subtitle": "Out of Reach",
     "strength": 3,
     "willpower": 3,
@@ -12204,6 +12807,8 @@
     "flavorText": "“Nice try, chumps! Too bad I’m all the way up here!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/195_4978c1f29b743774_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/195_70a43420548ef241d3629c79d782f8b53598fcc0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/195_aea9cdf5f20f4e992e463f323b6cf0168f551bf8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SELF-PRESERVATION",
@@ -12236,6 +12841,7 @@
     "number": 196,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1860,
     "subtitle": "Notorious Pirate",
     "strength": 3,
     "willpower": 3,
@@ -12244,6 +12850,8 @@
     "flavorText": "“Flint's secret trove was never found, but stories have persisted that it remains hidden . . .” \n—Narrator",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/196_cee5a59dc130f01f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/196_debca02435c4828253b7b9c0e842aaa8c17569e4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/196_bd624a264bed4dedc7a37b9035edab14eaa58dea.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PREDATORY INSTINCT",
@@ -12303,6 +12911,7 @@
     "number": 197,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1861,
     "subtitle": "The Explosives Expert",
     "strength": 2,
     "willpower": 8,
@@ -12311,6 +12920,8 @@
     "flavorText": "\"Never be afraid to make a big entrance.\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/197_e41083387bd7093d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/197_fcb3cad56f3eae86090eabe018dfedc531b6cea6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/197_86484ac15cca8e1f7192abda15ec0f2a08c88bc0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I JUST LIKE TO BLOW THINGS UP",
@@ -12428,6 +13039,7 @@
     "number": 198,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1862,
     "subtitle": "Single-Minded Rival",
     "strength": 0,
     "willpower": 5,
@@ -12435,6 +13047,10 @@
     "rulesText": "STRATEGIC EDGE When you play this character and at the start of your turn, you may draw a card, then choose and discard a card.\nEXTREME FOCUS This character gets +1 {S} for each card in your discard.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/198_e7ff2ea35325eda1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/198_58a33c428901479fa07ac658d3ea4fce954cfe84.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/198_902b4268acc05f44c6b93ce4556ba8895c1cccbc.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/198_a460975531efa55ebd9c3137a50f57d28b29fe23.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "STRATEGIC EDGE",
@@ -12500,6 +13116,7 @@
     "number": 199,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1863,
     "subtitle": "Giant Mouse",
     "strength": 10,
     "willpower": 10,
@@ -12507,6 +13124,10 @@
     "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nTHE BIGGEST STAR EVER When this character is banished, deal 5 damage to each opposing character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/199_101a801c3378f7d1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/199_9cd46f164a79a38f2156c9b1fc2d1cbeb9ef8123.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/199_040b1a5b59d7714d9afead9f5f78c4fca7b6628b.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/199_1f17a32ac8af184356796e1704ae5abef51643ff.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "THE BIGGEST STAR EVER",
@@ -12566,6 +13187,7 @@
     "number": 200,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1864,
     "subtitle": "Alien Troublemaker",
     "strength": 3,
     "willpower": 4,
@@ -12574,6 +13196,8 @@
     "flavorText": "\"Ah! Finally, a good use for his destructive instincts.\"\n—Jumba Jookiba",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/200_65b0e134f8535242_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/200_30005877c8458fe7b8aabd010cb96d31bbdcdc55.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/200_c50512c3c658861bcb3b9277ded20032c92174a8.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I WIN!",
@@ -12600,10 +13224,13 @@
     "number": 201,
     "rarity": "rare",
     "_source": "ravensburger",
+    "_ravensburgerId": 1865,
     "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
     "flavorText": "\"It's my decision. My choice. And you won't stop me.\"\n—Namaari",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/201_6eb2e45e56b17d0b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/201_dfb52fe834c389df9a4e03bdf20296d88e85e2b5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/201_8c22ace2d894d4633d5fdb5defec5f94fbfaad68.jpg",
     "actionEffects": [
       {
         "type": "self_replacement",
@@ -12681,9 +13308,12 @@
     "number": 202,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1866,
     "rulesText": "<Sing Together> 7 (Any number of your or your teammates’ characters with total cost 7 or more may {E} to sing this song for free.)\nChoose any number of players. They discard their hands and draw 3 cards each.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/202_019f311b03c85060_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/202_cc8a92e5ad79b15a74213f147c0eb67a69e397fa.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/202_7edb0afeac7601de92f0193be2fec6450545207f.jpg",
     "actionEffects": [
       {
         "type": "discard_from_hand",
@@ -12736,9 +13366,12 @@
     "number": 203,
     "rarity": "uncommon",
     "_source": "ravensburger",
+    "_ravensburgerId": 1867,
     "rulesText": "Deal 1 damage to chosen character. Draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/203_22c88d9a42219fd3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/203_d79ef46d125fda5bb31afd13fe6a80a784a48fe4.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/203_b714798f0f028cf37e2ac0f21f07958b062ffb34.jpg",
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -12813,9 +13446,12 @@
     "number": 204,
     "rarity": "common",
     "_source": "ravensburger",
+    "_ravensburgerId": 1868,
     "rulesText": "ROLL WITH THE PUNCHES {E}, 1 {I} — Chosen character with no damage gains <Resist> +2 until the start of your next turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/204_ab1189467401b1fd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set8/204_958b1104387b7f9c0c548865fca2dd43e3d840d6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/204_6c854c9777bdd3c156c5e343a7cb4419e500ca9e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROLL WITH THE PUNCHES",
@@ -12891,12 +13527,15 @@
     "number": 205,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1869,
     "subtitle": "Decisive Dog",
     "strength": 0,
     "willpower": 3,
     "lore": 1,
     "rulesText": "PACK OF HER OWN Whenever you play a character, this character gets +1 {S} this turn.\nTAKE THE LEAD While this character has 3 {S} or more, she gets +2 {L}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/205_eca08a8f395c9e78_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/205_c33fa3f41ef9460973e2229ec3ad4697be56242b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PACK OF HER OWN",
@@ -12995,6 +13634,7 @@
     "number": 206,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1870,
     "subtitle": "Big Lug",
     "strength": 7,
     "willpower": 5,
@@ -13002,6 +13642,8 @@
     "shiftCost": 5,
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Wreck-It Ralph.)\nBACK ON TRACK When you play this character and whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand. If you do, gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/206_9a0ace46fb5a5cac_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/206_76db352b0d17ac02cc11968fcec1c3db3c03ab55.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BACK ON TRACK",
@@ -13065,6 +13707,7 @@
     "number": 207,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1871,
     "subtitle": "Determined Mother",
     "strength": 4,
     "willpower": 6,
@@ -13072,6 +13715,8 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Perdita.)\nQUICK, EVERYONE HIDE When you play this character, you may put all Puppy character cards from your discard into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/207_5a363b0a2e086e33_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/207_ab63f0049b6c96e3ff578f6d4ff4b38d2c728c00.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "QUICK, EVERYONE HIDE",
@@ -13110,8 +13755,11 @@
     "number": 208,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1872,
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nReturn up to 3 character cards from your discard to your hand. You pay 2 {I} less for the next character you play this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/208_a0a6b01385ac6923_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/208_d7764b6d47ee921ce2a5b411f40d8f0ef01aa354.jpg",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -13205,12 +13853,15 @@
     "number": 209,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1873,
     "subtitle": "Little Prince",
     "strength": 1,
     "willpower": 1,
     "lore": 3,
     "rulesText": "SAY HELLO When you play this character, gain 1 lore.\nKIND OF BASHFUL When an opponent plays a character, return this character to your hand.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/209_27884cf8cb5fb0f8_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/209_a196c5c96c4e9152d955f3d6876f966650a82c55.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SAY HELLO",
@@ -13287,6 +13938,7 @@
     "number": 210,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1874,
     "subtitle": "Impulsive Llama",
     "strength": 5,
     "willpower": 5,
@@ -13294,6 +13946,8 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Kuzco.)\nWHAT DOES THIS DO? When you play this character, each opponent chooses one of their characters and puts that card on the bottom of their deck. Then, each opponent may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/210_73e5035d0e21a4b5_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/210_a888fd6ab96048f4fc76f76f808b88a1013965fa.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WHAT DOES THIS DO?",
@@ -13385,12 +14039,15 @@
     "number": 211,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1875,
     "subtitle": "Knows What's Best",
     "strength": 1,
     "willpower": 3,
     "lore": 1,
     "rulesText": "LOOK WHAT YOU’VE DONE When you play this character, you may deal 2 damage to another chosen character of yours to give that character <Challenger> +1 and “When this character is banished in a challenge, return this card to your hand” this turn. (They get +1 {S} while challenging.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/211_8da4532a944310e1_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/211_c0f0482127e8316fd8a31355b014c73f9b22df2f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK WHAT YOU'VE DONE",
@@ -13429,8 +14086,11 @@
     "number": 212,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1876,
     "rulesText": "<Sing Together> 9 (Any number of your or your teammates’ characters with total cost 9 or more may {E} to sing this song for free.)\nFor each character that sang this song, draw a card and gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/212_dac5985b61dedc29_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/212_e6ceb303e78816e91739c25c585a1648c1f32da7.jpg",
     "actionEffects": [
       {
         "type": "each_target",
@@ -13479,8 +14139,11 @@
     "number": 213,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1877,
     "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nPut chosen exerted character into their player’s inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/213_e7d9f53d1faa37cc_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/213_fb9d3894b9bbcd1736788730475aae9627619a71.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -13553,12 +14216,15 @@
     "number": 214,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1878,
     "subtitle": "High Climber",
     "strength": 2,
     "willpower": 5,
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nWRAPPED UP Whenever this character quests, chosen opposing character can’t quest during their next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/214_758ec56dbaeb273a_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/214_8b4903613b934ae93838abd49599721e9307d0c0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WRAPPED UP",
@@ -13658,6 +14324,7 @@
     "number": 215,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1879,
     "subtitle": "The Pirate King",
     "strength": 4,
     "willpower": 5,
@@ -13665,6 +14332,8 @@
     "shiftCost": 3,
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Captain Hook.)\nGIVE ’EM ALL YOU GOT! Once during your turn, whenever an opposing character is damaged, your Pirate characters get +2 {S} and gain <Resist> +2 this turn. (Damage dealt to them is reduced by 2.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/215_cc376c66fed4eae9_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/215_3acaf5bc7675f1e4bdf41024dd2f616cbb6887b0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GIVE 'EM ALL YOU GOT!",
@@ -13691,8 +14360,11 @@
     "number": 216,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1880,
     "rulesText": "Choose one:\n• Return chosen character to their player’s hand.\n• Put a card named Pull the Lever! from your discard on the bottom of your deck to put chosen character on the bottom of their player’s deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/216_cea3349405202505_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/216_fde27bce4ef5b24ee6034252ba7a834984b6b505.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -13820,12 +14492,15 @@
     "number": 217,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1881,
     "subtitle": "Causing an Uproar",
     "strength": 4,
     "willpower": 4,
     "lore": 2,
     "rulesText": "STOMPIN’ TIME! During your turn, if you’ve played 3 or more actions this turn, you may play this character for free.\nRAAAWR! When you play this character, ready chosen character. They can’t quest for the rest of this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/217_aa1d94c17d261322_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/217_5cc0c8abd9f85e96e75a464d1bf53719830b927c.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STOMPIN' TIME!",
@@ -13911,6 +14586,7 @@
     "number": 218,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1882,
     "subtitle": "Your Worst Nightmare",
     "strength": 4,
     "willpower": 6,
@@ -13918,6 +14594,8 @@
     "shiftCost": 4,
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Mushu.)\nALL FIRED UP Whenever you play another character, they gain <Rush>, <Reckless>, and <Evasive> this turn. (They can challenge the turn they’re played. They can’t quest and must challenge if able. They can challenge characters with Evasive.)",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/218_986640632c2e85c6_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/218_f236dd945481ad95acdd1e6bcb9937fe97dbee20.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ALL FIRED UP",
@@ -13994,8 +14672,11 @@
     "number": 219,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1883,
     "rulesText": "WORTHY WEAPON {E}, {E} one of your characters — Ready chosen character. They can’t quest for the rest of this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/219_d1f1eb39058ffc8b_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/219_2517f65ac6c3122ec786dbbdbcf486178b4cba57.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WORTHY WEAPON",
@@ -14088,12 +14769,15 @@
     "number": 220,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1884,
     "subtitle": "Experiment 626",
     "strength": 3,
     "willpower": 3,
     "lore": 2,
     "rulesText": "SO NAUGHTY When you play this character, each opponent puts the top card of their deck into their inkwell facedown and exerted.\nSTEALTH MODE At the start of your turn, if this card is in your discard, you may choose and discard a card with {C} to play this character for free and he enters play exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/220_5ab83db3296e12f4_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/220_9b6292fddb88ec7b51e5e2394546605140df2bf0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SO NAUGHTY",
@@ -14163,6 +14847,7 @@
     "number": 221,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1885,
     "subtitle": "Steady Strategist",
     "strength": 2,
     "willpower": 5,
@@ -14170,6 +14855,8 @@
     "shiftCost": 2,
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Jasmine.)\nALWAYS PLANNING Whenever this character quests, look at the top 3 cards of your deck. You may reveal an Ally character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/221_07733895ecdbeb7f_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/221_122c836b5f77f91fa9bbea5b0ecf5ba25418e304.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ALWAYS PLANNING",
@@ -14196,8 +14883,11 @@
     "number": 222,
     "rarity": "enchanted",
     "_source": "ravensburger",
+    "_ravensburgerId": 1886,
     "rulesText": "If you have no cards in your hand, draw until you have 3 cards in your hand. Otherwise, choose and discard any number of cards, then draw that many cards.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/222_79c3456eb4c4d47a_normal.jpg",
+    "foilType": "vertical_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/222_1f5085cf9244ac600e989dfad7885450e427e5c8.jpg",
     "actionEffects": [
       {
         "type": "self_replacement",
@@ -14316,6 +15006,7 @@
     "number": 223,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1933,
     "subtitle": "Groundbreaking Chef",
     "strength": 3,
     "willpower": 4,
@@ -14323,6 +15014,10 @@
     "rulesText": "PLENTY TO GO AROUND At the end of your turn, you may remove up to 1 damage from each of your other characters. Ready each character you removed damage from this way.",
     "flavorText": "\"You're just in time for Surprise à la Goof!\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/223_afffb9a2dfd5fdd4_normal.jpg",
+    "foilType": "sea_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/223_7dc93cf75fe93df83e58d8d57e205127e3ea13fd.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/223_b009c6454a9ed2a00bf9a8e9b89292ec79dd48fc.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "PLENTY TO GO AROUND",
@@ -14379,12 +15074,17 @@
     "number": 224,
     "rarity": "legendary",
     "_source": "ravensburger",
+    "_ravensburgerId": 1934,
     "subtitle": "Strings Attached",
     "strength": 0,
     "willpower": 4,
     "lore": 2,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nGOT TO KEEP REAL QUIET Once during your turn, whenever you ready this character, you may draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set8/224_4646de04c64c535e_normal.jpg",
+    "foilType": "sea_wave",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/224_3960b32ffba6ccda52ceaf7eaa72b8aa776c2cca.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/224_e8ef51a382ebd123f56a5bf9144275cd13725d6d.jpg",
+    "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
         "storyName": "GOT TO KEEP REAL QUIET",

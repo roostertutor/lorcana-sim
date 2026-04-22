@@ -147,6 +147,22 @@ interface CardDefinitionOut {
    *  `rav_{id}` convention without having to re-pull the Ravensburger API
    *  themselves. Carried across re-imports via passthroughFields. */
   _ravensburgerId?: number;
+
+  // Foil treatment metadata — snake_case normalizations of Ravensburger's
+  // variants[] fields. See CardDefinition for full field docs. Extracted in
+  // mapCard() below from the Foiled variant (falling back to Regular —
+  // Enchanteds carry foil data on Regular because they're foil-only).
+  foilType?:
+    | "silver" | "lava" | "tempest" | "satin"
+    | "freeform_1" | "freeform_2" | "vertical_wave" | "glitter"
+    | "magma" | "lore" | "rainbow_pillars"
+    | "calendar_wave" | "sea_wave";
+  foilMaskUrl?: string;
+  foilTopLayerMaskUrl?: string;
+  foilTopLayer?:
+    | "high_gloss" | "metallic_hot_foil" | "snow_hot_foil"
+    | "rainbow_hot_foil" | "matte_hot_foil";
+  hotFoilColor?: string;
 }
 
 type CardSource = NonNullable<CardDefinitionOut["_source"]>;
@@ -214,6 +230,70 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
     promo: "common",
   };
   return map[r.toLowerCase()] ?? "common";
+}
+
+// ── Foil type normalization ────────────────────────────────────────────
+// Ravensburger emits PascalCase strings ("FreeForm1", "RainbowPillars",
+// "VerticalWave"). We normalize to snake_case so the enum matches the rest
+// of lorcana-sim's conventions (cardType: "character", inkColors: "amber",
+// rarity: "super_rare"). Unknown values are logged and returned undefined —
+// preferable to silently emitting a string that doesn't match the enum
+// because that would let a typo slip past the type system.
+
+const FOIL_TYPE_MAP: Record<string, NonNullable<CardDefinitionOut["foilType"]>> = {
+  Silver:         "silver",
+  Lava:           "lava",
+  Tempest:        "tempest",
+  Satin:          "satin",
+  FreeForm1:      "freeform_1",
+  FreeForm2:      "freeform_2",
+  VerticalWave:   "vertical_wave",
+  Glitter:        "glitter",
+  Magma:          "magma",
+  Lore:           "lore",
+  RainbowPillars: "rainbow_pillars",
+  CalendarWave:   "calendar_wave",
+  SeaWave:        "sea_wave",
+};
+
+const FOIL_TOP_LAYER_MAP: Record<string, NonNullable<CardDefinitionOut["foilTopLayer"]>> = {
+  HighGloss:       "high_gloss",
+  MetallicHotFoil: "metallic_hot_foil",
+  SnowHotFoil:     "snow_hot_foil",
+  RainbowHotFoil:  "rainbow_hot_foil",
+  MatteHotFoil:    "matte_hot_foil",
+};
+
+let _warnedFoilTypes = new Set<string>();
+let _warnedFoilTopLayers = new Set<string>();
+
+function normalizeFoilType(raw: string | undefined): CardDefinitionOut["foilType"] {
+  if (!raw || raw === "None") return undefined;
+  const mapped = FOIL_TYPE_MAP[raw];
+  if (!mapped && !_warnedFoilTypes.has(raw)) {
+    console.warn(`  ⚠ Unknown foil_type "${raw}" — field skipped. Add to FOIL_TYPE_MAP in import-cards-rav.ts.`);
+    _warnedFoilTypes.add(raw);
+  }
+  return mapped;
+}
+
+function normalizeFoilTopLayer(raw: string | undefined): CardDefinitionOut["foilTopLayer"] {
+  if (!raw) return undefined;
+  const mapped = FOIL_TOP_LAYER_MAP[raw];
+  if (!mapped && !_warnedFoilTopLayers.has(raw)) {
+    console.warn(`  ⚠ Unknown foil_top_layer "${raw}" — field skipped. Add to FOIL_TOP_LAYER_MAP in import-cards-rav.ts.`);
+    _warnedFoilTopLayers.add(raw);
+  }
+  return mapped;
+}
+
+/** Validate + normalize a hot_foil_color hex string. Accepts `#RRGGBB` only
+ *  (Ravensburger's convention). Returns undefined on invalid input rather
+ *  than letting a malformed hex pass through. */
+function normalizeHotFoilColor(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const lower = raw.toLowerCase().trim();
+  return /^#[0-9a-f]{6}$/.test(lower) ? lower : undefined;
 }
 
 // Known promo codes that appear as the "total" field in card_identifier.
@@ -476,6 +556,22 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
   if (c.flavor_text) out.flavorText = c.flavor_text;
   if (regular?.detail_image_url) out.imageUrl = regular.detail_image_url;
   if (foiled?.detail_image_url) out.foilImageUrl = foiled.detail_image_url;
+
+  // Foil metadata — prefer the Foiled variant, fall back to Regular. Some
+  // Enchanteds and other foil-only rarities carry the mask + type on the
+  // Regular entry because Ravensburger doesn't emit a distinct Foiled
+  // variant for cards that ship foil-only. Matches collectbook's proven
+  // extraction logic.
+  const foilSrc = foiled ?? regular;
+  const foilType = normalizeFoilType(foilSrc?.foil_type);
+  if (foilType !== undefined) out.foilType = foilType;
+  if (foilSrc?.foil_mask_url) out.foilMaskUrl = foilSrc.foil_mask_url;
+  if (foilSrc?.foil_top_layer_mask_url) out.foilTopLayerMaskUrl = foilSrc.foil_top_layer_mask_url;
+  const topLayer = normalizeFoilTopLayer(foilSrc?.foil_top_layer);
+  if (topLayer !== undefined) out.foilTopLayer = topLayer;
+  const hotColor = normalizeHotFoilColor(foilSrc?.hot_foil_color);
+  if (hotColor !== undefined) out.hotFoilColor = hotColor;
+
   const finalStubs = applyStoryNameOverride(out.id, stubs);
   if (finalStubs.length > 0) out._namedAbilityStubs = finalStubs;
 
@@ -640,6 +736,12 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       // from a different ink-color filter that lacks the field (it won't,
       // but defensive parity with other passthroughs).
       "_ravensburgerId",
+      // Foil treatment metadata — same defensive passthrough as the
+      // Ravensburger id. The importer sets these on Ravensburger-sourced
+      // cards; the passthrough ensures the foil data survives a sibling
+      // set re-import that happens to omit a card, or a future importer
+      // that doesn't yet know about these fields.
+      "foilType", "foilMaskUrl", "foilTopLayerMaskUrl", "foilTopLayer", "hotFoilColor",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];
