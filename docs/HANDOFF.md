@@ -10,6 +10,68 @@ Conventions:
 
 ---
 
+## Engine agent: Tod Knows All the Tricks IMPRESSIVE LEAPS — wrong trigger scope
+
+Discovered 2026-04-22 while fixing Vanish's action-vs-ability scope (see
+commit tracking Vanish fix). Tod's wiring has two mismatches vs. oracle:
+
+**Oracle text**: "Twice during your turn, whenever this character is
+**chosen** for an action or **an item's ability**, you may ready him."
+
+**Current wiring** (`card-set-11.json`, id `tod-knows-all-the-tricks`):
+```json
+{
+  "trigger": { "on": "chosen_by_opponent" },
+  "condition": { "type": "is_your_turn" },
+  "maxFiresPerTurn": 2,
+  "effects": [{ "type": "ready", "target": { "type": "this" }, "isMay": true }]
+}
+```
+
+### Bug 1: Under-fires — doesn't trigger on self-chosen
+
+Tod says "chosen" (no "by an opponent"), so he responds to BOTH self-chosen
+and opponent-chosen. Current `chosen_by_opponent` event only fires when the
+chooser is opposing. Tod should also ready when Tod's own controller picks
+him as the target of their own action card (uncommon but real: "ready
+chosen character of yours" type effects).
+
+### Bug 2: Over-fires — triggers on character/location abilities
+
+Tod's scope is "action or an **item's** ability" — explicitly excludes
+character and location abilities. Current wiring has no source-cardType
+filter, so any opposing choice (ability or action) that picks Tod rings
+the bell.
+
+### Proposed fix
+
+Option A (minimal): Change trigger type to a new event (e.g.
+`chosen_for_action_or_item_ability`) queued by RESOLVE_CHOICE with the
+source's cardType filtered inline. Mirrors the existing Vanish
+cardType gate (`srcDef.cardType === "action"` — extend to `"action" ||
+"item"`, drop the opposing-owner check so it fires on both sides).
+
+Option B (type expansion): Keep `chosen_by_opponent` as the event name but
+add a `sourceCardType?: CardType[]` field to the trigger filter; Tod would
+set `sourceCardType: ["action", "item"]` and remove the "opponent" scope
+(since "chosen" matches both chooser types).
+
+Option B composes better with future cards but needs a new trigger-filter
+field. Either way — not urgent; Tod Knows All the Tricks is a niche card.
+
+### Test pattern
+
+Regression tests should cover all four cells:
+| Source      | Chooser  | Expected |
+|-------------|----------|----------|
+| Action      | opponent | ready    |
+| Action      | self     | ready    |
+| Item ability| opponent | ready    |
+| Item ability| self     | ready    |
+| Char/loc ab.| any      | **don't** |
+
+---
+
 ## ~~Server / MP agent: anti-cheat filter doesn't preserve `lastRevealedHand`~~ — DONE 2026-04-21
 
 Landed via `server-specialist` agent. Fix applied as described: 4-line addition

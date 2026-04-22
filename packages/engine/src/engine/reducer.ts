@@ -2469,14 +2469,29 @@ function applyResolveChoice(
       const targetInst = state.cards[targetId];
       const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
       if (targetInst && targetDef && targetInst.zone === "play" && targetInst.ownerId !== playerId) {
-        // Queue chosen_by_opponent self-triggers so cards like Archimedes can react.
+        // Queue chosen_by_opponent self-triggers so cards like Archimedes
+        // can react. These fire on BOTH actions and abilities — oracle on
+        // Archimedes: "whenever an opponent chooses this character for an
+        // action or ability, you may draw a card." Card-level conditions
+        // (e.g. Tod's `is_your_turn` gate) narrow further per-card.
         state = queueTrigger(state, "chosen_by_opponent", targetId, definitions, {
           triggeringPlayerId: targetInst.ownerId,
           triggeringCardInstanceId: srcId,
         });
-        const vanishMods = getGameModifiers(state, definitions);
-        if (hasKeyword(targetInst, targetDef, "vanish", vanishMods)) {
-          state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
+        // CRD 8.14.1: Vanish fires ONLY when the choice is part of resolving
+        // an ACTION card's effect. Reminder text on every Vanish card (Iago,
+        // Giant Cobra, Rajah, Palace Guard, Abu, The Sultan, Magic Carpet):
+        // "When an opponent chooses this character for an action, banish them."
+        // Choices made by characters' / items' / locations' triggered or
+        // activated abilities DON'T trigger Vanish — that's an explicit
+        // carve-out in the CRD. Gate on source card's cardType.
+        const srcInst = srcId ? state.cards[srcId] : undefined;
+        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+        if (srcDef?.cardType === "action") {
+          const vanishMods = getGameModifiers(state, definitions);
+          if (hasKeyword(targetInst, targetDef, "vanish", vanishMods)) {
+            state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
+          }
         }
       }
     }

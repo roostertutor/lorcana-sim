@@ -445,7 +445,7 @@
 ### 8.14 Vanish (Set 7+, ~few cards)
 | Rule | Quote | Status |
 |------|-------|--------|
-| 8.14.1 | Vanish: triggered ability — "When this character is chosen by an opponent as part of resolving an action's effect, banish this character." | ✅ Implemented in RESOLVE_CHOICE handler: when a chosen target is opposing and has Vanish keyword, banished after effect resolves. `chosen_by_opponent` trigger also fires for non-Vanish cards (Archimedes). Fizzle: zone check before banish (8.14.2). |
+| 8.14.1 | Vanish: triggered ability — "When this character is chosen by an opponent as part of resolving an action's effect, banish this character." | ✅ RESOLVE_CHOICE handler banishes when chosen target is opposing + has Vanish keyword + `srcDef.cardType === "action"` (2026-04-22 fix: previously fired on ability-sourced choices too, violating CRD's "action's effect" scope). The broader `chosen_by_opponent` trigger keeps firing on BOTH actions and abilities — correct for Archimedes Exceptional Owl ("chosen for an action or ability"). Regression test: `mech-gaps-batch.test.ts` covers both cases. |
 
 ### 8.15 Ward
 | Rule | Quote | Status |

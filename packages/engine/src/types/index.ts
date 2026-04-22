@@ -83,9 +83,13 @@ export type Keyword =
   | "resist"
   | "boost"
   | "alert"
-  /** Vanish (Set 8): "When an opponent chooses this character for an action,
-   *  banish them." Implemented as a hardcoded check at choose_target resolve
-   *  time — no separate trigger event needed. */
+  /** Vanish (Set 7+): "When an opponent chooses this character for an action,
+   *  banish them." CRD 8.14.1. Implemented as a hardcoded banish at
+   *  choose_target resolve time, gated on `srcDef.cardType === "action"` —
+   *  choices that come from characters'/items'/locations' abilities do NOT
+   *  trigger Vanish, even though the opposing owner is the chooser. The
+   *  broader `chosen_by_opponent` trigger event fires on both actions and
+   *  abilities for cards like Archimedes Exceptional Owl. */
   | "vanish";
 
 // -----------------------------------------------------------------------------

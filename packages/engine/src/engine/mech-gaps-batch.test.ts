@@ -468,6 +468,34 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getInstance(state, iagoId).zone).toBe("discard");
   });
 
+  it("Vanish keyword: does NOT fire when the choice comes from an ability (CRD 8.14.1: actions only)", () => {
+    // Regression guard — Vanish reminder text says "When an opponent chooses
+    // this character for an action, banish them." CRD 8.14.1 scopes firing
+    // to action cards specifically. An ability on a character (ETB / quest /
+    // activated) that targets a Vanish character should NOT trigger Vanish,
+    // even though the opposing owner is making the choice.
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    let iagoId: string;
+    ({ state, instanceId: iagoId } = injectCard(state, "player2", "iago-giant-spectral-parrot", "play", { isDrying: false }));
+    // Kida - Guardian of the Path (set 12) NATURAL DEFENSE: "When you play
+    // this character, chosen opposing character gets -2 {S} this turn."
+    // ETB-triggered choice on a CHARACTER, NOT an action — Vanish must not
+    // fire even though Iago is the chosen opposing target.
+    let kidaId: string;
+    ({ state, instanceId: kidaId } = injectCard(state, "player1", "kida-guardian-of-the-path", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: kidaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [iagoId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Iago should STILL be in play — Vanish didn't trigger because the
+    // choice came from a character's ability, not an action.
+    expect(getInstance(state, iagoId).zone).toBe("play");
+  });
+
   it("Elisa Maza Transformed Gargoyle: STONE BY DAY blocks ready while hand size >= 3", () => {
     let state = startGame();
     let elisaId: string;
