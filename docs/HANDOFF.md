@@ -2328,6 +2328,22 @@ Planned with user 2026-04-22. Full detail in
 handoff entry summarizes the agent splits + sequencing so each phase can
 be picked up without re-reading the full plan.
 
+### Status snapshot — read this first
+
+| Phase | Status | Next action |
+|---|---|---|
+| 1. Lobby polish + public browser + first-player banner | Server ✅ (35061e1), GUI ✅ (15db979 + a55b372). User confirmed end-to-end happy path + cancel + legality. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
+| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | All open — server is the blocker | server agent: pick up Phase 2 prompt below in §Phase 2 |
+| 3. Matchmaking queue (user's two-account test target) | Open, blocked on Phase 2 finishing | Pending; server prompt to be drafted when Phase 2 lands |
+| 4. Reconnection + resume hardening | Open | After Phase 3 |
+| 5. Friends + rich presence | Open | After Phase 4 |
+| 6. Emoji reactions (ephemeral) | Open | Can land independently of 5 |
+| 7. Spectator mode (per-side fog-of-war) | Open; Phase 1 plumbing already shipped (`spectator_policy`) | After Phase 5 for friends-feed; public-games feed works without 5 |
+
+**Current bottleneck:** Phase 2 server work. Once that lands, both
+Phase 2 GUI prompts (gameboard-specialist + GUI agent) unblock in
+parallel, and Phase 3 prep can begin.
+
 ### Locked design decisions
 
 1. **No pre-match screen.** Inline "You go first" / "Opponent goes first"
@@ -2381,35 +2397,302 @@ Agent splits:
     ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS spectator_policy TEXT NOT NULL DEFAULT 'off'
       CHECK (spectator_policy IN ('off','invite_only','friends','public'));
     ```
-- **GUI agent** (me, partly parallel): client-side legality pre-check in
-  `MultiplayerLobby` (no server dep — calls engine's `isLegalFor`);
-  waiting-state countdown in host's waiting card (no server dep). Server-dep
-  work now unblocked: public/private create toggle (pass `public: true` +
-  `spectatorPolicy` in create body), public lobby browser section (hit
-  `GET /lobby/public`), cancel button (hit `POST /lobby/:id/cancel`).
-- **gameboard-specialist**: first-player banner on GameBoard (reads
-  `state.firstPlayerId`, already in game state — no server dep on their
-  side).
+- ~~**GUI agent**: client-side legality pre-check in `MultiplayerLobby`,
+  waiting-state countdown, public/private toggle in Host card, public
+  lobby browser section, cancel button wiring.~~ — **DONE 2026-04-22**
+  in commits 15db979 (legality pre-check + wait counter) and a55b372
+  (public toggle + browser + server-side cancel). User confirmed end-
+  to-end happy path + cancel + legality flows in browser.
+- **gameboard-specialist**: first-player banner on GameBoard. **OPEN —
+  prompt below.**
 
-Sequence: server unblock landed; GUI + gameboard-specialist can pick up
-their pieces any time.
+#### Open prompt for gameboard-specialist (Phase 1 banner)
+
+```
+MP UX Phase 1 — first-player banner on GameBoard. Full plan context in
+docs/HANDOFF.md under "End-to-end multiplayer UX improvement plan
+(7 phases) → Phase 1." This is the only Phase 1 GameBoard piece; lobby
++ public-browser GUI shipped in 15db979 + a55b372.
+
+Scope: when an MP game starts (or a Bo3 game 2/3 transitions in), show
+a brief overlay/toast on the board for ~2s saying:
+- "You go first" — if state.firstPlayerId === myPlayerId
+- "Opponent goes first" — otherwise
+For Bo3 games 2 and 3, prefix with "Game 2 of 3 · 1-0" style match-
+score context (read state._matchScore and state._matchNextGameId per
+the existing game-over overlay code). For game 1 of Bo3, no prefix.
+
+Locked design decisions (per HANDOFF):
+- No countdown screen, no animation, no opponent preview
+- Auto-dismiss after ~2s; click-anywhere also dismisses
+- No format chip on the banner (player is committed to format already)
+- Same treatment for all Bo3 games — game 1 doesn't get extra ceremony
+
+Implementation notes:
+- state.firstPlayerId is already populated by the engine — no server
+  or engine change needed
+- Trigger: on initial game state load AND on transition into a new
+  game_number (Bo3 game 2/3 navigation)
+- Display: top-of-board overlay or center toast, your call. Ideally
+  doesn't block input (user can start playing immediately)
+- Suppress for solo/sandbox games — only fires for MP (check whether
+  myPlayerId came from the MP path; useGameSession knows this)
+
+Files to touch:
+- packages/ui/src/pages/GameBoard.tsx (overlay rendering)
+- packages/ui/src/hooks/useGameSession.ts (if you need a derived
+  "is this an MP game start" signal)
+
+Out of scope: Phase 2 game-over overlay work (rematch, ELO delta,
+share-replay button) — separate prompt below in Phase 2.
+```
 
 ### Phase 2 — Post-game polish
 
 Agent splits:
-- **server agent**: widen game-finish payload to include `{ eloBefore,
-  eloAfter, eloDelta }`; auto-save replay pointer on MP finish (wire the
-  existing `saveReplay` path); add `POST /lobby/rematch` endpoint creating
-  the next-game lobby with both decks pre-attached + loser-plays-first
-  marker; widen `/replay/:id` RLS if replay sharing goes public-via-link.
-- **gameboard-specialist**: game-over overlay renders ELO delta, share-
-  replay button, rematch flow with loser-picks-first radio + winner's
-  "waiting for opponent's choice" state.
-- **GUI agent**: toast on replay save ("Replay saved — fb-xxx") +
-  clipboard share. `saveReplay` wiring lives in `useGameSession` which is
-  UI-lane.
+- **server agent**: ELO delta in game-finish payload, MP replay auto-
+  save, `POST /lobby/rematch` + loser-choice flow, replay public toggle.
+  **OPEN — prompt below. Server work is the blocker for both GUI sides.**
+- **gameboard-specialist**: game-over overlay (ELO delta, share button,
+  rematch flow). **OPEN — prompt below. Blocked on server.**
+- **GUI agent**: replay-save toast in `useGameSession` + serverApi
+  wrappers for the new endpoints. **OPEN — prompt below. Blocked on
+  server.**
 
-Sequence: server first (new endpoint + schema), then both UI agents.
+Sequence: server first; then both UI agents in parallel.
+
+#### Open prompt for server agent (Phase 2 server, priority)
+
+```
+MP UX Phase 2 server work — post-game polish. Full plan context in
+docs/HANDOFF.md under "End-to-end multiplayer UX improvement plan
+(7 phases) → Phase 2." Phase 1 server work shipped in 35061e1; this
+phase blocks GUI work for the game-over overlay.
+
+Scope (4 items):
+
+1. Widen game-finish payload with ELO delta. The game-finish flow in
+   gameService.ts already computes the new rating via updateElo();
+   surface { eloBefore, eloAfter, eloDelta } on the response so the UI
+   can render "+12 ELO (1247 → 1259)" without a follow-up fetch. Add to
+   the payload that GET /game/:id returns when status='finished', and
+   to whatever Realtime broadcast tells clients the game ended. For
+   unranked rotations (when the Phase 2 of the unranked-rotation
+   handoff at end of HANDOFF lands — not yet), this should still return
+   the trio with delta=0 so the UI can render "Unranked match" instead.
+
+2. Auto-save MP replays. saveReplay() in packages/ui/src/lib/serverApi.ts
+   exists but is dead code — never called. Server already reconstructs
+   replays from game_actions, so this is metadata-only: when an MP
+   game finishes, write a row to a `replays` table (or extend an
+   existing one — look at server/src/services/gameService.ts for what
+   already gets written) capturing { game_id, winner_player_id,
+   turn_count, p1_username, p2_username, format, rotation,
+   created_at }. Returns the replay id so the UI can build a share link
+   /replay/:id. Idempotent — duplicate finish events shouldn't insert
+   twice.
+
+3. POST /lobby/rematch endpoint. Creates a new lobby with both decks
+   pre-attached, marks lobbies.rematch_of (new uuid column referencing
+   the previous lobby), and stores who lost so the next-game first-
+   player assignment respects loser-picks-first (per locked design
+   decision 2). Suggested shape:
+     POST /lobby/rematch
+     body: { previousLobbyId: string }
+     auth: must be one of the two players from the previous lobby
+     creates: new lobby, status='waiting_loser_choice', both decks
+              loaded, code generated, loser_user_id set on the row
+     returns: { lobbyId, code, loser_user_id }
+   Then add a follow-up:
+     POST /lobby/:id/loser-choice
+     body: { firstPlayer: 'me' | 'opponent' }
+     auth: must equal lobbies.loser_user_id
+     transitions: status='active', creates the game with the loser's
+                  chosen first-player assignment
+   The 60s accept window from the plan can be enforced by the UI
+   polling for transition; if you want server-side hard timeout, add
+   an updated_at-driven cleanup on a future sweep.
+
+4. Replay sharing access. Currently /replay/:id is locked to the two
+   players via RLS on game_actions. Pick one:
+   (a) Add a `replays.public: boolean` flag, default false, with an
+       opt-in toggle exposed via PATCH /replay/:id/share. RLS
+       widens to "player or public=true."
+   (b) Always-public-via-link — anyone with the replay id can read.
+       Lower friction but no opt-out for sensitive games.
+   Recommendation: (a) — gives users control, future-proofs against
+   ranked-replay scouting concerns. Default: opt-in private.
+
+Schema additions needed (one migration block):
+- lobbies: rematch_of UUID REFERENCES lobbies(id), loser_user_id UUID
+  REFERENCES auth.users(id), status check constraint widened to allow
+  'waiting_loser_choice'
+- replays: new table with the metadata shape from item 2, plus public
+  BOOLEAN DEFAULT FALSE for item 4
+
+Rate-limit and abuse considerations:
+- /lobby/rematch: only callable once per source lobby (uniqueness on
+  rematch_of), prevents double-rematch grief
+- replays.public toggle: rate-limit to N per hour per user
+
+Out of scope for this session:
+- The unranked-rotation `ranked: boolean` registry flag from the
+  earlier HANDOFF entry — separate work, don't bundle.
+- Phase 3 matchmaking queue — separate handoff incoming.
+- GUI work (game-over overlay rendering) — gameboard-specialist's
+  lane after this lands.
+
+Validation: write the SQL migration in server/src/db/schema.sql with
+ALTER TABLE ... IF NOT EXISTS guards (idempotent); document the SQL
+the user has to run in Supabase in the commit message + a HANDOFF
+DONE entry. Include curl snippets for the new endpoints so GUI can
+test before any UI is written.
+```
+
+#### Open prompt for gameboard-specialist (Phase 2 overlay, blocked on server)
+
+```
+MP UX Phase 2 — game-over overlay enhancements. BLOCKED on server
+work; spin up only after the Phase 2 server agent commit lands.
+Server prompt is queued in HANDOFF.md. Full plan context in
+docs/HANDOFF.md under "End-to-end multiplayer UX improvement plan
+(7 phases) → Phase 2."
+
+Scope (3 items, all on GameBoard's existing game-over overlay at
+~lines 2174-2274):
+
+1. ELO delta display. Server's game-finish payload now carries
+   { eloBefore, eloAfter, eloDelta }. Render as:
+     +12 ELO (1247 → 1259)   [green if delta > 0]
+     -8 ELO (1259 → 1251)    [red if delta < 0]
+     Unranked match           [gray if delta === 0 AND rotation is
+                              flagged unranked — see HANDOFF for the
+                              ranked: boolean follow-up; for now,
+                              delta === 0 is just "no change"]
+
+2. Share-replay button. Server's auto-save (Phase 2 server item 2)
+   produces a replay_id; surface a "Share replay" button in the
+   overlay that copies https://<domain>/replay/:id to clipboard.
+   Toast on success ("Link copied"). For now, the share works because
+   replays are saved opt-in private — the user has to click a
+   separate "Make public" toggle (handled by the UI agent in a
+   follow-up; this button just copies the link, the link only
+   resolves for permitted viewers).
+
+3. Rematch flow with loser-picks-first. Replaces the current
+   "Play Again" / "Back to Lobby" buttons:
+   - Both players see "Rematch?" button on game-over
+   - First-clicker calls POST /lobby/rematch (server creates the
+     waiting_loser_choice lobby)
+   - Loser of previous game then sees a Play/Draw radio + Confirm
+     button → POST /lobby/:id/loser-choice
+   - Winner sees "Waiting for opponent to pick first-player…"
+   - 60s timer client-side; on expiry both return to main lobby
+   - On loser confirm: both transition to /game/:newGameId
+
+Files:
+- packages/ui/src/pages/GameBoard.tsx (the overlay)
+- packages/ui/src/lib/serverApi.ts (add createRematch + chooseFirst
+  wrappers — coordinate with UI agent who owns this file, may already
+  be done)
+
+Solo / sandbox game-over flow stays as-is. This is MP-only.
+
+Out of scope: replay public-toggle UI (UI agent's lane), the actual
+replay viewer page (/replay/:id already works).
+```
+
+#### Open prompt for GUI agent (Phase 2 GUI, blocked on server)
+
+```
+MP UX Phase 2 GUI — replay-save toast + serverApi additions.
+BLOCKED on Phase 2 server agent commit; spin up only after that lands.
+Full plan context in docs/HANDOFF.md under "End-to-end multiplayer UX
+improvement plan (7 phases) → Phase 2."
+
+Lane split for Phase 2 (do not duplicate gameboard-specialist's work):
+- Game-over overlay layout (ELO delta, share button, rematch flow) =
+  gameboard-specialist (separate prompt above)
+- This prompt = the underlying API wiring + non-overlay surfaces
+  (toast, future "my replays" page)
+
+Scope (3 items):
+
+1. Replay-save toast in useGameSession.
+
+   When an MP game finishes, the server (per Phase 2 item 2) writes a
+   replay row and surfaces the replay_id on the game-finish payload.
+   useGameSession should detect the transition (isGameOver flips true
+   on an MP session, and the new payload includes a replay_id) and
+   trigger a toast/notification with the format:
+
+     "Replay saved — fb-{first 6 chars of replay_id}"
+
+   Toast should auto-dismiss after ~5s, with a Click-to-copy affordance
+   that puts https://<domain>/replay/{replay_id} on the clipboard.
+
+   Reuse existing toast/notification infrastructure if any exists in
+   the app; otherwise add a tiny inline toast (top-right, fixed,
+   z-50). DO NOT trigger on solo / sandbox finishes — only MP. The
+   isMP signal already lives in useGameSession.
+
+   Files:
+   - packages/ui/src/hooks/useGameSession.ts (detection + emit)
+   - Possibly a new packages/ui/src/components/ToastContainer.tsx if
+     no toast infra exists
+
+2. serverApi additions for replay sharing.
+
+   Add wrappers around the new server endpoints (per Phase 2 server
+   items 2 + 4):
+
+     // Returns the replay metadata so the UI can show "shared by X"
+     // headers, etc. on /replay/:id pages.
+     export async function getReplay(replayId: string): Promise<Replay | null>
+
+     // Toggle replay.public — only callable by the two players from
+     // the game. Server returns 403 otherwise. Used by the
+     // gameboard-specialist's overlay UI for the "Make public"
+     // checkbox next to the Share button.
+     export async function setReplayPublic(
+       replayId: string,
+       isPublic: boolean,
+     ): Promise<{ ok: true } | { ok: false; error: string; status: number }>
+
+   Export a Replay interface matching whatever the server returns
+   (see server's Phase 2 commit for the metadata shape — likely
+   { id, gameId, winner, turnCount, p1Username, p2Username, format,
+   rotation, public, createdAt }).
+
+   Files:
+   - packages/ui/src/lib/serverApi.ts
+
+3. (Deferred — capture as TODO comment, not in this session)
+
+   "My replays" page at /replays — list of all replays the user is in
+   (player1 or player2), with public/private toggle, share link copy,
+   delete option. Useful once a few games are recorded but not
+   blocking. Capture as a comment in serverApi.ts referencing the
+   future use of getReplay() + a yet-to-write listMyReplays().
+
+Out of scope:
+- Game-over overlay rendering — gameboard-specialist
+- /replay/:id viewer page — already works (App.tsx route exists, server
+  reconstructs from game_actions)
+- Anything in Phase 3 (matchmaking queue) or later
+
+Validation:
+- Two-account browser test: complete an MP game in two windows, both
+  see the replay-save toast within ~1s of game-over. Click copy →
+  paste in a third browser window → /replay/:id loads (after toggling
+  public via the gameboard overlay button if private is still default)
+- typecheck stays clean for new code (pre-existing
+  exactOptionalPropertyTypes errors per CLAUDE.md don't count)
+- Server's auto-save is idempotent — multiple finish events (Realtime
+  reconnect during game-end frame) shouldn't fire multiple toasts
+  client-side; gate the toast on a useRef "alreadyToasted" flag scoped
+  to the current gameId
+```
 
 ### Phase 3 — Matchmaking queue (user's priority test target)
 
