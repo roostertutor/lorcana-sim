@@ -176,14 +176,19 @@ export async function joinLobby(
 
   if (updateError) throw new Error(`Failed to join lobby: ${updateError.message}`)
 
-  // Create the game (player order randomized inside createNewGame)
-  const game = await createNewGame(
-    lobby.id,
-    lobby.host_id as string,
-    guestId,
-    lobby.host_deck as DeckEntry[],
-    guestDeck,
-  )
+  // CRD 2.2.1 coin flip: randomize which user lands in the player1 slot.
+  // Engine prompts player1 for the play-draw election via choose_play_order
+  // (CRD 2.1.3.2), so slotting the coin-flip winner into player1 routes the
+  // election to the right user without any extra plumbing.
+  const hostId = lobby.host_id as string
+  const hostDeck = lobby.host_deck as DeckEntry[]
+  const hostGoesFirst = Math.random() < 0.5
+  const p1Id = hostGoesFirst ? hostId : guestId
+  const p2Id = hostGoesFirst ? guestId : hostId
+  const p1Deck = hostGoesFirst ? hostDeck : guestDeck
+  const p2Deck = hostGoesFirst ? guestDeck : hostDeck
+
+  const game = await createNewGame(lobby.id, p1Id, p2Id, p1Deck, p2Deck)
 
   // Look up which side the guest got (randomized)
   const { data: gameRow } = await supabase

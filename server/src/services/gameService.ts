@@ -27,22 +27,31 @@ function updatedElo(rating: number, expected: number, actual: number): number {
   return Math.round(rating + ELO_K * (actual - expected))
 }
 
+/**
+ * Create a game row with the given slot assignment. Callers own the slot
+ * decision — do NOT add randomization here:
+ *   - Game 1 (from lobbyService.joinLobby): coin-flip winner → player1 slot.
+ *   - Bo3 games 2/3 (from handleMatchProgress): previous-game loser → player1
+ *     slot (CRD 2.1.3.2 play-draw rule).
+ *
+ * Engine's `chooserPlayerId` defaults to "player1" — whoever lands in slot 1
+ * is prompted via the `choose_play_order` pendingChoice as the first
+ * interaction in the game. Passed explicitly here for clarity.
+ */
 export async function createNewGame(
   lobbyId: string,
-  hostId: string,
-  guestId: string,
-  hostDeck: DeckEntry[],
-  guestDeck: DeckEntry[],
+  p1Id: string,
+  p2Id: string,
+  p1Deck: DeckEntry[],
+  p2Deck: DeckEntry[],
   gameNumber = 1,
 ) {
-  // Randomize who goes first — engine always starts with "player1"
-  const hostGoesFirst = Math.random() < 0.5
-  const p1Id = hostGoesFirst ? hostId : guestId
-  const p2Id = hostGoesFirst ? guestId : hostId
-  const p1Deck = hostGoesFirst ? hostDeck : guestDeck
-  const p2Deck = hostGoesFirst ? guestDeck : hostDeck
-
-  const config: GameConfig = { player1Deck: p1Deck, player2Deck: p2Deck, interactive: true }
+  const config: GameConfig = {
+    player1Deck: p1Deck,
+    player2Deck: p2Deck,
+    interactive: true,
+    chooserPlayerId: "player1",
+  }
   const initialState = createGame(config, definitions)
 
   const { data, error } = await supabase
@@ -364,14 +373,30 @@ async function handleMatchProgress(
     return { p1Wins, p2Wins }
   }
 
-  // Bo3 not decided — create next game
+  // Bo3 not decided — create next game. CRD 2.1.3.2 play-draw rule: the
+  // losing player elects go-first-or-second for the next game. We enforce
+  // that by slotting the loser into the player1 slot — engine's
+  // choose_play_order defaults to prompting player1.
+  //
+  // Pair each user with their correct deck. The lobby stores decks keyed by
+  // host_id / guest_id (not by slot), so the host/guest → slot mapping can
+  // flip between games without losing deck identity.
   const gameNumber = p1Wins + p2Wins + 1
+  const loserId = winner === "player1" ? player2Id : player1Id
+  const opponentId = winner === "player1" ? player1Id : player2Id
+  const hostId = lobby.host_id as string
+  const hostDeck = lobby.host_deck as DeckEntry[]
+  const guestDeck = lobby.guest_deck as DeckEntry[]
+  const loserIsHost = loserId === hostId
+  const loserDeck = loserIsHost ? hostDeck : guestDeck
+  const opponentDeck = loserIsHost ? guestDeck : hostDeck
+
   const nextGame = await createNewGame(
     lobbyId,
-    player1Id,
-    player2Id,
-    lobby.host_deck as DeckEntry[],
-    lobby.guest_deck as DeckEntry[],
+    loserId,
+    opponentId,
+    loserDeck,
+    opponentDeck,
     gameNumber,
   )
 

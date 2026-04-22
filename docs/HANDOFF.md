@@ -201,18 +201,36 @@ invariant check in `packages/simulator/src/simulator.test.ts`:
    phase. The latter catches future regressions where a new mulligan or
    transition path forgets to set the starting player.
 
-**Server follow-ons (server-specialist — unblocked):**
-- `gameService.ts` needs to pass `chooserPlayerId` to `createGame`.
-  Game 1: default `"player1"` keeps current behavior (the coin-flip
-  winner is already slotted into player1).
-- Bo3 games 2/3: slot the **previous-game loser** into `player1` AND
-  pass `chooserPlayerId: "player1"` (default). Alternative: keep the
-  previous game's slot assignment unchanged and pass
-  `chooserPlayerId: <loser-id>` — either works, but the loser-in-slot-1
-  approach means the server never has to pass a non-default config.
-- Server already routes `RESOLVE_CHOICE` through the engine generically
-  (`gameService.ts:94-95` uses `state.pendingChoice.choosingPlayerId`),
-  so no new action-type plumbing needed.
+**Server follow-ons (server-specialist — DONE 2026-04-22):**
+
+Server work shipped. UI is the only remaining piece.
+
+**What landed (server-specialist):**
+- `gameService.createNewGame` refactored: signature is now
+  `(lobbyId, p1Id, p2Id, p1Deck, p2Deck, gameNumber?)` — callers own the
+  slot decision, function no longer randomizes internally. Passes
+  `chooserPlayerId: "player1"` explicitly to `createGame` so the election
+  prompt always routes to the slot-1 user.
+- `lobbyService.joinLobby` (game 1): coin-flip moved to the call site
+  before `createNewGame`. Coin-flip winner → `player1` slot with their
+  correct deck.
+- `gameService.handleMatchProgress` (Bo3 games 2/3): previous-game loser
+  goes into `player1` slot (CRD 2.1.3.2). **Also fixes a pre-existing
+  deck-swap bug** — the old path passed `player1Id` as `hostId` and
+  `lobby.host_deck` as `hostDeck`, then randomized inside
+  `createNewGame`, which could pair a user with the wrong deck whenever
+  the previous game's slot assignment didn't match host/guest. New logic
+  explicitly looks up each user's deck via the host_id / guest_id →
+  deck map stored on the lobby.
+- `RESOLVE_CHOICE` routing unchanged — `gameService.ts` already uses
+  `state.pendingChoice.choosingPlayerId` for active-player checks.
+- `stateFilter.ts` unchanged — `choose_play_order` is public info
+  (both players see who's choosing; choice itself is public after
+  resolution).
+- No schema migration needed — `chooserPlayerId` lives in the engine's
+  `GameConfig` and flows into the stored `GameState` blob.
+- Typecheck: 1 pre-existing server error, no new errors introduced.
+- All 598 engine + 50 simulator + 15 analytics tests remain green.
 
 **UI follow-ons (ui-specialist — unblocked):**
 - `PendingChoiceModal.tsx` needs a `choose_play_order` variant: two
