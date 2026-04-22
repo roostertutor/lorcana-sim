@@ -3044,6 +3044,29 @@ export interface CardDefinition {
    *  top-layer treatments. Hex string like `"#8FD262"`. Missing values fall
    *  back to `#aaa` silver in the renderer. */
   hotFoilColor?: string;
+
+  // ── Foil mask provenance (parallel to _imageSource / _sourceImageUrl) ─
+  // Populated by `pnpm sync-foil-masks`. Enables idempotent re-runs (skip
+  // when upstream hasn't rotated) + lets re-imports detect whether the
+  // current `foilMaskUrl` / `foilTopLayerMaskUrl` are R2-hosted or fresh
+  // upstream so the next sync restores them.
+  //
+  // Foil masks come exclusively from Ravensburger (Lorcast doesn't publish
+  // mask data) — `_foilMaskSource` is always "ravensburger" in practice.
+  // Tracked anyway so the mask-sync script can refuse tier downgrades,
+  // mirroring the _imageSource pattern.
+  /** Tier this card's foil masks were synced from. */
+  _foilMaskSource?: "ravensburger" | "lorcast" | "manual";
+  /** Upstream URL the current R2 base mask was pulled from. Used for
+   *  idempotent re-runs + art rotation detection. */
+  _foilMaskSourceUrl?: string;
+  /** Upstream URL the current R2 top-layer mask was pulled from. Separate
+   *  field because a single card has two distinct mask images with their
+   *  own upstream URLs and content hashes. */
+  _foilTopMaskSourceUrl?: string;
+  /** Pin this card's foil masks regardless of sync-script tier — same
+   *  pattern as `_sourceLock` / `_imageSourceLock`. Rare. Set manually. */
+  _foilMaskSourceLock?: boolean;
 }
 
 /** Visual-printing classes. Deckbuilder picker shows one chip per distinct

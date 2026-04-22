@@ -32,9 +32,11 @@
     "flavorText": "When defeat looms and victory hangs by a thread, a hero bolts to the rescue, patching things up through shear determination.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/1_0aa6a35b8dc7cf39_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_12b884d933230cee29e653eef35eabd5ea3f0b80.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/1_f5694991a2896f95_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_1217b22b5c937088bfd49a72c7c226af713e557f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/1_12b884d933230cee29e653eef35eabd5ea3f0b80.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "cinderella-stouthearted",
@@ -100,7 +102,7 @@
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/2_1dc059e9f58956e1_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_1f6f7941f3330d548c28cccbbab7eb60142526b5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/2_57de1cf3a746747f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
@@ -109,7 +111,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_49322180ef220a80b7cc871933665f8869559f93.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/2_1f6f7941f3330d548c28cccbbab7eb60142526b5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "ursula-deceiver",
@@ -170,7 +174,7 @@
     "rulesText": "YOU’LL NEVER EVEN MISS IT When you play this character, chosen opponent reveals their hand and discards a song card of your choice.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/3_690f63bbcb26c46a_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_1d7b295ff41b9762ca77a25a3d22c5cf21c0659a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/3_a0decdc45e94b6db_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'LL NEVER EVEN MISS IT",
@@ -179,7 +183,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_569cc7920299a66496b9db5894b5e1f8ab3ffa5f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/3_1d7b295ff41b9762ca77a25a3d22c5cf21c0659a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "bruno-madrigal-undetected-uncle",
@@ -233,7 +239,7 @@
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nYOU JUST HAVE TO SEE IT {E} — Name a card, then reveal the top card of your deck. If it’s the named card, put that card into your hand and gain 3 lore. Otherwise, put it on the top of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/4_1e4507f9ad2b8c45_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_266cabe645ba502723e4ae1dc78bfbabd23c33d3.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/4_be9949674961510c_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU JUST HAVE TO SEE IT",
@@ -242,7 +248,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_830c56df482cafcb991b97b1cca0f4d0f95d0ab7.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_830c56df482cafcb991b97b1cca0f4d0f95d0ab7.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/4_266cabe645ba502723e4ae1dc78bfbabd23c33d3.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "vanellope-von-schweetz-sugar-rush-princess",
@@ -314,7 +322,7 @@
     "rulesText": "<Shift> 2 (You may pay 2 {I} to play this on top of one of your characters named Vanellope von Schweetz.)\nI HEREBY DECREE Whenever you play another Princess character, all opposing characters get –1 {S} until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/5_7f903b4fef824798_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_03ffe1bc47f41f18daadf94af6ce3e07395db753.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/5_6b79e708f3da07ef_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "I HEREBY DECREE",
@@ -323,7 +331,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_42d60880b0036846dc41452794caeee2849c1915.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/5_03ffe1bc47f41f18daadf94af6ce3e07395db753.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "oswald-the-lucky-rabbit",
@@ -385,7 +395,7 @@
     "rulesText": "FAVORABLE CHANCE During your turn, whenever a card is put into your inkwell, reveal the top card of your deck. If it’s an item card you may play it for free, exerted. Otherwise, put it on the bottom of your deck.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/6_43c2b8fd8cd91fda_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_14b68595636cc45bcde28c6d48d027e067490f40.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/6_b30150cc2798dd46_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAVORABLE CHANCE",
@@ -394,7 +404,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_f8c77d582d04d29a2891cc2c2609f3347d197e78.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_f8c77d582d04d29a2891cc2c2609f3347d197e78.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/6_14b68595636cc45bcde28c6d48d027e067490f40.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mickey-mouse-playful-sorcerer",
@@ -471,8 +483,8 @@
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Mickey Mouse.)\n<Resist> +1 (Damage dealt to this character is reduced by 1.)\nSWEEP AWAY When you play this character, deal damage to chosen character equal to the number of Broom characters you have in play.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/7_bbc3342e126ac1e4_normal.jpg",
     "foilType": "freeform_2",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_966dc4f344031968d13f523b251be6cff3bb69e0.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_0b31b634289105bfe78102edb68e0bf0d5e54c53.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/7_4eeaca023486a01a_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/7_4365328bed28d778_top.jpg",
     "foilTopLayer": "rainbow_hot_foil",
     "_namedAbilityStubs": [
       {
@@ -482,7 +494,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_d0fae8f0caf6fd33b168a61b95d51e2fb15d584d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_d0fae8f0caf6fd33b168a61b95d51e2fb15d584d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_966dc4f344031968d13f523b251be6cff3bb69e0.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/7_0b31b634289105bfe78102edb68e0bf0d5e54c53.jpg"
   },
   {
     "id": "iago-out-of-reach",
@@ -538,7 +553,7 @@
     "flavorText": "“Nice try, chumps! Too bad I’m all the way up here!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/8_085bcbc404415649_normal.jpg",
     "foilType": "sea_wave",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_d12e5328a36ced921c6ca69b6c598f3025896436.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/8_1c744689c939584b_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SELF-PRESERVATION",
@@ -547,7 +562,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_4480c6738df12918c25fccbbedad4215fc19cbf2.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_4480c6738df12918c25fccbbedad4215fc19cbf2.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/8_d12e5328a36ced921c6ca69b6c598f3025896436.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mad-hatter-unruly-eccentric",
@@ -603,7 +620,7 @@
     "flavorText": "\"Don't you care for tea?\"",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setD23/16_4858e74a5c7fd735_normal.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_ac53c373b9441fdaefd66a7bbdbf837b276672ee.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setD23/16_2260a6162455bf36_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNBIRTHDAY PRESENT",
@@ -612,6 +629,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_05961dfd4070633ba8808b9827727eca4c8aca32.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_05961dfd4070633ba8808b9827727eca4c8aca32.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/d23/16_ac53c373b9441fdaefd66a7bbdbf837b276672ee.jpg",
+    "_foilMaskSource": "ravensburger"
   }
 ]

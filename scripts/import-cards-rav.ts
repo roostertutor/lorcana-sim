@@ -163,6 +163,13 @@ interface CardDefinitionOut {
     | "high_gloss" | "metallic_hot_foil" | "snow_hot_foil"
     | "rainbow_hot_foil" | "matte_hot_foil";
   hotFoilColor?: string;
+
+  // Mask provenance — mirrors _imageSource / _sourceImageUrl but for the
+  // two foil-mask URLs. Populated by sync-foil-masks.ts.
+  _foilMaskSource?: "ravensburger" | "lorcast" | "manual";
+  _foilMaskSourceUrl?: string;
+  _foilTopMaskSourceUrl?: string;
+  _foilMaskSourceLock?: boolean;
 }
 
 type CardSource = NonNullable<CardDefinitionOut["_source"]>;
@@ -741,7 +748,15 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       // cards; the passthrough ensures the foil data survives a sibling
       // set re-import that happens to omit a card, or a future importer
       // that doesn't yet know about these fields.
+      //
+      // Note: the importer DOES overwrite foilMaskUrl/foilTopLayerMaskUrl
+      // with the fresh upstream URL on every re-import — same way it does
+      // for imageUrl. The `_foilMaskSourceUrl` / `_foilTopMaskSourceUrl`
+      // passthroughs survive so sync-foil-masks can detect whether upstream
+      // has rotated (different URL) vs just-reimported (same URL) and
+      // skip the re-fetch accordingly.
       "foilType", "foilMaskUrl", "foilTopLayerMaskUrl", "foilTopLayer", "hotFoilColor",
+      "_foilMaskSource", "_foilMaskSourceUrl", "_foilTopMaskSourceUrl", "_foilMaskSourceLock",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];

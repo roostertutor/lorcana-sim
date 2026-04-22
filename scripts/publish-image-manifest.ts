@@ -21,15 +21,39 @@
 //     "baseUrl": "https://pub-....r2.dev",
 //     "sizes": { "small": 200, "normal": 450, "large": 900 },
 //     "cards": {
-//       "1/1":    { "key": "set1/1_98e6bf931e54bf66", "ravensburgerId": 1 },
-//       "12/123": { "key": "set12/123_a8f3c9d2b1e5f7a0", "ravensburgerId": 1234 },
-//       "P1/4":   { "key": "setP1/4_...",              "ravensburgerId": 456 }
+//       "1/1":    {
+//         "key": "set1/1_98e6bf931e54bf66",
+//         "ravensburgerId": 1,
+//         "foil": {
+//           "type": "silver",
+//           "maskKey": "masks/set1/1_afb2cf020b36301e_base",
+//           "topMaskKey": null,
+//           "topLayer": null,
+//           "hotColor": null
+//         }
+//       },
+//       "11/22": {
+//         "key": "set11/22_...",
+//         "ravensburgerId": 2485,
+//         "foil": {
+//           "type": "silver",
+//           "maskKey": "masks/set11/22_..._base",
+//           "topMaskKey": "masks/set11/22_..._top",
+//           "topLayer": "high_gloss",
+//           "hotColor": null
+//         }
+//       }
 //     }
 //   }
 //
 // Consumer URL construction:
-//   `${manifest.baseUrl}/${entry.key}_${size}.jpg`
-// where size ∈ keys of manifest.sizes.
+//   Art:  `${manifest.baseUrl}/${entry.key}_${size}.jpg`   (size ∈ keys of manifest.sizes)
+//   Mask: `${manifest.baseUrl}/${foil.maskKey}.jpg`        (or foil.topMaskKey)
+//
+// The `foil` block is absent on cards with no foil data (Lorcast-sourced
+// gaps, pre-foil-era stock). Consumers MUST null-check `entry.foil` before
+// reading any subfield. `maskKey` / `topMaskKey` / `topLayer` / `hotColor`
+// are independently nullable (not every foiled card has a top-layer mask).
 //
 // Usage:
 //   pnpm publish-image-manifest             write to R2 (requires .env R2 creds)
@@ -53,9 +77,27 @@ import {
 const MANIFEST_KEY = "manifest/v1/images.json";
 const MANIFEST_VERSION = 1;
 
+interface ManifestFoilBlock {
+  /** Foil shader type — snake_case normalization of Ravensburger's foil_type. */
+  type: string | null;
+  /** R2 key (sans baseUrl, sans .jpg) for the base luminance mask. Null when
+   *  the card has no mask data (pre-foil-era stock, Lorcast-sourced gaps). */
+  maskKey: string | null;
+  /** R2 key for the top-layer normal-map mask. Only populated for cards with
+   *  HighGloss / MetallicHotFoil / SnowHotFoil / RainbowHotFoil / MatteHotFoil
+   *  top-layer treatments (220/2816 cards as of this writing). */
+  topMaskKey: string | null;
+  /** snake_case top-layer type. Paired with topMaskKey. */
+  topLayer: string | null;
+  /** Per-card art-directed hex tint for hot-foil top layers. Null means
+   *  the renderer should fall back to #aaa silver. */
+  hotColor: string | null;
+}
+
 interface ManifestEntry {
   key: string;
   ravensburgerId?: number;
+  foil?: ManifestFoilBlock;
 }
 
 interface Manifest {
@@ -79,12 +121,29 @@ function parseR2Key(imageUrl: string, baseUrl: string): string | null {
   return m ? m[1]! : null;
 }
 
+/** Parse an R2 mask URL into its opaque key prefix (everything before .jpg).
+ *  Mask keys include the `_base` / `_top` slot suffix so consumers can tell
+ *  which is which without consulting the manifest's topMaskKey field.
+ *  Returns null for non-R2 URLs. */
+function parseR2MaskKey(maskUrl: string, baseUrl: string): string | null {
+  const base = baseUrl.replace(/\/$/, "");
+  if (!maskUrl.startsWith(base + "/")) return null;
+  const path = maskUrl.slice(base.length + 1);
+  const m = path.match(/^(masks\/set[^/]+\/\d+_[0-9a-f]+_(?:base|top))\.jpg$/);
+  return m ? m[1]! : null;
+}
+
 function buildManifest(baseUrl: string): Manifest {
   const cards: Record<string, ManifestEntry> = {};
   let total = 0;
   let missingImageUrl = 0;
   let nonR2ImageUrl = 0;
   let withRavId = 0;
+  let withFoil = 0;
+  let withFoilBase = 0;
+  let withFoilTop = 0;
+  let foilMaskNotR2 = 0;
+  let foilTopNotR2 = 0;
 
   for (const filename of listCardSetFiles()) {
     const rows = loadCardSet(filename) as Array<{
@@ -92,6 +151,11 @@ function buildManifest(baseUrl: string): Manifest {
       number: number;
       imageUrl?: string;
       _ravensburgerId?: number;
+      foilType?: string;
+      foilMaskUrl?: string;
+      foilTopLayerMaskUrl?: string;
+      foilTopLayer?: string;
+      hotFoilColor?: string;
     }>;
     for (const card of rows) {
       total++;
@@ -110,13 +174,51 @@ function buildManifest(baseUrl: string): Manifest {
         entry.ravensburgerId = card._ravensburgerId;
         withRavId++;
       }
+
+      // Foil block: present if the card has ANY foil data. Individual
+      // fields within are nullable — e.g. a Silver-foil card with no
+      // top-layer has `maskKey` populated but `topMaskKey: null`.
+      const hasAnyFoilData =
+        card.foilType ||
+        card.foilMaskUrl ||
+        card.foilTopLayerMaskUrl ||
+        card.foilTopLayer ||
+        card.hotFoilColor;
+      if (hasAnyFoilData) {
+        let maskKey: string | null = null;
+        let topMaskKey: string | null = null;
+        if (card.foilMaskUrl) {
+          maskKey = parseR2MaskKey(card.foilMaskUrl, baseUrl);
+          if (!maskKey) foilMaskNotR2++;
+          else withFoilBase++;
+        }
+        if (card.foilTopLayerMaskUrl) {
+          topMaskKey = parseR2MaskKey(card.foilTopLayerMaskUrl, baseUrl);
+          if (!topMaskKey) foilTopNotR2++;
+          else withFoilTop++;
+        }
+        entry.foil = {
+          type: card.foilType ?? null,
+          maskKey,
+          topMaskKey,
+          topLayer: card.foilTopLayer ?? null,
+          hotColor: card.hotFoilColor ?? null,
+        };
+        withFoil++;
+      }
+
       cards[manifestKey] = entry;
     }
   }
 
   console.log(`\n  Scanned ${total} cards across ${listCardSetFiles().length} set files:`);
   console.log(`    ${Object.keys(cards).length} entries in manifest`);
-  console.log(`    ${withRavId} with _ravensburgerId (populated on next import-cards run)`);
+  console.log(`    ${withRavId} with _ravensburgerId`);
+  console.log(`    ${withFoil} with foil data`);
+  console.log(`      ${withFoilBase} with R2 base mask`);
+  console.log(`      ${withFoilTop} with R2 top-layer mask`);
+  if (foilMaskNotR2 > 0) console.log(`    ⚠ ${foilMaskNotR2} foilMaskUrl values are upstream (run pnpm sync-foil-masks)`);
+  if (foilTopNotR2 > 0) console.log(`    ⚠ ${foilTopNotR2} foilTopLayerMaskUrl values are upstream (run pnpm sync-foil-masks)`);
   if (missingImageUrl > 0) console.log(`    ${missingImageUrl} skipped: no imageUrl`);
   if (nonR2ImageUrl > 0) console.log(`    ${nonR2ImageUrl} skipped: imageUrl is upstream (not yet synced to R2)`);
 

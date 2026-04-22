@@ -32,9 +32,11 @@
     "flavorText": "“His name is Pegasus. And he’s all yours. . . .”%—Zeus",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/1_18bfb1cfec63882d_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_57d6a7c8eeee3146e20af49f775c92982bf97403.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC2/1_9d1979c354089e85_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_14759a518d51a11653eb125ed741e52ac648cac0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/1_57d6a7c8eeee3146e20af49f775c92982bf97403.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "elsa-ice-maker",
@@ -113,7 +115,7 @@
     "rulesText": "<Shift> 4 (You may pay 4 {I} to play this on top of one of your characters named Elsa.)\nWINTER WALL Whenever this character quests, you may exert chosen character. If you do and you have a character named Anna in play, the chosen character can’t ready at the start of their next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/2_63883e101aa06cbf_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_9a3598a37e9e642e67bf71a6e99938472d1e3691.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC2/2_ea8cd7109f59f5b1_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WINTER WALL",
@@ -122,7 +124,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_f5b9e8b486e1abb86b3a1ac69e114f075f299965.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_f5b9e8b486e1abb86b3a1ac69e114f075f299965.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/2_9a3598a37e9e642e67bf71a6e99938472d1e3691.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mulan-charging-ahead",
@@ -184,7 +188,7 @@
     "rulesText": "<Reckless> (This character can’t quest and must challenge each turn if able.)\nBURST OF SPEED During your turn, this character gains <Evasive>. (They can challenge characters with Evasive.)\nLONG RANGE This character can challenge ready characters.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/3_8d2ff4844e9eaab6_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_6f7ff47476da42275d2123b3a369d53533cc77c6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC2/3_b76d841640877295_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURST OF SPEED",
@@ -198,7 +202,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_9367757ea03480a9aeab58ad1816f55acb53459e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_9367757ea03480a9aeab58ad1816f55acb53459e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/3_6f7ff47476da42275d2123b3a369d53533cc77c6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "simba-pride-protector",
@@ -268,7 +274,7 @@
     "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Simba.)\nUNDERSTAND THE BALANCE At the end of your turn, if this character is exerted, you may ready your other characters.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC2/4_728f0b0fb64afb03_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_634754a7850644dd863148e3bb8da94a3f340361.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC2/4_708d3e106c49e5a3_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNDERSTAND THE BALANCE",
@@ -277,7 +283,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_aab2a1eb45417844fc433e302037ab6a61179580.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_aab2a1eb45417844fc433e302037ab6a61179580.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge2/4_634754a7850644dd863148e3bb8da94a3f340361.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "pegasus-gift-for-hercules",

@@ -20,7 +20,7 @@
     "flavorText": "Rare is the hero who can withstand a dragon’s wrath.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/1_fce7847502346536_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_1a29716f8da4e615db8852cb2a9d27ac6dd8c088.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/1_8be05b222fb31239_base.jpg",
     "actionEffects": [
       {
         "type": "banish",
@@ -36,7 +36,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_d936dc1f2c9f0cae641dbb5584bfb0288a103641.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/1_1a29716f8da4e615db8852cb2a9d27ac6dd8c088.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "let-it-go",
@@ -61,7 +63,7 @@
     "flavorText": "It’s time to see what I can do\nTo test the limits and break through",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/2_612ba8dd292c46d0_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_47b22e348f3f9dd3f12f24358645cb512acf86f5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/2_a78cd9fc9813a570_base.jpg",
     "actionEffects": [
       {
         "type": "put_into_inkwell",
@@ -78,7 +80,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_e2146eb707e1996e2ae87ecd5ce44a7edcc61a0b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/2_47b22e348f3f9dd3f12f24358645cb512acf86f5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "cinderella-stouthearted",
@@ -144,7 +148,7 @@
     "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Cinderella.)\n<Resist> +2 (Damage dealt to this character is reduced by 2.)\nTHE SINGING SWORD Whenever you play a song, this character may challenge ready characters this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/3_535203b106874d9b_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_53be80a90ef162a320400c27df8838786226e8ee.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/3_5c797cc4a48c6d76_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE SINGING SWORD",
@@ -153,7 +157,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_7cfc69a3eefd2016514e90f05c0f64fd17b549fb.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/3_53be80a90ef162a320400c27df8838786226e8ee.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "rapunzel-gifted-with-healing",
@@ -218,7 +224,7 @@
     "rulesText": "GLEAM AND GLOW When you play this character, remove up to 3 damage from one of your characters. Draw a card for each 1 damage removed this way.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/4_b0f2da4c64e54d04_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_296eb3310abc46fe94a4a53db45705e5c3527307.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/4_c00fa14e6add978d_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GLEAM AND GLOW",
@@ -227,7 +233,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_13f6e83bc0dc15ba0eb9788650ddce23f3df3fd6.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/4_296eb3310abc46fe94a4a53db45705e5c3527307.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "invited-to-the-ball",
@@ -249,7 +257,7 @@
     "rulesText": "Reveal the top 2 cards of your deck. Put revealed character cards into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/6_866c0959bd3bc77c_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_17858f0d266db6cb3109e562b3312f7b0cb3fe3c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/6_fe8db59e18238e68_base.jpg",
     "actionEffects": [
       {
         "type": "look_at_top",
@@ -268,7 +276,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_1b3b18a1144fa7c89505abdc0538fecdf227e291.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/6_17858f0d266db6cb3109e562b3312f7b0cb3fe3c.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "elsas-ice-palace-place-of-solitude",
@@ -324,7 +334,7 @@
     "rulesText": "ETERNAL WINTER When you play this location, choose an exerted character. While this location is in play, that character can’t ready at the start of their turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/7_750fb6b23f10c799_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_12346af1f9f2b7bdf94a7898148cb08f80934cda.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/7_b2a6f6071885baeb_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ETERNAL WINTER",
@@ -333,7 +343,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_3324f1eaf672e4cfd71506a956b5098fea2364e4.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_3324f1eaf672e4cfd71506a956b5098fea2364e4.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/7_12346af1f9f2b7bdf94a7898148cb08f80934cda.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "kuzco-temperamental-emperor",
@@ -384,7 +396,7 @@
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)\nNO TOUCHY! When this character is challenged and banished, you may banish the challenging character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/8_2b58e6d998353f66_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ee62fa56b2ad6f67baaac0358c4db61a62154809.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/8_2aee49bb0d939ee7_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO TOUCHY!",
@@ -393,7 +405,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ed492b373e5a8049ce3dc162683fc52b879dbc66.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/8_ee62fa56b2ad6f67baaac0358c4db61a62154809.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "baymax-armored-companion",
@@ -510,7 +524,7 @@
     "rulesText": "THE TREATMENT IS WORKING When you play this character and whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/9_f626dbba79e12b69_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_e1971dce61dd3183356dad1080d542193d223663.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/9_e50200ffeef1fee0_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE TREATMENT IS WORKING",
@@ -519,7 +533,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_19cd83a819704f909a297aeb743e75423af34ce9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_19cd83a819704f909a297aeb743e75423af34ce9.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/9_e1971dce61dd3183356dad1080d542193d223663.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "a-whole-new-world",
@@ -544,7 +560,7 @@
     "flavorText": "Shining, shimmering, splendid . . .",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setC1/10_5dc6854f55dadd60_normal.jpg",
     "foilType": "tempest",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_38c94b23f174da7c94afde1bc6c98f67d245e90e.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setC1/10_8bd7d4d04a466081_base.jpg",
     "actionEffects": [
       {
         "type": "each_player",
@@ -567,6 +583,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_d170b8d9f5f552ad50fbe13a57d5e0f99e7506a6.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/challenge1/10_38c94b23f174da7c94afde1bc6c98f67d245e90e.jpg",
+    "_foilMaskSource": "ravensburger"
   }
 ]

@@ -55,7 +55,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/2_7741b678b88f02b1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/2_8c74b5fee283e62c5464f31c221bd3411d54a603.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/2_ba1f3370c139242b3658302955d0cb00614703e6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/2_f71d9936dbe97f42_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BIRD'S-EYE VIEW",
@@ -64,7 +64,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/2_8c74b5fee283e62c5464f31c221bd3411d54a603.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/2_8c74b5fee283e62c5464f31c221bd3411d54a603.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/2_ba1f3370c139242b3658302955d0cb00614703e6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dale-excited-friend",
@@ -116,7 +118,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/4_fb5764acc41c32c4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/4_f422ba59f42576cfa549e6f0c04c4715b74e8587.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/4_c5796a1fb5e929ea2d02a31ff817bf75447fa155.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/4_34f034d192a82649_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOOK WHAT I FOUND",
@@ -125,7 +127,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/4_f422ba59f42576cfa549e6f0c04c4715b74e8587.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/4_f422ba59f42576cfa549e6f0c04c4715b74e8587.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/4_c5796a1fb5e929ea2d02a31ff817bf75447fa155.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "pedro-madrigal-family-patriarch",
@@ -201,7 +205,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/5_b25503d242023a7c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_0c8395f6d88376fbdf3b367b7251b12b1c4ed48f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/5_5501c07187915a89_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DIFFICULT JOURNEY",
@@ -215,7 +219,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_aca5031d5361c75e0dbfaadf2933f1f7d723d6b0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/5_0c8395f6d88376fbdf3b367b7251b12b1c4ed48f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "agustin-madrigal-exceptionally-kind",
@@ -252,9 +258,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/6_9eeb9277d32cb6f2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_8166ff54a0aa0606542be9a91c294d158f08ff98.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/6_a9550abd72bc562a_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_5881d87f0c76644c84cb563176da77d332afae8f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/6_8166ff54a0aa0606542be9a91c294d158f08ff98.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "alan-a-dale-loyal-bard",
@@ -291,9 +299,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/7_52a3cabad1c2b2c2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_c07cee6325d44af844de07479a3a2e01c7de4200.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_6e088e0e1cb9e0c47caaf796909107fb68b8efa2.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/7_5810d98037db5251_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_c07cee6325d44af844de07479a3a2e01c7de4200.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_c07cee6325d44af844de07479a3a2e01c7de4200.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/7_6e088e0e1cb9e0c47caaf796909107fb68b8efa2.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "prince-eric-noble-swordsman",
@@ -324,9 +334,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/8_a2aa86ef9995a8d5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_8b10e751eaefb574de2cc389811f4ce7bab95bd1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_7169d7aa57c0e262954ce6a89e2368aa8a3e0c1c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/8_fab54cbce639c0c2_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_8b10e751eaefb574de2cc389811f4ce7bab95bd1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_8b10e751eaefb574de2cc389811f4ce7bab95bd1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/8_7169d7aa57c0e262954ce6a89e2368aa8a3e0c1c.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dolores-madrigal-hears-everything",
@@ -375,7 +387,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/9_e2f67f7e137fa625_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_1e4d13461487384cf50b047d9c1af18bfe043435.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/9_364178feacf34248_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO SECRETS",
@@ -384,7 +396,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_13ccd2d2cbc6231b2ceca52f12ff8d62d1d4d82b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/9_1e4d13461487384cf50b047d9c1af18bfe043435.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "monterey-jack-hypnotized-by-cheese",
@@ -441,7 +455,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/12_fec4ac5ecb69d453_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_bcf24e29d1576da4da6770d4134d48a10c28797d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_c1875e64dadab5a33f9dca81bd804578f1314da5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/12_f3d88bf6ba348e8e_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BREAK THE TRANCE",
@@ -450,7 +464,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_bcf24e29d1576da4da6770d4134d48a10c28797d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_bcf24e29d1576da4da6770d4134d48a10c28797d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/12_c1875e64dadab5a33f9dca81bd804578f1314da5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "bo-peep-caring-shepherd",
@@ -508,7 +524,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/13_2f11ae7565bb2c7c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/13_851cefd1008fc413b2303f2cd9b46c490c449ac0.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/13_3c7384807f896adacc147a4b747eb8f057b300d5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/13_577948902a94b4b0_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SOMEBODY DO SOMETHING!",
@@ -517,7 +533,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/13_851cefd1008fc413b2303f2cd9b46c490c449ac0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/13_851cefd1008fc413b2303f2cd9b46c490c449ac0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/13_3c7384807f896adacc147a4b747eb8f057b300d5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "chip-retrieval-expert",
@@ -598,7 +616,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/14_a9f2b1d4c500dca7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_24935ccba07d8f3715d974436563a1f47e0ab546.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/14_b47097119ce4f0b1_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THERE YOU ARE!",
@@ -612,7 +630,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_6f63535085953b8118a2664be184f39a17e79a06.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/14_24935ccba07d8f3715d974436563a1f47e0ab546.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "woody-jungle-guide",
@@ -705,8 +725,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/15_eab47f224da44f00_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_c8b3f1a594fad65bd571a0dac0a61eb4a59cad2f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_2a22c5f90f38ddd53d9a128a502d37c668c3f41f.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_210d131186778cf9d1de30e8cb58c2886da303af.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/15_35f1831849135d9c_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/15_c77343c1e6bfd1c3_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -721,7 +741,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_c8b3f1a594fad65bd571a0dac0a61eb4a59cad2f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_c8b3f1a594fad65bd571a0dac0a61eb4a59cad2f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_2a22c5f90f38ddd53d9a128a502d37c668c3f41f.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/15_210d131186778cf9d1de30e8cb58c2886da303af.jpg"
   },
   {
     "id": "isabela-madrigal-such-a-lovely-voice",
@@ -832,7 +855,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/17_60c6173fcbdc786a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/17_f380cc22d07e3a0568f216d8867d9ff7194c76ab.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/17_63d76c85a31ff3f58c138ecb5c14adbe7d1de84d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/17_d8e19435d5a1890c_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S RIDE",
@@ -841,7 +864,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/17_f380cc22d07e3a0568f216d8867d9ff7194c76ab.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/17_f380cc22d07e3a0568f216d8867d9ff7194c76ab.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/17_63d76c85a31ff3f58c138ecb5c14adbe7d1de84d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "ariel-curious-traveler",
@@ -920,7 +945,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/18_02c5ebf1a91cf3bd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/18_b940333f27e0a0d4e5d895cabeca1c3dd978b348.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/18_1cb15c8d14c6b1fed6549b46a9aa24c1bd5f5c93.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/18_f9ce91481c1d4879_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAMILIAR GROUND",
@@ -929,7 +954,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/18_b940333f27e0a0d4e5d895cabeca1c3dd978b348.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/18_b940333f27e0a0d4e5d895cabeca1c3dd978b348.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/18_1cb15c8d14c6b1fed6549b46a9aa24c1bd5f5c93.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "isabela-madrigal-caring-cultivator",
@@ -1092,7 +1119,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/20_e2041511d9f6ee1b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_fd7315e215a10d7e80219ccd28b6adc40f7722ae.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_17ef740e12c73c49ad2f02c0d4e428bc76146ca5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/20_44b2b5d44b7e8c94_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PART OF A FAMILY",
@@ -1106,7 +1133,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_fd7315e215a10d7e80219ccd28b6adc40f7722ae.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_fd7315e215a10d7e80219ccd28b6adc40f7722ae.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/20_17ef740e12c73c49ad2f02c0d4e428bc76146ca5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "woody-leader-of-the-toys",
@@ -1170,7 +1199,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/21_0fc7476001cf1f4c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/21_300a1537ad2fa0f2a32b0bfcfb661d7d84dcec98.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/21_01f1590ae6aa739e892025d900d0e9fe404b2319.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/21_7e7fafb5e8b3bead_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S GO HOME",
@@ -1179,7 +1208,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/21_300a1537ad2fa0f2a32b0bfcfb661d7d84dcec98.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/21_300a1537ad2fa0f2a32b0bfcfb661d7d84dcec98.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/21_01f1590ae6aa739e892025d900d0e9fe404b2319.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-prince-searching-for-his-love",
@@ -1210,9 +1241,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/23_427a674ea4638b84_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/23_a38da62c6695ff69119c8e0ad8d37521e508c9c9.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/23_61854b680ffe026becac9080fb6f703c079b86fe.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/23_27094c3bd10aca41_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/23_a38da62c6695ff69119c8e0ad8d37521e508c9c9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/23_a38da62c6695ff69119c8e0ad8d37521e508c9c9.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/23_61854b680ffe026becac9080fb6f703c079b86fe.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mickey-mouse-expedition-leader",
@@ -1287,7 +1320,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/26_b91c0e93b40c62c8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_8e33cf54f21ad6156f4a1b66a8ce12c6aceca24e.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_7feb157b706394bf796688d9698cf0cf8bf541d7.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/26_d56384d023aefc1d_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LONG JOURNEY",
@@ -1301,7 +1334,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_8e33cf54f21ad6156f4a1b66a8ce12c6aceca24e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_8e33cf54f21ad6156f4a1b66a8ce12c6aceca24e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/26_7feb157b706394bf796688d9698cf0cf8bf541d7.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "chip-team-player",
@@ -1365,7 +1400,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/27_3ff9ef152881592b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_57bb07b61cbb3a8ef2778c1de88fd78274db6400.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/27_c7a6dc226ce838d8_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RANGER RESOURCEFULNESS",
@@ -1374,7 +1409,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_61e610b0c99d431b50ff418db3cc8bd0e76373bb.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/27_57bb07b61cbb3a8ef2778c1de88fd78274db6400.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "this-growing-pressure",
@@ -1456,7 +1493,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/31_c705acfcd388ff68_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_f0ed66793f7107982f8927685d5461a11136df82.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/31_2354dcb07c05c247_base.jpg",
     "actionEffects": [
       {
         "type": "play_card",
@@ -1471,7 +1508,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_851ddff2ae9e7d8cf8d59ae24cb4e8fd1a7db5af.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/31_f0ed66793f7107982f8927685d5461a11136df82.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "safety-rope",
@@ -1550,7 +1589,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/33_471687cc991a4abb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_29152063f3088eb02d5f03174f9f037e98b3d0ff.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_15a66cd9049c5d82fb6749daad17110e6008bec9.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/33_e74b102285eea5bd_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GRAB HOLD!",
@@ -1564,7 +1603,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_29152063f3088eb02d5f03174f9f037e98b3d0ff.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_29152063f3088eb02d5f03174f9f037e98b3d0ff.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/33_15a66cd9049c5d82fb6749daad17110e6008bec9.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "andys-room-home-base",
@@ -1632,7 +1673,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/34_85927ede3aafd7d8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/34_f78fa68bca91fdd10e11e84d8ff969b529df03a0.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/34_18e385bf97bc9a0e92b8e6976d93c5582753d552.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/34_750b89fb193564fb_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ANDY'S FAVORITE",
@@ -1641,7 +1682,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/34_f78fa68bca91fdd10e11e84d8ff969b529df03a0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/34_f78fa68bca91fdd10e11e84d8ff969b529df03a0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/34_18e385bf97bc9a0e92b8e6976d93c5582753d552.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mordu-wicked-with-pride",
@@ -1678,9 +1721,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/35_d1de83956a05a675_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_a83e82f576f360688fdbbd50a92941e555143bdf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/35_14756125f3cef7a6_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_b3373aac72abf418b5ed14ad03769e820f372857.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/35_a83e82f576f360688fdbbd50a92941e555143bdf.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "alma-madrigal-leading-the-way",
@@ -1747,7 +1792,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/36_68d12a27366d12dd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_81f154f07d41aba31a13bae6eeb665a364243e35.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/36_f2315958e63ade57_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PROTECTING THE FAMILY",
@@ -1756,7 +1801,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_edeb7b2da0262938ec8acf9efe96e8c350f42a2f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/36_81f154f07d41aba31a13bae6eeb665a364243e35.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "snow-white-merry-as-the-morning",
@@ -1851,8 +1898,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/37_bf2853c535515681_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_609b2da761347b0c8101961c7feb511ee6926aeb.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_1b9478ee334c77684185336f4d659528352ffd1b.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_a5db849b4ebe59e4488239f1b4d5812ad3ecc9bf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/37_4ec2008b5aebb309_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/37_4a8172b302476b92_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -1867,7 +1914,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_a909326a42207e99d71782f79d677d7b3091ff33.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_a909326a42207e99d71782f79d677d7b3091ff33.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_1b9478ee334c77684185336f4d659528352ffd1b.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/37_a5db849b4ebe59e4488239f1b4d5812ad3ecc9bf.jpg"
   },
   {
     "id": "dopey-drawn-to-music",
@@ -1933,7 +1983,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/38_ab52990c5e71d23f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/38_861ba64b97a79a5f2e7b5148a7fb1411bc42c8cf.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/38_cf870d00473c800a9dddb732e81a3c46cbf7f0ac.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/38_90f91a1b74386d2f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TONGUE-TIED",
@@ -1947,7 +1997,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/38_48ceee64b2603394229d5b73768f019622233506.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/38_48ceee64b2603394229d5b73768f019622233506.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/38_cf870d00473c800a9dddb732e81a3c46cbf7f0ac.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "bashful-riding-the-rails",
@@ -1984,9 +2036,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/39_3389d994f83bd5b8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/39_7f5534c24f94c7cc3e55eddd9a3a068bcdd729c5.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/39_2861976ff532367febd793b2ec79608d6af9a46d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/39_936372af6769434a_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/39_7ae3fdd963ba3005828414e1b3fb258408d63b36.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/39_7ae3fdd963ba3005828414e1b3fb258408d63b36.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/39_2861976ff532367febd793b2ec79608d6af9a46d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "doc-taking-notes",
@@ -2057,7 +2111,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/40_c62bd95f18902f52_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/40_74875db6d647ceefdc3c45143574b0e2c6ba0d7d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/40_e268e75f206707cb101fe60447a572d47d7e10ea.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/40_203f000dc0157b6f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SHARE KNOWLEDGE",
@@ -2066,7 +2120,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/40_f3ed74a780ea4b7a03f84d9842209c34381a0d5e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/40_f3ed74a780ea4b7a03f84d9842209c34381a0d5e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/40_e268e75f206707cb101fe60447a572d47d7e10ea.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "grumpy-soreheaded-miner",
@@ -2097,9 +2153,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/41_c1f8d890c79ae985_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_86d7b61554db9703acd83941c9fe54e005da0a74.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_d97f68a995a0c796cd56395b389dcd3845a8f433.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/41_7cab5193d8af2941_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_dd912d1da292180f814a8419cc2c9e61d858e58f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_dd912d1da292180f814a8419cc2c9e61d858e58f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/41_d97f68a995a0c796cd56395b389dcd3845a8f433.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "sneezy-startlingly-loud",
@@ -2156,7 +2214,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/42_cb8b5a058f86909d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/42_9537fa6806af08b82b856a701176d56040e67b5f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/42_6672b30aaaeeda6fd2f48fa703ad37b965fc1d4d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/42_d15d3ba757e5f733_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "GESUNDHEIT",
@@ -2165,7 +2223,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/42_00b7b361c5622daf8a98739387f63e072ac256d6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/42_00b7b361c5622daf8a98739387f63e072ac256d6.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/42_6672b30aaaeeda6fd2f48fa703ad37b965fc1d4d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "happy-joyful-adventurer",
@@ -2196,9 +2256,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/43_1e5fadbc24e6531c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/43_cbd939da6ac86e6409c7342bed13f324ec645434.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/43_c34e319b5f81551ab8901db0165919eada870367.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/43_29bb6b900f605722_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/43_c9fec1c4374474890b26076603fab1028f9023c3.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/43_c9fec1c4374474890b26076603fab1028f9023c3.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/43_c34e319b5f81551ab8901db0165919eada870367.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "sleepy-deep-sleeper",
@@ -2270,7 +2332,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/44_7d5ae1f6b1679ebd_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/44_10f0d912fd37942efdd00267b7af4a6fd7b395eb.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/44_b2582f3406ea83cff9eb6c348ffd8d7e3011dce2.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/44_807cc10b4983faa3_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PLEASANT DREAMS",
@@ -2279,7 +2341,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/44_ae867ecad3e615275fd2f0c71d2e9d813bce8082.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/44_ae867ecad3e615275fd2f0c71d2e9d813bce8082.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/44_b2582f3406ea83cff9eb6c348ffd8d7e3011dce2.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "alma-madrigal-heart-of-the-family",
@@ -2350,7 +2414,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/45_1c12ff7f3efdae44_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_3fba914bcf6d848e1be37d30683e0f1b9838605a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/45_0e6b6ea3d5d263fc_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FIND A WAY",
@@ -2359,7 +2423,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_8ccc4c7cd7d8deb6e48a45b6174876449597d2ad.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/45_3fba914bcf6d848e1be37d30683e0f1b9838605a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "frozone-super-slick",
@@ -2396,9 +2462,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/46_0b392d3afdc5ee07_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/46_1d8240f9e347a4415241c733248882bf40f34a97.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/46_aee4abb4fb78f141edfa0ea701577752e80a7f3a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/46_92d19c93b7de782d_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/46_1d8240f9e347a4415241c733248882bf40f34a97.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/46_1d8240f9e347a4415241c733248882bf40f34a97.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/46_aee4abb4fb78f141edfa0ea701577752e80a7f3a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -2446,7 +2514,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/47_0524024084f54ca8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/47_35603dfee398700ea7254428f64df2d39803c480.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/47_7391118e9031034c39381a011b7ea57030e6eea3.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/47_49242f7508eed3de_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COME ON OUT",
@@ -2455,7 +2523,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/47_35603dfee398700ea7254428f64df2d39803c480.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/47_35603dfee398700ea7254428f64df2d39803c480.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/47_7391118e9031034c39381a011b7ea57030e6eea3.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "violet-parr-learning-new-powers",
@@ -2526,7 +2596,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/48_30801deef30c834b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/48_6253c2db4ae3cf2e0dc04efe763188abce8dfc6b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/48_8dc87c1fe12ec35d708951255365a5b17e02d5c1.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/48_56cdfd6ad0973b78_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DEFLECT",
@@ -2535,7 +2605,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/48_6253c2db4ae3cf2e0dc04efe763188abce8dfc6b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/48_6253c2db4ae3cf2e0dc04efe763188abce8dfc6b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/48_8dc87c1fe12ec35d708951255365a5b17e02d5c1.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mrs-incredible-super-stretchy",
@@ -2649,9 +2721,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/51_71c6c3b00ebbce44_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_d9a54961169daeb37e9a4c2057015fc68508e14d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_b69e810696f3daf81c034ddc17cc201bec1b6ff0.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/51_3be556bfe0470ef2_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_d9a54961169daeb37e9a4c2057015fc68508e14d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_d9a54961169daeb37e9a4c2057015fc68508e14d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_b69e810696f3daf81c034ddc17cc201bec1b6ff0.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mirage-super-recruiter",
@@ -2721,7 +2795,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/53_e071d352f34acb90_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/53_e9157ba8aa867c13ffdcdc9eafecbc1b04fbdf9e.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/53_0f3354a39fa549755ee8561aaea3dc76d9aa37f9.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/53_fa8db55148b43c8f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BUSINESS ARRANGEMENT",
@@ -2730,7 +2804,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/53_e9157ba8aa867c13ffdcdc9eafecbc1b04fbdf9e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/53_e9157ba8aa867c13ffdcdc9eafecbc1b04fbdf9e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/53_0f3354a39fa549755ee8561aaea3dc76d9aa37f9.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "edna-mode-fashion-designer",
@@ -2826,7 +2902,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/54_c10bc34e3df35333_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_cd3de82401bbe5e2fe9aae2784888b86e123a032.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/54_62d1f66192e737e3_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO CAPES!",
@@ -2840,7 +2916,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_095936119618f5173c249035dd814c980756b3f5.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/54_cd3de82401bbe5e2fe9aae2784888b86e123a032.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -2909,7 +2987,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/55_7a22122fc5e38e16_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/55_0bb4e3a64eda3e53734dcec64beae9925b278cfa.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/55_b344c72778ed6503cdb14f2208170b3666c023d0.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/55_4992adcb65b5c43f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEED MY WORDS",
@@ -2918,7 +2996,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/55_0bb4e3a64eda3e53734dcec64beae9925b278cfa.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/55_0bb4e3a64eda3e53734dcec64beae9925b278cfa.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/55_b344c72778ed6503cdb14f2208170b3666c023d0.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mordu-savage-cursed-prince",
@@ -2997,7 +3077,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/57_39d31c01ac005bb8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_db8954f504afbfe3ef4f0bb558e912e67bb019ef.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/57_edf340ce215313f5_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FEROCIOUS ROAR",
@@ -3011,7 +3091,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_6c8b656d987e9078fb5f36e209b2d29f52107ee1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/57_db8954f504afbfe3ef4f0bb558e912e67bb019ef.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "alma-madrigal-keeper-of-the-flame",
@@ -3079,7 +3161,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/58_ac71574bf4b4601d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_c1912e9502898245841a60c17d72708bee2d7c7b.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/58_43eaa1c74aebf96e_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THAT'S ENOUGH",
@@ -3088,7 +3170,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_f04f2aca3ce090078b90945a89a00b6651675dad.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/58_c1912e9502898245841a60c17d72708bee2d7c7b.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "frozone-super-cool",
@@ -3158,7 +3242,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/59_fa8f0d5850bfd7be_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/59_ec18a425ab0ca9997749a3934132e91a2847785e.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/59_4ddac40a788f45770ae38731a4e2d5ad36483a31.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/59_86652a70ccf25235_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "JUST CHILL",
@@ -3167,7 +3251,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/59_ec18a425ab0ca9997749a3934132e91a2847785e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/59_ec18a425ab0ca9997749a3934132e91a2847785e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/59_4ddac40a788f45770ae38731a4e2d5ad36483a31.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "luisa-madrigal-confident-climber",
@@ -3261,8 +3347,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/60_424bef4b05bab36a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_46d26b2a3d9e1efa33893315aad34749c458a3af.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_747e82f9669c8486904e0464b8bf1b53beb42ed1.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_f8ce5cbda85c9a6c3df728c4adec2a118a8b31cc.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/60_c4c3febb02d766dc_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/60_b694d44d611ae429_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -3272,7 +3358,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_46d26b2a3d9e1efa33893315aad34749c458a3af.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_46d26b2a3d9e1efa33893315aad34749c458a3af.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_747e82f9669c8486904e0464b8bf1b53beb42ed1.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/60_f8ce5cbda85c9a6c3df728c4adec2a118a8b31cc.jpg"
   },
   {
     "id": "dash-parr-lava-runner",
@@ -3320,7 +3409,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/61_997de9fce5acffd1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/61_cba3daf7c41798e9c3a8f7163d071fbec25a6f6b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/61_e5c2771d0bd187d18f70c1e09e9dfcc5d9427c6f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/61_ee5dc2c92747c60d_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RECORD TIME",
@@ -3329,7 +3418,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/61_cba3daf7c41798e9c3a8f7163d071fbec25a6f6b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/61_cba3daf7c41798e9c3a8f7163d071fbec25a6f6b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/61_e5c2771d0bd187d18f70c1e09e9dfcc5d9427c6f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "luisa-madrigal-pushing-through",
@@ -3367,9 +3458,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/62_3725ab69366c95a6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_d2f7d65db59922d5e253ea237f1b8560afbb956a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_1bb785394e31a78b12d114a365be1bf5af425b3e.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/62_8c896771a84120b2_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_d2f7d65db59922d5e253ea237f1b8560afbb956a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_d2f7d65db59922d5e253ea237f1b8560afbb956a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_1bb785394e31a78b12d114a365be1bf5af425b3e.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "right-behind-you",
@@ -3392,7 +3485,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/64_6fe8bc328a00e6e7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/64_e46b5a257a93d6be5489ec4cb7c413b2d6396164.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/64_9643876099d99ff8b4c852d8c92421ac2e3c3b82.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/64_dbb3473cd94a5dc7_base.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -3449,7 +3542,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/64_e46b5a257a93d6be5489ec4cb7c413b2d6396164.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/64_e46b5a257a93d6be5489ec4cb7c413b2d6396164.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/64_9643876099d99ff8b4c852d8c92421ac2e3c3b82.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "super-suit",
@@ -3530,7 +3625,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/66_893d2bb5f3baa8e3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_e765c780006a7936e375c9882a7dd6d9e84b2f77.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_0dbb51d157a047276b1458755f45f7ce84cbcb95.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/66_c6d3ac64705a46a6_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SIMPLE, ELEGANT",
@@ -3544,7 +3639,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_e765c780006a7936e375c9882a7dd6d9e84b2f77.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_e765c780006a7936e375c9882a7dd6d9e84b2f77.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/66_0dbb51d157a047276b1458755f45f7ce84cbcb95.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dunbroch-family-tapestry",
@@ -3609,7 +3706,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/67_853335863802c568_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/67_0d4b9ef75a5be5257a27d0eb6f059736ee3fd09f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/67_4cdb40e9c8ec46ba41b1e3a77ba9021264e88b19.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/67_e02616438979520a_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TORN APART",
@@ -3623,7 +3720,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/67_0d4b9ef75a5be5257a27d0eb6f059736ee3fd09f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/67_0d4b9ef75a5be5257a27d0eb6f059736ee3fd09f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/67_4cdb40e9c8ec46ba41b1e3a77ba9021264e88b19.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "ring-of-stones-place-of-legends",
@@ -3698,7 +3797,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/68_b0851c64c688e291_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_4fbd7f5ee26b2e7ec4b56cfd816fcaa022a3ee4e.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_0ba31776a1df8feab20d8452bdc7ea2f63bbf420.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/68_440ee87f1adb5878_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FOLLOW YOUR FATE",
@@ -3712,7 +3811,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_4fbd7f5ee26b2e7ec4b56cfd816fcaa022a3ee4e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_4fbd7f5ee26b2e7ec4b56cfd816fcaa022a3ee4e.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/68_0ba31776a1df8feab20d8452bdc7ea2f63bbf420.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "merida-defiant-daughter",
@@ -3749,9 +3850,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/69_5cc70b2a1006dcd7_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_72de291a6b35d26acef54c7f29453fe71f5183e4.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/69_ca200df5c898ca5f_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_98bf697a704c8892f260a0abec550adf941f750b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/69_72de291a6b35d26acef54c7f29453fe71f5183e4.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "hamish-hubert-harris-troublemaking-triplets",
@@ -3788,9 +3891,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/70_dcfb1d44d1dbe69d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_fbdaad7a1db52d8f1a1e53b16e3244102ab07bcf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/70_622f8db6d32d7e63_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_df689a874789de6a6ac34364678d6bdb256bc12b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/70_fbdaad7a1db52d8f1a1e53b16e3244102ab07bcf.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "tod-nimble-fox",
@@ -3826,9 +3931,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/72_73784f8f6a9ab179_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_bd78473d656124264df5df3b2ff03d1ea5782847.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/72_30b15bfdc626b03f_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_d2bb6b4c955d1d976619e4c0aead6a5de70aa0ea.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/72_bd78473d656124264df5df3b2ff03d1ea5782847.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "helga-sinclair-no-backup-needed",
@@ -3873,7 +3980,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/73_a671f7157626ae25_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_cafef4a7920a18b0d9fb2714265a2bebf67494fd.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/73_86cc5876fb439104_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CRISIS MANAGEMENT",
@@ -3882,7 +3989,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_8042a42461c8ddde2caf0ce440c3503b78039dd2.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/73_cafef4a7920a18b0d9fb2714265a2bebf67494fd.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-witch-wily-woodcarver",
@@ -3937,7 +4046,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/74_f53236ba002b7b78_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/74_fd4b8385fe07e170ef5e940e95fffc8c95ae1296.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/74_acde1123b70d5b413d7f8d57d8bd68e39e4d5a74.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/74_0b32b1a133ef2657_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNSATISFIED CUSTOMERS",
@@ -3946,7 +4055,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/74_fd4b8385fe07e170ef5e940e95fffc8c95ae1296.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/74_fd4b8385fe07e170ef5e940e95fffc8c95ae1296.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/74_acde1123b70d5b413d7f8d57d8bd68e39e4d5a74.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-queen-evil-ruler",
@@ -4069,7 +4180,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/77_8b6bb09db4639926_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_fb7c42375d97cf8ead61cd49db20a07226ae5b5d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/77_a81db018c1ba5d06_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOW BATTERIES",
@@ -4078,7 +4189,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_a035676fa654b7a6140995687d8c0dcdae62e8f9.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/77_fb7c42375d97cf8ead61cd49db20a07226ae5b5d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lord-macguffin-clever-swordsman",
@@ -4148,7 +4261,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/78_ae51fe9aca6fc921_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_3a4b65c9895b77d76f28596afafb673eed2e2f35.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/78_8d4a97224bf119f8_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WAIT FOR IT...",
@@ -4157,7 +4270,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_0a4ef377508049229fe5ed671fe577bd7d1d9aab.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/78_3a4b65c9895b77d76f28596afafb673eed2e2f35.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lenny-toy-binoculars",
@@ -4240,7 +4355,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/79_4128b2b8523512b1_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/79_ba260167ee75111504c3d3f73a2b5de220c531be.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/79_0865f36a8e724bbf5e296c74e9a3276e9c04d941.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/79_e330c9c35f9fd611_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TAKE A GOOD LOOK",
@@ -4254,7 +4369,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/79_ba260167ee75111504c3d3f73a2b5de220c531be.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/79_ba260167ee75111504c3d3f73a2b5de220c531be.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/79_0865f36a8e724bbf5e296c74e9a3276e9c04d941.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "gaetan-moliere-clever-burrower",
@@ -4321,7 +4438,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/80_9bec0ff7f02d1221_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/80_1b003c0f61a59f2212f3a1eecc5eddc04dbdbcfa.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/80_82e7e134068002744aef0bfc7f03b5d4e51b1d5b.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/80_dcefa8e806991371_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNEARTH",
@@ -4330,7 +4447,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/80_1b003c0f61a59f2212f3a1eecc5eddc04dbdbcfa.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/80_1b003c0f61a59f2212f3a1eecc5eddc04dbdbcfa.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/80_82e7e134068002744aef0bfc7f03b5d4e51b1d5b.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "peter-pan-searching-far-and-wide",
@@ -4360,9 +4479,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/81_bcc2af60c543fa22_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_c59fe181e5f0890093e2449d49a6c8d74141751c.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_78d188eba01e22b68e14d710a627a0bba40af5e2.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/81_9770cb13ba526a19_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_bdc962948195542ed524e338266c0ba248864496.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_bdc962948195542ed524e338266c0ba248864496.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/81_78d188eba01e22b68e14d710a627a0bba40af5e2.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "alien-true-believer",
@@ -4524,7 +4645,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/84_9709633bd3589055_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/84_12360c422e44aa4922c916bb64eeeb90040e57fa.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/84_955487b666247164f0ba03a0e765963461424946.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/84_4a6d26e3daee0306_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BURNING CURIOSITY",
@@ -4533,7 +4654,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/84_12360c422e44aa4922c916bb64eeeb90040e57fa.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/84_12360c422e44aa4922c916bb64eeeb90040e57fa.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/84_955487b666247164f0ba03a0e765963461424946.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "buzz-lightyear-on-the-way",
@@ -4736,7 +4859,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/86_8d4886a52ea97baa_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_22903fa60d696504646488d7db52f1cdbd9650e7.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/86_bae6208471f38b80_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COORDINATED EFFORTS",
@@ -4745,7 +4868,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_9851189608d9650dc922bd1cbc5b085cc15b4b28.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/86_22903fa60d696504646488d7db52f1cdbd9650e7.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lyle-tiberius-rourke-adventurer-for-hire",
@@ -4838,7 +4963,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/87_ada04d69bc5e9b06_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_db6cf073c71b56a152b3e3fcac10a4ea4d6bfa7e.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/87_59ae2d7d97124218_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EYE FOR VALUE",
@@ -4852,7 +4977,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_a37943d83cee3e1b2eed382b9f2dfdbd1b435ea3.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/87_db6cf073c71b56a152b3e3fcac10a4ea4d6bfa7e.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "joshua-sweet-field-surgeon",
@@ -4902,7 +5029,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/88_71c3ddf094ea8ded_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_39a7b91ba29d72a4316da6ad66299a6b5566e53a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_6b672cf1743044d14d31ec9d2b692f7863f8f30b.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/88_9fcdf4266977c0ea_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NO PATIENCE",
@@ -4911,7 +5038,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_39a7b91ba29d72a4316da6ad66299a6b5566e53a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_39a7b91ba29d72a4316da6ad66299a6b5566e53a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/88_6b672cf1743044d14d31ec9d2b692f7863f8f30b.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "merida-gifted-archer",
@@ -4978,7 +5107,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/89_90c2ded29e468284_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/89_b905492f8bf779406f91b55c3971ec196b8dfdf5.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/89_d3b6521aa9c8d7a5763d9b2cb7addd9eb3fc8969.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/89_fb5f8c8ba29d2eba_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FIERCE PROTECTION",
@@ -4987,7 +5116,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/89_b905492f8bf779406f91b55c3971ec196b8dfdf5.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/89_b905492f8bf779406f91b55c3971ec196b8dfdf5.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/89_d3b6521aa9c8d7a5763d9b2cb7addd9eb3fc8969.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "buzz-lightyear-jungle-ranger",
@@ -5085,8 +5216,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/91_56c1752e17bdd7e5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_86b19a716112103b50b1ef6e07afcb377f36f94d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_5006651383ec91e706b98d60ca2230dc6ca012ed.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_d83d3939634a62dcc85115fea1f9542e54811231.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/91_7d34a8fa8d829591_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/91_e7c7a235ec1e1491_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -5101,7 +5232,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_86b19a716112103b50b1ef6e07afcb377f36f94d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_86b19a716112103b50b1ef6e07afcb377f36f94d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_5006651383ec91e706b98d60ca2230dc6ca012ed.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/91_d83d3939634a62dcc85115fea1f9542e54811231.jpg"
   },
   {
     "id": "cruella-de-vil-judgmental-traveler",
@@ -5167,7 +5301,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/92_a5888f1305ccde0b_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/92_e4f2a5dacc43104029130ecf96b1811de4d2697a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/92_80cb1168b26b314f92b75f39a072e43503439df2.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/92_95c84de3a7409f23_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'RE OUT OF FASHION",
@@ -5176,7 +5310,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/92_e4f2a5dacc43104029130ecf96b1811de4d2697a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/92_e4f2a5dacc43104029130ecf96b1811de4d2697a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/92_80cb1168b26b314f92b75f39a072e43503439df2.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "helga-sinclair-prepared-for-anything",
@@ -5271,7 +5407,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/93_8ad01be55b1de65c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/93_a12a667855357bc760cb0dc8af9ba4ab28bb8c7b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/93_6acd88409c60235b2fa42866af0c502499c514ca.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/93_7c9db58659b3c96a_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COMBAT TRAINING",
@@ -5280,7 +5416,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/93_a12a667855357bc760cb0dc8af9ba4ab28bb8c7b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/93_a12a667855357bc760cb0dc8af9ba4ab28bb8c7b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/93_6acd88409c60235b2fa42866af0c502499c514ca.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-huntsman-on-the-queens-orders",
@@ -5316,9 +5454,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/94_c78bedf030db41a0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_bd00510de719c060d65ed249d5c2596161959822.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_083e1edef92fcd9d2d697f4f6f297d8f7b960f0f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/94_53f45c881e9e96b4_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_bd00510de719c060d65ed249d5c2596161959822.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_bd00510de719c060d65ed249d5c2596161959822.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/94_083e1edef92fcd9d2d697f4f6f297d8f7b960f0f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "strange-things",
@@ -5343,7 +5483,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/95_b2f0562d4cc64b95_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_d7ae3afc1ac73cb23c32f865266fe7192ffc1c5f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/95_09d0a4063e9e5add_base.jpg",
     "actionEffects": [
       {
         "type": "cant_action",
@@ -5369,7 +5509,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_a41cce25ebae5a50743adb4fc09cdfc9a7d431a8.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/95_d7ae3afc1ac73cb23c32f865266fe7192ffc1c5f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-family-scattered",
@@ -5392,7 +5534,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/97_575e72aa03340282_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_75d9651b34df1386554bbc8cfbb5b281a8e07ac8.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/97_63b21dd0ba835439_base.jpg",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -5448,7 +5590,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_e6522d16f30211644ba3436d476751e6f825641d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/97_75d9651b34df1386554bbc8cfbb5b281a8e07ac8.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "buzzs-arm",
@@ -5471,7 +5615,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/98_954d4fd4e921fab2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/98_1e30a6d8cb01e1869c094727e0191b8934018992.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/98_103dfdc0df01d81156c5f6074beb925aac242f13.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/98_cfea8f80ba9557d3_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MISSING PIECE",
@@ -5485,7 +5629,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/98_1e30a6d8cb01e1869c094727e0191b8934018992.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/98_1e30a6d8cb01e1869c094727e0191b8934018992.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/98_103dfdc0df01d81156c5f6074beb925aac242f13.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-claw",
@@ -5646,7 +5792,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/100_6728438413480ed2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_0fd91f81a9325bf3b0411f3c46338cecfe2c9f10.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_b6846f35b5c04510e911364bf86e43bd4491c6c8.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/100_b45e4bba10649535_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TAKE HER UP",
@@ -5660,7 +5806,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_0fd91f81a9325bf3b0411f3c46338cecfe2c9f10.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_0fd91f81a9325bf3b0411f3c46338cecfe2c9f10.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/100_b6846f35b5c04510e911364bf86e43bd4491c6c8.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "meridas-bow",
@@ -5736,7 +5884,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/101_143b3eb41cdbb121_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/101_3ae7c27025e5b153ad0bd9d4ae05407468468d97.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/101_809b5bac339eae294a793fe6d9bde20b9ff91011.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/101_d3740096b4aadc4a_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "EASY SHOT",
@@ -5750,7 +5898,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/101_3ae7c27025e5b153ad0bd9d4ae05407468468d97.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/101_3ae7c27025e5b153ad0bd9d4ae05407468468d97.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/101_809b5bac339eae294a793fe6d9bde20b9ff91011.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "pizza-planet-spaceport",
@@ -5823,7 +5973,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/102_78f1837def03b792_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/102_8cedfc60d708c245adb3a01f2b48ba7b290c3f94.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/102_e3c3258cfaaec5216acfdb14d4ab71c08ef74414.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/102_54e7a085e77f27fb_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU ARE CLEAR TO ENTER",
@@ -5837,7 +5987,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/102_8cedfc60d708c245adb3a01f2b48ba7b290c3f94.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/102_8cedfc60d708c245adb3a01f2b48ba7b290c3f94.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/102_e3c3258cfaaec5216acfdb14d4ab71c08ef74414.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lyle-tiberius-rourke-looking-for-his-moment",
@@ -5867,9 +6019,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/105_190d58c384acdb99_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_ab371bc93defa9e00b4abe342c353af76b5b6712.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_e28cd03d3746c8dedb788d17f76ed587c0f74705.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/105_cc034aed5c3c891c_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_ab371bc93defa9e00b4abe342c353af76b5b6712.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_ab371bc93defa9e00b4abe342c353af76b5b6712.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/105_e28cd03d3746c8dedb788d17f76ed587c0f74705.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "pegasus-searching-high-and-low",
@@ -5905,9 +6059,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/106_61410bfbd197170e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_09db655934d8f1ef3467bc905c265fa18e6eae92.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_821005c66a958151bf09be58bc88b0b197e0efec.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/106_67920326dc325b23_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_d212ad770591d18cc6e4710abc3950bbce17feaa.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_d212ad770591d18cc6e4710abc3950bbce17feaa.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/106_821005c66a958151bf09be58bc88b0b197e0efec.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "audrey-ramirez-gutsy-mechanic",
@@ -5943,9 +6099,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/107_a937c82681bae443_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_b6ea2af8cd35672e30d31309577351f871b9ea7a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/107_4bd5f8c8fa0d938a_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_6a0acff46f165733e6c9fc233c9c1a0a2c355d50.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/107_b6ea2af8cd35672e30d31309577351f871b9ea7a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "zeus-defiant-god",
@@ -5995,7 +6153,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/109_e043bec35a65ee4c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_07af12d1be76b48412decee4518b169c57fe2ee9.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/109_0dff170518c6ecad_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "IMMORTAL WOUND",
@@ -6004,7 +6162,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_d3520719b9bd3e6c20bfa7aeffa922d7af91df70.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/109_07af12d1be76b48412decee4518b169c57fe2ee9.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "jingle-joe-sids-toy",
@@ -6076,7 +6236,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/111_5154370f2fffb3a5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_3d12f724056d5db0c9abe60d89d5511d92d9de7a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_ac3c8148de7e64d807b940bd065373b5ce0bf668.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/111_1f6672fed92821e2_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TURN OUT THE LIGHT",
@@ -6085,7 +6245,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_3d12f724056d5db0c9abe60d89d5511d92d9de7a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_3d12f724056d5db0c9abe60d89d5511d92d9de7a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/111_ac3c8148de7e64d807b940bd065373b5ce0bf668.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "roller-bob-sids-toy",
@@ -6153,7 +6315,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/113_d940f36ba6f07bcb_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_00c2840facc9bac0090b61a7f459a2b2a2c1cd3d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_220da0a1277b9a12eb1f2387d9c895fe419c08d3.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/113_57189dc4a6f6f269_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TIME TO MOVE",
@@ -6162,7 +6324,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_00c2840facc9bac0090b61a7f459a2b2a2c1cd3d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_00c2840facc9bac0090b61a7f459a2b2a2c1cd3d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/113_220da0a1277b9a12eb1f2387d9c895fe419c08d3.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "hand-in-the-box-sids-toy",
@@ -6229,7 +6393,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/114_bb7c76fe057f11da_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/114_26431c45f17ac312c8db0ff6655c32a88be1a4f3.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/114_8334e393111102e33a11047959154460c56d8fd0.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/114_f732d42352008ff5_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SPRING-LOADED",
@@ -6238,7 +6402,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/114_26431c45f17ac312c8db0ff6655c32a88be1a4f3.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/114_26431c45f17ac312c8db0ff6655c32a88be1a4f3.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/114_8334e393111102e33a11047959154460c56d8fd0.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "daisy-duck-trendy-traveler",
@@ -6313,7 +6479,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/115_aedf6078a43259e6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/115_e2ce4c979bf187684d90e5769a831e944cff3726.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/115_61a25e6a3f190fb6916e4fcbed0b865de431b0ea.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/115_ba3c45355d0a57e0_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "BREAK IS OVER",
@@ -6322,7 +6488,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/115_e2ce4c979bf187684d90e5769a831e944cff3726.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/115_e2ce4c979bf187684d90e5769a831e944cff3726.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/115_61a25e6a3f190fb6916e4fcbed0b865de431b0ea.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "copper-big-dog",
@@ -6352,9 +6520,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/116_21dcfbd9ec8368e2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b7ee4b375a3128b39ed12e6aa570ab1142bc4357.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b170cbcf01615b13d9aa40080a7421473e6abe70.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/116_30e8485ee87479f2_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b7ee4b375a3128b39ed12e6aa570ab1142bc4357.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b7ee4b375a3128b39ed12e6aa570ab1142bc4357.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/116_b170cbcf01615b13d9aa40080a7421473e6abe70.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "jebidiah-farnsworth-cookie",
@@ -6394,9 +6564,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/117_a12368b884b19eaf_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/117_eb4232ab0e4551a55a6da4a72dbfa3a9aad98bc4.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/117_c1bcb94b3aaafe32cbb69ae8a5b0e47f3e686a66.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/117_a9009f13de22d4fc_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/117_eb4232ab0e4551a55a6da4a72dbfa3a9aad98bc4.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/117_eb4232ab0e4551a55a6da4a72dbfa3a9aad98bc4.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/117_c1bcb94b3aaafe32cbb69ae8a5b0e47f3e686a66.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dash-parr-super-speedy",
@@ -6433,9 +6605,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/118_14e0ad7d0f5f6e80_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_6b46d72f79d6bb304f2e37a47aa1842e1cf7ade5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/118_c1b98c532dea6e2b_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_c2bfbc90185282651bb64ed027d3c0b3cc4adc08.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/118_6b46d72f79d6bb304f2e37a47aa1842e1cf7ade5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "babyhead-leader-of-sids-toys",
@@ -6526,7 +6700,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/119_4177917afc177ca6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/119_2a99d1eca7445d618ef87df711c039bfb2b7b393.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/119_62cd68a99e2707b8d15b5aab8612f88999304a03.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/119_f057d24c5b9ee2cc_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TIGHTEN THE BOLTS",
@@ -6540,7 +6714,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/119_2a99d1eca7445d618ef87df711c039bfb2b7b393.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/119_2a99d1eca7445d618ef87df711c039bfb2b7b393.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/119_62cd68a99e2707b8d15b5aab8612f88999304a03.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "bouncing-ducky-sids-toy",
@@ -6617,7 +6793,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/120_f4d775b0c37054fa_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/120_1da4167615d52156768309ef3b983eb5550ca5ac.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/120_7f7f42a184da1e3be627e59208d4c834f335cf31.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/120_5e9cde474dd0ce05_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "REJECTED TOYS",
@@ -6631,7 +6807,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/120_1da4167615d52156768309ef3b983eb5550ca5ac.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/120_1da4167615d52156768309ef3b983eb5550ca5ac.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/120_7f7f42a184da1e3be627e59208d4c834f335cf31.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "jack-jack-parr-incredible-potential",
@@ -6814,7 +6992,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/122_8c67a9493d5ff139_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/122_f8fafe7de486c077a5930c0414faabec5db19d8f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/122_c76590069d2ee31068772f3c5942af55da3c6f89.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/122_ee88edf2ae82d814_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL COMMAND",
@@ -6823,7 +7001,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/122_f8fafe7de486c077a5930c0414faabec5db19d8f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/122_f8fafe7de486c077a5930c0414faabec5db19d8f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/122_c76590069d2ee31068772f3c5942af55da3c6f89.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "vincenzo-santorini-on-the-run",
@@ -6858,7 +7038,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/124_f7fd4523f8779897_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/124_caf65d57e9560b97000c7adb02a5d0c3cb119d2a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/124_dc18fff8d5494d42b09cbfe275f3438efa3d6098.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/124_04e0ae7c1c365a1c_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NEUTRALIZE",
@@ -6867,7 +7047,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/124_caf65d57e9560b97000c7adb02a5d0c3cb119d2a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/124_caf65d57e9560b97000c7adb02a5d0c3cb119d2a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/124_dc18fff8d5494d42b09cbfe275f3438efa3d6098.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "sid-phillips-toy-surgeon",
@@ -6974,8 +7156,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/126_356b42751a2d2766_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_298228898119d2e129b47868e1089f65b8c81d27.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_c147c82752721a1b55a806018e27ffbb931b2764.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_51c5d87a6ff934e5b887572747188ea8f51e5142.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/126_d55897e657b66266_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/126_9bb7f326f8a617d4_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -6990,7 +7172,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_298228898119d2e129b47868e1089f65b8c81d27.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_298228898119d2e129b47868e1089f65b8c81d27.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_c147c82752721a1b55a806018e27ffbb931b2764.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/126_51c5d87a6ff934e5b887572747188ea8f51e5142.jpg"
   },
   {
     "id": "mr-incredible-super-strong",
@@ -7079,8 +7264,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/127_4dd34383c02d70f6_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_6f47dd6cf918e3fad26588f8212118153113d021.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_515d27a4c437bd370686e02ab512db7fcbd4ead7.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_5b93541fba9a75a4679c16badd59baf6482c51b9.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/127_c903656811b27397_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/127_7e8e28ffb47b7d0c_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -7095,7 +7280,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_6f47dd6cf918e3fad26588f8212118153113d021.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_6f47dd6cf918e3fad26588f8212118153113d021.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_515d27a4c437bd370686e02ab512db7fcbd4ead7.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/127_5b93541fba9a75a4679c16badd59baf6482c51b9.jpg"
   },
   {
     "id": "pterodactyl-janie-doll-sids-toy",
@@ -7161,7 +7349,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/128_ff70cc7a1548cae0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_975402ea8db95ddaa12e1db7b4c500016beaa2f0.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_27b37aed710621b6115a2cae9e74bdec3cc56d8b.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/128_dba67bdde9fad7fb_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DOUBLE TRANSPLANT",
@@ -7170,7 +7358,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_975402ea8db95ddaa12e1db7b4c500016beaa2f0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_975402ea8db95ddaa12e1db7b4c500016beaa2f0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_27b37aed710621b6115a2cae9e74bdec3cc56d8b.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "firefly-swarm",
@@ -7193,7 +7383,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/130_2b4973f7f49f7a91_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_d26bbe6866bf6492a6201d1b5ee55eebf5c7a59f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/130_9b491266be862dab_base.jpg",
     "actionEffects": [
       {
         "type": "choose",
@@ -7242,7 +7432,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_c2d7effe3a463d45cf2a37e149df56e1e8d431ef.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/130_d26bbe6866bf6492a6201d1b5ee55eebf5c7a59f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "like-a-bird-in-the-sky",
@@ -7267,7 +7459,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/131_4ed403db38b0266c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_48cca6406c434bedc590f311a5ba707fc6f26fe6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/131_b7256fdb0d498602_base.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -7284,7 +7476,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_90af5e96469c4c0603b10b074955bfefc086d9f5.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/131_48cca6406c434bedc590f311a5ba707fc6f26fe6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "hero-work",
@@ -7308,7 +7502,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/132_ce772a628bda02fa_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_dc3933cf85fe0bfef4b18571406fbf71cd0e455c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/132_d81de8a13a7aabb0_base.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -7368,7 +7562,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_dc3933cf85fe0bfef4b18571406fbf71cd0e455c.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dangerous-plan",
@@ -7392,7 +7588,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/133_6c76908abfd2aebc_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_8d811780de8382fc495bbdc2308bfea9208998c0.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_773932b11740592ab32ccfa9736e6929270f9c15.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/133_24c6ccd6de1142bc_base.jpg",
     "actionEffects": [
       {
         "type": "draw",
@@ -7411,7 +7607,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_8d811780de8382fc495bbdc2308bfea9208998c0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_8d811780de8382fc495bbdc2308bfea9208998c0.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/133_773932b11740592ab32ccfa9736e6929270f9c15.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "amazus-inkcaster",
@@ -7468,7 +7666,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/134_2baa5ffb80da21c9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_63fa180ebaee6d535aaca90e5710b9ef9aafeaea.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/134_6d5386bc55c08ae4_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ON THE HORIZON",
@@ -7477,7 +7675,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_9bc9fe599c854d14b39d29e4e8a4b8d2ddca50cd.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/134_63fa180ebaee6d535aaca90e5710b9ef9aafeaea.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "remote-inklands-desert-ruins",
@@ -7542,7 +7742,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/135_2bfef5d8e25579a9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/135_825c1520fa0b9a015d0aa63941a88453300b3671.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/135_0eb14061194acc17d840bf089b5b0425e16e2dd4.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/135_c1dedef51cb60960_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ERODING WINDS",
@@ -7556,7 +7756,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/135_825c1520fa0b9a015d0aa63941a88453300b3671.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/135_825c1520fa0b9a015d0aa63941a88453300b3671.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/135_0eb14061194acc17d840bf089b5b0425e16e2dd4.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "leviathans-lair-dangerous-ground",
@@ -7617,7 +7819,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/136_0a98a5f728ec3e3c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/136_4073aaad1b2bc4b21fd2164534784e9c093c4e83.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/136_038f9e1bcda387686fe60be0e55e113a221ccecc.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/136_645d234c4b8dbbe5_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LOST TO THE DUNES",
@@ -7626,7 +7828,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/136_4073aaad1b2bc4b21fd2164534784e9c093c4e83.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/136_4073aaad1b2bc4b21fd2164534784e9c093c4e83.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/136_038f9e1bcda387686fe60be0e55e113a221ccecc.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "robin-hood-desert-wanderer",
@@ -7656,9 +7860,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/137_c4c337749d3cb35e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_9dab6a338564f9092fc0f9d2159991e4cd1f295a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_4a5831f155c13df39754338ba34cfa999a43a42d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/137_3a1897bca6d01454_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_9dab6a338564f9092fc0f9d2159991e4cd1f295a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_9dab6a338564f9092fc0f9d2159991e4cd1f295a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/137_4a5831f155c13df39754338ba34cfa999a43a42d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "fauna-good-natured-fairy",
@@ -7695,9 +7901,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/140_686bd5f25c92075e_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_afb12d6e960bbb8db9c5a00589bfefc2f6e5fbb1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_a34eac51682072bb9f644f560bcf6dc7ec3676b7.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/140_e73911feeb9b54fa_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_2a6aa34198743f1a83c6fece9ed91b4a174203aa.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_2a6aa34198743f1a83c6fece9ed91b4a174203aa.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/140_a34eac51682072bb9f644f560bcf6dc7ec3676b7.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "flora-strong-willed-fairy",
@@ -7758,7 +7966,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/141_e5430b2ee54723ec_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_563056e30716149789781047cf2d084246a1f936.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_25953d9a58fca3fbbf5cdce1904172d622743b7b.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/141_fcfc6fa6d66edf85_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LUMINOUS SHELTER",
@@ -7767,7 +7975,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_25953d9a58fca3fbbf5cdce1904172d622743b7b.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "syndrome-evil-inventor",
@@ -7805,9 +8015,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/143_dd3aa48bb7d2b00c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/143_def61ec1c3c5492ae7ad64197fbba536df367517.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/143_e5ba624a80f54a41ed897b5b127f835f46335ef6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/143_a3a8b21daec328bb_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/143_def61ec1c3c5492ae7ad64197fbba536df367517.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/143_def61ec1c3c5492ae7ad64197fbba536df367517.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/143_e5ba624a80f54a41ed897b5b127f835f46335ef6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "kida-guardian-of-the-path",
@@ -7867,7 +8079,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/144_b652f99e541f6871_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/144_581aeec7c3290e49e69da41a22eacfff1c0e6f27.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/144_42cab92ce32af112207ba5bf95b4ce1aa101fe70.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/144_c71bcd79ed536bfe_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NATURAL DEFENSE",
@@ -7876,7 +8088,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/144_581aeec7c3290e49e69da41a22eacfff1c0e6f27.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/144_581aeec7c3290e49e69da41a22eacfff1c0e6f27.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/144_42cab92ce32af112207ba5bf95b4ce1aa101fe70.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "gadget-hackwrench-resourceful-mechanic",
@@ -7959,7 +8173,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/145_5aa397c153cc3b6f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/145_576abce53d4d50cb5acd9ed144fa18a27a66ae37.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/145_d92c102ace4796a7918458842f51561a229941d6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/145_303ada66069082f2_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TIME TO TINKER",
@@ -7973,7 +8187,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/145_576abce53d4d50cb5acd9ed144fa18a27a66ae37.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/145_576abce53d4d50cb5acd9ed144fa18a27a66ae37.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/145_d92c102ace4796a7918458842f51561a229941d6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "norton-nimnul-misanthropic-genius",
@@ -8041,7 +8257,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/146_ba6ce416b43a7706_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_35eb3bb0f272223c1b1b6cfa8e064587fce1cff3.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/146_ac61ba87ead0aaa1_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DEVITALIZER RAY",
@@ -8050,7 +8266,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_d855e5debaae441bbc48a5479c95375746faae18.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/146_35eb3bb0f272223c1b1b6cfa8e064587fce1cff3.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "gadget-hackwrench-finder-of-lost-parts",
@@ -8109,7 +8327,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/147_2b559e50a6f56cb8_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/147_f3a96764677522717aace5b7002b4f92376069c7.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/147_8dac8b42ee82cf974fb8de6b8027d76719e30034.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/147_2dc5a8439bbcc489_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "USEFUL BITS",
@@ -8118,7 +8336,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/147_f3a96764677522717aace5b7002b4f92376069c7.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/147_f3a96764677522717aace5b7002b4f92376069c7.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/147_8dac8b42ee82cf974fb8de6b8027d76719e30034.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "zipper-tiny-helper",
@@ -8148,9 +8368,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/148_353a646758b70c6c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_ad19f3d59c57c6969bb5feb6902f90cc50d05527.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/148_47e026db8fb993eb_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_07a59c08a5a9c83541039a1ab1c135921ef5b528.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/148_ad19f3d59c57c6969bb5feb6902f90cc50d05527.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "dr-sara-bellum-head-of-research",
@@ -8200,7 +8422,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/152_bf5dded5ac0f57f0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_a3996d480deeb06b0838f6ab39a5b8108b4f8bca.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/152_e3339a5ca684f64b_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SCIENTIFIC SCRUTINY",
@@ -8209,7 +8431,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_32aa5a21d6e698055f18ffab415d9c265eddc47c.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/152_a3996d480deeb06b0838f6ab39a5b8108b4f8bca.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -8271,7 +8495,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/155_45e3366bcd701865_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/155_256bec7442dbacd35eb75068524f5ba320c105d8.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/155_963f4935e225834bc7f179f05ce26fcce706ce1c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/155_3adf064fa48589f4_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS AND THAT",
@@ -8280,7 +8504,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/155_256bec7442dbacd35eb75068524f5ba320c105d8.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/155_256bec7442dbacd35eb75068524f5ba320c105d8.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/155_963f4935e225834bc7f179f05ce26fcce706ce1c.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "kida-discovering-the-unknown",
@@ -8335,7 +8561,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/157_5d8afd60da526df3_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_e82d96c78f240a67d8b942b07fc91b772f213b09.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/157_12c73f57da30916f_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "READ THE RUNES",
@@ -8344,7 +8570,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_aa0d819e4b05ae775ea6d8c04e6cb405f8acd181.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/157_e82d96c78f240a67d8b942b07fc91b772f213b09.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "kashekim-wise-king",
@@ -8401,7 +8629,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/158_4f9b2b8d3ed1740c_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_eac5750a39dec4f7429ce39214eae8387b2b9d63.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/158_c3c11d55b151f207_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "STRENGTH IN MEMORY",
@@ -8410,7 +8638,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_b7a3b500d1753c0fd0ac759e10935c87645c1c6b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/158_eac5750a39dec4f7429ce39214eae8387b2b9d63.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "minnie-mouse-practical-traveler",
@@ -8469,7 +8699,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/159_f722b4e3829fdc84_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/159_2952111f0f0fb92885c7f8f068b0aca3715f6824.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/159_1291619a6ce6c5a6b4142b49716bdfad6bb9a463.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/159_2c695cd98863b8cc_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DISCERNING EYE",
@@ -8478,7 +8708,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/159_2952111f0f0fb92885c7f8f068b0aca3715f6824.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/159_2952111f0f0fb92885c7f8f068b0aca3715f6824.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/159_1291619a6ce6c5a6b4142b49716bdfad6bb9a463.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "someone-will-lose-his-head",
@@ -8503,7 +8735,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/162_2180a8baca849873_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_5afcfb6553218d518c732918370b5d108b8bfa6d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/162_f85a2334d19f17f9_base.jpg",
     "actionEffects": [
       {
         "type": "gain_stats",
@@ -8524,7 +8756,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_c0ad1e6785a28da676ec3536d14c694185d6db49.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/162_5afcfb6553218d518c732918370b5d108b8bfa6d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "escape-plan",
@@ -8547,7 +8781,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/164_bb4e5afe05be1322_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_ac329067db5f9b76325d8716c8cd6a30a9617552.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_1ef3693ca382ce0c603ca1e2038a2a8e81344483.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/164_3310d1068746a9be_base.jpg",
     "actionEffects": [
       {
         "type": "each_player",
@@ -8597,7 +8831,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_ac329067db5f9b76325d8716c8cd6a30a9617552.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_ac329067db5f9b76325d8716c8cd6a30a9617552.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/164_1ef3693ca382ce0c603ca1e2038a2a8e81344483.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "salvage-operation",
@@ -8621,9 +8857,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/165_2213ce6db19e210f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/165_6bac1a9284a795ee7866208e731ea4e22fbe3a99.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/165_a8a8062568915ed6be61d1a1559bc74c144d612f.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/165_9687530de4ff56ba_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/165_6bac1a9284a795ee7866208e731ea4e22fbe3a99.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/165_6bac1a9284a795ee7866208e731ea4e22fbe3a99.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/165_a8a8062568915ed6be61d1a1559bc74c144d612f.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "julietas-arepas",
@@ -8703,7 +8941,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/166_cecf874edd658923_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_fcc88f7c9ca814ba2f419fad49141952a9c2ba88.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/166_50fb035422e3a125_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FLAVORFUL CURE",
@@ -8717,7 +8955,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_1a56d466206002daf499fedb3c154f8b2fd2e7ef.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/166_fcc88f7c9ca814ba2f419fad49141952a9c2ba88.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "gadgets-goggles",
@@ -8768,7 +9008,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/168_bd948ddee8ce67ef_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_34bd888d877491d673fc7d562068b9f624ce91ee.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/168_8344f9b64f93a1d7_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ENHANCED VISION",
@@ -8777,7 +9017,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_28042d1fa77fc6172a9f4112cee8d2e0dc147c2f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/168_34bd888d877491d673fc7d562068b9f624ce91ee.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "shepherds-journal",
@@ -8852,7 +9094,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/169_fcce3e6f697c83de_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_5ed73eb33557815048427b9d5c664ad43ef2491a.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_dfff29090445b5f496c840513a866e72805f1563.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/169_e3097837fc2ca122_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "MARGIN NOTES",
@@ -8866,7 +9108,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_5ed73eb33557815048427b9d5c664ad43ef2491a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_5ed73eb33557815048427b9d5c664ad43ef2491a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/169_dfff29090445b5f496c840513a866e72805f1563.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "casa-madrigal-courtyard",
@@ -8925,7 +9169,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/170_c50a068265e1afe9_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_ea9a330338b8fea02b945d8381aefac68b3889af.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_bbfde962991f6ce960bc03c5d3534a2aa546bac6.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/170_b0fec8e622dcf417_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEALING HOME",
@@ -8934,7 +9178,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_ea9a330338b8fea02b945d8381aefac68b3889af.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_ea9a330338b8fea02b945d8381aefac68b3889af.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/170_bbfde962991f6ce960bc03c5d3534a2aa546bac6.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "pocahontas-steadfast-traveler",
@@ -9002,7 +9248,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/171_5aef72106719c98f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/171_7150188b14e8fe7395d75fd6120f7a7000713f26.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/171_447a6a324235cc6f1de6996c31346635270e6194.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/171_2ee5048c9480d355_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WANDERING SPIRIT",
@@ -9011,7 +9257,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/171_7150188b14e8fe7395d75fd6120f7a7000713f26.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/171_7150188b14e8fe7395d75fd6120f7a7000713f26.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/171_447a6a324235cc6f1de6996c31346635270e6194.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "syndrome-out-for-revenge",
@@ -9130,9 +9378,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/176_87fba54e8b5611ae_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/176_2eb1ce6d5dcbbeddaf36411213a85738b041d13f.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/176_3810d81c7443539a8d4448620122d399e457950d.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/176_50112930a93bbc11_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/176_2eb1ce6d5dcbbeddaf36411213a85738b041d13f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/176_2eb1ce6d5dcbbeddaf36411213a85738b041d13f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/176_3810d81c7443539a8d4448620122d399e457950d.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "incrediboy-buddy-pine",
@@ -9191,7 +9441,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/177_df1851797cb883d0_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/177_e4aa1089c87df07fc059313e48a7fc799193c4c3.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/177_c5293a7e77dfe166557dabc365b78024e95a2b07.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/177_34de0914ddec0a95_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "NERDING OUT",
@@ -9208,7 +9458,9 @@
       "Syndrome"
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/177_e4aa1089c87df07fc059313e48a7fc799193c4c3.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/177_e4aa1089c87df07fc059313e48a7fc799193c4c3.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/177_c5293a7e77dfe166557dabc365b78024e95a2b07.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "violet-parr-at-wits-end",
@@ -9245,9 +9497,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/178_6377bcaa3cf6dfe4_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/178_1b1d2f0e310ed38e5776caf328bdf0e67328e883.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/178_d0ead4992537dc93350e2ab91ffab9e64166b1e9.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/178_2041f1b8ee5d5f33_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/178_1b1d2f0e310ed38e5776caf328bdf0e67328e883.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/178_1b1d2f0e310ed38e5776caf328bdf0e67328e883.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/178_d0ead4992537dc93350e2ab91ffab9e64166b1e9.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "young-macintosh-proud-son",
@@ -9277,9 +9531,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/180_89438cdba1c4af83_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/180_593a4afd383a78bb1447bce1cc973208f315d030.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/180_bccc00d317398670f5317ccc972ce9b574d6a9a5.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/180_a93139f7acfdf118_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/180_593a4afd383a78bb1447bce1cc973208f315d030.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/180_593a4afd383a78bb1447bce1cc973208f315d030.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/180_bccc00d317398670f5317ccc972ce9b574d6a9a5.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lord-macintosh-wiry-and-high-strung",
@@ -9350,7 +9606,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/181_320e54cea5136978_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_c45a30ec2f60a524d975c75ad45631dd5c49a808.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/181_83b35aff525cec78_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TOUGH IT OUT",
@@ -9359,7 +9615,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_772f9ab54969f3a58024b5f63ed5cc3447824ed1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/181_c45a30ec2f60a524d975c75ad45631dd5c49a808.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "fat-cat-felonious-feline",
@@ -9396,9 +9654,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/182_4335f263b138314d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_bc2f3da537f78cfc7ee202fbf1399f5f38fc9d97.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_f33a2ffb645c34be6b3cf70ea14faec948e0ce13.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/182_576d9f9f2739572a_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_bc2f3da537f78cfc7ee202fbf1399f5f38fc9d97.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_bc2f3da537f78cfc7ee202fbf1399f5f38fc9d97.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/182_f33a2ffb645c34be6b3cf70ea14faec948e0ce13.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "omnidroid-v-9",
@@ -9461,7 +9721,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/184_625be8c8ed3ff10a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_0945d8f33c007f46611dbbe1b0840834fec6c81c.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_945b9a84b9e3905b31a308221c90126c7784882a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/184_8c0117cd11db5348_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ENEMY DETECTED",
@@ -9470,7 +9730,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_cfcb63bc134d6cf994f2cbdf74f3ad87945b6265.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_cfcb63bc134d6cf994f2cbdf74f3ad87945b6265.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/184_945b9a84b9e3905b31a308221c90126c7784882a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mr-incredible-taking-out-the-trash",
@@ -9534,7 +9796,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/185_20b522209fcb8f04_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/185_bbf2b845eb66a3a636752fd330ec8025274b89b6.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/185_7a2fa9f41aa48b51bbb0bb5caf69db2590d8838c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/185_7c99701da564c39d_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KA-POW!",
@@ -9543,7 +9805,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/185_8e22b3002b5f6f837ac076edd29bc7ae6a0a156a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/185_8e22b3002b5f6f837ac076edd29bc7ae6a0a156a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/185_7a2fa9f41aa48b51bbb0bb5caf69db2590d8838c.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "lord-dingwall-bullheaded",
@@ -9614,7 +9878,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/186_c7462c24184c54da_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_6adf5ef904651690d4829bbbfe972ca7df986eaf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/186_bb3f1ddb9b69985d_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FIGHTIN' TALK",
@@ -9623,7 +9887,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_74242fa481dc8df7788924b02c27b93f00c4c11c.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/186_6adf5ef904651690d4829bbbfe972ca7df986eaf.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "merida-formidable-archer",
@@ -9716,8 +9982,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/191_e23e762ac4f9383d_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_b2f9a5146af6e1e9f706b8a9ed842335f93d938b.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_f361b569e1a97ce2ddbc3030f15e154c72e86339.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_93124383117d9dda9a0b7b5c29050f1e6f4311fa.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/191_27bb175f279965d0_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/191_fbc56b64444494ac_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -9732,7 +9998,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_b2f9a5146af6e1e9f706b8a9ed842335f93d938b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_b2f9a5146af6e1e9f706b8a9ed842335f93d938b.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_f361b569e1a97ce2ddbc3030f15e154c72e86339.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/191_93124383117d9dda9a0b7b5c29050f1e6f4311fa.jpg"
   },
   {
     "id": "john-smith-skillful-explorer",
@@ -9762,9 +10031,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/192_28153db2be8a017f_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_588931d4fae67d82b9a32889ca11695c1a116897.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/192_8fa014fa44e7f3be_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_5f7c1624037a2e3b563c67fce9a0cecb5dcc8485.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/192_588931d4fae67d82b9a32889ca11695c1a116897.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "gizmoduck-duckburg-defender",
@@ -9827,7 +10098,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/193_b7796c1a44ad2b4a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/193_81f4174e29eefe3651d022d34285c6d1fb7ed058.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/193_94024d977f2d24e6829d82887331c62a780cab91.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/193_47f1baa08f9c91f7_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAIL-SAFE",
@@ -9836,7 +10107,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/193_81f4174e29eefe3651d022d34285c6d1fb7ed058.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/193_81f4174e29eefe3651d022d34285c6d1fb7ed058.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/193_94024d977f2d24e6829d82887331c62a780cab91.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "mrs-incredible-determined-rescuer",
@@ -9941,8 +10214,8 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/195_ceb5692cefc16f86_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_aa50a25fcec663d08d5231697eee7fd1f0bee9ec.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_4b847dcccbd30bd7855a49a3a19aa1627edb78ea.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_b515b33c960a3abc233ba2bd90f213114cb25dbf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/195_cb3705de1c87d563_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/195_f247b1969a4c25fc_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -9957,7 +10230,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_aa50a25fcec663d08d5231697eee7fd1f0bee9ec.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_aa50a25fcec663d08d5231697eee7fd1f0bee9ec.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_4b847dcccbd30bd7855a49a3a19aa1627edb78ea.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/195_b515b33c960a3abc233ba2bd90f213114cb25dbf.jpg"
   },
   {
     "id": "diablo-stone-servant",
@@ -10042,7 +10318,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/196_c278fea21752ef29_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_ed1efe2937ba4613a8c9a2d2841336eb5ef2e54e.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/196_98eaed2dff3b6eea_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CRUEL INTENT",
@@ -10056,7 +10332,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_d807ab79c4644f37529e9de2d7a72080d3bf68de.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/196_ed1efe2937ba4613a8c9a2d2841336eb5ef2e54e.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "three-arrows",
@@ -10080,7 +10358,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/197_44460d3d73e6bb1a_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/197_354cb93926a7d55d8a375023f579fe21b5a5464d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/197_93391702c4a2854f1732fea4b2a7b1af13a453b1.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/197_9a5667eccf2adfb5_base.jpg",
     "actionEffects": [
       {
         "type": "deal_damage",
@@ -10111,7 +10389,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/197_354cb93926a7d55d8a375023f579fe21b5a5464d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/197_354cb93926a7d55d8a375023f579fe21b5a5464d.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/197_93391702c4a2854f1732fea4b2a7b1af13a453b1.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "card-advantage",
@@ -10135,9 +10415,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/198_f04eb51351b977e2_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/198_c9d7b0b7597d60123e8fba9b61fe5a8609c33ef1.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/198_74822f36f3ff332f550590684de718e67000cafb.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/198_66f27f6ae3d8276f_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/198_c9d7b0b7597d60123e8fba9b61fe5a8609c33ef1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/198_c9d7b0b7597d60123e8fba9b61fe5a8609c33ef1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/198_74822f36f3ff332f550590684de718e67000cafb.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "touch-the-sky",
@@ -10162,7 +10444,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/199_9bef766fd464db83_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_004bcbf1024ce2fff14409dff66746473aba0f78.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/199_ad80ad6b3f18dfa2_base.jpg",
     "actionEffects": [
       {
         "type": "move_character",
@@ -10197,7 +10479,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_18718cc85796e4bb8689fffd3855e70bfc8a45b9.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/199_004bcbf1024ce2fff14409dff66746473aba0f78.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "plunger-crossbow",
@@ -10253,7 +10537,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/200_05b44e45fef69c80_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_0f0064c26b9e758453b2dab1d343317c6c9c79d6.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_ba86d785969f1a643d85ce9e7698edef1fb3c4a0.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/200_bdac8e35c87fa8db_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SUCTION TECHNOLOGY",
@@ -10262,7 +10546,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_0f0064c26b9e758453b2dab1d343317c6c9c79d6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_0f0064c26b9e758453b2dab1d343317c6c9c79d6.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/200_ba86d785969f1a643d85ce9e7698edef1fb3c4a0.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "syndromes-remote",
@@ -10360,7 +10646,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/201_ea03869939a21363_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/201_a9db1a4fa0e1cf2cd25213c9bf3e8ac6f42706c7.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/201_a16776c0ce9bd9ec3b216d2d8769f6c62a70eabe.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/201_fcfc143155d5b3d7_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ZERO-POINT ENERGY",
@@ -10374,7 +10660,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/201_a9db1a4fa0e1cf2cd25213c9bf3e8ac6f42706c7.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/201_a9db1a4fa0e1cf2cd25213c9bf3e8ac6f42706c7.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/201_a16776c0ce9bd9ec3b216d2d8769f6c62a70eabe.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "club-door",
@@ -10439,7 +10727,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/202_87731e25948a6133_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_89a9b62386c17b965375eec7700638157068f4eb.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_02a5f9bf38bef7f7f474663b80c0cbb370c2c5fe.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/202_fb42445170fc5c65_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WELCOME BACK, SIR",
@@ -10453,7 +10741,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_89a9b62386c17b965375eec7700638157068f4eb.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_89a9b62386c17b965375eec7700638157068f4eb.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/202_02a5f9bf38bef7f7f474663b80c0cbb370c2c5fe.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "fat-cats-club-seedy-headquarters",
@@ -10480,9 +10770,11 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/203_b3d7eb76c7dc9391_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/203_cf0673953a16085df0fd41a8bd38a467c6afb968.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/203_1adec8fe55ee7646caa38dacc4abd277b7d74466.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/203_b3132c739d9711e5_base.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/203_cf0673953a16085df0fd41a8bd38a467c6afb968.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/203_cf0673953a16085df0fd41a8bd38a467c6afb968.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/203_1adec8fe55ee7646caa38dacc4abd277b7d74466.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "the-island-of-nomanisan-syndromes-headquarters",
@@ -10509,7 +10801,7 @@
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/204_f7ce7bb11731ffa5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/204_8835f9f50beb0f86e244319c54e29f59a3aefe37.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/204_ea1dadc73489c043ad015cc1d03000891f0a0c1a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/204_d86e481dd79a49f6_base.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RESEARCH & DEVELOPMENT",
@@ -10523,7 +10815,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/204_8835f9f50beb0f86e244319c54e29f59a3aefe37.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/204_8835f9f50beb0f86e244319c54e29f59a3aefe37.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/204_ea1dadc73489c043ad015cc1d03000891f0a0c1a.jpg",
+    "_foilMaskSource": "ravensburger"
   },
   {
     "id": "isabela-madrigal-such-a-lovely-voice",
@@ -10579,8 +10873,8 @@
     "rulesText": "<Singer> 5 (This character counts as cost 5 to sing songs.)\nNEW MOTIF When you play this character, if you removed 1 or more damage from one of your characters this turn, gain 1 lore.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/207_0b9b3ffe5db8a6b1_normal.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_bd26b13fffb234f26982d111f6d42c8569d0b4a4.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_6573d18f42b50e991ec4bfa49cd5e1b04260671c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/207_e2632afbb8a9370a_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/207_c338555654543bcb_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -10590,7 +10884,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_e3ec9cb1eb4101560025e4fcd701ca6270f2660f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_e3ec9cb1eb4101560025e4fcd701ca6270f2660f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_bd26b13fffb234f26982d111f6d42c8569d0b4a4.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_6573d18f42b50e991ec4bfa49cd5e1b04260671c.jpg"
   },
   {
     "id": "daisy-duck-trendy-traveler",
@@ -10664,8 +10961,8 @@
     "flavorText": "“Time to go. I don’t want to miss that sunset!”",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/216_9d5eda70b01c22a5_normal.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_fa7eff30fa13426e2d58b783702b780e58cb27c5.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_8af71ab12682bc4bacac1083ec357ed593014a53.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/216_c6b6f7d56b50ddf6_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/216_f764ecdf1b97b797_top.jpg",
     "foilTopLayer": "high_gloss",
     "_namedAbilityStubs": [
       {
@@ -10675,7 +10972,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_6a674b21f22b7a779d2a8eff0eb6af56ffe35070.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_6a674b21f22b7a779d2a8eff0eb6af56ffe35070.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_fa7eff30fa13426e2d58b783702b780e58cb27c5.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_8af71ab12682bc4bacac1083ec357ed593014a53.jpg"
   },
   {
     "id": "three-arrows",
@@ -10698,8 +10998,8 @@
     "flavorText": "“I am Merida. Firstborn descendant of Clan DunBroch. And I’ll be shooting for my own hand.\"\n—Merida",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/222_7ce701313132bb0b_normal.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_2f8316ba36ec57756b86eda5fa685df8fbb0f00d.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_ce9b2407d9d9ed7409a0a27165d86b939b5b3cd3.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/222_35e7a60fa375a553_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/222_18fa7a1f162f7b8b_top.jpg",
     "foilTopLayer": "high_gloss",
     "actionEffects": [
       {
@@ -10731,7 +11031,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_e94076f21a95ccb2eb12bcb06ebfa27081c6ad62.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_e94076f21a95ccb2eb12bcb06ebfa27081c6ad62.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_2f8316ba36ec57756b86eda5fa685df8fbb0f00d.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_ce9b2407d9d9ed7409a0a27165d86b939b5b3cd3.jpg"
   },
   {
     "id": "isabela-madrigal-caring-cultivator",
@@ -10790,8 +11093,8 @@
     "rulesText": "<Shift> 4 {I}\nDO NO WRONG Whenever you remove damage from one of your characters, gain 1 lore for each 1 damage removed.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/224_0b321e2b724eb557_normal.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_3855671c2d26d0f7af2fc986c2bcaf6ac89c1277.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_f386e4c871d3cc77bf1f283079fc5361ae9cf08a.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/224_f18ff39b8c6c4cfa_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/224_9e8facbfc9623e36_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#d9a36d",
     "_namedAbilityStubs": [
@@ -10802,7 +11105,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_9e87c3271c69a4cab9757a1381fa0a84c949acde.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_9e87c3271c69a4cab9757a1381fa0a84c949acde.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_3855671c2d26d0f7af2fc986c2bcaf6ac89c1277.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/224_f386e4c871d3cc77bf1f283079fc5361ae9cf08a.jpg"
   },
   {
     "id": "youve-got-a-friend-in-me",
@@ -10826,8 +11132,8 @@
     "rulesText": "Look at the top 4 cards of your deck. You may reveal up to 2 Toy character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/225_443a7c836cffa8e2_normal.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_45f607edf949bf5dcc534212aec973b77f4871f5.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_f9e193dae4a54e92a92894b842d5013ba6f644cf.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/225_1e43f7fed7ba5016_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/225_3db0305f14500893_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#d9a36d",
     "actionEffects": [
@@ -10850,7 +11156,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_9633a5a18e148e243fe5e503484a4fd2022a2296.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_9633a5a18e148e243fe5e503484a4fd2022a2296.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_45f607edf949bf5dcc534212aec973b77f4871f5.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/225_f9e193dae4a54e92a92894b842d5013ba6f644cf.jpg"
   },
   {
     "id": "frozone-super-cool",
@@ -10919,8 +11228,8 @@
     "rulesText": "<Rush>\nJUST CHILL When you play this character, if you have another Super character in play, you may exert chosen opposing character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/226_df2e57027931d4c3_normal.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_b71854b47e0e22b99346611107f5703648547079.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_2424ddcd6f93970cd1f1b307a5c4237cd23cba62.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/226_2b42b56eb72b340b_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/226_6e7369a044ebfdd5_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#d9a36d",
     "_namedAbilityStubs": [
@@ -10931,7 +11240,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_d92830b874e6b3b36bae92665b0cbf137382591a.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_d92830b874e6b3b36bae92665b0cbf137382591a.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_b71854b47e0e22b99346611107f5703648547079.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_2424ddcd6f93970cd1f1b307a5c4237cd23cba62.jpg"
   },
   {
     "id": "the-familys-scattered",
@@ -11036,8 +11348,8 @@
     "rulesText": "Look at the top 2 cards of your deck. Put one into your hand and the other into your inkwell facedown and exerted. If a character sang this song, your characters gain <Ward> until the start of your next turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/237_c674624e544581a9_normal.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_62bc5b2ce28db546ae63d1929c9586b3d61c4bd3.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_e46c90e37b77d8ea0cf1a3c0c2fe1012118f7a89.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/237_3fa8b7b6a8e8c09b_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/237_01997354031939de_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#d9a36d",
     "actionEffects": [
@@ -11053,7 +11365,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_b184429a1820819ac6e304ba57bf88fe439d66f1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_b184429a1820819ac6e304ba57bf88fe439d66f1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_62bc5b2ce28db546ae63d1929c9586b3d61c4bd3.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_e46c90e37b77d8ea0cf1a3c0c2fe1012118f7a89.jpg"
   },
   {
     "id": "touch-the-sky",
@@ -11077,8 +11392,8 @@
     "rulesText": "Move a character of yours to a location for free. Then, draw cards equal to that location’s {L}.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/240_b76781bbb301bce3_normal.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_d8d71cdc964d2f8e5fe8f69cd3fcba7c49db0aa3.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_6c8e59a7c58b117316a88afcd800bb56200ac63c.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/240_bcb79075753cefe7_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/240_d9da2d6df94256d3_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#d9a36d",
     "actionEffects": [
@@ -11115,7 +11430,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_185d89307de4161437257494a507c87eb14c2a6f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_185d89307de4161437257494a507c87eb14c2a6f.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_d8d71cdc964d2f8e5fe8f69cd3fcba7c49db0aa3.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/240_6c8e59a7c58b117316a88afcd800bb56200ac63c.jpg"
   },
   {
     "id": "buzz-lightyear-jungle-ranger",
@@ -11212,8 +11530,8 @@
     "rulesText": "<Shift> 5 {I}\nTAKE CHARGE When you play this character, you may return an action card with cost 7 or less from your discard to your hand.\nADVANCED TRAINING Whenever you play an action, chosen character gets +1 {L} this turn.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/241_ddb2e9c20da7cb04_normal.jpg",
     "foilType": "lore",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_5436e22a92e4f3e49f682b3b5a3dc69c4968eb65.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_0d575e3704109ef7c8da43056fc20228a9d7af97.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/241_b073d6b3d87cb4ef_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/241_69b2b946bbf554a7_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#8fd262",
     "_namedAbilityStubs": [
@@ -11229,7 +11547,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_559b96824c7e1bc8ca0cac221eed38e2a89f0aa1.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_559b96824c7e1bc8ca0cac221eed38e2a89f0aa1.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_5436e22a92e4f3e49f682b3b5a3dc69c4968eb65.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/241_0d575e3704109ef7c8da43056fc20228a9d7af97.jpg"
   },
   {
     "id": "merida-formidable-archer",
@@ -11321,8 +11642,8 @@
     "rulesText": "FULL QUIVER When you play this character, you may return an action card named Three Arrows from your discard to your hand.\nSTEADY AIM Whenever one of your actions deals damage to an opposing character, deal 2 damage to that character.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/242_705bfab80ef83c55_normal.jpg",
     "foilType": "lore",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_d68cb648e840b5d57b1cbeeaa711fe0f0b4a05eb.jpg",
-    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_15e8b64adc3b157606c6831bf1df1ce813bddaad.jpg",
+    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/242_d975592a3fd5886a_base.jpg",
+    "foilTopLayerMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set12/242_f66c39c47fcf93e7_top.jpg",
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#b2b2b2",
     "_namedAbilityStubs": [
@@ -11338,6 +11659,9 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_8495fac30ca0449150a7d301fbcbe71cc92e5979.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_8495fac30ca0449150a7d301fbcbe71cc92e5979.jpg",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_d68cb648e840b5d57b1cbeeaa711fe0f0b4a05eb.jpg",
+    "_foilMaskSource": "ravensburger",
+    "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/242_15e8b64adc3b157606c6831bf1df1ce813bddaad.jpg"
   }
 ]

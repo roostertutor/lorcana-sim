@@ -469,6 +469,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
       // the foil data should survive (same tier-refusal logic as _source
       // means this is unreachable today, but defensive).
       "foilType", "foilMaskUrl", "foilTopLayerMaskUrl", "foilTopLayer", "hotFoilColor",
+      "_foilMaskSource", "_foilMaskSourceUrl", "_foilTopMaskSourceUrl", "_foilMaskSourceLock",
     ];
     for (const field of passthroughFields) {
       const prevVal = (prev as Record<string, unknown>)[field];
