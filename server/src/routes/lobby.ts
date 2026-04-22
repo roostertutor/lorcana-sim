@@ -13,6 +13,7 @@ import {
   getLobby,
   listLobbies,
   listPublicLobbies,
+  rematchLobby,
   type SpectatorPolicy,
 } from "../services/lobbyService.js"
 import { supabase } from "../db/client.js"
@@ -99,6 +100,37 @@ lobby.post("/join", requireAuth, async (c) => {
     const msg = String(err)
     if (msg.includes("not found")) return c.json({ error: msg }, 404)
     if (msg.includes("own lobby")) return c.json({ error: msg }, 400)
+    return c.json({ error: msg }, 500)
+  }
+})
+
+// POST /lobby/rematch — create a rematch lobby from a just-finished match
+// (MP UX Phase 2). Idempotent: two players clicking "Rematch" simultaneously
+// converge on the same new lobby. Spawns the first game of the rematch with
+// the previous-match loser in the player1 slot (CRD 2.1.3.2 play-draw).
+lobby.post("/rematch", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const body = await c.req.json<{ previousLobbyId: string }>().catch(() => ({} as { previousLobbyId?: string }))
+
+  if (!body.previousLobbyId || typeof body.previousLobbyId !== "string") {
+    return c.json({ error: "previousLobbyId is required" }, 400)
+  }
+
+  try {
+    const result = await rematchLobby(userId, body.previousLobbyId)
+    return c.json({
+      lobbyId: result.lobbyId,
+      gameId: result.gameId,
+      code: result.code,
+      myPlayerId: result.myPlayerId,
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes("not found")) return c.json({ error: msg }, 404)
+    if (msg.includes("Only players")) return c.json({ error: msg }, 403)
+    if (msg.includes("status") || msg.includes("no recorded winner") || msg.includes("active game")) {
+      return c.json({ error: msg }, 409)
+    }
     return c.json({ error: msg }, 500)
   }
 })

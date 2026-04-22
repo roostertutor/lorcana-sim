@@ -5,6 +5,7 @@ import { logger } from "hono/logger"
 import { auth } from "./routes/auth.js"
 import { lobby } from "./routes/lobby.js"
 import { game } from "./routes/game.js"
+import { replay } from "./routes/replay.js"
 
 const app = new Hono()
 
@@ -17,7 +18,7 @@ app.use(
       process.env["CLIENT_URL"] ?? "http://localhost:5173",
     ],
     allowHeaders: ["Authorization", "Content-Type"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   }),
 )
@@ -27,6 +28,7 @@ app.get("/health", (c) => c.json({ ok: true }))
 app.route("/auth", auth)
 app.route("/lobby", lobby)
 app.route("/game", game)
+app.route("/replay", replay)
 
 import { serve } from "@hono/node-server"
 

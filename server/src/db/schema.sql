@@ -163,5 +163,81 @@ ALTER TABLE decks ADD COLUMN IF NOT EXISTS card_metadata JSONB NOT NULL DEFAULT 
 ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_family TEXT NOT NULL DEFAULT 'core';
 ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_rotation TEXT NOT NULL DEFAULT 's11';
 
+-- ── MP UX Phase 2: post-game polish ─────────────────────────────────────────
+
+-- Rematch lineage: link a new lobby back to its predecessor so the game-over
+-- overlay can offer "Rematch" and the server can track rematch chains. Null
+-- for non-rematch lobbies (the default). Follow-the-link query on the lobby
+-- table for analytics ("what % of matches get rematched?").
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS rematch_of UUID REFERENCES lobbies(id);
+
+-- Replays table — auto-saved on MP game finish. One row per finished game
+-- (Bo3 can produce up to 3 rows per match, one per game). Denormalized
+-- usernames + format fields so share links work without extra joins on read.
+-- The `public` flag gates access: default FALSE means only the two players
+-- can view; opt-in to TRUE via PATCH /replay/:id/share makes the replay
+-- readable by anyone with the link.
+CREATE TABLE IF NOT EXISTS replays (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  game_id UUID NOT NULL UNIQUE REFERENCES games(id) ON DELETE CASCADE,
+  winner_player_id UUID REFERENCES profiles(id),  -- null if resign with no valid winner state
+  p1_username TEXT,
+  p2_username TEXT,
+  turn_count INTEGER NOT NULL DEFAULT 0,
+  format TEXT,                -- bo1 | bo3 (from parent lobby at finish time)
+  game_format TEXT,           -- core | infinity
+  game_rotation TEXT,         -- s11 | s12 | …
+  public BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS replays_public_idx ON replays (public, created_at DESC);
+CREATE INDEX IF NOT EXISTS replays_game_idx ON replays (game_id);
+
+ALTER TABLE replays ENABLE ROW LEVEL SECURITY;
+
+-- Postgres `CREATE POLICY` doesn't support IF NOT EXISTS, so we drop-first
+-- to keep this block idempotent. Safe to re-run on an initialized DB.
+DROP POLICY IF EXISTS "Replays readable by players or if public" ON replays;
+DROP POLICY IF EXISTS "Replays public-toggle by players" ON replays;
+
+-- Visible to both players of the parent game OR to anyone when public=true.
+-- We can't reference a games column in RLS without an EXISTS subquery because
+-- RLS can only read the row being accessed; subquery scopes the check.
+CREATE POLICY "Replays readable by players or if public"
+  ON replays FOR SELECT
+  USING (
+    public = true
+    OR EXISTS (
+      SELECT 1 FROM games
+      WHERE games.id = replays.game_id
+        AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())
+    )
+  );
+
+-- Only the two players of the parent game can flip `public` via
+-- PATCH /replay/:id/share. Service-role writes (initial insert from
+-- handleMatchProgress) bypass RLS as usual.
+CREATE POLICY "Replays public-toggle by players"
+  ON replays FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM games
+      WHERE games.id = replays.game_id
+        AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())
+    )
+  );
+
+-- Lobby status now also supports 'waiting_rematch' — documented here for
+-- reference; column has no CHECK constraint so the value flows freely.
+-- Status transitions (post-Phase-2):
+--   waiting          -> active        : guest joined
+--   waiting          -> cancelled     : host cancelled
+--   waiting          -> finished      : abandoned cleanup
+--   active           -> finished      : match completed
+--   (finished lobby) -> waiting_rematch (new lobby with rematch_of pointing back)
+--   waiting_rematch  -> active        : both players confirmed; first game spawned
+
 -- Enable Supabase Realtime on the games table
 ALTER TABLE games REPLICA IDENTITY FULL;
+-- Realtime on lobbies too — rematch flow needs both clients to see status changes.
+ALTER TABLE lobbies REPLICA IDENTITY FULL;

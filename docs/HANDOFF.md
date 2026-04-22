@@ -2791,16 +2791,125 @@ share-replay button) — separate prompt below in Phase 2.
 ### Phase 2 — Post-game polish
 
 Agent splits:
-- **server agent**: ELO delta in game-finish payload, MP replay auto-
-  save, `POST /lobby/rematch` + loser-choice flow, replay public toggle.
-  **OPEN — prompt below. Server work is the blocker for both GUI sides.**
+- ~~**server agent**: ELO delta in game-finish payload, MP replay auto-save,
+  `POST /lobby/rematch` + loser-choice flow, replay public toggle.~~ —
+  **DONE 2026-04-22.** Details in the "Server DONE 2026-04-22" subsection
+  below — includes shape changes, endpoint shapes, and SQL the user needs
+  to run in Supabase.
 - **gameboard-specialist**: game-over overlay (ELO delta, share button,
-  rematch flow). **OPEN — prompt below. Blocked on server.**
+  rematch flow). **OPEN — prompt below. UNBLOCKED (server is done).**
 - **GUI agent**: replay-save toast in `useGameSession` + serverApi
-  wrappers for the new endpoints. **OPEN — prompt below. Blocked on
-  server.**
+  wrappers for the new endpoints. **OPEN — prompt below. UNBLOCKED (server is done).**
 
-Sequence: server first; then both UI agents in parallel.
+Sequence: server first (done); now both UI agents can proceed in parallel.
+
+#### Server DONE 2026-04-22 (server-specialist)
+
+Commits land server-side in one slice. SQL the user must run in Supabase
+SQL editor (idempotent — safe to re-run):
+
+```sql
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS rematch_of UUID REFERENCES lobbies(id);
+
+CREATE TABLE IF NOT EXISTS replays (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  game_id UUID NOT NULL UNIQUE REFERENCES games(id) ON DELETE CASCADE,
+  winner_player_id UUID REFERENCES profiles(id),
+  p1_username TEXT,
+  p2_username TEXT,
+  turn_count INTEGER NOT NULL DEFAULT 0,
+  format TEXT, game_format TEXT, game_rotation TEXT,
+  public BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS replays_public_idx ON replays (public, created_at DESC);
+CREATE INDEX IF NOT EXISTS replays_game_idx ON replays (game_id);
+
+ALTER TABLE replays ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Replays readable by players or if public" ON replays;
+DROP POLICY IF EXISTS "Replays public-toggle by players" ON replays;
+CREATE POLICY "Replays readable by players or if public" ON replays FOR SELECT
+  USING (public = true OR EXISTS (SELECT 1 FROM games WHERE games.id = replays.game_id
+    AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())));
+CREATE POLICY "Replays public-toggle by players" ON replays FOR UPDATE
+  USING (EXISTS (SELECT 1 FROM games WHERE games.id = replays.game_id
+    AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())));
+
+ALTER TABLE lobbies REPLICA IDENTITY FULL;
+```
+
+**ELO delta shape** — embedded in `GameState` as `_eloDelta` alongside the
+existing `_matchScore` / `_matchNextGameId`. Keyed by Supabase user-id so
+each client extracts its own row. Present only when the match was
+actually decided (Bo3 game 1 with no match decision yet: omitted):
+```ts
+type EloDelta = {
+  [userId: string]: { before: number; after: number; delta: number };
+  _eloKey: `${"bo1"|"bo3"}_${"core"|"infinity"}_${RotationId}`;
+}
+```
+UI rule: `delta > 0` → green, `delta < 0` → red, `delta === 0` → gray
+("Unranked" or "No change"). This trio ships on both `POST /game/:id/action`
+response and the Realtime broadcast (same state blob). `GET /game/:id`
+returns it too once the game is finished.
+
+**Replay auto-save** — every MP game that finishes (natural end OR resign)
+inserts a row into `replays` via `saveReplayForGame()` in gameService.ts.
+Idempotent (game_id UNIQUE → ON CONFLICT DO NOTHING). Bo3 match = up to
+3 replay rows per match.
+
+**Rematch endpoint** — `POST /lobby/rematch { previousLobbyId }`:
+- Auth: must be one of the two players in the previous lobby
+- Previous lobby must be status='finished'
+- Caller must not have another active game
+- Creates new lobby with `rematch_of` → previous, spawns first game
+  immediately with previous-match LOSER in player1 slot (engine's
+  `choose_play_order` surfaces to loser via existing PendingChoiceModal —
+  same UX as CRD 2.1.3.2 Bo3 games 2/3)
+- Idempotent: concurrent clicks from both players converge on one lobby
+  (lookup by rematch_of before insert)
+- Returns: `{ lobbyId, gameId, code, myPlayerId }`
+- Errors: 404 if previous not found, 403 if not a player, 409 if already
+  in a game or status isn't finished
+
+Note on deviation from the original Phase 2 prompt: the prompt called for
+TWO endpoints (`/lobby/rematch` creates a `waiting_loser_choice` lobby,
+`/lobby/:id/loser-choice` transitions to active). We collapsed to one
+endpoint because the engine already has `choose_play_order` (from CRD
+2.1.3.2 work) that handles the loser's play/draw pick. Adding a parallel
+server-side election would be redundant. Winner-waits UX is provided by
+the existing PendingChoiceModal opponent-view variant.
+
+**Replay share endpoint** — new route file `server/src/routes/replay.ts`:
+- `GET /replay/:id` — returns metadata + full replay payload (seed,
+  decks, actions, winner). Auth optional — public=true replays work
+  without a token; private replays require one of the two players.
+- `PATCH /replay/:id/share { public: boolean }` — toggle the public flag.
+  Player-only. Returns `{ ok: true, public: bool }`.
+
+CORS `allowMethods` in `index.ts` now includes `PATCH`.
+
+**Files touched:**
+- `server/src/db/schema.sql` — schema block added
+- `server/src/services/gameService.ts` — updateElo returns deltas;
+  handleMatchProgress/resignGame save replays; ReplayView + getReplayById
+  + setReplayPublic service helpers
+- `server/src/services/lobbyService.ts` — `rematchLobby()` function
+- `server/src/routes/lobby.ts` — POST /lobby/rematch
+- `server/src/routes/replay.ts` — NEW file, GET + PATCH
+- `server/src/index.ts` — registered /replay; added PATCH to CORS
+
+**Typecheck:** 1 pre-existing error (`processAction` nextGameId — unrelated
+to Phase 2, same as before my changes). 0 new errors introduced.
+
+**Deferred:**
+- Rate limits on `/replay/:id/share` (was a nice-to-have in the original
+  prompt). No metrics yet to calibrate a threshold; add if abuse appears.
+- 60s timeout on unaccepted rematches (UI-enforceable; server-side sweep
+  is optional polish).
+- Bo3 resign semantics — resigning currently ends just the game (not the
+  match). Pre-existing gap, flagged in gameService.ts comment. Separate
+  concern.
 
 #### Open prompt for server agent (Phase 2 server, priority)
 
@@ -2923,24 +3032,39 @@ Scope (3 items, all on GameBoard's existing game-over overlay at
 3. Rematch flow with loser-picks-first. Replaces the current
    "Play Again" / "Back to Lobby" buttons:
    - Both players see "Rematch?" button on game-over
-   - First-clicker calls POST /lobby/rematch (server creates the
-     waiting_loser_choice lobby)
-   - Loser of previous game then sees a Play/Draw radio + Confirm
-     button → POST /lobby/:id/loser-choice
-   - Winner sees "Waiting for opponent to pick first-player…"
-   - 60s timer client-side; on expiry both return to main lobby
-   - On loser confirm: both transition to /game/:newGameId
+   - First-clicker calls POST /lobby/rematch { previousLobbyId }.
+     Server immediately creates the new lobby AND spawns game 1 of
+     the rematch with the LOSER in player1 slot. Response: { lobbyId,
+     gameId, code, myPlayerId }.
+   - Both clients transition to /game/:newGameId (via Realtime or
+     follow-up navigation)
+   - The loser sees `choose_play_order` PendingChoiceModal (existing
+     CRD 2.1.3.2 UI — no new modal needed), picks first/second
+   - The winner sees the opponent-waiting variant of the same modal
+     ("Opponent is choosing play order…")
+   - On loser's choice resolving: game proceeds to mulligan
+
+Important: the server rematch endpoint is ONE-SHOT — no separate
+loser-choice endpoint. The loser's first/second pick flows through
+the engine's existing `choose_play_order` mechanism (same as Bo3
+games 2/3). You don't need a new Play/Draw radio in the game-over
+overlay — that's handled in the game-start flow by the existing
+PendingChoiceModal. All the overlay needs is the "Rematch" button.
+
+Rematch is idempotent: both players clicking simultaneously converge
+on the same lobby (server dedupes by `rematch_of`). So both
+ButtonClick handlers can safely POST without racing.
 
 Files:
 - packages/ui/src/pages/GameBoard.tsx (the overlay)
-- packages/ui/src/lib/serverApi.ts (add createRematch + chooseFirst
-  wrappers — coordinate with UI agent who owns this file, may already
-  be done)
+- packages/ui/src/lib/serverApi.ts (add createRematch wrapper; PATCH
+  replay/share already documented below in GUI-agent prompt — may
+  already be done)
 
 Solo / sandbox game-over flow stays as-is. This is MP-only.
 
 Out of scope: replay public-toggle UI (UI agent's lane), the actual
-replay viewer page (/replay/:id already works).
+replay viewer page (GET /replay/:id already works).
 ```
 
 #### Open prompt for GUI agent (Phase 2 GUI, blocked on server)

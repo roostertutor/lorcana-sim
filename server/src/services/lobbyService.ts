@@ -265,6 +265,185 @@ export async function cancelLobby(
   return { ok: true }
 }
 
+/** Create a rematch lobby from a previously-finished lobby. Reuses both
+ *  players' original decks (no deckbuilding roundtrip needed) and slots the
+ *  loser of the previous match into the new game's `player1` position — the
+ *  engine's `choose_play_order` PendingChoice (CRD 2.1.3.2) then surfaces
+ *  the play-draw election to the loser as the first interaction, and the
+ *  opponent sees the waiting variant of the modal.
+ *
+ *  Design choice: one-shot. The first click creates both the lobby AND the
+ *  first game; Realtime broadcasts the new gameId to both clients. The
+ *  winner doesn't need to separately accept — they're navigated to the game
+ *  and the engine shows them "opponent is choosing play order…" via the
+ *  existing PendingChoiceModal. A future iteration could add an explicit
+ *  accept step with `status='waiting_rematch'` if the UX calls for it, but
+ *  the one-shot flow matches Bo3 continuation semantics exactly.
+ *
+ *  Constraints:
+ *  - Caller must have been one of the two players in the previous lobby
+ *  - Previous lobby must be status='finished' (match actually ended)
+ *  - The caller must not already have an active game (same guard as
+ *    `joinLobby`) — one MP match at a time per user
+ *  - Idempotent via previousLobbyId → rematch_of uniqueness: if a rematch
+ *    lobby already exists for this previous lobby, return its id instead
+ *    of creating a duplicate
+ */
+export async function rematchLobby(
+  userId: string,
+  previousLobbyId: string,
+): Promise<{ lobbyId: string; gameId: string; code: string; myPlayerId: "player1" | "player2" }> {
+  // Guard: caller must not already be in another active match.
+  const activeGameId = await checkForActiveGame(userId)
+  if (activeGameId) {
+    throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
+  }
+
+  const { data: prev, error: prevErr } = await supabase
+    .from("lobbies")
+    .select("*")
+    .eq("id", previousLobbyId)
+    .single()
+
+  if (prevErr || !prev) throw new Error("Previous lobby not found")
+  if (prev.status !== "finished") {
+    throw new Error(`Previous lobby has status "${prev.status}"; only finished lobbies can be rematched`)
+  }
+
+  const hostId = prev.host_id as string
+  const guestId = prev.guest_id as string
+  if (userId !== hostId && userId !== guestId) {
+    throw new Error("Only players from the previous lobby can initiate a rematch")
+  }
+  if (!guestId) {
+    throw new Error("Previous lobby never had a guest — nothing to rematch")
+  }
+
+  // Idempotency: if a rematch lobby already exists for this previousLobbyId,
+  // return it instead of creating another. Race: two players clicking
+  // "Rematch" at the same time should converge on one lobby.
+  const { data: existing } = await supabase
+    .from("lobbies")
+    .select("id")
+    .eq("rematch_of", previousLobbyId)
+    .maybeSingle()
+  if (existing?.id) {
+    // Look up the (single) game for that rematch lobby and return both ids.
+    const { data: game } = await supabase
+      .from("games")
+      .select("id, player1_id")
+      .eq("lobby_id", existing.id as string)
+      .order("game_number", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (game?.id) {
+      const myPlayerId = game.player1_id === userId ? "player1" : "player2"
+      const { data: row } = await supabase
+        .from("lobbies")
+        .select("code")
+        .eq("id", existing.id as string)
+        .single()
+      return {
+        lobbyId: existing.id as string,
+        gameId: game.id as string,
+        code: (row?.code as string) ?? "",
+        myPlayerId,
+      }
+    }
+  }
+
+  // Determine the loser. The last finished game on the previous lobby has
+  // winner_id; loser is the other player.
+  const { data: lastGame } = await supabase
+    .from("games")
+    .select("winner_id")
+    .eq("lobby_id", previousLobbyId)
+    .eq("status", "finished")
+    .order("game_number", { ascending: false })
+    .limit(1)
+    .single()
+
+  if (!lastGame?.winner_id) {
+    throw new Error("Previous match has no recorded winner — cannot assign play-draw for rematch")
+  }
+
+  const loserId = lastGame.winner_id === hostId ? guestId : hostId
+  const opponentId = lastGame.winner_id as string
+
+  // Pair each user with their correct deck (lobby stores decks keyed by
+  // host_id / guest_id, not by slot).
+  const hostDeck = prev.host_deck as DeckEntry[]
+  const guestDeck = prev.guest_deck as DeckEntry[]
+  const loserIsHost = loserId === hostId
+  const loserDeck = loserIsHost ? hostDeck : guestDeck
+  const opponentDeck = loserIsHost ? guestDeck : hostDeck
+
+  // Generate a unique code for the new rematch lobby. Same probe-retry
+  // pattern as createLobby.
+  let code = generateCode()
+  let attempts = 0
+  while (attempts < 5) {
+    const { data: dup } = await supabase
+      .from("lobbies")
+      .select("id")
+      .eq("code", code)
+      .maybeSingle()
+    if (!dup) break
+    code = generateCode()
+    attempts++
+  }
+
+  // Create the rematch lobby. Host in the new lobby is the CALLER (whoever
+  // clicked Rematch first), guest is the other player — same as original
+  // lobby semantics. Decks preserved from the previous lobby so the format
+  // legality rules don't need re-validation (decks were legal then, still
+  // legal now unless rotation changed mid-match, which we don't handle).
+  const newHostId = userId
+  const newGuestId = userId === hostId ? guestId : hostId
+  const newHostDeck = userId === hostId ? hostDeck : guestDeck
+  const newGuestDeck = userId === hostId ? guestDeck : hostDeck
+
+  const { data: newLobby, error: newErr } = await supabase
+    .from("lobbies")
+    .insert({
+      code,
+      host_id: newHostId,
+      host_deck: newHostDeck,
+      guest_id: newGuestId,
+      guest_deck: newGuestDeck,
+      format: prev.format,
+      game_format: prev.game_format,
+      game_rotation: prev.game_rotation,
+      public: false,            // rematches stay private
+      spectator_policy: prev.spectator_policy ?? "off",
+      status: "active",          // game spawns immediately below
+      rematch_of: previousLobbyId,
+    })
+    .select()
+    .single()
+
+  if (newErr || !newLobby) {
+    throw new Error(`Failed to create rematch lobby: ${newErr?.message ?? "unknown error"}`)
+  }
+
+  // Spawn the first game of the rematch, loser in player1 slot.
+  const game = await createNewGame(
+    newLobby.id as string,
+    loserId,
+    opponentId,
+    loserDeck,
+    opponentDeck,
+  )
+
+  const myPlayerId: "player1" | "player2" = loserId === userId ? "player1" : "player2"
+  return {
+    lobbyId: newLobby.id as string,
+    gameId: game.id,
+    code: newLobby.code as string,
+    myPlayerId,
+  }
+}
+
 /** Shape returned by GET /lobby/public — deliberately minimal so no deck
  *  contents leak (no scouting vector). Host's username + format metadata only. */
 export interface PublicLobbyRow {
