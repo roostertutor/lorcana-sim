@@ -1176,6 +1176,56 @@ describe("§5 Set 5 — Robin Hood Sharpshooter MY GREATEST PERFORMANCE (peek_an
   });
 });
 
+describe("§5 Set 5 — Elsa The Fifth Spirit CRYSTALLIZE (chosen_by_opponent + Vanish hook)", () => {
+  // Regression for 2026-04-21 crash: reducer.ts:2478 passed
+  // `vanishMods.grantedKeywords.get(targetId)` (a { keyword; value? }[] array)
+  // as the `modifiers` argument to hasKeyword(), but hasKeyword expects
+  // `{ suppressedKeywords: Map<...> }`. When the chosen target had ANY
+  // statically-granted keyword, modifiers.suppressedKeywords was undefined
+  // and `undefined.get(...)` threw "Cannot read properties of undefined
+  // (reading 'get')". Repro: play Flotsam + Jetsam on opponent side — Flotsam's
+  // DEXTEROUS LUNGE static grants Jetsam Rush, populating
+  // modifiers.grantedKeywords.get(jetsamId). Then play Elsa Fifth Spirit and
+  // pick Jetsam for CRYSTALLIZE's chosen-opposing-character choice.
+  it("resolves choose_target on opposing character with granted keyword without throwing", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    state = giveInk(state, "player1", 10);
+
+    // Opponent (player2) has Flotsam + Jetsam in play. Flotsam's static
+    // grants Rush to Jetsam, populating modifiers.grantedKeywords for Jetsam.
+    ({ state } = injectCard(state, "player2", "flotsam-ursulas-spy", "play", { isDrying: false }));
+    let jetsamId: string;
+    ({ state, instanceId: jetsamId } = injectCard(state, "player2", "jetsam-ursulas-spy", "play", { isDrying: false }));
+
+    // Verify the grant wired up — this is what triggered the crash.
+    const preMods = getGameModifiers(state, CARD_DEFINITIONS);
+    const granted = preMods.grantedKeywords.get(jetsamId) ?? [];
+    expect(granted.some(g => g.keyword === "rush")).toBe(true);
+
+    // Player1 plays Elsa — CRYSTALLIZE triggers enters_play → choose_target
+    // "exert chosen opposing character".
+    let elsaId: string;
+    ({ state, instanceId: elsaId } = injectCard(state, "player1", "elsa-the-fifth-spirit", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: elsaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(jetsamId);
+
+    // Resolving the choice with Jetsam used to throw. Now it should succeed.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [jetsamId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Jetsam is now exerted.
+    expect(getInstance(state, jetsamId).isExerted).toBe(true);
+    // Jetsam does NOT have Vanish, so it stayed in play.
+    expect(getInstance(state, jetsamId).zone).toBe("play");
+  });
+});
+
 describe("§8 Set 8 — Lady Decisive Dog", () => {
   it("TAKE THE LEAD: +2 lore when strength >= 3 via Snowfort static + timed buffs", () => {
     let state = startGame();

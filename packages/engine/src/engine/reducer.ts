@@ -2475,7 +2475,7 @@ function applyResolveChoice(
           triggeringCardInstanceId: srcId,
         });
         const vanishMods = getGameModifiers(state, definitions);
-        if (hasKeyword(targetInst, targetDef, "vanish", vanishMods.grantedKeywords.get(targetId))) {
+        if (hasKeyword(targetInst, targetDef, "vanish", vanishMods)) {
           state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
         }
       }
