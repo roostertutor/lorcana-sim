@@ -82,7 +82,7 @@ interface LorcastCard {
   type: string[];
   classifications: string[] | null;
   text: string | null;
-  keywords: string[];
+  keywords: string[] | null;
   move_cost: number | null;
   strength: number | null;
   willpower: number | null;
@@ -222,13 +222,14 @@ const KEYWORD_LINE_PREFIXES = [
 // module's header comment for the full golden-shape convention.
 
 function parseKeywordAbilities(
-  lorcastKeywords: string[],
+  lorcastKeywords: string[] | null | undefined,
   text: string | null
 ): { abilities: KeywordAbility[]; shiftCost: number | undefined } {
   const abilities: KeywordAbility[] = [];
   let shiftCost: number | undefined;
 
-  for (const kw of lorcastKeywords) {
+  // Lorcast occasionally returns `keywords: null` for pre-release cards.
+  for (const kw of lorcastKeywords ?? []) {
     const k = kw.toLowerCase();
     switch (k) {
       case "rush":      abilities.push({ type: "keyword", keyword: "rush" }); break;

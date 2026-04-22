@@ -3124,9 +3124,9 @@
     "lore": 2,
     "rulesText": "FAMILIAR GROUND Whenever this character quests, if you played another character this turn, chosen opposing character can’t challenge and must quest during their next turn if able.",
     "flavorText": "\"Isn't it wonderful? See if there's anything that catches your eye.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/43_1adadf96e0728e94_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_44e511f17748cfcb786b407d368c6f10d65b42bd.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/43_7502de9e04e5c7c7_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_7f34c81269d42952d1eb79fcc7f7a1c88cfa66f3.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FAMILIAR GROUND",
@@ -3136,8 +3136,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_44e511f17748cfcb786b407d368c6f10d65b42bd.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_7f34c81269d42952d1eb79fcc7f7a1c88cfa66f3.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/43_7f34c81269d42952d1eb79fcc7f7a1c88cfa66f3.jpg"
   },
   {
     "id": "maleficent-imperious-traveler",
@@ -3203,9 +3203,9 @@
     "lore": 2,
     "rulesText": "HEED MY WORDS Whenever this character quests, if you played another character this turn, you may exert chosen opposing character.",
     "flavorText": "“Bind this glimmer, fiendish flowers!\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/44_c2fba957168fced9_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_55ab589e7d8b7c621226e5a52af1efc2dbc52365.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/44_83d66fe5f451b819_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_688eafea71ebed74425643fd3e5f1c65e2d4b47b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "HEED MY WORDS",
@@ -3215,8 +3215,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_55ab589e7d8b7c621226e5a52af1efc2dbc52365.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_688eafea71ebed74425643fd3e5f1c65e2d4b47b.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/44_688eafea71ebed74425643fd3e5f1c65e2d4b47b.jpg"
   },
   {
     "id": "cruella-de-vil-judgmental-traveler",
@@ -3279,9 +3279,9 @@
     "lore": 4,
     "rulesText": "YOU’RE OUT OF FASHION Whenever this character quests, if you played another character this turn, you may banish chosen damaged character.",
     "flavorText": "\"Can I help you? Not with <your> sense of style, darling.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/45_245d2dfee2d811df_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_2174bdc712f0cbe06df0b79e030bd9f259e600a6.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/45_c8ce204252b0d152_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_cdc5fd6af0f955c31e7697a3366f274917f4159a.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "YOU'RE OUT OF FASHION",
@@ -3291,8 +3291,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_2174bdc712f0cbe06df0b79e030bd9f259e600a6.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_cdc5fd6af0f955c31e7697a3366f274917f4159a.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/45_cdc5fd6af0f955c31e7697a3366f274917f4159a.jpg"
   },
   {
     "id": "queen-of-hearts-impatient-traveler",
@@ -3356,9 +3356,9 @@
     "lore": 2,
     "rulesText": "ROYAL COMMAND Whenever this character quests, if you played another character this turn, chosen character gains <Rush> this turn. (They can challenge the turn they’re played.)",
     "flavorText": "Hours of walking in the heat had not improved her rosy disposition.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/46_bf4d694ffab9ffbc_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_5493d45687bcb41090f6e197eb33b12715ddc385.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/46_c633fb8519adf008_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_584701b2baf0b934c7be80e694ad157d9de248e0.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "ROYAL COMMAND",
@@ -3368,8 +3368,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_5493d45687bcb41090f6e197eb33b12715ddc385.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_584701b2baf0b934c7be80e694ad157d9de248e0.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/46_584701b2baf0b934c7be80e694ad157d9de248e0.jpg"
   },
   {
     "id": "cinderella-resourceful-traveler",
@@ -3428,9 +3428,9 @@
     "lore": 2,
     "rulesText": "THIS AND THAT Whenever this character quests, if you played another character this turn, you may put the top card of your deck into your inkwell facedown and exerted.",
     "flavorText": "No matter how difficult the journey, she always takes care of her friends.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/47_5239f45683014e44_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_fd3bf23a2a8fca3e5008525c411fb1dc41e9d73a.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/47_e245dcef66551c45_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_efe47c0b21e51b600a26bafc6917d30c3b4fc083.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THIS AND THAT",
@@ -3440,8 +3440,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_fd3bf23a2a8fca3e5008525c411fb1dc41e9d73a.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_efe47c0b21e51b600a26bafc6917d30c3b4fc083.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/47_efe47c0b21e51b600a26bafc6917d30c3b4fc083.jpg"
   },
   {
     "id": "pocahontas-steadfast-traveler",
@@ -3506,9 +3506,9 @@
     "lore": 1,
     "rulesText": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
     "flavorText": "“Sometimes the right path is not the easiest one.”\n—Grandmother Willow",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/48_96ec2138c2f86fad_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_cd125dbc008862036917507f79ffa84fcee53e0b.jpg",
     "foilType": "satin",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/48_4dd066a942a02570_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_3059fa69f3a0a0cdaf4ed439469b63addc0bc6e4.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WANDERING SPIRIT",
@@ -3518,8 +3518,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_cd125dbc008862036917507f79ffa84fcee53e0b.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_3059fa69f3a0a0cdaf4ed439469b63addc0bc6e4.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/48_3059fa69f3a0a0cdaf4ed439469b63addc0bc6e4.jpg"
   },
   {
     "id": "lenny-toy-binoculars",
@@ -3599,9 +3599,9 @@
     "willpower": 2,
     "lore": 1,
     "rulesText": "TAKE A GOOD LOOK When you play this character, chosen opponent reveals their hand and discards an action card of your choice.\nCOMIN’ UP FAST Once during your turn, whenever you play an action, you may ready this character.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/49_b1e7ae105eb28773_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_eed6ab1c30e0ce2f1d222edeb5449b6990d30a33.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/49_c91c0013bf5fed8c_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_2efb87ebce86751b558126dbed3ec35a4c67d878.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "TAKE A GOOD LOOK",
@@ -3616,8 +3616,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_eed6ab1c30e0ce2f1d222edeb5449b6990d30a33.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_2efb87ebce86751b558126dbed3ec35a4c67d878.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/49_2efb87ebce86751b558126dbed3ec35a4c67d878.jpg"
   },
   {
     "id": "zipper-tiny-helper",
@@ -3644,13 +3644,13 @@
     "willpower": 4,
     "lore": 1,
     "flavorText": "\"Crikey! I've seen fellas who are twice the size with half the heart as that wee dodger!\"\n—Monterey Jack",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/50_4e9bab867536d93a_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_25918e8d5753b0d94c9e6ea4e274e63dc2a608ff.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/50_ea860cb3b1dd09fc_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_02bb389f0c5410d49b75d0629d84d9d2e7e1919a.jpg",
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_25918e8d5753b0d94c9e6ea4e274e63dc2a608ff.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_02bb389f0c5410d49b75d0629d84d9d2e7e1919a.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/50_02bb389f0c5410d49b75d0629d84d9d2e7e1919a.jpg"
   },
   {
     "id": "will-o-the-wisp-forest-spirit",
@@ -3695,9 +3695,9 @@
     "lore": 1,
     "rulesText": "COME ON OUT When this character is banished in a challenge, you may return this card to your hand.",
     "flavorText": "They always come back when you need them.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/51_557e29327f317ece_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_d31c2290b59c4176c32bebe112818c333c0b0cc8.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/51_ecc65eb30c53758e_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_9873a7af65b70d7ca4be20f5339ed4051b6f03c6.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "COME ON OUT",
@@ -3707,8 +3707,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_d31c2290b59c4176c32bebe112818c333c0b0cc8.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_9873a7af65b70d7ca4be20f5339ed4051b6f03c6.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/51_9873a7af65b70d7ca4be20f5339ed4051b6f03c6.jpg"
   },
   {
     "id": "dash-parr-lava-runner",
@@ -3753,9 +3753,9 @@
     "lore": 2,
     "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nRECORD TIME This character can quest the turn he’s played.",
     "flavorText": "\"Whoa! A hidden place inside the mountain!\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/52_4aeb415d395e8e54_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8c643121edecbf4e72a5377825a43f5a5c075d03.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/52_f02634890417a205_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8718a303076657d804c79758be82e91ec67e75df.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RECORD TIME",
@@ -3765,8 +3765,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8c643121edecbf4e72a5377825a43f5a5c075d03.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8718a303076657d804c79758be82e91ec67e75df.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/52_8718a303076657d804c79758be82e91ec67e75df.jpg"
   },
   {
     "id": "woody-jungle-guide",
@@ -3856,7 +3856,7 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Woody.)\nLET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.\nEVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/53_508419fe70f9c249_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/53_301e230ec96738fce24e0c4c72986b30502459ae.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S GET MOVIN'",
@@ -3960,9 +3960,9 @@
     "lore": 2,
     "shiftCost": 3,
     "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Woody.)\nLET’S GET MOVIN’ Whenever this character quests, draw a card. Then, you may play a character with cost 2 or less for free.\nEVERYONE GATHER ’ROUND Your other Toy characters get +1 {W}.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/54_841802665c8d0eb6_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_d8007304d2a82dcd8358f6245131b7bca40627d1.jpg",
     "foilType": "magma",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/54_020b298eb5a7ebe4_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_a3bdccb694d3378c9326010444ed1188b07e570f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "LET'S GET MOVIN'",
@@ -3977,8 +3977,8 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_d8007304d2a82dcd8358f6245131b7bca40627d1.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_a3bdccb694d3378c9326010444ed1188b07e570f.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/54_a3bdccb694d3378c9326010444ed1188b07e570f.jpg"
   },
   {
     "id": "violet-parr-learning-new-powers",
@@ -4046,9 +4046,9 @@
     "willpower": 2,
     "lore": 1,
     "rulesText": "<Evasive> (Only characters with Evasive can challenge this character.)\nDEFLECT When you play this character, you may move 1 damage from chosen character to chosen opposing character.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP3/55_916dd6ecbc601152_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_b919507ec7ad9be0c57e25013ad020151de4d33d.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/setP3/55_0e87e4a00be378e9_base.jpg",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_a87a834e0a5549e2031f93faa7eb215a25f62e26.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "DEFLECT",
@@ -4058,7 +4058,7 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_b919507ec7ad9be0c57e25013ad020151de4d33d.jpg",
-    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_a87a834e0a5549e2031f93faa7eb215a25f62e26.jpg",
-    "_foilMaskSource": "ravensburger"
+    "_foilMaskSource": "ravensburger",
+    "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/55_a87a834e0a5549e2031f93faa7eb215a25f62e26.jpg"
   }
 ]
