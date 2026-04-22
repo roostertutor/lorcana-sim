@@ -455,7 +455,7 @@ next analytics batch run.
 
 ---
 
-## [BLOCKED on R2 migration] GUI agent: Replay → GIF clip export
+## GUI agent: Replay → GIF clip export (R2 migration UNBLOCKED 2026-04-21)
 
 **Priority: #1 creator tool per `project_near_term_priorities.md` (ranked
 above shareable URLs, annotations, scripted opponent). Strategy per
@@ -472,15 +472,26 @@ Canvas capture of the game board will taint because card images load from
 headers. `html-to-image` / `html2canvas` / raw `ctx.drawImage` + `toBlob`
 all fail or throw `SecurityError` once a tainted image is on the canvas.
 
-**Unblocked when:** the R2 image self-hosting migration lands (see
-"Engine agent (primary) + UI agent (follow-up): self-host card images
-on R2" entry above). Specifically, don't start GIF work until
-`_imageSource: "r2"` coverage is ≥95% — partial migration means some
-cards still taint canvas and the encoder silently drops those frames.
+**UNBLOCKED as of 2026-04-21** — R2 migration complete in commit
+`7d37d23`. All 2808 cards have R2-hosted `imageUrl`s with CORS headers
+that permit canvas capture. See "GUI/UI follow-up: R2 image migration
+DONE" entry below for details.
 
-No code workaround exists for the blocker. Proxying through our own
-backend (strip upstream CORS, add our own headers) would work technically
-but just re-implements the R2 migration badly. Wait for R2.
+One caveat: the R2 bucket currently uses Cloudflare's default public
+domain (`pub-5d52a089800f49be846aa55b2833c558.r2.dev`), which has a
+request rate cap around 20 req/s before triggering 429s. For clip
+export specifically — a single GIF renders ~30 frames × ~30 cards
+visible per frame — bursts of ~900 image fetches. Will likely trip
+the rate limit mid-render. Three mitigations (pick one):
+
+1. Pre-cache all visible images at clip start (sequential fetch with
+   small sleep) before handing frames to the encoder.
+2. Provision a custom R2 domain (`cards.yourdomain.com`) which has no
+   rate cap.
+3. Set `<img crossorigin="anonymous">` + rely on browser's HTTP cache
+   — should help after the first clip but still rough on clip #1.
+
+Recommend (1) for speed-to-ship; flag (2) as a follow-up for the user.
 
 ### Scope (GUI agent owns this post-unblock)
 
@@ -543,7 +554,8 @@ simulation / engine change.
 
 ### Don't start until
 
-1. R2 migration `_imageSource:"r2"` coverage ≥95% (engine-expert's ticket).
+1. ~~R2 migration `_imageSource` coverage ≥95% (engine-expert's ticket).~~
+   **DONE 2026-04-21** — 2808/2808 migrated in commit `7d37d23`.
 2. Confirm with user the strategy still prioritizes creator tools at
    the top — the priority memory is from 2026-04-16 and flagged
    potentially stale.
@@ -659,11 +671,12 @@ an agent's memory. Each entry confirmed by reading the code, not from memory.
   event-driven animations, sound hooks — all deferred until there's a user-
   facing need. Not blocking.
 
-**Currently blocked on external action:**
-- **R2 image self-hosting migration** — see dedicated section below ("Engine
-  agent (primary) + UI agent (follow-up): self-host card images on R2"). Owns
-  schema + 3 sync scripts (~2 days). Waiting on user to provision R2 bucket +
-  DNS + credentials before end-to-end testing. Priority: do before MP deploy.
+**Currently blocked on external action:** — none as of 2026-04-21.
+
+~~**R2 image self-hosting migration**~~ — DONE in commit `7d37d23`. 2808/2808
+cards migrated. See "GUI/UI follow-up: R2 image migration DONE 2026-04-21"
+entry for details + re-run semantics. Only UI-side size-swap bugs remain,
+handed off to ui/gameboard specialists.
 
 ---
 
@@ -1547,49 +1560,119 @@ dedicated session for board chrome.
 
 ---
 
-## [BLOCKED on R2 provisioning] User action: provision R2 + then run migration
+## GUI/UI follow-up: R2 image migration DONE 2026-04-21 — size-swap bugs remain
 
-Engine scaffolding shipped 2026-04-21 (commit TBD). All three sync scripts and
-the shared pipeline are ready; dry-run verified against sets 12, P1, DIS
-without R2 creds. Remaining work is operational + UI-side, not engine.
+**Migration complete in commit `7d37d23`.** Every card in the database
+(2808 total) has an R2 image URL, verified live via HEAD probes. Engine
+side is fully shipped; only the UI-side size-swap bugs remain (below).
 
-### What's blocking
+### What landed
 
-The R2 bucket / DNS / creds aren't provisioned yet. Without them, the scripts
-auto-fallback to dry-run mode (compute hashes, preview JSON writes, but don't
-upload). Sync scripts exit cleanly; nothing breaks. But card JSON still
-points at upstream URLs, so canvas-based clip/deck-image export still blocks
-on Ravensburger CORS.
+- **2788 cards** migrated from Ravensburger (all main sets 1-12 + Ravensburger-
+  sourced promos: P1, P2, P3, C1, D23).
+- **20 cards** migrated from Lorcast (gaps Ravensburger doesn't publish:
+  11 set-12 pre-release reveals, 6 C2 convention cards, 3 DIS Disneyland
+  promos).
+- **0 failures** across ~8500 HTTP PUTs (2808 cards × 3 sizes).
+- **2808/2808 URLs verified live** via HEAD probe post-migration.
 
-### Human checklist (45 min)
+**R2 public base URL currently in use:** `https://pub-5d52a089800f49be846aa55b2833c558.r2.dev`
+(Cloudflare's default public domain — no custom domain provisioned yet).
+Migration to a custom domain (e.g. `cards.yourdomain.com`) is
+idempotent — re-run the sync scripts with a new `R2_PUBLIC_BASE_URL` in
+`.env` and every card's `imageUrl` gets rewritten. Not blocking anything.
 
-1. **Create R2 bucket** `lorcana-cards` in the Cloudflare dashboard.
-2. **CORS policy**: allow GET/HEAD from `*` (tighten later):
-   ```json
-   [{"AllowedOrigins":["*"],"AllowedMethods":["GET","HEAD"],"AllowedHeaders":["*"],"MaxAgeSeconds":86400}]
-   ```
-3. **Connect a domain** — either `cards.yourdomain.com` via Custom Domains, or
-   enable the `pub-<hash>.r2.dev` default URL for dev.
-4. **Generate API token** — Object Read & Write, scoped to `lorcana-cards`.
-   Grab Access Key ID, Secret Access Key, and the Endpoint URL.
-5. **Drop creds into `.env`** (repo root; already in `.gitignore`):
-   ```
-   R2_ACCOUNT_ID=<from endpoint URL>
-   R2_ACCESS_KEY_ID=<from step 4>
-   R2_SECRET_ACCESS_KEY=<from step 4>
-   R2_BUCKET=lorcana-cards
-   R2_PUBLIC_BASE_URL=https://cards.yourdomain.com
-   ```
-6. **Canary run** (engine-expert): `pnpm sync-images-rav --sets 12` — ~156
-   cards × 3 sizes. Verify URLs resolve in a browser. Commit the card-set-12
-   JSON diff.
-7. **Full migration** (engine-expert):
-   `pnpm sync-images-rav` (all Ravensburger sources, ~2500 cards × 3 sizes,
-   ~15 min), then `pnpm sync-images-lorcast` (~200 cards across DIS/C2/CP),
-   then any `pnpm sync-images-manual` drops. Commit each set's JSON.
-8. **UI-specialist + gameboard-specialist** fix the size-swap bugs listed
-   below (~30 min).
-9. **Then Railway MP deploy.**
+### Re-run semantics (documented for future agents)
+
+All three scripts are idempotent and safe to re-run anytime:
+
+- **Nothing changed**: 3-condition idempotency check skips all cards. Near-
+  instant (~2 sec for 2808 cards).
+- **New cards added** (e.g. post-`pnpm import-cards`): only new/changed
+  cards process; everything else skips.
+- **Ravensburger rotated art**: `_sourceImageUrl` (stored) ≠ fresh
+  `imageUrl` (from import) → re-process those specific cards only. New
+  content hash → new R2 key → `imageUrl` rewritten.
+- **Post-`pnpm import-cards`**: the importer overwrites `card.imageUrl`
+  with the fresh upstream URL. Sync detects this (`imageUrl` no longer
+  R2-shaped) and re-processes. If bytes are unchanged, same hash → same
+  R2 key → PUT is effectively a no-op on R2 backend. `imageUrl` gets
+  restored to R2.
+
+### Scope options (reference)
+
+| Command | Effect |
+|---|---|
+| `pnpm sync-images-rav` | All sets, Ravensburger tier |
+| `pnpm sync-images-rav --sets 12` | Just set 12 |
+| `pnpm sync-images-rav --sets 12,P1,DIS` | Multiple sets |
+| `pnpm sync-images-rav --dry-run --sets 12` | Preview without uploading |
+| `pnpm sync-images-lorcast` | Lorcast tier (fills ravensburger gaps) |
+| `pnpm sync-images-manual` | Local-file tier (reads `assets/manual-cards/`) |
+| `pnpm exec tsx scripts/check-r2-progress.ts` | Probe R2 bucket contents |
+| `pnpm exec tsx scripts/verify-r2-urls.ts` | HEAD-probe every URL in JSON |
+
+### Performance (post-parallelism refactor)
+
+The first sync pass ran serially and took ~50 min for the main sets.
+Mid-migration I rewrote the script to:
+- Upload 3 sizes per card in parallel (`Promise.all`) instead of serial
+- Process 8 cards in parallel per batch
+- Drop the `HeadObjectCommand` preflight (PUTs at content-hashed keys
+  are idempotent at the backend)
+
+Result: ~50x faster. Remaining work after the rewrite finished in under
+1 minute. Future migrations (new set drops, art rotations) are fast.
+
+### Round-trip fixes (how `import-cards` interacts with image sync)
+
+Before commit `7d37d23`, re-importing card data would have silently
+dropped `_imageSource`/`_sourceImageUrl`/`_imageSourceLock`, forcing a
+full re-migration on every import. Fixed:
+
+- **`import-cards-rav.ts` + `import-cards-lorcast.ts`**: preserve the
+  three image-sync fields via the existing `passthroughFields` mechanism
+  (same as `foilImageUrl`, `shiftCost`, etc.).
+- **`sync-images-rav.ts` + `sync-images-lorcast.ts`**: `getSourceUrl`
+  prefers `card.imageUrl` when upstream-shaped (fresh from import) over
+  `_sourceImageUrl` (stale snapshot). This drives Ravensburger-rotation
+  detection.
+- **`syncSingleCard` idempotency**: 3-condition check (`_imageSource`,
+  `_sourceImageUrl`, `imageUrl` R2-shape) guarantees the post-import
+  re-sync restores `imageUrl` to R2 even when content is unchanged.
+
+### Debugging fixes from the live run
+
+Three issues surfaced during the user's live migration attempt that aren't
+obvious from docs — preserving for future reruns (and for anyone setting
+up a new R2 bucket):
+
+1. **`forcePathStyle: true`** required. R2 doesn't auto-handle virtual-
+   hosted-style addressing; the AWS SDK defaults to it and produces
+   URLs like `<bucket>.<account>.r2.cloudflarestorage.com` that fail
+   DNS resolution when the account ID is malformed.
+2. **`requestChecksumCalculation: "WHEN_REQUIRED"`** + matching response
+   validation. `@aws-sdk/client-s3 3.729+` defaults to sending
+   `x-amz-checksum-crc32` on every request; R2 returns a 400 with an
+   error body the RestXml parser can't handle, surfacing as opaque
+   `UnknownError`. Opting out of flexible checksums restores classic
+   S3-style signing.
+3. **R2_ACCOUNT_ID sanitizer** — strips `https://` prefix and the
+   `.r2.cloudflarestorage.com/...` suffix so users can paste the full
+   endpoint URL from the Cloudflare dashboard without breaking the
+   script.
+
+### Remaining work
+
+Only UI-side size-swap bugs — see the next section. No further engine
+work blocking anything.
+
+### Deferred to phase 2 (non-blocking)
+
+Variants / foil art. MVP shipped regular `imageUrl` only; `foilImageUrl` /
+`variants[].imageUrl` / `printings[].imageUrl` still point at upstream
+URLs. Second migration pass once we confirm the pipeline is stable for a
+few weeks and there's a concrete need for foil art in clip export / UI.
 
 ### Engine work — DONE 2026-04-21
 
