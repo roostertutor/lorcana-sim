@@ -1,6 +1,6 @@
 import React from "react";
 import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcana-sim/engine";
-import { getEffectiveStrength } from "@lorcana-sim/engine";
+import { getEffectiveStrength, getEffectiveWillpower, getEffectiveLore } from "@lorcana-sim/engine";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import GameCard from "./GameCard.js";
@@ -800,6 +800,56 @@ export default function PendingChoiceModal({
       );
     };
 
+    // Aggregate-sum caps (CardTarget.chosen totalXAtMost/AtLeast). Mirrors the
+    // engine validator (validateResolveChoice) — same helpers, same arithmetic.
+    // Leviathan IT'S A MACHINE: "banish any number of chosen opposing characters
+    // with total {S} 10 or less" surfaces totalStrengthAtMost: 10 here.
+    // The engine enforces server-side; this is UX so players don't submit a
+    // doomed selection. Effective stats (post-buff) per HANDOFF.md.
+    const pc = pendingChoice;
+    const hasAggregateCap =
+      pc.totalStrengthAtMost !== undefined || pc.totalStrengthAtLeast !== undefined ||
+      pc.totalWillpowerAtMost !== undefined || pc.totalWillpowerAtLeast !== undefined ||
+      pc.totalCostAtMost !== undefined || pc.totalCostAtLeast !== undefined ||
+      pc.totalLoreAtMost !== undefined || pc.totalLoreAtLeast !== undefined ||
+      pc.totalDamageAtMost !== undefined || pc.totalDamageAtLeast !== undefined;
+
+    let sumStrength = 0, sumWillpower = 0, sumCost = 0, sumLore = 0, sumDamage = 0;
+    if (hasAggregateCap) {
+      for (const id of multiSelectTargets) {
+        const inst = gameState.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        sumStrength += getEffectiveStrength(inst, def);
+        sumWillpower += getEffectiveWillpower(inst, def);
+        sumCost += def.cost;
+        sumLore += getEffectiveLore(inst, def);
+        sumDamage += inst.damage;
+      }
+    }
+
+    // Per-cap UX lines: "Selected {S}: 7 / 10". Red when violated.
+    type CapLine = { label: string; current: number; limit: number; kind: "at_most" | "at_least"; ok: boolean };
+    const capLines: CapLine[] = [];
+    const pushCap = (label: string, current: number, atMost: number | undefined, atLeast: number | undefined) => {
+      if (atMost !== undefined) {
+        capLines.push({ label, current, limit: atMost, kind: "at_most", ok: current <= atMost });
+      }
+      if (atLeast !== undefined) {
+        capLines.push({ label, current, limit: atLeast, kind: "at_least", ok: current >= atLeast });
+      }
+    };
+    pushCap("Total {S}", sumStrength, pc.totalStrengthAtMost, pc.totalStrengthAtLeast);
+    pushCap("Total {W}", sumWillpower, pc.totalWillpowerAtMost, pc.totalWillpowerAtLeast);
+    pushCap("Total cost", sumCost, pc.totalCostAtMost, pc.totalCostAtLeast);
+    pushCap("Total {L}", sumLore, pc.totalLoreAtMost, pc.totalLoreAtLeast);
+    pushCap("Total damage", sumDamage, pc.totalDamageAtMost, pc.totalDamageAtLeast);
+
+    // Any violation blocks Confirm (engine would reject anyway — this just
+    // prevents the round-trip for UX cleanliness).
+    const aggregateViolated = capLines.some((c) => !c.ok);
+
     return (
       <div className="space-y-3">
         <div>
@@ -811,6 +861,26 @@ export default function PendingChoiceModal({
           )}
           {contextHints.length > 0 && (
             <div className="text-[10px] text-gray-500 mt-0.5">{contextHints.join(" · ")}</div>
+          )}
+          {capLines.length > 0 && (
+            <div className="mt-1 flex flex-col gap-0.5">
+              {capLines.map((c, i) => (
+                <div
+                  key={i}
+                  className={`text-[11px] font-medium ${c.ok ? "text-emerald-300" : "text-red-400"}`}
+                >
+                  <span className="text-gray-400">Selected {c.label}:</span>{" "}
+                  <span className="tabular-nums">{c.current}</span>
+                  <span className="text-gray-500"> {c.kind === "at_most" ? "/" : "≥"} </span>
+                  <span className="tabular-nums">{c.limit}</span>
+                  {!c.ok && (
+                    <span className="ml-1 text-[10px] uppercase tracking-wider">
+                      {c.kind === "at_most" ? "over cap" : "below floor"}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
         {showGrouped ? (
@@ -842,7 +912,9 @@ export default function PendingChoiceModal({
             <button
               className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
               disabled={
-                isMultiTarget
+                aggregateViolated
+                  ? true
+                  : isMultiTarget
                   // "up to N" — either mandatory (≥1 required) or optional:
                   // cap already enforced on selection; just need ≥1 for Confirm.
                   // Explicit 0-submit (skip) lives on a separate path when
