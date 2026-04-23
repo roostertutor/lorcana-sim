@@ -398,8 +398,11 @@ function InkwellZone({
   return (
     <div ref={setNodeRef} className={`rounded-lg border-2 transition-all duration-150 ${borderClass} relative h-full`}>
 
-      {/* Card strip */}
-      <div className="h-10 sm:h-[78px] lg:h-[90px] landscape-phone:!h-10 flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
+      {/* Card strip — h-[39px] keeps 28:39 ≈ 5:7 parity with the official
+          Lorcana card aspect (2.5"×3.5" = 5:7). Previously h-10 (40px) gave
+          a 7:10 ratio that cropped card-back edges ~2% vertically via the
+          object-cover img on the deck tile. */}
+      <div className="h-[39px] sm:h-[78px] lg:h-[90px] landscape-phone:!h-[39px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
         {total === 0 ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <span className="text-[9px] text-gray-700 italic">No cards inked</span>
@@ -412,7 +415,7 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-3" : ""}`}
+                className={`shrink-0 w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-3" : ""}`}
               >
                 <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
                   <div className={`transition-all duration-200 ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}>
@@ -460,7 +463,7 @@ function UtilityStrip({
       <button
         onClick={onDeckClick}
         disabled={!onDeckClick}
-        className="relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+        className="relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
       >
         {deckTopId && deckTopVisible ? (
           (() => {
@@ -498,7 +501,7 @@ function UtilityStrip({
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
-        className={`relative w-7 h-10 sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-10 shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
+        className={`relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
           discardCount > 0 && (
             // Play from discard (Lilo Escape Artist, Pride Lands)
             Object.values(gameState.cards).some(
@@ -1434,13 +1437,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // reserve their rotated footprint so the visual overhang doesn't get
     // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
-    // Landscape-phone uses explicit 40×28 (landscape-oriented for the
-    // rotate-90'd card inside) to match the 28×40 ready-card parity. The
-    // earlier h-full / aspect combo didn't resolve because no ancestor in
-    // this branch has an explicit height — same class of bug as the ready
-    // card path, fixed via explicit pixel sizing.
+    // Landscape-phone uses explicit 39×28 (landscape-oriented for the
+    // rotate-90'd card inside) to match the 28×39 ready-card parity. 39×28
+    // is 5:7 rotated (7/5 = 1.4). Explicit pixel sizing bypasses the
+    // h-full resolution bug — no ancestor in this branch has an explicit
+    // height, so h-full resolved to auto and max-h never triggered.
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[40px] landscape-phone:!h-[28px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[39px] landscape-phone:!h-[28px] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );

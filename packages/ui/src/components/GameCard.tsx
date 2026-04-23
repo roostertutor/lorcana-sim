@@ -74,15 +74,15 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Tablet + desktop (sm+) — reverts to the natural width-based sizing from
   // baseClass (`sm:w-[104px] lg:w-[120px]`).
   //
-  // Landscape phone — explicit 28×40 box (!important beats sm: rules). The
+  // Landscape phone — explicit 28×39 box (!important beats sm: rules). The
   // height-adaptive approach fails here because no ancestor has an explicit
-  // height, so `h-full` resolves to auto and `max-h` never triggers. Strict
-  // parity with the deck / discard / inkwell tiles (h-10 × w-7 = 28×40)
-  // keeps every face-up zone card at the same row height as the face-down
-  // deck. Trades card legibility for a denser board layout; all board state
-  // (damage, exerted rotation, badges) still renders at this size via
-  // overlays, which scale with the card box.
-  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[40px] landscape-phone:!max-h-[40px] landscape-phone:!min-w-[28px]";
+  // height, so `h-full` resolves to auto and `max-h` never triggers. 28×39
+  // matches the 5:7 Lorcana card aspect (28 × 7/5 = 39.2, rounded down) and
+  // parity with the deck / discard / inkwell tiles (h-[39px] × w-7).
+  // Note: setting both w and h explicitly causes CSS to ignore
+  // aspect-[5/7] from baseClass, so the 28×39 dimensions must themselves
+  // be 5:7 — which they are.
+  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[39px] landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]";
   // naturalSize: used by inkwell + discard tile mini-previews where a
   // scale-[0.538] wrapper expects a 52px-wide GameCard. The baseClass
   // `sm:w-[104px] lg:w-[120px]` would normally widen this for desktop scale-
