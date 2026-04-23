@@ -1373,6 +1373,11 @@ export interface GrantKeywordEffect {
   /** Effects to apply to the target after granting the keyword (e.g. grant
    *  Resist +1, then deal 2 damage). Mirrors the exert/ready followUp pattern. */
   followUpEffects?: Effect[];
+  /** CRD 6.1.7: per-effect gating predicate. When set, the grant fizzles
+   *  silently if false — useful for songs that conditionally grant a keyword
+   *  ("if a character sang this song, your characters gain Ward…" — What
+   *  Else Can I Do?). Gated by CONDITION_GATED_EFFECTS in applyEffect. */
+  condition?: Condition;
 }
 
 /** Timed-variant "loses <keyword>". Attaches a `suppress_keyword` TimedEffect
@@ -2730,6 +2735,17 @@ export type Condition =
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" }
+  /** True if the source card was played via Sing. Mirror of `played_via_shift`.
+   *  Reads `sourceInstanceId.playedViaSing`. Used by What Else Can I Do?
+   *  ("if a character sang this song, your characters gain Ward…") —
+   *  evaluated during the song's own effect resolution, while the song
+   *  instance is still in the play zone. */
+  | { type: "played_via_sing" }
+  /** Same check on `triggeringCardInstanceId`. Mirror of
+   *  `triggering_card_played_via_shift`. Useful for triggers like "whenever
+   *  you play an action, if it was sung, do X" — the action is the
+   *  triggering card. */
+  | { type: "triggering_card_played_via_sing" }
   /** True if an exerted character is currently at the source location (Ursula's Garden, The Wall). */
   | { type: "this_location_has_exerted_character" }
   /** Any own character at this location with damage > 0. Used by Ratigan's
@@ -3176,6 +3192,13 @@ export interface CardInstance {
   shiftedOntoInstanceId?: string;
   /** True if this card was played via Shift this turn */
   playedViaShift?: boolean;
+  /** True if this action/song was played via Sing (single or Sing Together).
+   *  Set on the SONG instance (not the singer) in applyPlayCard when any
+   *  singer is provided. Read by the `played_via_sing` condition during the
+   *  song's effect resolution — e.g. What Else Can I Do?'s "if a character
+   *  sang this song, your characters gain Ward". Cleared on leave-play
+   *  cleanup (CRD 7.1.6), same as playedViaShift. */
+  playedViaSing?: boolean;
 
   /**
    * CRD 8.10.4 / 8.4.2: instanceIds of cards beneath this card. Sources:

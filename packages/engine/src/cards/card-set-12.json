@@ -14,7 +14,42 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HEROIC INTERVENTION",
+        "rulesText": "When you play this character, you may ready chosen character with cost 2 or less. If you do, they can't quest or challenge for the rest of this turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"],
+                "costAtMost": 2
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": { "type": "this" },
+                "duration": "end_of_turn"
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "target": { "type": "this" },
+                "duration": "end_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 1,
     "rarity": "common",
@@ -49,7 +84,42 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HEROIC INTERVENTION",
+        "rulesText": "When you play this character, you may ready chosen character with cost 2 or less. If you do, they can't quest or challenge for the rest of this turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"],
+                "costAtMost": 2
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": { "type": "this" },
+                "duration": "end_of_turn"
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "target": { "type": "this" },
+                "duration": "end_of_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 1,
     "rarity": "common",
@@ -1645,7 +1715,38 @@
       "Dreamborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BEWARE OF DOG",
+        "rulesText": "Whenever this character quests, if you played another character this turn, chosen opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": { "on": "quests" },
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "op": "gte",
+          "filter": {
+            "cardType": ["character"],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "opponent" },
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 25,
     "rarity": "uncommon",
@@ -3528,7 +3629,51 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STORMY WEATHER",
+        "rulesText": "When you play this character, deal 1 damage to each of your other characters.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "SILVER LINING",
+        "rulesText": "Once during your turn, whenever you remove 1 or more damage from one of your characters, draw a card.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": { "type": "self" }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 56,
     "rarity": "super_rare",
@@ -4121,7 +4266,48 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/65_7420ada646efe8b96914f5e1bdf8b05a7207f806.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/65_7420ada646efe8b96914f5e1bdf8b05a7207f806.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/65_34d39200e6edc2479bf4492c2d90935be5a7cd67.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/65_34d39200e6edc2479bf4492c2d90935be5a7cd67.jpg",
+    "actionEffects": [
+      {
+        "type": "search",
+        "zone": "deck",
+        "target": { "type": "self" },
+        "filter": {
+          "cardType": ["character"],
+          "hasTrait": "Princess"
+        },
+        "putInto": "hand",
+        "reveal": true
+      },
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": { "type": "self" },
+        "condition": {
+          "type": "you_control_matching",
+          "minimum": 2,
+          "filter": {
+            "cardType": ["character"],
+            "hasTrait": "Seven Dwarfs",
+            "zone": "play"
+          }
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": 2,
+        "target": { "type": "self" },
+        "condition": {
+          "type": "you_control_matching",
+          "minimum": 2,
+          "filter": {
+            "cardType": ["character"],
+            "hasTrait": "Seven Dwarfs",
+            "zone": "play"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "super-suit",
@@ -5138,6 +5324,54 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "SCHOLAR'S GAMBIT",
+        "rulesText": "When you play this character, you may choose and discard a card to return chosen character to their player's hand.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": { "type": "self" }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": ["character"]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "PRACTICAL KNOWLEDGE",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, draw a card.",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": { "type": "self" }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -6893,6 +7127,32 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "PLAN'S CHANGED",
+        "rulesText": "When you play this character, put the top 2 cards of your deck into your discard. Then, you may return an action card with cost 4 or less from your discard to your hand.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "put_top_cards_into_discard",
+            "amount": 2,
+            "target": { "type": "self" }
+          },
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": ["action"],
+                "costAtMost": 4,
+                "owner": { "type": "self" }
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "12",
@@ -7340,7 +7600,25 @@
       "Ally",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ADDED TRACTION",
+        "rulesText": "If one of your Toy characters was banished this turn, you pay 2 {I} less to play this character.",
+        "activeZones": ["hand"],
+        "condition": {
+          "type": "character_was_banished_this_turn",
+          "filter": {
+            "hasTrait": "Toy",
+            "owner": { "type": "self" }
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 2
+        }
+      }
+    ],
     "setId": "12",
     "number": 112,
     "rarity": "common",
@@ -8135,7 +8413,39 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HEROIC SACRIFICE",
+        "rulesText": "When you play this character, you may discard your hand. If you do, return a card from your discard to your hand.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": "all",
+                "target": { "type": "self" }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "discard",
+                    "owner": { "type": "self" }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 123,
     "rarity": "super_rare",
@@ -9663,7 +9973,45 @@
       "Ally",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "KEY ACCESSORY",
+        "rulesText": "{E} — Ready chosen item.",
+        "costs": [{ "type": "exert" }],
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["item"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "ALL THE BASICS",
+        "rulesText": "While you have an item named Super Suit in play, this character gains Ward.",
+        "condition": {
+          "type": "you_control_matching",
+          "minimum": 1,
+          "filter": {
+            "cardType": ["item"],
+            "hasName": "Super Suit",
+            "zone": "play"
+          }
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "ward",
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "12",
     "number": 149,
     "rarity": "rare",
@@ -9918,7 +10266,68 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FEEL BETTER",
+        "rulesText": "When you play this character and whenever she quests, you may move all damage from chosen character of yours to this character.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 99,
+            "isMay": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "excludeSelf": true
+              }
+            },
+            "destination": { "type": "this" }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FEEL BETTER",
+        "rulesText": "When you play this character and whenever she quests, you may move all damage from chosen character of yours to this character.",
+        "trigger": { "on": "quests" },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 99,
+            "isMay": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"],
+                "excludeSelf": true
+              }
+            },
+            "destination": { "type": "this" }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "SELF-CARE",
+        "rulesText": "At the end of your turn, you may remove all damage from this character.",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 99,
+            "isMay": true,
+            "target": { "type": "this" }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 153,
     "rarity": "super_rare",
@@ -9961,7 +10370,54 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIND THAT VISION",
+        "rulesText": "Once during your turn, whenever you remove damage from one of your characters, you may look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "condition": { "type": "is_your_turn" },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "choose_from_top",
+            "maxToHand": 1,
+            "restPlacement": "bottom",
+            "target": { "type": "self" },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "YOU'LL BE OKAY",
+        "rulesText": "Whenever this character quests, you may remove all damage from chosen character.",
+        "trigger": { "on": "quests" },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 99,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 154,
     "rarity": "rare",
@@ -10454,7 +10910,72 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "QUITE THE BARGAIN",
+        "rulesText": "When you play this character and whenever she quests, another chosen character gets +1 {L} this turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "QUITE THE BARGAIN",
+        "rulesText": "When you play this character and whenever she quests, another chosen character gets +1 {L} this turn.",
+        "trigger": { "on": "quests" },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"],
+                "excludeSelf": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "BY THE WAY",
+        "rulesText": "At the end of your turn, if this character is exerted, put chosen character of yours into your inkwell facedown and exerted.",
+        "trigger": { "on": "turn_end", "player": { "type": "self" } },
+        "condition": { "type": "this_is_exerted" },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "enterExerted": true,
+            "fromZone": "play",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": { "type": "self" },
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 161,
     "rarity": "legendary",
@@ -10546,6 +11067,30 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 2,
+        "action": "choose_from_top",
+        "target": { "type": "self" },
+        "maxToHand": 1,
+        "restPlacement": "inkwell"
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "ward",
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "condition": { "type": "played_via_sing" }
+      }
+    ],
     "setId": "12",
     "number": 163,
     "rarity": "rare",
@@ -11309,7 +11854,28 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DAUNTLESS",
+        "rulesText": "When you play this character, chosen character gains Alert this turn.",
+        "trigger": { "on": "enters_play" },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "alert",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 174,
     "rarity": "common",
@@ -11730,7 +12296,20 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SHADAAP!",
+        "rulesText": "While this character has no damage, he gets +3 {S}.",
+        "condition": { "type": "this_has_no_damage" },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 3,
+          "target": { "type": "this" }
+        }
+      }
+    ],
     "setId": "12",
     "number": 183,
     "rarity": "common",
@@ -12177,6 +12756,18 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "ELECTRO-ARMOR",
+        "rulesText": "While there's a card under this character, it gains Resist +2.",
+        "condition": { "type": "this_has_cards_under" },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 2,
+          "target": { "type": "this" }
+        }
       }
     ],
     "setId": "12",
@@ -12437,7 +13028,59 @@
       "Mentor",
       "King"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "JUST THE SPOT",
+        "rulesText": "During your turn, whenever this character becomes exerted, you may play a location from your hand or discard with cost 4 or less for free.",
+        "trigger": {
+          "on": "character_exerted",
+          "filter": {
+            "isSelf": true,
+            "owner": { "type": "self" }
+          }
+        },
+        "condition": { "type": "is_your_turn" },
+        "effects": [
+          {
+            "type": "play_card",
+            "isMay": true,
+            "sourceZone": ["hand", "discard"],
+            "filter": {
+              "owner": { "type": "self" },
+              "cardType": ["location"],
+              "costAtMost": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "HOLD FAST",
+        "rulesText": "While this character is at a location, whenever a location is challenged and banished, you may deal 4 damage to chosen character.",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "cardType": ["location"]
+          }
+        },
+        "condition": { "type": "this_at_location" },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 4,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": ["character"]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 194,
     "rarity": "super_rare",
@@ -14034,12 +14677,7 @@
     "traits": [
       "Song"
     ],
-    "abilities": [
-      {
-        "type": "keyword",
-        "keyword": "ward"
-      }
-    ],
+    "abilities": [],
     "setId": "12",
     "number": 237,
     "rarity": "enchanted",
@@ -14057,11 +14695,23 @@
         "type": "look_at_top",
         "count": 2,
         "action": "choose_from_top",
-        "target": {
-          "type": "self"
-        },
+        "target": { "type": "self" },
         "maxToHand": 1,
         "restPlacement": "inkwell"
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "ward",
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": { "type": "self" },
+            "zone": "play",
+            "cardType": ["character"]
+          }
+        },
+        "condition": { "type": "played_via_sing" }
       }
     ],
     "_imageSource": "ravensburger",

@@ -833,6 +833,15 @@ function applyPlayCard(
       reason: "played", triggeringPlayerId: playerId,
     });
 
+    // Mirror of `playedViaShift` (reducer.ts:771): mark sung actions on the
+    // song's own CardInstance so the `played_via_sing` condition can detect
+    // it during effect resolution. Set BEFORE effects resolve (line below).
+    // Cleared on leave-play cleanup. Covers both single-sing and Sing
+    // Together. Used by What Else Can I Do? "if a character sang this song".
+    if (singerInstanceId || (singerInstanceIds && singerInstanceIds.length > 0)) {
+      state = updateInstance(state, instanceId, { playedViaSing: true });
+    }
+
     if (!singerInstanceId) {
       state = appendLog(state, {
         turn: state.turnNumber,
@@ -2724,7 +2733,7 @@ function resolveDynamicAmount(
 /** Effect types whose `condition` field is a gating predicate ("if X, do
  *  this effect"). Listed explicitly because some effects (self_replacement)
  *  use `condition` as a branch selector with different semantics. */
-const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card"]);
+const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card", "grant_keyword"]);
 
 export function applyEffect(
   state: GameState,
@@ -6593,6 +6602,7 @@ function zoneTransition(
       // CRD 7.1.6: card becomes a "new" card on leaving play
       oncePerTurnTriggered: undefined,
       playedViaShift: false,
+      playedViaSing: false,
       challengedThisTurn: false,
       cardsUnder: [],
       boostedThisTurn: false,

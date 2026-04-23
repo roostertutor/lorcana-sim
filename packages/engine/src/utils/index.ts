@@ -1117,6 +1117,19 @@ export function evaluateCondition(
       const inst = state.cards[triggeringCardInstanceId];
       return inst?.playedViaShift === true;
     }
+    case "played_via_sing": {
+      // Mirror of played_via_shift — reads playedViaSing flag set on the
+      // song's instance in applyPlayCard. Flag lives long enough to be read
+      // during the song's own effect resolution (before leave-play cleanup
+      // clears it on the silent play→discard transition).
+      const inst = state.cards[sourceInstanceId];
+      return inst?.playedViaSing === true;
+    }
+    case "triggering_card_played_via_sing": {
+      if (!triggeringCardInstanceId) return false;
+      const inst = state.cards[triggeringCardInstanceId];
+      return inst?.playedViaSing === true;
+    }
     case "this_location_has_exerted_character": {
       // Any character at this location that is exerted.
       for (const c of Object.values(state.cards)) {
