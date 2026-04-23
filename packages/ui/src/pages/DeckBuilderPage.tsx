@@ -115,6 +115,13 @@ export default function DeckBuilderPage() {
     [entries],
   );
 
+  // Total card count for the sticky header pill. Decks are always 60 in
+  // Lorcana; showing progress toward that goal is a strong visual cue.
+  const totalCount = useMemo(
+    () => entries.reduce((s, e) => s + e.count, 0),
+    [entries],
+  );
+
   // Legality — recompute whenever entries or format change. Engine throws
   // on unknown rotation (stale stamp after a registry removal); wrap so
   // the UI shows a clean error banner instead of crashing.
@@ -285,25 +292,69 @@ export default function DeckBuilderPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header: back link + browse-cards toggle */}
-      <div className="flex items-center gap-3">
-        <Link
-          to="/"
-          onClick={handleBackClick}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-        >
-          ← My Decks
-        </Link>
-        <div className="flex-1" />
-        {!pickerOpen && (
-          <button
-            onClick={() => setPickerOpen(true)}
-            className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg font-medium transition-colors"
-            title="Open the card browser for discovery / visual browsing"
+      {/* Sticky top bar — back link, browse toggle (moved LEFT so its click-
+           target is in the same column the picker panel slides into), deck
+           name summary, card-count pill, and Save button. Always in view
+           while scrolling so users never have to hunt for Save on mobile.
+           z-20 sits above the Shell header (z-10); on scroll this bar
+           replaces the app logo. Trade the logo for a save button —
+           that's the right bargain for a long-form edit screen. */}
+      <div className="sticky top-0 z-20 -mt-6 -mx-4 px-4 py-2.5 bg-gray-950/90 backdrop-blur border-b border-gray-800">
+        <div className="max-w-6xl mx-auto flex items-center gap-2 sm:gap-3">
+          <Link
+            to="/"
+            onClick={handleBackClick}
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
           >
-            + Browse cards
+            ← My Decks
+          </Link>
+          {/* Browse toggle — stays visible when open (morphs to "Hide"), so
+               it doesn't vanish after click and its location matches the
+               column the picker occupies. */}
+          <button
+            onClick={() => setPickerOpen((v) => !v)}
+            className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors shrink-0 ${
+              pickerOpen
+                ? "bg-gray-700 hover:bg-gray-600 text-white"
+                : "bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white"
+            }`}
+            title={pickerOpen ? "Hide card browser" : "Open the card browser for discovery / visual browsing"}
+          >
+            {pickerOpen ? "Hide browse" : "+ Browse"}
           </button>
-        )}
+
+          {/* Deck name preview — desktop only; mobile relies on the input
+               below for identity. truncate avoids reflow on long names. */}
+          <div className="flex-1 min-w-0 truncate text-[11px] text-gray-400 hidden sm:block">
+            {deckName.trim() || <span className="italic text-gray-600">Untitled deck</span>}
+          </div>
+          <div className="flex-1 sm:hidden" />
+
+          {/* Card-count pill — turns amber at 60 as a "deck complete" cue. */}
+          <div className="text-[11px] font-mono shrink-0 px-2 py-0.5 rounded bg-gray-900 border border-gray-800">
+            <span className={totalCount === 60 ? "text-amber-400 font-bold" : "text-gray-400"}>{totalCount}</span>
+            <span className="text-gray-600">/60</span>
+          </div>
+
+          {/* Save — duplicate of the inline button's action with identical
+               disabled logic. Inline version removed below. */}
+          <button
+            className="py-1.5 px-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
+                       disabled:text-gray-600 text-white rounded-lg text-xs font-bold
+                       transition-colors active:scale-[0.98] shrink-0"
+            disabled={!deckName.trim() || entries.length === 0 || saving || !isDirty}
+            onClick={handleSave}
+          >
+            {saving ? "Saving..." : (
+              <span className="inline-flex items-center gap-1.5">
+                {originalDeck && isDirty && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-200 animate-pulse" aria-hidden />
+                )}
+                {originalDeck ? "Save" : "Create"}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Main: picker | editor on lg+, stacked below. Picker is hidden by
@@ -414,29 +465,10 @@ export default function DeckBuilderPage() {
               />
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons — Save moved to the sticky top bar so it's
+                 always in view. This row keeps History + Delete (less
+                 frequent, less urgent, OK to live at the bottom). */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <button
-                className="py-2.5 px-5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
-                           disabled:text-gray-600 text-white rounded-lg text-sm font-bold
-                           transition-colors active:scale-[0.98]"
-                disabled={!deckName.trim() || entries.length === 0 || saving || !isDirty}
-                onClick={handleSave}
-              >
-                {saving ? "Saving..." : (
-                  <span className="inline-flex items-center gap-1.5">
-                    {/* Dirty cue — small pulsing dot on existing decks when
-                         there are unsaved changes. Not shown on new decks:
-                         the button going from disabled (empty) to enabled
-                         already communicates "something to save". */}
-                    {originalDeck && isDirty && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-200 animate-pulse" aria-hidden />
-                    )}
-                    {originalDeck ? "Save Changes" : "Save Deck"}
-                  </span>
-                )}
-              </button>
-
               {originalDeck && versions.length > 0 && (
                 <button
                   className="py-2 px-3 text-gray-500 hover:text-gray-300 text-xs font-medium transition-colors"
