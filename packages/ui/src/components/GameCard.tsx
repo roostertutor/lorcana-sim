@@ -64,23 +64,34 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Mobile width: play cards shrink to fit 7 ready across; exerted cards use rotated width so
   // flex layout nudges neighbours rather than overlapping them. Hand cards stay full size.
   const isExerted = !isLocation && instance.isExerted;
-  // Play-zone (and face-down) cards are height-adaptive on phones: `h-full`
-  // fills the zone's available vertical height, `w-auto` lets aspect-[5/7]
-  // drive width. Cards shrink gracefully when a zone is shorter than the
-  // natural card height instead of overflowing.
+  // Play-zone (and face-down) card sizing:
   //
-  // Scoping: base (< sm) applies to portrait phones — capped at 73px tall
-  // (≈ 52w × 7/5). sm: reverts h-full / max-h to fixed sizing so tablets +
-  // desktop use their larger sm:w-[104px] / lg:w-[120px] from the composed
-  // className. landscape-phone: !important rules beat the sm: revert with a
-  // TIGHTER 40px cap — matches the deck / discard / inkwell utility tiles
-  // (h-10) so every face-up zone card sits at the same row height as the
-  // face-down deck on landscape phones. Trades card legibility for a denser
-  // board layout; all board state (damage, exerted rotation, badges) still
-  // renders at this height via the overlay system.
-  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-auto landscape-phone:!h-full landscape-phone:!max-h-[40px] landscape-phone:!min-w-[28px]";
+  // Portrait mobile (base, < sm) — height-adaptive: `h-full` fills the zone's
+  // available vertical height, `w-auto` + aspect-[5/7] drive width. Capped at
+  // 73px tall (≈ 52w × 7/5). Works here because the portrait flex chain
+  // collapses to an explicit height in practice.
+  //
+  // Tablet + desktop (sm+) — reverts to the natural width-based sizing from
+  // baseClass (`sm:w-[104px] lg:w-[120px]`).
+  //
+  // Landscape phone — explicit 28×40 box (!important beats sm: rules). The
+  // height-adaptive approach fails here because no ancestor has an explicit
+  // height, so `h-full` resolves to auto and `max-h` never triggers. Strict
+  // parity with the deck / discard / inkwell tiles (h-10 × w-7 = 28×40)
+  // keeps every face-up zone card at the same row height as the face-down
+  // deck. Trades card legibility for a denser board layout; all board state
+  // (damage, exerted rotation, badges) still renders at this size via
+  // overlays, which scale with the card box.
+  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[40px] landscape-phone:!max-h-[40px] landscape-phone:!min-w-[28px]";
+  // naturalSize: used by inkwell + discard tile mini-previews where a
+  // scale-[0.538] wrapper expects a 52px-wide GameCard. The baseClass
+  // `sm:w-[104px] lg:w-[120px]` would normally widen this for desktop scale-
+  // fan sizing; the landscape-phone !important override locks it back to
+  // 52px so the scaled output fits the 28×40 landscape utility tile.
   const mobileWidth = naturalSize
-    ? (faceDown || zone === "play" ? "w-[52px]" : "w-[88px]")
+    ? (faceDown || zone === "play"
+        ? "w-[52px] landscape-phone:!w-[52px]"
+        : "w-[88px] landscape-phone:!w-[88px]")
     : (faceDown || zone === "play")
     ? adaptivePlayCard
     : "w-[88px] landscape-phone:!w-[72px]";

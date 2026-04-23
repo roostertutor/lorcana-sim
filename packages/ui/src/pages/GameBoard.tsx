@@ -1434,8 +1434,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // reserve their rotated footprint so the visual overhang doesn't get
     // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
+    // Landscape-phone uses explicit 40×28 (landscape-oriented for the
+    // rotate-90'd card inside) to match the 28×40 ready-card parity. The
+    // earlier h-full / aspect combo didn't resolve because no ancestor in
+    // this branch has an explicit height — same class of bug as the ready
+    // card path, fixed via explicit pixel sizing.
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-auto landscape-phone:!h-full landscape-phone:!max-h-[52px] landscape-phone:!aspect-[7/5] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[40px] landscape-phone:!h-[28px] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );
