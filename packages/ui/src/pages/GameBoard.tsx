@@ -402,7 +402,7 @@ function InkwellZone({
           Lorcana card aspect (2.5"×3.5" = 5:7). Previously h-10 (40px) gave
           a 7:10 ratio that cropped card-back edges ~2% vertically via the
           object-cover img on the deck tile. */}
-      <div className="h-[39px] sm:h-[78px] lg:h-[90px] landscape-phone:!h-[39px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
+      <div className="h-[39px] sm:h-[78px] lg:h-[89px] landscape-phone:!h-[39px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
         {total === 0 ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <span className="text-[9px] text-gray-700 italic">No cards inked</span>
@@ -415,7 +415,7 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-3" : ""}`}
+                className={`shrink-0 w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-7 landscape-phone:!h-[39px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-3" : ""}`}
               >
                 <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
                   <div className={`transition-all duration-200 ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}>
@@ -463,7 +463,7 @@ function UtilityStrip({
       <button
         onClick={onDeckClick}
         disabled={!onDeckClick}
-        className="relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+        className="relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
       >
         {deckTopId && deckTopVisible ? (
           (() => {
@@ -501,7 +501,7 @@ function UtilityStrip({
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
-        className={`relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[90px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
+        className={`relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-7 landscape-phone:!h-[39px] shrink-0 rounded overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
           discardCount > 0 && (
             // Play from discard (Lilo Escape Artist, Pride Lands)
             Object.values(gameState.cards).some(
