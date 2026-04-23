@@ -134,9 +134,30 @@ function LobbyJoinPage() {
 // ---------------------------------------------------------------------------
 
 function Shell({ children, activeTab, navigate }: { children: React.ReactNode; activeTab: Tab; navigate: (path: string) => void }) {
+  // Safe-area insets: in PWA standalone mode the webview extends under the
+  // iOS status bar (Dynamic Island / notch / clock) and home-indicator bar.
+  // Without padding, the sticky header slides under the status bar and the
+  // footer sits behind the home indicator. env(safe-area-inset-*) returns 0
+  // in Safari browser mode (browser chrome already reserves the space), so
+  // these padding classes only take effect in the installed PWA.
+  //
+  // Padding applied to the header/footer/aside rather than the outer div so:
+  // - header background extends up into the status bar (status bar inherits
+  //   the header's translucent dark color, looks intentional)
+  // - `sticky top-0` still pins to viewport y=0 while content inside the
+  //   header sits below the status bar via its own padding
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-10">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
+      <header
+        className="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-10"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <span className="text-amber-400 text-xl font-bold tracking-tight">⬡ Lorcana Sim</span>
           <span className="text-gray-600 text-sm hidden sm:block">headless analytics engine</span>
@@ -165,7 +186,10 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
         {children}
       </main>
 
-      <footer className="border-t border-gray-800 bg-gray-950 px-4 py-4">
+      <footer
+        className="border-t border-gray-800 bg-gray-950 px-4 py-4"
+        style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+      >
         <p className="max-w-6xl mx-auto text-[10px] leading-relaxed text-gray-600 text-center">
           This site uses trademarks and/or copyrights associated with Disney Lorcana TCG,
           used under Ravensburger's Community Code Policy. We are expressly prohibited from

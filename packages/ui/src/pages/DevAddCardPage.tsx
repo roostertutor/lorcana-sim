@@ -199,9 +199,19 @@ export default function DevAddCardPage() {
   const canSubmit = errors.length === 0 && !submitting;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-200">
-      {/* Header */}
-      <div className="border-b border-gray-800 bg-gray-900/50 backdrop-blur sticky top-0 z-10">
+    <div
+      className="min-h-screen bg-gray-950 text-gray-200"
+      style={{
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
+      {/* Header — pt-safe so the sticky bar doesn't sit under the iOS status
+          bar in PWA mode (env() returns 0 in browser mode, so no-op there). */}
+      <div
+        className="border-b border-gray-800 bg-gray-900/50 backdrop-blur sticky top-0 z-10"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div>
             <div className="text-amber-400 font-bold">⬡ Dev — Add Card</div>
