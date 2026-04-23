@@ -880,8 +880,12 @@ export default function PendingChoiceModal({
       {/* Panel — bottom sheet on mobile, centered card on sm+.
           Widened to max-w-2xl on sm+ so the mulligan grid (grid-cols-7 on sm+)
           and the landscape-phone 7-col target-picker grids fit without
-          horizontal overflow. */}
-      <div className="relative z-10 w-full sm:max-w-2xl sm:mx-4
+          horizontal overflow. Step up to max-w-3xl at lg+ because GameCard's
+          lg:w-[120px] size makes each scaled thumb 94px wide (120 × 0.78) —
+          at max-w-2xl the 7-col grid gives only 85px per column, clipping the
+          cards on desktop. Landscape-phone stays at 2xl (uses the 72px-wide
+          landscape override, plenty of room). */}
+      <div className="relative z-10 w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
                       max-h-[82vh] overflow-y-auto
                       bg-gray-950 border border-gray-700
                       rounded-t-2xl sm:rounded-2xl
