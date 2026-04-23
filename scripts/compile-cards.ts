@@ -473,6 +473,15 @@ function withDuration(effect: Json, rest: string, alreadyConsumed: number): { js
 
 const EFFECT_MATCHERS: Matcher<Json>[] = [
   // ============= DRAW ========================================================
+  // Royal Tantrum's "draw a card for each item banished this way" pattern —
+  // reads the count of targets affected by the immediately preceding effect
+  // off `state.lastEffectResult`. Place BEFORE draw_n so "for each X" beats
+  // the numeric variant.
+  {
+    name: "draw_for_each_banished_this_way",
+    pattern: /^(?:then, )?draw a card for each (?:item|character|card) banished this way/i,
+    build: () => ({ type: "draw", amount: "cost_result", target: { type: "self" } }),
+  },
   {
     name: "draw_each_opponent",
     pattern: /^each opponent draws (?:(\d+) cards?|a card)/i,
@@ -557,6 +566,41 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   },
 
   // ============= BANISH ======================================================
+  // "banish any number of chosen opposing characters with total {S} N or less"
+  // — Leviathan IT'S A MACHINE. Aggregate-sum cap on the selection. Place
+  // before the plain "banish chosen character with X {S} or less" so the
+  // "total" variant matches first.
+  {
+    name: "banish_any_number_opposing_total_strength",
+    pattern: /^you may banish any number of chosen opposing characters with total \{S\} (\d+) or less/i,
+    build: (m) => ({
+      type: "banish",
+      isMay: true,
+      target: {
+        type: "chosen",
+        count: "any",
+        filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+        totalStrengthAtMost: parseInt(m[1], 10),
+      },
+    }),
+  },
+
+  // "banish any number of your items" — Royal Tantrum's banish phase.
+  // Paired with a follow-up "draw a card for each item banished this way"
+  // that compiles into a cost_result draw.
+  {
+    name: "banish_any_number_your_items",
+    pattern: /^banish any number of your items/i,
+    build: () => ({
+      type: "banish",
+      target: {
+        type: "chosen",
+        count: "any",
+        filter: { owner: { type: "self" }, zone: "play", cardType: ["item"] },
+      },
+    }),
+  },
+
   // "banish chosen character with N {S} or less" — strength-filtered banish
   {
     name: "banish_chosen_char_strength_filter",
@@ -1930,11 +1974,15 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
   },
 
   // "if N or more [other] cards were put into your discard this turn"
+  // Fixed 2026-04-23: discriminator was `cards_discarded_this_turn_gte` which
+  // doesn't exist in the Condition union — compiled JSON would silently fail
+  // the card-status invalid-field check. Correct type is
+  // `cards_put_into_discard_this_turn_atleast`.
   {
-    name: "cards_discarded_this_turn_gte",
+    name: "cards_put_into_discard_this_turn_atleast",
     pattern: /^if (\d+) or more (?:other )?cards were put into your discard this turn/i,
     build: (m) => ({
-      type: "cards_discarded_this_turn_gte",
+      type: "cards_put_into_discard_this_turn_atleast",
       amount: parseInt(m[1], 10),
     }),
   },

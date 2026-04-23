@@ -2034,3 +2034,264 @@ describe("Set 12 — Ursula Deal Maker BY THE WAY (wiring shape)", () => {
   });
 });
 
+// =============================================================================
+// PR 3 — 2026-04-23: Leviathan + aggregate-sum cap primitive. Exercises the
+// new totalStrengthAtMost field on CardTarget.chosen, the count:"any" sentinel,
+// and validateResolveChoice's sum enforcement path.
+// =============================================================================
+
+describe("Set 12 — Leviathan IT'S A MACHINE! (totalStrengthAtMost aggregate)", () => {
+  function setupLeviathan(): {
+    state: any;
+    leviathanId: string;
+    oppIds: string[];   // [S3, S4, S5, S8]
+  } {
+    let state = startGame();
+    // Seed player1's banishedThisTurn so the cards_put_into_discard_this_turn_atleast
+    // condition is satisfied (we bypass real discard mechanics by pushing directly
+    // onto cardsPutIntoDiscardThisTurn — same counter the condition reads).
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player1: { ...state.players.player1, cardsPutIntoDiscardThisTurn: 2 },
+      },
+    };
+    let leviathanId: string;
+    ({ state, instanceId: leviathanId } = injectCard(state, "player1", "the-leviathan-guardian-of-atlantis", "play", { isDrying: false }));
+    // Opponent characters with distinct strength so we can probe the sum.
+    // Verified printed strengths from set 1 vanilla pool:
+    //   Mickey Mouse True Friend        S=3
+    //   Elsa Queen Regent               S=4
+    //   Sven Official Ice Deliverer     S=5
+    //   Maui Demigod                    S=8
+    const oppIds: string[] = [];
+    const defs = [
+      "mickey-mouse-true-friend",   // S=3
+      "elsa-queen-regent",          // S=4
+      "sven-official-ice-deliverer", // S=5
+      "maui-demigod",               // S=8
+    ];
+    for (const def of defs) {
+      let id: string;
+      ({ state, instanceId: id } = injectCard(state, "player2", def, "play", { isDrying: false }));
+      oppIds.push(id);
+    }
+    return { state, leviathanId, oppIds };
+  }
+
+  it("validator accepts selections whose total {S} ≤ 10", () => {
+    const { state: setup, oppIds, leviathanId } = setupLeviathan();
+    void leviathanId;
+    // Drive the IT'S A MACHINE trigger by applying the effect directly —
+    // simpler than threading through enters_play trigger processing.
+    const state = applyEffect(
+      setup,
+      {
+        type: "banish",
+        isMay: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+          totalStrengthAtMost: 10,
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect((state.pendingChoice as any).totalStrengthAtMost).toBe(10);
+
+    // Pick the first three characters — strength sums to 3+4+5 = 12 > 10.
+    const reject = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: oppIds.slice(0, 3) } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(reject.success).toBe(false);
+
+    // Pick first two — 3+4 = 7 ≤ 10, should resolve.
+    const accept = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: oppIds.slice(0, 2) } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(accept.success).toBe(true);
+    // Confirm both banished.
+    expect(getZone(accept.newState, "player2", "discard")).toContain(oppIds[0]);
+    expect(getZone(accept.newState, "player2", "discard")).toContain(oppIds[1]);
+    expect(getZone(accept.newState, "player2", "discard")).not.toContain(oppIds[2]);
+  });
+
+  it("zero-pick (no one banished) is a legal resolve — fizzles cleanly", () => {
+    const { state: setup } = setupLeviathan();
+    const state = applyEffect(
+      setup,
+      {
+        type: "banish",
+        isMay: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+          totalStrengthAtMost: 10,
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.optional).toBe(true); // aggregate cap implies optional
+    const r = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice).toBeFalsy();
+    // No one banished.
+    expect(getZone(r.newState, "player2", "play").length).toBe(4);
+  });
+
+  it("count:any with no aggregate cap still lets player pick 0..N", () => {
+    // Ever as Before pattern — "remove up to 2 damage from any number of chosen characters".
+    // Migrated from count: 99 → count: "any"; behavior unchanged.
+    let state = startGame();
+    let c1: string, c2: string;
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "simba-returned-king", "play", { isDrying: false, damage: 2 }));
+    state = applyEffect(
+      state,
+      {
+        type: "remove_damage",
+        amount: 2,
+        isUpTo: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, c1).damage).toBe(0);
+    expect(getInstance(r.newState, c2).damage).toBe(0);
+  });
+});
+
+describe("Set 5 — Royal Tantrum (count:'any' + cost_result draw)", () => {
+  it("banishes picked items and draws one card for each", () => {
+    // Pre-2026-04-23: wired with target:all + draw amount:2 (silently
+    // banished all items regardless of player choice, hardcoded 2-draw).
+    // Now: target chosen, count "any", draw reads cost_result = pick count.
+    let state = startGame();
+    let item1: string, item2: string, item3: string;
+    // Inject three items into play for player1.
+    ({ state, instanceId: item1 } = injectCard(state, "player1", "bruno-madrigals-vision", "play"));
+    ({ state, instanceId: item2 } = injectCard(state, "player1", "dinner-bell", "play"));
+    ({ state, instanceId: item3 } = injectCard(state, "player1", "sword-in-the-stone", "play"));
+    void item3; // stays in play after player picks 2 of 3
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    // Fire Royal Tantrum's first actionEffect — the banish any-number chooser.
+    state = applyEffect(
+      state,
+      {
+        type: "banish",
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "self" }, zone: "play", cardType: ["item"] },
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    // Pick 2 of 3 items.
+    const r = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [item1, item2] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // cost_result should now be 2.
+    expect(state.lastEffectResult).toBe(2);
+    expect(getZone(state, "player1", "discard")).toContain(item1);
+    expect(getZone(state, "player1", "discard")).toContain(item2);
+    expect(getZone(state, "player1", "play")).toContain(item3);
+
+    // Apply the follow-up draw with cost_result.
+    state = applyEffect(
+      state,
+      { type: "draw", amount: "cost_result", target: { type: "self" } } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
+  });
+
+  it("picking 0 items draws 0 cards", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "dinner-bell", "play"));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    state = applyEffect(
+      state,
+      {
+        type: "banish",
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "self" }, zone: "play", cardType: ["item"] },
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    const r = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.lastEffectResult).toBe(0);
+
+    state = applyEffect(
+      state,
+      { type: "draw", amount: "cost_result", target: { type: "self" } } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore);
+  });
+});
+

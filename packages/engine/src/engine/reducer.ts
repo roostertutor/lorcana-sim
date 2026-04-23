@@ -2502,8 +2502,12 @@ function applyResolveChoice(
       state = cleanupPendingAction(state, playerId);
       return state;
     }
-    // CRD 6.1.4: optional target choice — empty array = skip
+    // CRD 6.1.4: optional target choice — empty array = skip. Also set
+    // lastEffectResult to 0 so a follow-up "for each X" DynamicAmount (Royal
+    // Tantrum: "draw a card for each item banished this way") reads 0 when
+    // the player picked nothing.
     if (pendingChoice.optional && choice.length === 0) {
+      state = { ...state, lastEffectResult: 0 };
       state = resumePendingEffectQueue(state, definitions, events);
       state = cleanupPendingAction(state, playerId);
       return state;
@@ -2574,6 +2578,14 @@ function applyResolveChoice(
         }
       }
     }
+    // After the multi-target loop completes, record the pick count on
+    // lastEffectResult so a follow-up effect with `amount: "cost_result"`
+    // can read it. Used by Royal Tantrum ("banish any number of your items,
+    // then draw a card for each item banished this way"). Overwrites
+    // per-instance lastEffectResult values set during the loop — safe because
+    // Dinner Bell-style single-target banish-then-draw uses the distinct
+    // `target_damage` DynamicAmount, not `cost_result` (verified).
+    state = { ...state, lastEffectResult: choice.length };
   }
 
   // Resume any pending effect queue (e.g. multi-effect actions like "ready + can't quest")
@@ -6759,10 +6771,25 @@ function resolveTargetAndApply(
   if (target.type === "chosen") {
     const choosingPlayerId = chosenChooserPlayerId(target, controllingPlayerId);
     const validTargets = findChosenTargets(state, target.filter, choosingPlayerId, definitions, sourceInstanceId);
-    if (validTargets.length === 0) return state; // CRD 1.7.7
-    const count = target.count ?? 1;
-    const prompt = count > 1 && opts.promptForCount
-      ? opts.promptForCount(count)
+    // Aggregate-cap selections ("any number with total ≤ N") are legally
+    // resolvable with 0 picks when the pool is empty, so we can't bail
+    // early like ordinary chosen. Bail only when NO aggregate cap is set
+    // AND no valid targets exist (CRD 1.7.7: can't execute "chosen" when
+    // no valid target).
+    const hasAggregateCap = (
+      target.totalStrengthAtMost !== undefined || target.totalStrengthAtLeast !== undefined ||
+      target.totalWillpowerAtMost !== undefined || target.totalWillpowerAtLeast !== undefined ||
+      target.totalCostAtMost !== undefined || target.totalCostAtLeast !== undefined ||
+      target.totalLoreAtMost !== undefined || target.totalLoreAtLeast !== undefined ||
+      target.totalDamageAtMost !== undefined || target.totalDamageAtLeast !== undefined
+    );
+    if (validTargets.length === 0 && !hasAggregateCap) return state;
+    // "any" sentinel → validTargets.length effective cap (practically unbounded).
+    const resolvedCount = target.count === "any"
+      ? validTargets.length
+      : (target.count ?? 1);
+    const prompt = (typeof resolvedCount === "number" && resolvedCount > 1) && opts.promptForCount
+      ? opts.promptForCount(resolvedCount)
       : opts.prompt;
     return {
       ...state,
@@ -6774,8 +6801,21 @@ function resolveTargetAndApply(
         pendingEffect: effect as Effect,
         sourceInstanceId,
         triggeringCardInstanceId,
-        optional: effect.isMay ?? false,
-        count,
+        // Aggregate caps imply "any number" semantics (0 picks legal).
+        optional: (effect.isMay ?? false) || hasAggregateCap || target.count === "any",
+        count: resolvedCount,
+        // Forward aggregate-cap fields so validateResolveChoice can enforce
+        // them and the UI can render the running-total indicator.
+        ...(target.totalStrengthAtMost !== undefined && { totalStrengthAtMost: target.totalStrengthAtMost }),
+        ...(target.totalStrengthAtLeast !== undefined && { totalStrengthAtLeast: target.totalStrengthAtLeast }),
+        ...(target.totalWillpowerAtMost !== undefined && { totalWillpowerAtMost: target.totalWillpowerAtMost }),
+        ...(target.totalWillpowerAtLeast !== undefined && { totalWillpowerAtLeast: target.totalWillpowerAtLeast }),
+        ...(target.totalCostAtMost !== undefined && { totalCostAtMost: target.totalCostAtMost }),
+        ...(target.totalCostAtLeast !== undefined && { totalCostAtLeast: target.totalCostAtLeast }),
+        ...(target.totalLoreAtMost !== undefined && { totalLoreAtMost: target.totalLoreAtMost }),
+        ...(target.totalLoreAtLeast !== undefined && { totalLoreAtLeast: target.totalLoreAtLeast }),
+        ...(target.totalDamageAtMost !== undefined && { totalDamageAtMost: target.totalDamageAtMost }),
+        ...(target.totalDamageAtLeast !== undefined && { totalDamageAtLeast: target.totalDamageAtLeast }),
       },
     };
   }

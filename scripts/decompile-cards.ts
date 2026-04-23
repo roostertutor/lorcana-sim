@@ -2004,7 +2004,10 @@ function renderTarget(t: Json): string {
       return "that discarded card";
     case "chosen": {
       const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
-      const count = t.count && t.count > 1 ? `${t.count} ` : "";
+      // "any" sentinel or legacy 99 → "any number of" wording (Ever as Before,
+      // Leviathan, Royal Tantrum). Numeric count > 1 → numeric up-to wording.
+      const isAnyCount = t.count === "any" || t.count === 99;
+      const count = !isAnyCount && t.count && t.count > 1 ? `${t.count} ` : "";
       // "Each opponent chooses" pattern: chooser=target_player with owner=opponent.
       // Used by Swooping Strike, Triton's Decree, Lady Tremaine ("each opponent
       // chooses and Xs one of their characters"). Render as a noun phrase the
@@ -2016,6 +2019,20 @@ function renderTarget(t: Json): string {
       if (t.chooser === "target_player") {
         return `one of their ${pluralizeFilter(f)}`;
       }
+      // Aggregate-sum caps (Leviathan: "total {S} 10 or less"). Collect each
+      // present cap into a trailing clause.
+      const totalClauses: string[] = [];
+      if (t.totalStrengthAtMost !== undefined) totalClauses.push(`with total {S} ${t.totalStrengthAtMost} or less`);
+      if (t.totalStrengthAtLeast !== undefined) totalClauses.push(`with total {S} ${t.totalStrengthAtLeast} or more`);
+      if (t.totalWillpowerAtMost !== undefined) totalClauses.push(`with total {W} ${t.totalWillpowerAtMost} or less`);
+      if (t.totalWillpowerAtLeast !== undefined) totalClauses.push(`with total {W} ${t.totalWillpowerAtLeast} or more`);
+      if (t.totalCostAtMost !== undefined) totalClauses.push(`with total cost ${t.totalCostAtMost} or less`);
+      if (t.totalCostAtLeast !== undefined) totalClauses.push(`with total cost ${t.totalCostAtLeast} or more`);
+      if (t.totalLoreAtMost !== undefined) totalClauses.push(`with total {L} ${t.totalLoreAtMost} or less`);
+      if (t.totalLoreAtLeast !== undefined) totalClauses.push(`with total {L} ${t.totalLoreAtLeast} or more`);
+      if (t.totalDamageAtMost !== undefined) totalClauses.push(`with total damage ${t.totalDamageAtMost} or less`);
+      if (t.totalDamageAtLeast !== undefined) totalClauses.push(`with total damage ${t.totalDamageAtLeast} or more`);
+      const totalSuffix = totalClauses.length ? ` ${totalClauses.join(" and ")}` : "";
       // Owner-self on a chosen target: canonical Lorcana wording is "chosen
       // X of yours" (Grandmother Fa FIND THE WAY, Poisoned Apple) when the
       // filter has no trailing qualifier, OR "one of your [plural]" when
@@ -2026,10 +2043,12 @@ function renderTarget(t: Json): string {
         const hasTrailing = !!(t.filter.hasDamage || t.filter.hasCardUnder || t.filter.challengedThisTurn
           || t.filter.hasName || t.filter.costAtMost !== undefined || t.filter.costAtLeast !== undefined
           || t.filter.strengthAtMost !== undefined || t.filter.strengthAtLeast !== undefined);
-        if (hasTrailing) return `one of your ${pluralizeFilter(f)}`;
-        return `chosen ${count}${f} of yours`;
+        if (isAnyCount) return `any number of your ${pluralizeFilter(f)}${totalSuffix}`;
+        if (hasTrailing) return `one of your ${pluralizeFilter(f)}${totalSuffix}`;
+        return `chosen ${count}${f} of yours${totalSuffix}`;
       }
-      return `chosen ${count}${f}`;
+      if (isAnyCount) return `any number of chosen ${pluralizeFilter(f)}${totalSuffix}`;
+      return `chosen ${count}${f}${totalSuffix}`;
     }
     case "all": {
       const f = t.filter ? pluralizeFilter(renderFilter(t.filter)) : "characters";

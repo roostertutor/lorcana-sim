@@ -16,6 +16,10 @@ import {
   evaluateCondition,
   findMatchingInstances,
   getDefinition,
+  getEffectiveStrength,
+  getEffectiveWillpower,
+  getEffectiveCost,
+  getEffectiveLore,
   getInstance,
   getKeywordValue,
   getOpponent,
@@ -1026,6 +1030,65 @@ function validateResolveChoice(
         if (targetDef && hasKeyword(target, targetDef, "ward")) {
           return fail("Cannot choose a character with Ward as the target of an effect.");
         }
+      }
+    }
+
+    // CRD-less novel primitive: aggregate-sum caps on the selection set
+    // (Leviathan — "total {S} 10 or less"). Effective values including
+    // buffs. When multiple caps are set, ALL must hold (strictest wins).
+    // Evaluated AFTER the Ward check so ward-blocked picks fail first with
+    // the correct message.
+    const pc = state.pendingChoice;
+    const hasAnyCap = (
+      pc.totalStrengthAtMost !== undefined || pc.totalStrengthAtLeast !== undefined ||
+      pc.totalWillpowerAtMost !== undefined || pc.totalWillpowerAtLeast !== undefined ||
+      pc.totalCostAtMost !== undefined || pc.totalCostAtLeast !== undefined ||
+      pc.totalLoreAtMost !== undefined || pc.totalLoreAtLeast !== undefined ||
+      pc.totalDamageAtMost !== undefined || pc.totalDamageAtLeast !== undefined
+    );
+    if (hasAnyCap && choice.length > 0) {
+      // Resolve each picked instance → sum effective properties.
+      let sumStrength = 0, sumWillpower = 0, sumCost = 0, sumLore = 0, sumDamage = 0;
+      for (const id of choice) {
+        const inst = state.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        sumStrength += getEffectiveStrength(inst, def);
+        sumWillpower += getEffectiveWillpower(inst, def);
+        sumCost += getEffectiveCost(inst, def);
+        sumLore += getEffectiveLore(inst, def);
+        sumDamage += inst.damage;
+      }
+      if (pc.totalStrengthAtMost !== undefined && sumStrength > pc.totalStrengthAtMost) {
+        return fail(`Selected characters exceed total {S} cap (${sumStrength} > ${pc.totalStrengthAtMost}).`);
+      }
+      if (pc.totalStrengthAtLeast !== undefined && sumStrength < pc.totalStrengthAtLeast) {
+        return fail(`Selected characters fall short of total {S} requirement (${sumStrength} < ${pc.totalStrengthAtLeast}).`);
+      }
+      if (pc.totalWillpowerAtMost !== undefined && sumWillpower > pc.totalWillpowerAtMost) {
+        return fail(`Selected characters exceed total {W} cap (${sumWillpower} > ${pc.totalWillpowerAtMost}).`);
+      }
+      if (pc.totalWillpowerAtLeast !== undefined && sumWillpower < pc.totalWillpowerAtLeast) {
+        return fail(`Selected characters fall short of total {W} requirement (${sumWillpower} < ${pc.totalWillpowerAtLeast}).`);
+      }
+      if (pc.totalCostAtMost !== undefined && sumCost > pc.totalCostAtMost) {
+        return fail(`Selected cards exceed total cost cap (${sumCost} > ${pc.totalCostAtMost}).`);
+      }
+      if (pc.totalCostAtLeast !== undefined && sumCost < pc.totalCostAtLeast) {
+        return fail(`Selected cards fall short of total cost requirement (${sumCost} < ${pc.totalCostAtLeast}).`);
+      }
+      if (pc.totalLoreAtMost !== undefined && sumLore > pc.totalLoreAtMost) {
+        return fail(`Selected characters exceed total {L} cap (${sumLore} > ${pc.totalLoreAtMost}).`);
+      }
+      if (pc.totalLoreAtLeast !== undefined && sumLore < pc.totalLoreAtLeast) {
+        return fail(`Selected characters fall short of total {L} requirement (${sumLore} < ${pc.totalLoreAtLeast}).`);
+      }
+      if (pc.totalDamageAtMost !== undefined && sumDamage > pc.totalDamageAtMost) {
+        return fail(`Selected characters exceed total damage cap (${sumDamage} > ${pc.totalDamageAtMost}).`);
+      }
+      if (pc.totalDamageAtLeast !== undefined && sumDamage < pc.totalDamageAtLeast) {
+        return fail(`Selected characters fall short of total damage requirement (${sumDamage} < ${pc.totalDamageAtLeast}).`);
       }
     }
   }

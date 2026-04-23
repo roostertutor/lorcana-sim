@@ -10480,7 +10480,8 @@
       {
         "type": "banish",
         "target": {
-          "type": "all",
+          "type": "chosen",
+          "count": "any",
           "filter": {
             "zone": "play",
             "cardType": [
@@ -10494,7 +10495,7 @@
       },
       {
         "type": "draw",
-        "amount": 2,
+        "amount": "cost_result",
         "target": {
           "type": "self"
         }
@@ -10537,7 +10538,7 @@
         "isUpTo": true,
         "target": {
           "type": "chosen",
-          "count": 99,
+          "count": "any",
           "filter": {
             "zone": "play",
             "cardType": [
@@ -14189,7 +14190,8 @@
       {
         "type": "banish",
         "target": {
-          "type": "all",
+          "type": "chosen",
+          "count": "any",
           "filter": {
             "zone": "play",
             "cardType": [
@@ -14203,7 +14205,7 @@
       },
       {
         "type": "draw",
-        "amount": 2,
+        "amount": "cost_result",
         "target": {
           "type": "self"
         }

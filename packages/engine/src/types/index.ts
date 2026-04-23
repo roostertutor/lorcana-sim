@@ -2405,8 +2405,36 @@ export type CardTarget =
    *  set "target_player" for "each opponent chooses one of their characters and X"
    *  patterns (Ursula's Plan, Be King Undisputed, Triton's Decree, Gunther
    *  Interior Designer). The pendingChoice surfaces with the opponent as the
-   *  choosing player; the effect then applies to the chosen instance. */
-  | { type: "chosen"; filter: CardFilter; count?: number; chooser?: "controller" | "target_player" }
+   *  choosing player; the effect then applies to the chosen instance.
+   *
+   *  `count` — numeric cap on the selection (up-to-N, pick 0..count). Pass
+   *  `"any"` for unbounded selection ("any number of chosen X" — Leviathan,
+   *  Ever as Before, Royal Tantrum). The legacy `count: 99` idiom is
+   *  equivalent to `"any"` but prefer the named sentinel.
+   *
+   *  `totalXAtMost` / `totalXAtLeast` — aggregate-sum constraints on the
+   *  selection set (CRD-less novel primitive; used by Leviathan "total {S}
+   *  10 or less"). All 10 fields are independently optional; when multiple
+   *  constraints are present, ALL must be satisfied on RESOLVE_CHOICE (strictest
+   *  wins). Composable with `count` (e.g. "up to 3 chosen with total cost ≤ 6").
+   *  Effective values (post-buff/post-modifier) are used, not printed, per
+   *  CRD 1.9.2 — `getEffectiveStrength` etc. */
+  | {
+      type: "chosen";
+      filter: CardFilter;
+      count?: number | "any";
+      chooser?: "controller" | "target_player";
+      totalStrengthAtMost?: number;
+      totalStrengthAtLeast?: number;
+      totalWillpowerAtMost?: number;
+      totalWillpowerAtLeast?: number;
+      totalCostAtMost?: number;
+      totalCostAtLeast?: number;
+      totalLoreAtMost?: number;
+      totalLoreAtLeast?: number;
+      totalDamageAtMost?: number;
+      totalDamageAtLeast?: number;
+    }
   | { type: "all"; filter: CardFilter } // All matching cards
   | { type: "random"; filter: CardFilter } // Random matching card
   | { type: "triggering_card" } // The card that caused the trigger
@@ -3637,6 +3665,22 @@ export interface PendingChoice {
    *  validator allows 0..maxCount discards instead of strict equality on count.
    *  The reducer feeds the actual chosen count into lastEffectResult. */
   maxCount?: number;
+  /** For choose_target with CardTarget.chosen aggregate-sum caps — Leviathan
+   *  "banish any number of chosen opposing characters with total {S} 10 or
+   *  less." Forwarded from the target spec so the validator can enforce the
+   *  sum constraint and the UI can render a running-total indicator. All
+   *  fields independently optional; when multiple are set, ALL must hold on
+   *  RESOLVE_CHOICE (strictest wins). Effective values (post-buff) are used. */
+  totalStrengthAtMost?: number;
+  totalStrengthAtLeast?: number;
+  totalWillpowerAtMost?: number;
+  totalWillpowerAtLeast?: number;
+  totalCostAtMost?: number;
+  totalCostAtLeast?: number;
+  totalLoreAtMost?: number;
+  totalLoreAtLeast?: number;
+  totalDamageAtMost?: number;
+  totalDamageAtLeast?: number;
   /** For choose_from_revealed: all revealed cards (validTargets is the selectable subset) */
   revealedCards?: string[];
   /** For choose_option: the effects to pick between */
