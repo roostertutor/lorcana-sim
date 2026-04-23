@@ -16,8 +16,8 @@ playable sandbox exists as a thin UI layer over the engine.
 - **server** — done (core). Hono + Supabase. Anti-cheat state filtering, per-format ELO (bo1/bo3 × core/infinity), Bo1/Bo3 match format, token auto-refresh, action logging for clone trainer. Remaining: Railway deploy, OAuth. See `docs/MULTIPLAYER.md`.
 - **ui** — done. React + Vite, react-router-dom, 7 screens, responsive (mobile/tablet/desktop). Multiplayer: lobby, reconnection (localStorage), shareable lobby links (`/lobby/:code`). See `docs/UI_PENDING_MECHANICS.md` for unvisualized mechanics.
 - **sandbox** — done. Interactive game board vs bot with replay + undo, DnD, alt-cost shift picker, card injector with qty/zone/player/set controls, HMR session persistence + quick save/load. Visual state: keyword icon badges, exerted rotation, damage counter, drying overlay, active-effects pill, card-state status icons, stat delta badges. See `docs/GUI_TEST_CARDS.md` for the verified-mechanic checklist, `docs/GAME_BOARD.md` for layout notes.
-- **cards** — **2251 named-ability cards wired + 518 vanillas = 2769/2786.** All of sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) + set 12 (123 Ravensburger + 11 Lorcast pre-release entries). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
-- **gaps** — 17 stubs in set 12: 14 fits-grammar, 1 needs-new-type (Escape Plan — bilateral inkwell-exerted), 2 unknown (Family Scattered #97 + Family's Scattered #231 — possibly the same card via alt-art). 6 of these are Ravensburger-sourced action cards that were silently shipping with `actionEffects: []` until the 2026-04-20 card-status fix (plain-text actions with no story-name banner now correctly classify as stubs instead of vanilla). 0 partial, 0 invalid-fields, 0 known approximations. See the Audit section below for how the four audit scripts triangulate.
+- **cards** — **2306 named-ability cards wired + 539 vanillas = 2845/2865.** All of sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) + set 12 (213 cards — Ravensburger has mirrored most of the set as of 2026-04-23). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
+- **gaps** — 20 stubs in set 12: 19 fits-grammar, 1 unknown (Dale #22 — "your characters deal damage with their {W} instead of their {S}" needs a challenge-damage-source redirect primitive). 0 partial, 0 invalid-fields, 0 known approximations. See the Audit section below for how the four audit scripts triangulate.
 
 ## Quick Reference
 
@@ -54,7 +54,14 @@ pnpm import-cards-lorcast --sets 12     # during pre-release windows, pulls card
                                         # (they upgrade to "ravensburger" on the next import-cards run)
 pnpm card-status                        # verify: 0 invalid, check new stubs
 
-# 2. Update card images (Desktop/Lorcana_Assets)
+# 2. Refresh app card images (R2 CDN — rewrites imageUrl in card JSON)
+pnpm sync-images-rav --sets 12 --dry-run   # smoke test without hitting R2
+pnpm sync-images-rav --sets 12             # live: download → resize → R2 upload
+                                           # skips tier-locked cards; refuses to downgrade
+
+# 3. (Optional) Asset-crafting pipeline for foil/normal layers — OUT OF REPO.
+# Only needed when you're working on sandbox foil rendering or asset overrides;
+# the app reads imageUrl directly from card JSON after step 2.
 cd ~/Desktop/Lorcana_Assets
 node rav-download-images.mjs set12      # downloads base + foil + normal layers
                                         # promo cards auto-route to P1/P2/P3/etc
@@ -68,13 +75,12 @@ Run whenever Ravensburger adds cards to the API (typically same day as app relea
 
 ## Audits
 
-Five scripts triangulate data quality; four (`card-status`, `audit-cards`, `audit-approximations`, `decompile-cards`) are text-shape checks; the fifth (`audit-dead-primitives`) does reachability analysis over runtime state.
+Four scripts triangulate data quality; three (`card-status`, `audit-cards`, `decompile-cards`) are text-shape checks; the fourth (`audit-dead-primitives`) does reachability analysis over runtime state. The approximation-annotation sweep is now a plain grep (see "No-op stubs" below) — there's no dedicated script.
 
 | Script | Covers | What it misses |
 |---|---|---|
 | `pnpm card-status` | JSON field validation: every `type`/`on` discriminator checked against `types/index.ts` unions; every CardFilter field checked against the `CardFilter` interface. Catches typos that silently no-op (`start_of_turn` vs `turn_start`, `maxStrength` vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`, `name` vs `hasName`). Extracts valid names dynamically from `types/index.ts` so it stays in sync. | Required-field structural checks (e.g. `action_restriction` requires `affectedPlayer` — missing it crashes at runtime, passes audit). |
 | `pnpm audit-cards` | Card data drift: scalar fields, static-effect-type mismatches, keyword drops. Run after re-import. | Engine-internal wiring correctness. |
-| `pnpm audit-approximations` | Parenthetical `(approximation: ...)` annotations in rulesText. | Anything not marked with that exact phrase. |
 | `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. |
 | `pnpm audit-dead-primitives` | Emit-vs-read reachability on StaticEffect primitives: every `modifiers.<field>` write in `gameModifiers.ts` must have at least one reader across engine+simulator+analytics+cli+ui. Catches the Hidden Inkcaster class of bug — case handler exists and populates a modifier field, but no consumer ever reads it, so the static silently no-ops. | Runtime correctness of the readers themselves (wrong variable, off-by-one). |
 
@@ -112,7 +118,7 @@ Grep-finding a `case "X":` label doesn't prove the handler works. Before claimin
 2. Read the handler body end-to-end and trace the data flow.
 3. Run the card in the UI / simulator.
 
-All four audit scripts are text-shape checks — they miss runtime-handler bugs like wrong variable names in RNG calls (Fred Giant-Sized shipped broken because the text-level checks passed).
+Three of the four audit scripts (`card-status`, `audit-cards`, `decompile-cards`) are text-shape checks — they miss runtime-handler bugs like wrong variable names in RNG calls (Fred Giant-Sized shipped broken because the text-level checks passed). `audit-dead-primitives` is reachability-only and also misses reader-side runtime bugs.
 
 ### Package boundaries — never cross
 ```
