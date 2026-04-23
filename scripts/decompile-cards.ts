@@ -355,6 +355,25 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   this_location_has_character: () => "if this location has a character at it",
   played_via_shift:           () => "if this character was played via Shift",
   triggering_card_played_via_shift: () => "if you used Shift to play them",
+  played_via_sing:            () => "if a character sang this song",
+  triggering_card_played_via_sing: () => "if it was sung",
+  character_was_banished_this_turn: (c) => {
+    // Generalized "a [filter] was banished this turn" — replaces the
+    // former `character_named_was_banished_this_turn`. Filter normally
+    // narrows by hasName (Buzz's Arm: "a character named Buzz Lightyear")
+    // or by hasTrait + owner (Wind-Up Frog: "one of your Toy characters").
+    if (!c.filter) return "if a character was banished this turn";
+    const f = c.filter;
+    if (f.hasName) return `if a character named ${f.hasName} was banished this turn`;
+    const rendered = renderFilter(f);
+    // "your Toy character" → "one of your Toy characters"; else leave as
+    // "a character" if no owner qualifier.
+    if (f.owner?.type === "self") {
+      // renderFilter yields "your Toy character" — prepend "one of".
+      return `if one of ${rendered}s was banished this turn`;
+    }
+    return `if a ${rendered.replace(/^your /, "").replace(/^opposing /, "opposing ")} was banished this turn`;
+  },
 
   // ---- This-card-stat checks ------------------------------------------------
   self_stat_gte:              (c) => `if this character's ${c.stat ?? "strength"} is ${c.amount ?? 0} or more`,
@@ -684,7 +703,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   ready: (e) => {
     const base = `${maybe(e)}ready ${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
-      const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      // Convention: `{type:"this"}` inside followUpEffects refers to the
+      // readied (chosen) character, not the ability source. Rewrite to
+      // render as "they" (consolidates trailing restrictions like
+      // Gosalyn HEROIC INTERVENTION's "they can't quest or challenge").
+      const followUp = e.followUpEffects.map((f: Json) => renderEffect(rewriteFollowUpThisToPronoun(f))).join(". ");
       return `${base}. ${followUp}`;
     }
     return base;
@@ -904,6 +927,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         // pickDestination "hand" (default)
         if (maxPick === 1) {
           if (count === 2 && !e.filter) {
+            // What Else Can I Do? — rest goes to inkwell facedown+exerted.
+            if (rest === "inkwell_exerted") {
+              return `${base}. Put one into your hand and the other into your inkwell facedown and exerted`;
+            }
+            if (rest === "discard") {
+              return `${base}. Put one into your hand and the other into your discard`;
+            }
             return `${base}. Put one into your hand and the other on the bottom of your deck`;
           }
           return `${base}. You may reveal ${filter} and put it into your hand. Put the rest on the bottom of your deck in any order`;
@@ -1938,6 +1968,21 @@ function renderPlayerFilter(f: Json | undefined): string {
 // -----------------------------------------------------------------------------
 // Targets and filters.
 // -----------------------------------------------------------------------------
+/** Rewrites `{type: "this"}` inside a follow-up effect's target to a
+ *  sentinel `{type: "__pronoun_they"}`, which renderTarget translates as
+ *  "they". Used by ready/exert/grant_keyword renderers where convention is
+ *  that "this" in a follow-up refers to the chosen target of the parent
+ *  effect, not the ability source. Called right before renderEffect so the
+ *  follow-up chain sees the pronoun form. */
+function rewriteFollowUpThisToPronoun(eff: Json): Json {
+  if (!eff || typeof eff !== "object") return eff;
+  const clone: Json = { ...eff };
+  if (clone.target?.type === "this") {
+    clone.target = { type: "__pronoun_they" };
+  }
+  return clone;
+}
+
 function renderTarget(t: Json): string {
   if (!t || !t.type) return "[no-target]";
   switch (t.type) {
@@ -1949,6 +1994,8 @@ function renderTarget(t: Json): string {
       return "each player";
     case "this":
       return "this character";
+    case "__pronoun_they":
+      return "they";
     case "triggering_card":
       return "the triggering character";
     case "last_resolved_target":

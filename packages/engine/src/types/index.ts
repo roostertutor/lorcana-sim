@@ -1487,10 +1487,14 @@ export interface LookAtTopEffect {
    *  - "discard"          — Mad Hatter Eccentric Host (look at top, may discard it or leave on top) */
   pickDestination?: "hand" | "deck_top" | "inkwell_exerted" | "discard";
   /** Where the unchosen cards go. Default "bottom".
-   *  - "bottom" — The Family Madrigal rest, DYB, Powerline
-   *  - "top"    — The Family Madrigal uses top, Kida Creative Thinker
-   *  - "discard"— Robin Hood Sharpshooter "put the rest in your discard" */
-  restPlacement?: "top" | "bottom" | "discard";
+   *  - "bottom"           — The Family Madrigal rest, DYB, Powerline
+   *  - "top"              — The Family Madrigal uses top, Kida Creative Thinker
+   *  - "discard"          — Robin Hood Sharpshooter "put the rest in your discard"
+   *  - "inkwell_exerted"  — What Else Can I Do? "Put one into your hand and the
+   *                         other into your inkwell facedown and exerted." —
+   *                         pick goes to hand (pickDestination default), rest
+   *                         (1 card) goes to inkwell facedown+exerted. */
+  restPlacement?: "top" | "bottom" | "discard" | "inkwell_exerted";
   target: PlayerTarget;
   /** CRD 6.1.4: player may choose not to apply this effect. For
    *  "up_to_n_to_hand_rest_bottom" specifically: when true, phase 2 (the pick)

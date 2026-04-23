@@ -2339,6 +2339,15 @@ function applyResolveChoice(
         };
       }
       state = reorderDeckTopToBottom(state, restOwner, rest, []);
+    } else if (restPlacement === "inkwell_exerted") {
+      // What Else Can I Do? — "the other into your inkwell facedown and exerted".
+      // Mirrors the pickDestination:"inkwell_exerted" path above.
+      for (const id of rest) {
+        const cardOwner = state.cards[id]?.ownerId ?? owner;
+        state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
+        state = updateInstance(state, id, { isExerted: true });
+        state = queueTriggersByEvent(state, "card_put_into_inkwell", cardOwner, definitions, {});
+      }
     }
     // "top" placement: cards stay where they were after chosen is removed — no-op.
     state = resumePendingEffectQueue(state, definitions, events);
@@ -4209,8 +4218,22 @@ export function applyEffect(
           // restPlacement default "bottom". For "top" the cards remain in
           // place after the picked ones are removed (or not, for deck_top
           // pickDestination), so no reorder is needed.
-          if ((effect.restPlacement ?? "bottom") === "bottom") {
+          const restMode = effect.restPlacement ?? "bottom";
+          if (restMode === "bottom") {
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
+          } else if (restMode === "discard") {
+            for (const id of rest) {
+              state = moveCard(state, id, targetPlayer, "discard");
+            }
+          } else if (restMode === "inkwell_exerted") {
+            // What Else Can I Do? — rest card(s) go into inkwell facedown+exerted.
+            for (const id of rest) {
+              state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
+              state = updateInstance(state, id, { isExerted: true });
+            }
+            if (rest.length > 0) {
+              state = queueTriggersByEvent(state, "card_put_into_inkwell", targetPlayer, definitions, {});
+            }
           }
           // Set lastResolvedTarget to the picked card so a follow-up
           // self_replacement with target.type=last_resolved_target can

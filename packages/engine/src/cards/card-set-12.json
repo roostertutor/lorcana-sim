@@ -7609,6 +7609,7 @@
         "condition": {
           "type": "character_was_banished_this_turn",
           "filter": {
+            "cardType": ["character"],
             "hasTrait": "Toy",
             "owner": { "type": "self" }
           }
@@ -11074,7 +11075,7 @@
         "action": "choose_from_top",
         "target": { "type": "self" },
         "maxToHand": 1,
-        "restPlacement": "inkwell"
+        "restPlacement": "inkwell_exerted"
       },
       {
         "type": "grant_keyword",
@@ -14697,7 +14698,7 @@
         "action": "choose_from_top",
         "target": { "type": "self" },
         "maxToHand": 1,
-        "restPlacement": "inkwell"
+        "restPlacement": "inkwell_exerted"
       },
       {
         "type": "grant_keyword",

@@ -1479,7 +1479,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       action: "choose_from_top",
       target: { type: "self" },
       maxToHand: 1,
-      restPlacement: "inkwell",
+      restPlacement: "inkwell_exerted",
     }),
   },
 
@@ -1967,6 +1967,40 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     name: "this_is_exerted",
     pattern: /^(?:if|while) this character is exerted/i,
     build: () => ({ type: "this_is_exerted" }),
+  },
+
+  // played_via_sing — "If a character sang this song, ..." (What Else Can I
+  // Do?). Read from the song's own CardInstance.playedViaSing flag (set in
+  // applyPlayCard when a singer is present). Mirrors played_via_shift.
+  {
+    name: "played_via_sing",
+    pattern: /^if a character sang this song/i,
+    build: () => ({ type: "played_via_sing" }),
+  },
+
+  // character_was_banished_this_turn — "If a character named X was banished
+  // this turn" (Buzz's Arm) / "If one of your Toy characters was banished
+  // this turn" (Wind-Up Frog). Generalized CardFilter form replaces the
+  // older name-only variant.
+  {
+    name: "char_named_was_banished_this_turn",
+    pattern: /^if a character named ([A-Z][\w'’\- ]*?) was banished this turn/i,
+    build: (m) => ({
+      type: "character_was_banished_this_turn",
+      filter: { hasName: m[1].trim() },
+    }),
+  },
+  {
+    name: "char_with_trait_was_banished_this_turn",
+    pattern: /^if one of your ([A-Z][a-zA-Z]*) characters was banished this turn/i,
+    build: (m) => ({
+      type: "character_was_banished_this_turn",
+      filter: {
+        cardType: ["character"],
+        hasTrait: m[1],
+        owner: { type: "self" },
+      },
+    }),
   },
 ];
 
