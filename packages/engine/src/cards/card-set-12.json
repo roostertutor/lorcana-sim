@@ -6457,8 +6457,10 @@
           "hand"
         ],
         "condition": {
-          "type": "character_named_was_banished_this_turn",
-          "name": "Buzz Lightyear"
+          "type": "character_was_banished_this_turn",
+          "filter": {
+            "hasName": "Buzz Lightyear"
+          }
         },
         "effect": {
           "type": "grant_play_for_free_self"

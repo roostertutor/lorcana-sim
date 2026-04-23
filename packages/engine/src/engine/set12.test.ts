@@ -13,7 +13,7 @@ import {
   giveInk,
   passTurns,
 } from "./test-helpers.js";
-import { getInstance, getZone } from "../utils/index.js";
+import { getInstance, getZone, evaluateCondition } from "../utils/index.js";
 
 describe("Set 12 — Dash Parr Lava Runner RECORD TIME", () => {
   it("can quest the turn he's played (bypasses CRD 5.1.1.11 drying)", () => {
@@ -1486,17 +1486,18 @@ describe("Set 12 — fits-grammar novel pattern: Buzz's Arm MISSING PIECE", () =
     ({ state, instanceId: buzzId } = injectCard(state, "player1", "buzz-lightyear-jungle-ranger", "play", { isDrying: false, damage: 8 }));
     // Inject Buzz's Arm in hand (before banish — static reads activeZones:["hand"]).
     ({ state, instanceId: armId } = injectCard(state, "player1", "buzzs-arm", "hand"));
-    void buzzId;
     void armId;
 
-    // Seed the condition directly: push "Buzz Lightyear" onto characterNamesBanishedThisTurn.
+    // Seed the condition directly: push Buzz's instanceId onto player1's
+    // banishedThisTurn (the condition resolves definitionId → CardDefinition
+    // and evaluates the CardFilter's hasName against def.name).
     state = {
       ...state,
       players: {
         ...state.players,
         player1: {
           ...state.players.player1,
-          characterNamesBanishedThisTurn: ["Buzz Lightyear"],
+          banishedThisTurn: [buzzId],
         },
       },
     };
@@ -1520,6 +1521,98 @@ describe("Set 12 — fits-grammar novel pattern: Buzz's Arm MISSING PIECE", () =
       (a: any) => a.type === "PLAY_CARD" && a.instanceId === armId && a.viaGrantedFreePlay === true
     );
     expect(playForFree).toBeUndefined();
+  });
+});
+
+describe("Set 12 — character_was_banished_this_turn: generalized CardFilter path", () => {
+  // Regression coverage for the 2026-04-23 generalization of
+  // character_named_was_banished_this_turn → character_was_banished_this_turn
+  // with a full CardFilter. Proves trait + owner filters work, not just
+  // hasName (which Buzz's Arm already exercises above).
+
+  it("hasTrait filter matches when a character with that trait was banished this turn", () => {
+    let state = startGame();
+    // Wind-Up Frog is trait: Toy. Put one into player1's banishedThisTurn.
+    let frogId: string;
+    ({ state, instanceId: frogId } = injectCard(state, "player1", "wind-up-frog-sids-toy", "discard"));
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player1: { ...state.players.player1, banishedThisTurn: [frogId] },
+      },
+    };
+
+    // Self-scoped trait filter — the Wind-Up Frog ADDED TRACTION shape.
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Toy", owner: { type: "self" } } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(true);
+
+    // Negative: a different trait doesn't match.
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Princess", owner: { type: "self" } } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(false);
+  });
+
+  it("owner filter scopes matches to the banishing player's list", () => {
+    let state = startGame();
+    // Put a Toy on player2's list only.
+    let frogId: string;
+    ({ state, instanceId: frogId } = injectCard(state, "player2", "wind-up-frog-sids-toy", "discard"));
+    state = {
+      ...state,
+      players: {
+        ...state.players,
+        player2: { ...state.players.player2, banishedThisTurn: [frogId] },
+      },
+    };
+
+    // From player1's viewpoint: owner:self filter misses (frog belongs to p2).
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Toy", owner: { type: "self" } } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(false);
+
+    // Same viewpoint, owner:opponent → matches (frog is on opponent's list).
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Toy", owner: { type: "opponent" } } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(true);
+
+    // No owner filter → OR-combines both lists, so matches (Buzz's Arm pattern).
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Toy" } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(true);
+  });
+
+  it("real banish event populates the list (not just direct seeding)", () => {
+    // End-to-end: actually banish a character via the reducer path and
+    // confirm the condition fires. Guards against someone only testing
+    // seeded state and missing a reducer wiring regression.
+    let state = startGame();
+    let frogId: string;
+    ({ state, instanceId: frogId } = injectCard(state, "player1", "wind-up-frog-sids-toy", "play", { isDrying: false, damage: 0 }));
+
+    // Direct banish via triggering_card target — bypasses the choose-target
+    // flow so the test stays synchronous.
+    state = applyEffect(
+      state,
+      { type: "banish", target: { type: "triggering_card" } },
+      "nonexistent-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+      frogId,
+    );
+
+    expect(state.players.player1.banishedThisTurn).toContain(frogId);
+    expect(evaluateCondition(
+      { type: "character_was_banished_this_turn", filter: { hasTrait: "Toy", owner: { type: "self" } } },
+      state, CARD_DEFINITIONS, "player1", "nonexistent-source"
+    )).toBe(true);
   });
 });
 

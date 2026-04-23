@@ -2706,12 +2706,27 @@ export type Condition =
   | { type: "last_effect_result"; comparison: "gte" | "lte" | "gt" | "lt" | "eq"; amount: number }
   | { type: "opponent_character_was_banished_in_challenge_this_turn" }
   | { type: "a_character_was_banished_in_challenge_this_turn" }
-  /** True if any character whose printed name matches `name` was banished this
-   *  turn (from either player's play zone). Backed by
-   *  PlayerState.characterNamesBanishedThisTurn. Used by Buzz's Arm
-   *  MISSING PIECE ("if a character named Buzz Lightyear was banished this
-   *  turn, you may play this item for free"). */
-  | { type: "character_named_was_banished_this_turn"; name: string }
+  /** True if any character was banished from play this turn whose CardDefinition
+   *  (+ ownership) matches the given CardFilter. Backed by
+   *  PlayerState.banishedThisTurn, which stores the instanceId of each
+   *  banished character (instances persist in state.cards after moving to
+   *  discard, so the filter is evaluated against a real instance + def).
+   *
+   *  Both players' lists are OR-combined by default — most oracles don't
+   *  restrict by owner. A card that does want owner-scoping specifies
+   *  `filter.owner` (`{type: "self"}` → "one of your characters was
+   *  banished", `{type: "opponent"}` → "an opposing character was banished").
+   *
+   *  Supported filter fields: definition-level (`hasName`, `hasTrait`,
+   *  `hasAnyTrait`, `cardType`, `cost*`, `inkColors`, `hasKeyword`) + `owner`.
+   *  Avoid `zone` in the filter — banished cards typically sit in discard
+   *  but that's not what the oracle means by "was banished".
+   *
+   *  Used by:
+   *    - Buzz's Arm MISSING PIECE — `{hasName: "Buzz Lightyear"}`
+   *    - Wind-Up Frog ADDED TRACTION — `{hasTrait: "Toy", owner: {type:"self"}}`
+   *  Cleared at PASS_TURN for both players. */
+  | { type: "character_was_banished_this_turn"; filter: CardFilter }
   | { type: "not"; condition: Condition }
   | { type: "played_via_shift" }
   | { type: "triggering_card_played_via_shift" }
@@ -3304,14 +3319,16 @@ export interface PlayerState {
    *  Used by Julieta's Arepas THAT DID THE TRICK activated ability.
    *  Cleared at PASS_TURN. Mirror of aCharacterWasDamagedThisTurn. */
   youRemovedDamageThisTurn?: boolean;
-  /** Distinct character names banished from THIS player's play zone this
-   *  turn. Appended in zoneTransition when a character moves play→discard.
-   *  Used by Buzz's Arm MISSING PIECE ("if a character named Buzz Lightyear
-   *  was banished this turn, you may play this item for free") via the
-   *  `character_named_was_banished_this_turn` condition, which OR-combines
-   *  both players' lists (oracle doesn't restrict by owner). Cleared at
-   *  PASS_TURN for both players. */
-  characterNamesBanishedThisTurn?: string[];
+  /** InstanceIds of characters banished from THIS player's play zone this
+   *  turn. Appended on the banish path (reason: "banished"). Instances persist
+   *  in state.cards after banish (zone flips to "discard"), so the
+   *  `character_was_banished_this_turn` condition can evaluate any
+   *  definition-level CardFilter against each stored instance.
+   *
+   *  The condition OR-combines both players' lists; a card that wants
+   *  owner-scoped matching specifies `filter.owner`. Cleared at PASS_TURN
+   *  for both players. */
+  banishedThisTurn?: string[];
   /** Timed play restrictions affecting this player (Pete Games Referee, Keep the
    *  Ancient Ways). Each entry blocks plays of certain card types until the
    *  CASTER'S next turn begins. Multiple entries OR-combine. */

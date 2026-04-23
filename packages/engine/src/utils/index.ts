@@ -1049,14 +1049,31 @@ export function evaluateCondition(
       return !!state.players[controllingPlayerId].aCharacterWasBanishedInChallengeThisTurn
         || !!state.players[opponent].aCharacterWasBanishedInChallengeThisTurn;
     }
-    case "character_named_was_banished_this_turn": {
-      // Buzz's Arm MISSING PIECE — "if a character named Buzz Lightyear was
-      // banished this turn, you may play this item for free". Name match is
-      // printed-name only; does not iterate alternateNames (oracle wording
-      // is literal). Consults both players' lists.
-      const mine = state.players[controllingPlayerId].characterNamesBanishedThisTurn ?? [];
-      const theirs = state.players[opponent].characterNamesBanishedThisTurn ?? [];
-      return mine.includes(condition.name) || theirs.includes(condition.name);
+    case "character_was_banished_this_turn": {
+      // Iterate both players' banishedThisTurn instanceId lists (OR-combined
+      // — oracles don't restrict by owner unless filter.owner says so). For
+      // each banished instance, resolve the (now-in-discard) instance + def
+      // and evaluate the CardFilter. `viewingPlayerId` is the controller, so
+      // `filter.owner: {type: "self"}` means "one of YOUR characters was
+      // banished." Used by Buzz's Arm MISSING PIECE (hasName) and Wind-Up
+      // Frog ADDED TRACTION (hasTrait + owner:self).
+      const myList = state.players[controllingPlayerId].banishedThisTurn ?? [];
+      const theirList = state.players[opponent].banishedThisTurn ?? [];
+      for (const id of myList) {
+        const inst = state.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        if (matchesFilter(inst, def, condition.filter, state, controllingPlayerId, sourceInstanceId, definitions)) return true;
+      }
+      for (const id of theirList) {
+        const inst = state.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        if (matchesFilter(inst, def, condition.filter, state, controllingPlayerId, sourceInstanceId, definitions)) return true;
+      }
+      return false;
     }
     case "opposing_character_was_damaged_this_turn": {
       // Nathaniel Flint - Notorious Pirate: "You can't play this character unless an opposing character was damaged this turn."

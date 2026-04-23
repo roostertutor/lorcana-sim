@@ -1726,7 +1726,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
-        characterNamesBanishedThisTurn: [],
+        banishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
       // CRD 3.4.1.2: clear the ending player's turn-scoped conditional challenge bonuses
@@ -1745,7 +1745,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
-        characterNamesBanishedThisTurn: [],
+        banishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
     },
@@ -6444,25 +6444,27 @@ function zoneTransition(
           const banishStrBonus = banishMods.statBonuses.get(instanceId)?.strength ?? 0;
           state = { ...state, lastBanishedSourceStrength: getEffectiveStrength(instance, def, banishStrBonus, banishMods) };
         }
-        // Track character names banished this turn on the owner's PlayerState
-        // (Buzz's Arm MISSING PIECE — "if a character named Buzz Lightyear was
-        // banished this turn, you may play this item for free"). Both owners'
-        // lists are consulted by the `character_named_was_banished_this_turn`
-        // condition — the oracle doesn't restrict by owner. Cleared at PASS_TURN.
+        // Track characters banished this turn on the owner's PlayerState.
+        // Stores instanceIds (instances persist in state.cards with zone
+        // flipped to "discard"), so the `character_was_banished_this_turn`
+        // condition can evaluate any definition-level CardFilter against the
+        // stored entries. Both owners' lists are OR-combined by the condition
+        // (oracles don't restrict by owner unless filter.owner says so). No
+        // dedupe: two banished Buzz Lightyears should count as two events for
+        // any future aggregating oracle. Used by Buzz's Arm MISSING PIECE and
+        // Wind-Up Frog ADDED TRACTION. Cleared at PASS_TURN.
         if (def && def.cardType === "character") {
-          const prev = state.players[instance.ownerId].characterNamesBanishedThisTurn ?? [];
-          if (!prev.includes(def.name)) {
-            state = {
-              ...state,
-              players: {
-                ...state.players,
-                [instance.ownerId]: {
-                  ...state.players[instance.ownerId],
-                  characterNamesBanishedThisTurn: [...prev, def.name],
-                },
+          const prev = state.players[instance.ownerId].banishedThisTurn ?? [];
+          state = {
+            ...state,
+            players: {
+              ...state.players,
+              [instance.ownerId]: {
+                ...state.players[instance.ownerId],
+                banishedThisTurn: [...prev, instanceId],
               },
-            };
-          }
+            },
+          };
         }
         state = queueTrigger(state, "is_banished", instanceId, definitions, {});
 
