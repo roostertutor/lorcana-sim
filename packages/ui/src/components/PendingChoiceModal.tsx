@@ -302,7 +302,7 @@ export default function PendingChoiceModal({
             </div>
           )}
           {!isOpponentMay && pendingChoice.validTargets && (
-            <div className="grid grid-cols-4 gap-1.5 pb-1">
+            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
               {(pendingChoice.validTargets ?? []).map((id: string) => {
                 const isSel = multiSelectTargets[0] === id;
                 return (
@@ -386,7 +386,11 @@ export default function PendingChoiceModal({
             </div>
             <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
           </div>
-          <div className="grid grid-cols-4 gap-1.5 pb-1">
+          {/* Mulligan always has exactly 7 cards — single row on sm+ looks
+              cleaner than a 4+3 grid. Mobile portrait (< sm) stays 4-col
+              because 7 cards at 88px × scale-0.78 ≈ 69px each needs 480px+,
+              which doesn't fit iPhone-class widths. */}
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
             {hand.map((id) => {
               const selected = multiSelectTargets.includes(id);
               return (
@@ -427,7 +431,7 @@ export default function PendingChoiceModal({
               Click cards in order — #1 goes deepest, #{total} sits on top
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-1.5 pb-1">
+          <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
             {ids.map((id) => {
               const posIndex = multiSelectTargets.indexOf(id);
               const isOrdered = posIndex !== -1;
@@ -496,7 +500,7 @@ export default function PendingChoiceModal({
             </div>
           </div>
           {displayIds.length > 0 && (
-            <div className="grid grid-cols-4 gap-1.5 pb-1">
+            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
               {displayIds.map((id) => {
                 const selectable = validSet.has(id);
                 const selected = multiSelectTargets.includes(id);
@@ -814,7 +818,7 @@ export default function PendingChoiceModal({
             {mineIds.length > 0 && (
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-green-500 font-bold mb-1">Your characters</div>
-                <div className="grid grid-cols-4 gap-1.5 pb-1">
+                <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
                   {mineIds.map(renderCard)}
                 </div>
               </div>
@@ -822,14 +826,14 @@ export default function PendingChoiceModal({
             {oppIds.length > 0 && (
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-red-500 font-bold mb-1">Opponent's characters</div>
-                <div className="grid grid-cols-4 gap-1.5 pb-1">
+                <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
                   {oppIds.map(renderCard)}
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-1.5 pb-1">
+          <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
             {displayCards.map(renderCard)}
           </div>
         )}
@@ -873,17 +877,19 @@ export default function PendingChoiceModal({
         title="Click to peek at the board"
       />
 
-      {/* Panel — bottom sheet on mobile, centered card on sm+ */}
-      <div className="relative z-10 w-full sm:max-w-lg sm:mx-4
+      {/* Panel — bottom sheet on mobile, centered card on sm+.
+          Widened to max-w-2xl on sm+ so the mulligan grid (grid-cols-7 on sm+)
+          and the landscape-phone 7-col target-picker grids fit without
+          horizontal overflow. */}
+      <div className="relative z-10 w-full sm:max-w-2xl sm:mx-4
                       max-h-[82vh] overflow-y-auto
                       bg-gray-950 border border-gray-700
                       rounded-t-2xl sm:rounded-2xl
                       p-5 pb-[max(env(safe-area-inset-bottom,0px),20px)]
                       shadow-2xl">
-        {/* Panel header row: drag handle (mobile) + A/B toggle + hide button */}
+        {/* Panel header row: A/B toggle + hide button */}
         <div className="flex items-center justify-between mb-3 gap-2">
-          <div className="w-10 h-1 bg-gray-700 rounded-full sm:hidden" />
-          <div className="hidden sm:block" /> {/* spacer */}
+          <div /> {/* spacer */}
           {/* A/B toggle: art vs structured text rendering. Only visible on surfaces
               that render card previews (choose_may + choose_trigger). */}
           {(pendingChoice.type === "choose_may" || pendingChoice.type === "choose_trigger") && (

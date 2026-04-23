@@ -570,6 +570,30 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [popoverPos, setPopoverPos] = useState<{ top: number; left: number; placement: "above" | "below" } | null>(null);
 
+  // Track viewport width/orientation so the hand fan can scrunch tight enough
+  // for 10+ cards to stay fully visible on portrait phones without clipping
+  // the leftmost card. Recomputed on resize/rotation; the fallback (static)
+  // tier below kicks in during SSR or before the listener attaches.
+  const [viewportMetrics, setViewportMetrics] = useState<{ vw: number; isLandscapePhone: boolean }>(() => {
+    if (typeof window === "undefined") return { vw: 390, isLandscapePhone: false };
+    return {
+      vw: window.innerWidth,
+      isLandscapePhone: window.innerHeight <= 500 && window.innerWidth > window.innerHeight,
+    };
+  });
+  useEffect(() => {
+    const update = () => setViewportMetrics({
+      vw: window.innerWidth,
+      isLandscapePhone: window.innerHeight <= 500 && window.innerWidth > window.innerHeight,
+    });
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, []);
+
   // Dismiss the card action popover when the user clicks outside it (e.g.
   // empty board space, scoreboard, utility strip) or presses Escape. Clicks
   // on another card are handled by handleClick which toggles/swaps inspectCardId;
@@ -1488,12 +1512,34 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // DragOverlay — no need to compute per-card here.
     const isDropTarget = !!dnd.activeId && dnd.isValidCardDrop(dnd.activeId, id);
 
-    // Fan effect for hand cards — overlap + subtle rotation
+    // Fan effect for hand cards — overlap + subtle rotation.
     const isHandCard = zone === "hand";
     const midpoint = (total - 1) / 2;
     const normalizedPos = total > 1 ? (index - midpoint) / midpoint : 0; // -1..1
-    // Tighten overlap as hand grows so all cards stay visible
-    const overlapPx = total >= 7 ? 50 : total >= 5 ? 32 : 22;
+    // Dynamic fan compression: compute the tightest overlap that still leaves
+    // every card fully visible, accounting for the ±6° per-card rotation that
+    // extends the outer cards' top corners by sin(6°) × cardHeight beyond
+    // their laid-out box (~26px total side overhang for a standard 88×123
+    // card). Floor at 22px overlap so small hands fan naturally; ceiling at
+    // cardWidth−18 so each card keeps ≥18px visible regardless of hand size.
+    // Recomputes on viewport resize/rotation via `viewportMetrics`.
+    //
+    // Replaced a tiered model (≤6:32, ≤9:50, 10+:dynamic) that misjudged
+    // 7–9 cards on iPhone 13 portrait: 8 cards at 50px overlap ≈ 354px +
+    // 26px rotation = 380px visual, clipping a 374px container by ~6px on
+    // the leftmost card. Dynamic formula now compresses starting at total=5.
+    let overlapPx = 22;
+    if (total >= 2 && isHandCard) {
+      const cardW = viewportMetrics.isLandscapePhone ? 72 : 88;
+      const cardH = cardW * (7 / 5); // aspect-[5/7]
+      const rotOverhang = Math.sin((6 * Math.PI) / 180) * cardH;
+      // Hand strip content width ≈ viewport − (parent px + hand px) ≈ vw − 16.
+      // On md+ the hand wraps to multiple rows instead of fanning, so this
+      // branch is effectively mobile-only.
+      const containerW = Math.max(200, viewportMetrics.vw - 16) - 2 * rotOverhang;
+      const needed = cardW - (containerW - cardW) / (total - 1);
+      overlapPx = Math.max(22, Math.min(cardW - 18, needed));
+    }
     const handStyle: React.CSSProperties | undefined = isHandCard ? {
       marginLeft: index > 0 ? `-${overlapPx}px` : "0",
       transform: `rotate(${normalizedPos * 6}deg)`,
@@ -1619,14 +1665,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     <div
       className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] landscape-phone:!grid-cols-1 gap-0 md:gap-4 lg:gap-5 landscape-phone:!gap-0"
       style={{
-        // iPhone Dynamic Island / notch / home-indicator — keep content inside
-        // the safe area. viewport-fit=cover in index.html opts in; these insets
-        // are 0 on platforms without a notch. Landscape left/right insets
-        // protect against the island occupying one side in landscape.
+        // iPhone Dynamic Island / notch — keep content inside the safe area on
+        // top/sides. viewport-fit=cover in index.html opts in; these insets
+        // are 0 on platforms without a notch.
+        //
+        // Bottom safe-area (home-indicator) deliberately NOT padded: in PWA
+        // standalone mode it reserved ~34px of black bar below the hand, and
+        // in browser mode `h-dvh` already tracks the collapsing URL bar so no
+        // extra padding is needed. We accept that hand-card drags near the
+        // very bottom edge in PWA portrait risk triggering the home gesture;
+        // dnd-kit's pointer capture generally holds through the zone.
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
         paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
       {/* ======================= Main game area ======================= */}
