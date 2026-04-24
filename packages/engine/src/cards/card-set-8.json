@@ -3496,7 +3496,9 @@
               {
                 "type": "gain_lore",
                 "amount": {
-                  "type": "target_lore"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "lore"
                 },
                 "target": {
                   "type": "self"
@@ -10481,7 +10483,9 @@
           {
             "type": "gain_lore",
             "amount": {
-              "type": "target_damage"
+              "type": "stat_ref",
+              "from": "target",
+              "property": "damage"
             },
             "target": {
               "type": "self"

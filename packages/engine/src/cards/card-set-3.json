@@ -5098,7 +5098,11 @@
         "effects": [
           {
             "type": "gain_lore",
-            "amount": "triggering_card_lore",
+            "amount": {
+              "type": "stat_ref",
+              "from": "triggering_card",
+              "property": "lore"
+            },
             "target": {
               "type": "self"
             }
@@ -7999,7 +8003,11 @@
       },
       {
         "type": "gain_lore",
-        "amount": "last_target_location_lore",
+        "amount": {
+          "type": "stat_ref",
+          "from": "last_target_location",
+          "property": "lore"
+        },
         "target": {
           "type": "self"
         }
@@ -10148,7 +10156,9 @@
               {
                 "type": "gain_lore",
                 "amount": {
-                  "type": "target_lore"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "lore"
                 },
                 "target": {
                   "type": "self"

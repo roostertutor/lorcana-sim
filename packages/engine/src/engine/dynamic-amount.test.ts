@@ -51,7 +51,7 @@ describe("DynamicAmount variants", () => {
       target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "self" } } },
       condition: {}, // match-all → always the "instead" branch
       instead: [
-        { type: "gain_lore", amount: { type: "target_lore" }, target: { type: "self" } },
+        { type: "gain_lore", amount: { type: "stat_ref", from: "target", property: "lore" }, target: { type: "self" } },
       ],
       effect: [],
     } as any, srcId, "player1", CARD_DEFINITIONS, []);
@@ -72,7 +72,7 @@ describe("DynamicAmount variants", () => {
 
     state = applyEffect(state, {
       type: "deal_damage",
-      amount: { type: "source_strength" },
+      amount: { type: "stat_ref", from: "source", property: "strength" },
       target: { type: "chosen", filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } } },
     } as any, srcId, "player1", CARD_DEFINITIONS, []);
 
@@ -91,7 +91,7 @@ describe("DynamicAmount variants", () => {
     const loreBefore = state.players.player1.lore;
     state = applyEffect(state, {
       type: "gain_lore",
-      amount: { type: "source_lore", max: 0 },
+      amount: { type: "stat_ref", from: "source", property: "lore", max: 0 },
       target: { type: "self" },
     } as any, srcId, "player1", CARD_DEFINITIONS, []);
     // Capped to 0 — no lore gained
@@ -100,7 +100,7 @@ describe("DynamicAmount variants", () => {
     // Without cap — source lore 1 gained
     state = applyEffect(state, {
       type: "gain_lore",
-      amount: { type: "source_lore" },
+      amount: { type: "stat_ref", from: "source", property: "lore" },
       target: { type: "self" },
     } as any, srcId, "player1", CARD_DEFINITIONS, []);
     expect(state.players.player1.lore).toBe(loreBefore + 1);

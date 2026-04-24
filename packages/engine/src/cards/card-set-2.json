@@ -8037,7 +8037,9 @@
               {
                 "type": "draw",
                 "amount": {
-                  "type": "target_damage"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "damage"
                 },
                 "target": {
                   "type": "self"
@@ -8183,7 +8185,9 @@
             },
             "duration": "this_turn",
             "strengthDynamic": {
-              "type": "target_damage"
+              "type": "stat_ref",
+              "from": "target",
+              "property": "damage"
             }
           }
         ]

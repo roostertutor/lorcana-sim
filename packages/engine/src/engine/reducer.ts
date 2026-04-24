@@ -2647,11 +2647,77 @@ function applyResolveChoice(
 /**
  * Resolve a DynamicAmount to a number. See the DynamicAmount type in
  * packages/engine/src/types/index.ts for variant semantics. Variants that
- * depend on a chosen target (target_lore / target_damage / target_strength)
- * require `targetInstanceId` to be passed in — when resolving at choose-from-
- * targets time (applyEffectToTarget). source_lore / source_strength require
- * `sourceInstanceId`. Any `max` field on the object form caps the result.
+ * Stat-from-reference reads use {type:"stat_ref", from, property} — resolved
+ * by the helper below. `target` variants require `targetInstanceId`;
+ * `source` variants require `sourceInstanceId`; `triggering_card` variants
+ * require `triggeringCardInstanceId`. lastResolved* refs read from state
+ * snapshots. Any `max` field on the object form caps the result.
  */
+function resolveStatRef(
+  ref: { type: "stat_ref"; from: string; property: string },
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  sourceInstanceId: string,
+  triggeringCardInstanceId: string | undefined,
+  targetInstanceId: string | undefined,
+): number {
+  const { from, property } = ref;
+  // Helper: read `property` off a live CardInstance via effective-stat
+  // helpers (respects modifiers/static buffs). Cost reads the definition;
+  // damage reads the instance directly.
+  const readLiveStat = (instId: string): number => {
+    const inst = state.cards[instId];
+    const def = inst ? definitions[inst.definitionId] : undefined;
+    if (!inst || !def) return 0;
+    const mods = getGameModifiers(state, definitions);
+    const bonuses = mods.statBonuses.get(instId);
+    switch (property) {
+      case "cost":      return def.cost;
+      case "strength":  return getEffectiveStrength(inst, def, bonuses?.strength ?? 0, mods);
+      case "willpower": return getEffectiveWillpower(inst, def, bonuses?.willpower ?? 0, mods);
+      case "lore":      return getEffectiveLore(inst, def, bonuses?.lore ?? 0);
+      case "damage":    return inst.damage;
+      case "delta":     return 0; // `delta` is a ResolvedRef-only property
+      default:          return 0;
+    }
+  };
+  // Helper: read `property` off a ResolvedRef snapshot.
+  const readRef = (r: import("../types/index.js").ResolvedRef | undefined): number => {
+    if (!r) return 0;
+    switch (property) {
+      case "cost":      return r.cost ?? 0;
+      case "strength":  return r.strength ?? 0;
+      case "willpower": return r.willpower ?? 0;
+      case "lore":      return r.lore ?? 0;
+      case "damage":    return r.damage ?? 0;
+      case "delta":     return r.delta ?? 0;
+      default:          return 0;
+    }
+  };
+  switch (from) {
+    case "source":
+      return sourceInstanceId ? readLiveStat(sourceInstanceId) : 0;
+    case "target":
+      return targetInstanceId ? readLiveStat(targetInstanceId) : 0;
+    case "triggering_card":
+      return triggeringCardInstanceId ? readLiveStat(triggeringCardInstanceId) : 0;
+    case "last_resolved_source":
+      return readRef(state.lastResolvedSource);
+    case "last_resolved_target":
+      return readRef(state.lastResolvedTarget);
+    case "last_target_location": {
+      // I've Got a Dream pattern: the last-chosen target was a character at
+      // a location; read a stat off the location itself (not the character).
+      const tgtId = state.lastResolvedTarget?.instanceId;
+      const tgtInst = tgtId ? state.cards[tgtId] : undefined;
+      const locId = tgtInst?.atLocationInstanceId;
+      return locId ? readLiveStat(locId) : 0;
+    }
+    default:
+      return 0;
+  }
+}
+
 function resolveDynamicAmount(
   amount: import("../types").DynamicAmount,
   state: GameState,
@@ -2665,18 +2731,12 @@ function resolveDynamicAmount(
   if (typeof amount === "number") return amount;
   if (amount === "cost_result") return state.lastEffectResult ?? 0;
   // "damage_on_target" was declared but never used by any card JSON. Deleted.
-  if (amount === "triggering_card_lore") {
-    const inst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
-    const def = inst ? definitions[inst.definitionId] : undefined;
-    return def?.lore ?? 0;
-  }
-  if (amount === "triggering_card_damage") {
-    const inst = triggeringCardInstanceId ? state.cards[triggeringCardInstanceId] : undefined;
-    return inst?.damage ?? 0;
-  }
-  if (amount === "last_resolved_target_delta") {
-    return state.lastResolvedTarget?.delta ?? 0;
-  }
+  // 7 stat-from-reference string variants (triggering_card_lore,
+  // triggering_card_damage, last_resolved_target_delta,
+  // last_resolved_source_strength, last_resolved_target_lore,
+  // last_resolved_target_strength, last_target_location_lore) were collapsed
+  // 2026-04-24 into the {type:"stat_ref", from, property} object variant —
+  // see the switch block below.
   if (amount === "last_damage_dealt") {
     return state.lastDamageDealtAmount ?? 0;
   }
@@ -2693,25 +2753,8 @@ function resolveDynamicAmount(
     }
     return inks.size;
   }
-  if (amount === "last_resolved_source_strength") {
-    return state.lastResolvedSource?.strength ?? 0;
-  }
   if (amount === "song_singer_count") {
     return state.lastSongSingerCount ?? 0;
-  }
-  if (amount === "last_resolved_target_lore") {
-    return state.lastResolvedTarget?.lore ?? 0;
-  }
-  if (amount === "last_resolved_target_strength") {
-    return state.lastResolvedTarget?.strength ?? 0;
-  }
-  if (amount === "last_target_location_lore") {
-    const lastTargetId = state.lastResolvedTarget?.instanceId;
-    const lastTargetInst = lastTargetId ? state.cards[lastTargetId] : undefined;
-    const locId = lastTargetInst?.atLocationInstanceId;
-    const locInst = locId ? state.cards[locId] : undefined;
-    const locDef = locInst ? definitions[locInst.definitionId] : undefined;
-    return locDef?.lore ?? 0;
   }
   // Object variants
   let resolved = 0;
@@ -2719,68 +2762,16 @@ function resolveDynamicAmount(
     case "count":
       resolved = findMatchingInstances(state, definitions, amount.filter, controllingPlayerId, sourceInstanceId).length;
       break;
-    case "target_lore": {
-      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveLore(inst, def, mods.statBonuses.get(targetInstanceId!)?.lore ?? 0);
-      }
-      break;
-    }
-    case "target_damage": {
-      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
-      resolved = inst?.damage ?? 0;
-      break;
-    }
-    case "target_strength": {
-      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveStrength(inst, def, mods.statBonuses.get(targetInstanceId!)?.strength ?? 0, mods);
-      }
-      break;
-    }
-    case "target_willpower": {
-      // Ranger Team-up: "+{S} equal to their {W}". Replaces the former
-      // strengthEqualsTargetWillpower flag on GainStatsEffect.
-      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveWillpower(inst, def, mods.statBonuses.get(targetInstanceId!)?.willpower ?? 0, mods);
-      }
-      break;
-    }
-    case "source_lore": {
-      const inst = state.cards[sourceInstanceId];
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveLore(inst, def, mods.statBonuses.get(sourceInstanceId)?.lore ?? 0);
-      }
-      break;
-    }
-    case "source_strength": {
-      const inst = state.cards[sourceInstanceId];
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveStrength(inst, def, mods.statBonuses.get(sourceInstanceId)?.strength ?? 0, mods);
-      }
-      break;
-    }
-    case "source_willpower": {
-      // Zipper Big Helper BUZZING ENTHUSIASM: "add his {W} to another
-      // chosen character's {S}". Replaces the former
-      // strengthEqualsSourceWillpower flag on GainStatsEffect.
-      const inst = state.cards[sourceInstanceId];
-      const def = inst ? definitions[inst.definitionId] : undefined;
-      if (inst && def) {
-        const mods = getGameModifiers(state, definitions);
-        resolved = getEffectiveWillpower(inst, def, mods.statBonuses.get(sourceInstanceId)?.willpower ?? 0, mods);
-      }
+    case "stat_ref": {
+      // Unified stat-from-reference reader (2026-04-24 consolidation).
+      // Reads `property` off the card/ref named by `from`. Replaces 14
+      // former per-stat variants (7 string + 7 object). Effective values
+      // (post-modifier) are used for stats on live CardInstances;
+      // lastResolved* snapshots are read from their pre-captured ResolvedRef
+      // fields. Returns 0 if the reference isn't populated (same graceful-
+      // fail semantic as the old per-variant cases). See CLAUDE.md's
+      // DynamicAmount section for the supported (from × property) pairs.
+      resolved = resolveStatRef(amount, state, definitions, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
       break;
     }
     case "cards_under_count": {

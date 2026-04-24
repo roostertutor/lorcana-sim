@@ -1685,39 +1685,43 @@ function renderAmount(a: any): string {
   if (typeof a === "number") return String(a);
   if (typeof a === "string") {
     switch (a) {
-      case "target_lore": return "their {L}";
-      case "target_strength": return "their {S}";
-      case "target_damage": return "the amount of damage on them";
-      case "source_strength": return "this character's {S}";
       case "last_effect_result": return "each 1 lost this way";
       case "cost_result": return "each 1 affected this way";
-      case "last_resolved_target_delta": return "each 1 removed this way";
       // Colors of the Wind: "for each different ink type of cards revealed this way"
       case "unique_ink_types_on_top_of_both_decks": return "each different ink type of cards revealed this way";
       // Namaari Resolute Daughter: "For each opposing character banished in a challenge this turn"
       case "opposing_chars_banished_in_challenge_this_turn": return "each opposing character banished in a challenge this turn";
       // Mulan Elite Archer / Namaari Heir of Fang: "equal to the damage just dealt"
       case "last_damage_dealt": return "the damage just dealt";
-      case "last_resolved_source_strength": return "their {S}";
-      case "last_resolved_target_lore": return "their {L}";
-      case "last_resolved_target_strength": return "their {S}";
       case "song_singer_count": return "the number of characters that sang this song";
-      case "triggering_card_lore": return "their {L}";
-      case "triggering_card_damage": return "the damage on them";
-      case "last_target_location_lore": return "the {L} of that location";
       default: return a;
     }
   }
   if (typeof a === "object" && a !== null) {
     if (a.type === "count") return `the number of ${a.filter ? pluralizeFilter(renderFilter(a.filter)) : "matching cards"}`;
-    if (a.type === "target_lore") return "their {L}";
-    if (a.type === "target_strength") return "their {S}";
-    if (a.type === "target_willpower") return "their {W}";
-    if (a.type === "target_damage") return "the amount of damage on them";
-    if (a.type === "source_strength") return "this character's {S}";
-    if (a.type === "source_willpower") return "this character's {W}";
+    // Unified stat-reference renderer — replaces the 14 per-variant cases
+    // that used to live here. Dispatches on (from × property) to produce
+    // oracle-approximate English.
+    if (a.type === "stat_ref") {
+      const statSym = a.property === "strength" ? "{S}"
+        : a.property === "willpower" ? "{W}"
+        : a.property === "lore" ? "{L}"
+        : a.property === "cost" ? "cost"
+        : a.property === "damage" ? "damage"
+        : "delta";
+      switch (a.from) {
+        case "target":               return `their ${statSym}`;
+        case "triggering_card":      return a.property === "damage" ? "the damage on them" : `their ${statSym}`;
+        case "source":               return `this character's ${statSym}`;
+        case "last_resolved_source": return `their ${statSym}`;
+        case "last_resolved_target":
+          if (a.property === "delta") return "each 1 removed this way";
+          return `their ${statSym}`;
+        case "last_target_location": return `the ${statSym} of that location`;
+        default:                     return `[${a.from}.${a.property}]`;
+      }
+    }
     if (a.type === "last_effect_result") return "the number of cards affected";
-    if (a.type === "last_resolved_target_delta") return "the amount removed";
     if (a.type === "cards_under_count") return "the number of cards under this character";
     // Donald Duck Fred Honeywell WELL WISHES: "for each card that was under them"
     if (a.type === "triggering_card_cards_under_count") return "the number of cards that were under them";

@@ -459,7 +459,11 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": "last_resolved_target_delta",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "delta"
+                },
                 "target": {
                   "type": "self"
                 }
@@ -502,7 +506,11 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": "last_resolved_target_delta",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "delta"
+                },
                 "target": {
                   "type": "self"
                 }

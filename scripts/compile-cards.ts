@@ -1627,7 +1627,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^draw cards equal to that location's \{L\}/i,
     build: () => ({
       type: "draw",
-      amount: "last_target_location_lore",
+      amount: { type: "stat_ref", from: "last_target_location", property: "lore" },
       target: { type: "self" },
     }),
   },

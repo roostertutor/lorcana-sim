@@ -587,28 +587,19 @@ export interface GrantChallengeReadyEffect {
 export type DynamicAmount =
   | number
   | "cost_result"
-  | "triggering_card_lore"
-  | "triggering_card_damage"
-  | "last_target_location_lore"
-  /** Actual delta stored on `state.lastResolvedTarget` (remove_damage / move_damage
-   *  actually-consumed count). Used by "Gain 1 lore for each 1 damage removed this
-   *  way" (Baymax Armored Companion). */
-  | "last_resolved_target_delta"
-  /** Effective strength snapshot of `state.lastResolvedSource` (cost-side exerted
-   *  character). Used by Ambush ("deal damage equal to their {S}"). */
-  | "last_resolved_source_strength"
+  // NOTE: 7 string variants removed 2026-04-24 and migrated to the
+  // {type: "stat_ref", from, property} form below:
+  //   triggering_card_lore           → {from:"triggering_card", property:"lore"}
+  //   triggering_card_damage         → {from:"triggering_card", property:"damage"}
+  //   last_target_location_lore      → {from:"last_target_location", property:"lore"}
+  //   last_resolved_target_delta     → {from:"last_resolved_target", property:"delta"}
+  //   last_resolved_source_strength  → {from:"last_resolved_source", property:"strength"}
+  //   last_resolved_target_lore      → {from:"last_resolved_target", property:"lore"}
+  //   last_resolved_target_strength  → {from:"last_resolved_target", property:"strength"}
   /** Number of characters that sang the most recently played song. 1 for solo
    *  sing, N for Sing Together. Read by Fantastical and Magical: "draw a card
    *  and gain 1 lore for each character that sang this song". */
   | "song_singer_count"
-  /** Lore stat snapshotted on state.lastResolvedTarget at choose_target accept
-   *  time. Used by Anna Soothing Sister WARM HEART: "may gain lore equal to
-   *  the {L} of a character card in your discard". */
-  | "last_resolved_target_lore"
-  /** Effective strength snapshot of state.lastResolvedTarget at resolve time.
-   *  Used by Zeus Mr. Lightning Bolts ("+S equal to the {S} of chosen
-   *  character"). Mirror of last_resolved_source_strength. */
-  | "last_resolved_target_strength"
   /** Amount of damage just dealt by the most recent challenge resolution.
    *  Read from `state.lastDamageDealtAmount`. Used by Mulan Elite Archer
    *  TRIPLE SHOT and Namaari Heir of Fang TWO-WEAPON FIGHTING. */
@@ -622,20 +613,39 @@ export type DynamicAmount =
    *  challenge this turn, you pay 2 {I} less to play this character"). */
   | "opposing_chars_banished_in_challenge_this_turn"
   | { type: "count"; filter: CardFilter; max?: number }
-  | { type: "target_lore"; max?: number }
-  | { type: "target_damage"; max?: number }
-  | { type: "target_strength"; max?: number }
-  /** Effective willpower of the per-instance target at apply time. Ranger
-   *  Team-up: "Chosen character gets +{S} equal to their {W} this turn."
-   *  Replaces the former GainStatsEffect.strengthEqualsTargetWillpower flag. */
-  | { type: "target_willpower"; max?: number }
-  | { type: "source_lore"; max?: number }
-  | { type: "source_strength"; max?: number }
-  /** Effective willpower of the ABILITY SOURCE instance at apply time.
-   *  Zipper Big Helper BUZZING ENTHUSIASM: "you may add his {W} to another
-   *  chosen character's {S}". Replaces the former
-   *  GainStatsEffect.strengthEqualsSourceWillpower flag. */
-  | { type: "source_willpower"; max?: number }
+  /** Read a stat (cost / strength / willpower / lore / damage / delta) off
+   *  a named card reference. Replaces the former 14 per-stat variants
+   *  (target_lore / target_damage / target_strength / target_willpower /
+   *  source_lore / source_strength / source_willpower +
+   *  triggering_card_lore / triggering_card_damage +
+   *  last_resolved_source_strength / last_resolved_target_lore /
+   *  last_resolved_target_strength / last_resolved_target_delta +
+   *  last_target_location_lore) — all collapsed 2026-04-24 into this
+   *  orthogonal {from × property} shape. New reference sources or stat
+   *  properties need no new DynamicAmount variants; add a `from` enum
+   *  entry or a `property` enum entry and extend the resolver.
+   *
+   *  Semantics mirror StatValue in CardFilter:
+   *    from = "source"              → state.cards[sourceInstanceId]
+   *    from = "target"              → state.cards[targetInstanceId]
+   *    from = "triggering_card"     → state.cards[triggeringCardInstanceId]
+   *    from = "last_resolved_source"→ state.lastResolvedSource (ResolvedRef)
+   *    from = "last_resolved_target"→ state.lastResolvedTarget (ResolvedRef)
+   *    from = "last_target_location"→ state.lastResolvedTarget scoped to a
+   *                                    location (I've Got a Dream's pattern).
+   *
+   *  The `delta` property is special-case (only meaningful on
+   *  last_resolved_target; reads the "actually-consumed" count from
+   *  `ref.delta`, e.g. damage actually removed by the preceding remove_damage
+   *  effect — Baymax Armored Companion pattern). */
+  | {
+      type: "stat_ref";
+      from: "source" | "target" | "triggering_card"
+          | "last_resolved_source" | "last_resolved_target"
+          | "last_target_location";
+      property: "cost" | "strength" | "willpower" | "lore" | "damage" | "delta";
+      max?: number;
+    }
   /** CRD 8.4.2: number of cards in the source's cards-under pile ("for each card
    *  under this character" / "equal to the number of cards under"). Resolved
    *  against the SOURCE instance's `cardsUnder.length`. */

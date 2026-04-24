@@ -2066,7 +2066,9 @@
           }
         },
         "strengthDynamic": {
-          "type": "target_willpower"
+          "type": "stat_ref",
+          "from": "target",
+          "property": "willpower"
         }
       }
     ],
@@ -10377,7 +10379,9 @@
               }
             },
             "strengthDynamic": {
-              "type": "source_willpower"
+              "type": "stat_ref",
+              "from": "source",
+              "property": "willpower"
             }
           }
         ]
@@ -13930,7 +13934,11 @@
       },
       {
         "type": "draw",
-        "amount": "last_target_location_lore",
+        "amount": {
+          "type": "stat_ref",
+          "from": "last_target_location",
+          "property": "lore"
+        },
         "target": {
           "type": "self"
         }
@@ -15244,7 +15252,11 @@
       },
       {
         "type": "draw",
-        "amount": "last_target_location_lore",
+        "amount": {
+          "type": "stat_ref",
+          "from": "last_target_location",
+          "property": "lore"
+        },
         "target": {
           "type": "self"
         }

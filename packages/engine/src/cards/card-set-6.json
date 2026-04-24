@@ -4659,7 +4659,9 @@
                   {
                     "type": "gain_lore",
                     "amount": {
-                      "type": "target_damage"
+                      "type": "stat_ref",
+                      "from": "target",
+                      "property": "damage"
                     },
                     "target": {
                       "type": "self"
@@ -10237,7 +10239,11 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": "last_resolved_target_delta",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "delta"
+                },
                 "target": {
                   "type": "self"
                 }
@@ -10280,7 +10286,11 @@
             "rewardEffects": [
               {
                 "type": "gain_lore",
-                "amount": "last_resolved_target_delta",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "delta"
+                },
                 "target": {
                   "type": "self"
                 }
@@ -13003,7 +13013,11 @@
         "rewardEffects": [
           {
             "type": "deal_damage",
-            "amount": "last_resolved_source_strength",
+            "amount": {
+              "type": "stat_ref",
+              "from": "last_resolved_source",
+              "property": "strength"
+            },
             "target": {
               "type": "chosen",
               "filter": {

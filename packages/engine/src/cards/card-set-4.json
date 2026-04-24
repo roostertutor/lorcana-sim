@@ -5851,7 +5851,11 @@
           },
           {
             "type": "gain_stats",
-            "strengthDynamic": "last_resolved_target_strength",
+            "strengthDynamic": {
+              "type": "stat_ref",
+              "from": "last_resolved_target",
+              "property": "strength"
+            },
             "target": {
               "type": "this"
             },
@@ -9464,7 +9468,9 @@
             },
             "duration": "this_turn",
             "strengthDynamic": {
-              "type": "source_strength"
+              "type": "stat_ref",
+              "from": "source",
+              "property": "strength"
             }
           }
         ]

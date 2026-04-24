@@ -29,7 +29,8 @@
     "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts",
     "card-status": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/card-status.ts",
     "migrate-cardfilter": "tsx scripts/migrate-cardfilter.ts",
-    "migrate-gainstats": "tsx scripts/migrate-gainstats.ts"
+    "migrate-gainstats": "tsx scripts/migrate-gainstats.ts",
+    "migrate-dynamicamount": "tsx scripts/migrate-dynamicamount.ts"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1034.0",

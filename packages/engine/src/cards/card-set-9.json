@@ -8861,7 +8861,9 @@
               {
                 "type": "draw",
                 "amount": {
-                  "type": "target_damage"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "damage"
                 },
                 "target": {
                   "type": "self"
@@ -11531,7 +11533,9 @@
               {
                 "type": "draw",
                 "amount": {
-                  "type": "target_strength"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "strength"
                 },
                 "target": {
                   "type": "self"
@@ -15960,7 +15964,9 @@
               {
                 "type": "draw",
                 "amount": {
-                  "type": "target_strength"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "strength"
                 },
                 "target": {
                   "type": "self"

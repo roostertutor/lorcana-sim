@@ -3740,7 +3740,9 @@
               {
                 "type": "gain_lore",
                 "amount": {
-                  "type": "target_lore"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "lore"
                 },
                 "target": {
                   "type": "self"
@@ -6798,7 +6800,11 @@
         "effects": [
           {
             "type": "gain_lore",
-            "amount": "triggering_card_damage",
+            "amount": {
+              "type": "stat_ref",
+              "from": "triggering_card",
+              "property": "damage"
+            },
             "target": {
               "type": "self"
             }

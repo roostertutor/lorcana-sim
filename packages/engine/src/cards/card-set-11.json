@@ -1319,7 +1319,11 @@
             "rewardEffects": [
               {
                 "type": "cost_reduction",
-                "amount": "last_resolved_target_delta",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "delta"
+                },
                 "filter": {
                   "cardType": [
                     "character"
@@ -2640,7 +2644,9 @@
               {
                 "type": "gain_lore",
                 "amount": {
-                  "type": "target_lore"
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "lore"
                 },
                 "target": {
                   "type": "self"
@@ -3275,7 +3281,11 @@
                 "target": {
                   "type": "self"
                 },
-                "amount": "last_resolved_target_lore"
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "lore"
+                }
               }
             ]
           }
@@ -4368,7 +4378,9 @@
           {
             "type": "gain_lore",
             "amount": {
-              "type": "source_strength",
+              "type": "stat_ref",
+              "from": "source",
+              "property": "strength",
               "max": 6
             },
             "target": {
@@ -8363,7 +8375,9 @@
               {
                 "type": "lose_lore",
                 "amount": {
-                  "type": "target_damage",
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "damage",
                   "max": 4
                 },
                 "target": {
@@ -15048,7 +15062,11 @@
                 "target": {
                   "type": "self"
                 },
-                "amount": "last_resolved_target_lore"
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "last_resolved_target",
+                  "property": "lore"
+                }
               }
             ]
           }
@@ -15156,7 +15174,9 @@
           {
             "type": "gain_lore",
             "amount": {
-              "type": "source_strength",
+              "type": "stat_ref",
+              "from": "source",
+              "property": "strength",
               "max": 6
             },
             "target": {
