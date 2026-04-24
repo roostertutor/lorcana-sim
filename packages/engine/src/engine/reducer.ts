@@ -2742,6 +2742,17 @@ function resolveDynamicAmount(
       }
       break;
     }
+    case "target_willpower": {
+      // Ranger Team-up: "+{S} equal to their {W}". Replaces the former
+      // strengthEqualsTargetWillpower flag on GainStatsEffect.
+      const inst = targetInstanceId ? state.cards[targetInstanceId] : undefined;
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveWillpower(inst, def, mods.statBonuses.get(targetInstanceId!)?.willpower ?? 0, mods);
+      }
+      break;
+    }
     case "source_lore": {
       const inst = state.cards[sourceInstanceId];
       const def = inst ? definitions[inst.definitionId] : undefined;
@@ -2757,6 +2768,18 @@ function resolveDynamicAmount(
       if (inst && def) {
         const mods = getGameModifiers(state, definitions);
         resolved = getEffectiveStrength(inst, def, mods.statBonuses.get(sourceInstanceId)?.strength ?? 0, mods);
+      }
+      break;
+    }
+    case "source_willpower": {
+      // Zipper Big Helper BUZZING ENTHUSIASM: "add his {W} to another
+      // chosen character's {S}". Replaces the former
+      // strengthEqualsSourceWillpower flag on GainStatsEffect.
+      const inst = state.cards[sourceInstanceId];
+      const def = inst ? definitions[inst.definitionId] : undefined;
+      if (inst && def) {
+        const mods = getGameModifiers(state, definitions);
+        resolved = getEffectiveWillpower(inst, def, mods.statBonuses.get(sourceInstanceId)?.willpower ?? 0, mods);
       }
       break;
     }
@@ -7307,74 +7330,13 @@ function applyEffectToTarget(
       return state;
     }
     case "gain_stats": {
-      // Special strength-override variants compute the amount dynamically,
-      // then delegate to the standard applyGainStatsToInstance path (which
-      // now ALWAYS routes through TimedEffect, not tempModifiers).
-      if (effect.strengthPerDamage) {
-        const instance = getInstance(state, targetInstanceId);
-        const override = { ...effect, strength: instance.damage, strengthPerDamage: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
-      }
-      if (effect.strengthPerCardInHand) {
-        const handSize = getZone(state, controllingPlayerId, "hand").length;
-        const override = { ...effect, strength: handSize, strengthPerCardInHand: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
-      }
-      if (effect.strengthEqualsSourceStrength) {
-        const sourceInst = state.cards[sourceInstanceId];
-        const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
-        let srcStrength = 0;
-        if (sourceInst && sourceDef) {
-          const srcMods = getGameModifiers(state, definitions);
-          srcStrength = getEffectiveStrength(
-            sourceInst,
-            sourceDef,
-            srcMods.statBonuses.get(sourceInstanceId)?.strength ?? 0,
-            srcMods,
-          );
-        }
-        const override = { ...effect, strength: srcStrength, strengthEqualsSourceStrength: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
-      }
-      if (effect.strengthEqualsSourceWillpower) {
-        // Zipper Big Helper BUZZING ENTHUSIASM: "add his {W} to another
-        // chosen character's {S}". Read the SOURCE instance's effective
-        // willpower (post-modifier, clamped to floors) and use that as the
-        // strength bonus on the target.
-        const sourceInst = state.cards[sourceInstanceId];
-        const sourceDef = sourceInst ? definitions[sourceInst.definitionId] : undefined;
-        let srcWillpower = 0;
-        if (sourceInst && sourceDef) {
-          const srcMods = getGameModifiers(state, definitions);
-          srcWillpower = getEffectiveWillpower(
-            sourceInst,
-            sourceDef,
-            srcMods.statBonuses.get(sourceInstanceId)?.willpower ?? 0,
-            srcMods,
-          );
-        }
-        const override = { ...effect, strength: srcWillpower, strengthEqualsSourceWillpower: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
-      }
-      if (effect.strengthEqualsTargetWillpower) {
-        // Ranger Team-up: "Chosen character gets +{S} equal to their {W}
-        // this turn." Unlike the source variants, the amount reads the
-        // TARGET's own willpower — each target resolves its own bonus.
-        const targetInst = state.cards[targetInstanceId];
-        const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
-        let tgtWillpower = 0;
-        if (targetInst && targetDef) {
-          const tgtMods = getGameModifiers(state, definitions);
-          tgtWillpower = getEffectiveWillpower(
-            targetInst,
-            targetDef,
-            tgtMods.statBonuses.get(targetInstanceId)?.willpower ?? 0,
-            tgtMods,
-          );
-        }
-        const override = { ...effect, strength: tgtWillpower, strengthEqualsTargetWillpower: undefined };
-        return applyGainStatsToInstance(state, targetInstanceId, override as any, controllingPlayerId, definitions, sourceInstanceId);
-      }
+      // Strength-override variants (strengthPerDamage,
+      // strengthEqualsSourceStrength, etc.) were removed 2026-04-24. The
+      // surviving path is `strengthDynamic: DynamicAmount` which covers
+      // every case the flags did via existing DA variants (target_damage,
+      // source_strength, source_willpower, target_willpower,
+      // {type:"count"}, etc.). applyGainStatsToInstance resolves the
+      // DynamicAmount through resolveDynamicAmount before applying.
       state = applyGainStatsToInstance(state, targetInstanceId, effect, controllingPlayerId, definitions, sourceInstanceId);
       if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
         for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
@@ -8167,10 +8129,20 @@ function applyGainStatsToInstance(
   const instance = state.cards[instanceId];
   if (!instance) return state;
 
-  // Resolve dynamic strength override (count-based debuffs — Rescue Rangers Away).
+  // Resolve dynamic strength override (count-based debuffs — Rescue Rangers
+  // Away — plus the 2026-04-24 migration of the former strengthEquals*
+  // flags: target_damage / source_strength / source_willpower /
+  // target_willpower / {type:"count"} all route through here). `source_*`
+  // variants need the ABILITY SOURCE's instanceId passed as the
+  // sourceInstanceId arg; `target_*` variants read from targetInstanceId.
+  // Pre-2026-04-24 code passed `instanceId` (target) as both — worked for
+  // existing count-based usages (Rescue Rangers Away only reads state-wide
+  // counts, not per-instance stats) but broke the new source_willpower
+  // path (Zipper). Now correctly plumbs sourceInstId for source-scoped
+  // reads; falls back to instanceId when not provided (symmetric behavior).
   let resolvedStrength: number | undefined;
   if (effect.strengthDynamic !== undefined && definitions) {
-    const raw = resolveDynamicAmount(effect.strengthDynamic, state, definitions, casterPlayerId, instanceId, undefined, instanceId);
+    const raw = resolveDynamicAmount(effect.strengthDynamic, state, definitions, casterPlayerId, sourceInstId ?? instanceId, undefined, instanceId);
     resolvedStrength = effect.strengthDynamicNegate ? -raw : raw;
   }
   const strengthAmount = resolvedStrength ?? effect.strength ?? 0;

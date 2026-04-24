@@ -1712,8 +1712,10 @@ function renderAmount(a: any): string {
     if (a.type === "count") return `the number of ${a.filter ? pluralizeFilter(renderFilter(a.filter)) : "matching cards"}`;
     if (a.type === "target_lore") return "their {L}";
     if (a.type === "target_strength") return "their {S}";
+    if (a.type === "target_willpower") return "their {W}";
     if (a.type === "target_damage") return "the amount of damage on them";
     if (a.type === "source_strength") return "this character's {S}";
+    if (a.type === "source_willpower") return "this character's {W}";
     if (a.type === "last_effect_result") return "the number of cards affected";
     if (a.type === "last_resolved_target_delta") return "the amount removed";
     if (a.type === "cards_under_count") return "the number of cards under this character";
@@ -1759,12 +1761,12 @@ function renderStatChange(e: Json): string {
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
   if (e.willpower !== undefined) bits.push(`${signed(e.willpower)} {W}`);
   if (e.lore !== undefined) bits.push(`${signed(e.lore)} {L}`);
-  // Triton's Trident SYMBOL OF POWER: "+1 {S} this turn for each card in
-  // your hand". Resolved at apply time using hand count.
-  if (e.strengthPerCardInHand) bits.push("+1 {S} for each card in your hand");
   // gain_stats with a DynamicAmount (Rescue Rangers Away: "Chosen character
   // loses {S} equal to the number of characters you have in play"). The
   // `strengthDynamicNegate: true` flag flips sign for the "loses" wording.
+  // Post-2026-04-24: also handles the former per-flag shortcuts
+  // (strengthPerDamage / strengthPerCardInHand / strengthEqualsSource* /
+  // strengthEqualsTargetWillpower) now expressed as strengthDynamic variants.
   const dyn = (stat: "strength" | "willpower" | "lore", sym: string) => {
     const key = `${stat}Dynamic`;
     const val = e[key];
@@ -1772,11 +1774,18 @@ function renderStatChange(e: Json): string {
     const sign = e[`${stat}DynamicNegate`] ? "-" : "+";
     // He's A Tramp: "+1 {S} for each character you have in play" reads
     // better than "+the number of your characters {S}". Detect count
-    // filter with owner:self and emit the "for each" form.
+    // filter with owner:self and emit the "for each" form. Special-cases
+    // the migrated Triton's Trident SYMBOL OF POWER "for each card in
+    // your hand" shape (zone:hand on a count filter).
     if (typeof val === "object" && val.type === "count" && val.filter) {
-      const filt = val.filter.owner?.type === "self"
-        ? renderFilter(val.filter, { suppressOwnerSelf: true }) + " you have in play"
-        : renderFilter(val.filter);
+      const f = val.filter;
+      if (f.owner?.type === "self" && f.zone === "hand" && !f.cardType) {
+        bits.push(`${sign}1 ${sym} for each card in your hand`);
+        return;
+      }
+      const filt = f.owner?.type === "self"
+        ? renderFilter(f, { suppressOwnerSelf: true }) + " you have in play"
+        : renderFilter(f);
       bits.push(`${sign}1 ${sym} for each ${filt}`);
       return;
     }

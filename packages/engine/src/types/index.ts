@@ -625,8 +625,17 @@ export type DynamicAmount =
   | { type: "target_lore"; max?: number }
   | { type: "target_damage"; max?: number }
   | { type: "target_strength"; max?: number }
+  /** Effective willpower of the per-instance target at apply time. Ranger
+   *  Team-up: "Chosen character gets +{S} equal to their {W} this turn."
+   *  Replaces the former GainStatsEffect.strengthEqualsTargetWillpower flag. */
+  | { type: "target_willpower"; max?: number }
   | { type: "source_lore"; max?: number }
   | { type: "source_strength"; max?: number }
+  /** Effective willpower of the ABILITY SOURCE instance at apply time.
+   *  Zipper Big Helper BUZZING ENTHUSIASM: "you may add his {W} to another
+   *  chosen character's {S}". Replaces the former
+   *  GainStatsEffect.strengthEqualsSourceWillpower flag. */
+  | { type: "source_willpower"; max?: number }
   /** CRD 8.4.2: number of cards in the source's cards-under pile ("for each card
    *  under this character" / "equal to the number of cards under"). Resolved
    *  against the SOURCE instance's `cardsUnder.length`. */
@@ -761,25 +770,15 @@ export interface GainStatsEffect {
   duration: "this_turn" | "permanent" | EffectDuration;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
-  /** +1 strength per damage on target (Sword in the Stone) */
-  strengthPerDamage?: boolean;
-  /** +1 strength per card in the controller's hand (Triton's Trident SYMBOL OF POWER).
-   *  Resolved at apply time using the current hand count. */
-  strengthPerCardInHand?: boolean;
-  /** +S equal to the SOURCE instance's effective strength (Olaf Carrot Enthusiast).
-   *  Resolved at apply time per target. */
-  strengthEqualsSourceStrength?: boolean;
-  /** +S equal to the SOURCE instance's effective willpower (Zipper Big Helper
-   *  BUZZING ENTHUSIASM — "add his {W} to another chosen character's {S}").
-   *  Parallel to strengthEqualsSourceStrength but reads the source's
-   *  willpower. Resolved at apply time per target. */
-  strengthEqualsSourceWillpower?: boolean;
-  /** +S equal to the TARGET instance's effective willpower (Ranger Team-up
-   *  — "Chosen character gets +{S} equal to their {W} this turn"). Unlike
-   *  the source variants, this reads the AFFECTED character's willpower,
-   *  making it a per-target dynamic amount (analogous to Improvise-style
-   *  scaling but keyed off the target). Resolved at apply time per target. */
-  strengthEqualsTargetWillpower?: boolean;
+  // NOTE: strengthPerDamage / strengthPerCardInHand / strengthEqualsSourceStrength /
+  // strengthEqualsSourceWillpower / strengthEqualsTargetWillpower have all been
+  // removed. Express these via `strengthDynamic: DynamicAmount` instead:
+  //   strengthPerDamage              → strengthDynamic: {type:"target_damage"}
+  //   strengthPerCardInHand          → strengthDynamic: {type:"count", filter:{owner:self,zone:"hand"}}
+  //   strengthEqualsSourceStrength   → strengthDynamic: {type:"source_strength"}
+  //   strengthEqualsSourceWillpower  → strengthDynamic: {type:"source_willpower"}
+  //   strengthEqualsTargetWillpower  → strengthDynamic: {type:"target_willpower"}
+  // Migration landed 2026-04-24.
   /** Internal flag set by the Support trigger synthesis. When true, the
    *  choose_target resolver fires a `chosen_for_support` trigger on the
    *  picked character (Prince Phillip Gallant Defender, Rapunzel Ready for

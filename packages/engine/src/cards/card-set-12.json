@@ -2055,7 +2055,6 @@
     "actionEffects": [
       {
         "type": "gain_stats",
-        "strengthEqualsTargetWillpower": true,
         "duration": "this_turn",
         "target": {
           "type": "chosen",
@@ -2065,6 +2064,9 @@
               "character"
             ]
           }
+        },
+        "strengthDynamic": {
+          "type": "target_willpower"
         }
       }
     ],
@@ -10359,7 +10361,6 @@
         "effects": [
           {
             "type": "gain_stats",
-            "strengthEqualsSourceWillpower": true,
             "duration": "this_turn",
             "isMay": true,
             "target": {
@@ -10374,6 +10375,9 @@
                 ],
                 "excludeSelf": true
               }
+            },
+            "strengthDynamic": {
+              "type": "source_willpower"
             }
           }
         ]

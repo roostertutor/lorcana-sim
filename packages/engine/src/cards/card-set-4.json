@@ -4115,7 +4115,6 @@
         "effects": [
           {
             "type": "gain_stats",
-            "strengthPerCardInHand": true,
             "target": {
               "type": "chosen",
               "filter": {
@@ -4125,7 +4124,16 @@
                 ]
               }
             },
-            "duration": "this_turn"
+            "duration": "this_turn",
+            "strengthDynamic": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "hand"
+              }
+            }
           }
         ]
       }
@@ -9441,7 +9449,6 @@
         "effects": [
           {
             "type": "gain_stats",
-            "strengthEqualsSourceStrength": true,
             "target": {
               "type": "all",
               "filter": {
@@ -9455,7 +9462,10 @@
                 "excludeSelf": true
               }
             },
-            "duration": "this_turn"
+            "duration": "this_turn",
+            "strengthDynamic": {
+              "type": "source_strength"
+            }
           }
         ]
       },
