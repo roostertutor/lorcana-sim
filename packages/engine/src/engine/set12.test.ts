@@ -2412,3 +2412,50 @@ describe("Set 12 — Dale SPIKE SUIT (challenge_damage_stat_source override)", (
   });
 });
 
+describe("Set 12 — Gosalyn HEROIC INTERVENTION followUpEffects single-apply regression", () => {
+  // Regression for a double-apply bug caught in the PWA by gameboard-specialist:
+  // `applyEffect` case "ready" chosen branch used to forward
+  // `followUpEffects` onto BOTH the pendingChoice AND the carried
+  // pendingEffect — applyEffectToTarget's "ready" handler then ran them
+  // once (internally), and the outer RESOLVE_CHOICE loop ran them a
+  // SECOND time via pendingChoice.followUpEffects. Gosalyn's 2 follow-ups
+  // (cant_action quest + cant_action challenge) produced 4 timedEffects
+  // on the target instead of 2.
+  //
+  // Fix: dropped pendingChoice.followUpEffects from the ready chosen
+  // branch. applyEffectToTarget's internal handler is the sole applier.
+  it("ready + chosen target applies followUpEffects exactly once (2 entries, not 4)", () => {
+    let state = startGame();
+    let gosalynId: string, targetId: string;
+    ({ state, instanceId: gosalynId } = injectCard(state, "player1", "gosalyn-mallard-the-quiverwing-quack", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+
+    // Apply HEROIC INTERVENTION's ready+followUps effect directly.
+    const def = CARD_DEFINITIONS["gosalyn-mallard-the-quiverwing-quack"]!;
+    const triggered = def.abilities.find((a: any) => a.type === "triggered" && a.storyName === "HEROIC INTERVENTION");
+    const readyEffect = (triggered as any).effects[0];
+    state = applyEffect(state, readyEffect, gosalynId, "player1", CARD_DEFINITIONS, []);
+
+    // Ability is a may-ready; accept the may.
+    if (state.pendingChoice?.type === "choose_may") {
+      const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as any, CARD_DEFINITIONS);
+      if (r.success) state = r.newState;
+    }
+
+    // Now a choose_target pendingChoice for the ready target.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Exactly 2 timedEffects on the target — one cant_action per action
+    // value (quest + challenge). Pre-fix: 4 entries. Post-fix: 2.
+    const mickey = getInstance(state, targetId);
+    const cantActionEffects = (mickey.timedEffects ?? []).filter((t: any) => t.type === "cant_action");
+    expect(cantActionEffects.length).toBe(2);
+    // One of each action. Not two of one action.
+    const actions = cantActionEffects.map((t: any) => t.action).sort();
+    expect(actions).toEqual(["challenge", "quest"]);
+  });
+});
+

@@ -3875,6 +3875,14 @@ export function applyEffect(
       if (effect.target.type === "chosen") {
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
+        // DO NOT forward effect.followUpEffects onto pendingChoice — the
+        // `ready` case inside applyEffectToTarget (≈ line 7459) already
+        // applies them to the resolved target. Previously this branch also
+        // copied them onto pendingChoice.followUpEffects, causing the outer
+        // RESOLVE_CHOICE loop (≈ line 2564) to run them a SECOND time.
+        // Fixed 2026-04-23 — Gosalyn HEROIC INTERVENTION was producing 4
+        // cant_action entries (2× quest, 2× challenge) instead of 2.
+        // Reported by gameboard-specialist in HANDOFF.md.
         return {
           ...state,
           pendingChoice: {
@@ -3883,7 +3891,6 @@ export function applyEffect(
             prompt: "Choose a character to ready.",
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-            followUpEffects: effect.followUpEffects,
           },
         };
       }
