@@ -2559,7 +2559,19 @@ function applyResolveChoice(
       // (same pattern as Tiana Restaurant Owner) in commit series. The
       // card JSON now uses a no-op chooser → opponent_may_pay_to_avoid chain.
 
-      state = applyEffectToTarget(state, pendingEffect!, targetId, playerId, definitions, events, srcId, trigId);
+      // For multi-target chosen selections (Ever as Before "remove up to 2
+      // damage from any number of chosen characters", hypothetical multi-
+      // target move_damage), strip `isUpTo` from the per-target effect.
+      // Oracle intent is "up to N" bounds effect.amount once for the whole
+      // selection, not per-target. Without this, remove_damage /
+      // move_damage handlers surface a choose_amount pendingChoice PER
+      // TARGET — each iteration overwrites the previous one, so only the
+      // last target actually resolves. Fixed 2026-04-24 (user QA: Ever as
+      // Before on two damaged Mulans only healed one).
+      const perTargetEffect = choice.length > 1
+        ? { ...pendingEffect!, isUpTo: false }
+        : pendingEffect!;
+      state = applyEffectToTarget(state, perTargetEffect as Effect, targetId, playerId, definitions, events, srcId, trigId);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
         for (const followUp of pendingChoice.followUpEffects) {

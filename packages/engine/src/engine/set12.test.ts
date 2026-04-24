@@ -2646,6 +2646,84 @@ describe("Set 5 — Ever as Before count:'any' multi-select (remove_damage)", ()
     expect(getInstance(r.newState, c2).damage).toBe(0);
     expect(getInstance(r.newState, c3).damage).toBe(0);
   });
+
+  it("interactive mode: multi-target resolves without per-target choose_amount loop (2 damaged Mulans)", () => {
+    // Regression for user QA 2026-04-24: two Mulan Injured Soldiers
+    // (S=2,W=3), each with 2 damage. In interactive mode, Ever as
+    // Before's applyEffectToTarget remove_damage case would surface a
+    // `choose_amount` pendingChoice per-target during the RESOLVE_CHOICE
+    // loop — second iteration overwrote the first, so only the LAST
+    // target's choose_amount survived. User saw only one Mulan healed.
+    //
+    // Fix: RESOLVE_CHOICE loop now strips `isUpTo` when choice.length > 1,
+    // bypassing the per-target amount surface. Oracle intent is "up to 2"
+    // bounds the effect.amount once for the whole selection, applied
+    // uniformly (clamped by each target's damage).
+    let state = { ...startGame(), interactive: true };
+    let m1: string, m2: string;
+    ({ state, instanceId: m1 } = injectCard(state, "player1", "mulan-injured-soldier", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: m2 } = injectCard(state, "player1", "mulan-injured-soldier", "play", { isDrying: false, damage: 2 }));
+
+    state = applyEffect(
+      state,
+      {
+        type: "remove_damage",
+        amount: 2,
+        isUpTo: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      "synthetic-source", "player1", CARD_DEFINITIONS, [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    // Pick BOTH Mulans. Pre-fix (interactive mode): second iteration would
+    // overwrite the first's choose_amount pendingChoice, leaving state in
+    // a choose_amount state for only m2. Post-fix: both resolve cleanly
+    // with effect.amount (2) applied to each, no choose_amount surfaced.
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [m1, m2] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Both Mulans fully healed (pre-fix: only one would be at 0 damage).
+    expect(getInstance(state, m1).damage).toBe(0);
+    expect(getInstance(state, m2).damage).toBe(0);
+    // No stray pendingChoice left behind.
+    expect(state.pendingChoice).toBeFalsy();
+  });
+
+  it("interactive mode: single-target STILL surfaces choose_amount for up-to-N wording", () => {
+    // Counterpart to above — when only ONE target is picked, isUpTo
+    // should still surface the choose_amount prompt so the player gets
+    // the "remove up to N" choice. The fix strips isUpTo only when
+    // count > 1 to preserve single-target semantics.
+    let state = { ...startGame(), interactive: true };
+    let m1: string;
+    ({ state, instanceId: m1 } = injectCard(state, "player1", "mulan-injured-soldier", "play", { isDrying: false, damage: 2 }));
+
+    state = applyEffect(
+      state,
+      {
+        type: "remove_damage",
+        amount: 2,
+        isUpTo: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      "synthetic-source", "player1", CARD_DEFINITIONS, [],
+    );
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [m1] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Single-target chosen → choose_amount surfaces.
+    expect(r.newState.pendingChoice?.type).toBe("choose_amount");
+    expect((r.newState.pendingChoice as any)?.max).toBe(2);
+  });
 });
 
 describe("Set 12 — Gosalyn HEROIC INTERVENTION followUpEffects single-apply regression", () => {
