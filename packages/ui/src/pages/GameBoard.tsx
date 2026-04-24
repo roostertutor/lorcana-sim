@@ -1753,15 +1753,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
             </div>
 
-            {/* Turn-event indicators */}
-            {gameState && (
-              <div className="hidden md:flex md:flex-col md:gap-0.5 md:ml-2 md:text-[8px] md:text-gray-600">
-                {p1.aCharacterChallengedThisTurn && <span>⚔ Challenged</span>}
-                {p1.aCharacterWasDamagedThisTurn && <span>💥 Damaged</span>}
-                {p2.aCharacterWasDamagedThisTurn && <span>💥 Opp damaged</span>}
-              </div>
-            )}
-
             {/* Active Effects pill */}
             {activeEffects.length > 0 && (
               <button
