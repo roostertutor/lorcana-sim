@@ -74,26 +74,26 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Tablet + desktop (sm+) — reverts to the natural width-based sizing from
   // baseClass (`sm:w-[104px] lg:w-[120px]`).
   //
-  // Landscape phone — explicit 50×70 box (!important beats sm: rules). True
-  // 5:7 (50÷5 = 70÷7 = 10). Bumped from 45×63 once the scoreboard bar was
-  // removed (lore moved into the play divider), freeing ~26px of vertical
-  // budget which was spent on 5px more per play zone + hand. The
-  // height-adaptive approach fails here because no ancestor has an explicit
-  // height, so `h-full` resolves to auto and `max-h` never triggers.
+  // Landscape phone — explicit 45×63 box (!important beats sm: rules). True
+  // 5:7 (45÷5 = 63÷7 = 9). Briefly bumped to 50×70 when the scoreboard bar
+  // was removed, but adding safe-area-inset-bottom padding (to avoid iOS
+  // home-gesture collision on card drag-up from hand) reclaims ~21px of
+  // budget, forcing the revert. The height-adaptive approach fails here
+  // because no ancestor in this branch has an explicit height, so `h-full`
+  // resolves to auto and `max-h` never triggers.
   // Note: setting both w and h explicitly causes CSS to ignore aspect-[5/7]
   // from baseClass, so the explicit dimensions must themselves be 5:7.
-  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[50px] landscape-phone:!h-[70px] landscape-phone:!max-h-[70px] landscape-phone:!min-w-[50px]";
+  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[45px] landscape-phone:!h-[63px] landscape-phone:!max-h-[63px] landscape-phone:!min-w-[45px]";
   // Face-down opp-hand peek: kept smaller (28×39 landscape) so the peek ratio
   // (strip-height / card-height) stays close to portrait. Bumping halves the
   // visible fraction of the card-back in landscape.
   const adaptiveFaceDownCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[39px] landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]";
   // naturalSize: inkwell + discard-tile mini-previews scaled via scale-[0.538].
-  // Portrait: 52w → 28 visual (fits w-7 tile). Landscape: 50w → 26.9 visual
-  // (fits the w-[25px] tile with a tiny 2px overspill — hidden by the tile's
-  // overflow-hidden wrapper).
+  // Portrait: 52w → 28 visual (fits w-7 tile). Landscape: 45w → 24.2 visual
+  // (fits the w-[25px] tile with ~0.8px slack).
   const mobileWidth = naturalSize
     ? (faceDown || zone === "play"
-        ? "w-[52px] landscape-phone:!w-[50px]"
+        ? "w-[52px] landscape-phone:!w-[45px]"
         : "w-[88px] landscape-phone:!w-[88px]")
     : zone === "play"
     ? adaptivePlayCard

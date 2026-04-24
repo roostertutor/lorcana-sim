@@ -1440,13 +1440,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // reserve their rotated footprint so the visual overhang doesn't get
     // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
-    // Landscape-phone uses explicit 70×50 (landscape-oriented for the
-    // rotate-90'd card inside) to match the 50×70 ready-card parity. 70×50
+    // Landscape-phone uses explicit 63×45 (landscape-oriented for the
+    // rotate-90'd card inside) to match the 45×63 ready-card parity. 63×45
     // is 5:7 rotated. Explicit pixel sizing bypasses the h-full resolution
     // bug — no ancestor in this branch has an explicit height, so h-full
     // resolved to auto and max-h never triggered.
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[70px] landscape-phone:!h-[50px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );
@@ -1676,19 +1676,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     <div
       className="h-dvh overflow-hidden grid grid-cols-1 md:grid-cols-[1fr_220px] lg:grid-cols-[1fr_280px] landscape-phone:!grid-cols-1 gap-0 md:gap-4 lg:gap-5 landscape-phone:!gap-0"
       style={{
-        // iPhone Dynamic Island / notch — keep content inside the safe area on
-        // top/sides. viewport-fit=cover in index.html opts in; these insets
-        // are 0 on platforms without a notch.
+        // iPhone Dynamic Island / notch — keep content inside the safe area
+        // on top/sides. viewport-fit=cover in index.html opts in; these
+        // insets are 0 on platforms without a notch.
         //
-        // Bottom safe-area (home-indicator) deliberately NOT padded: in PWA
-        // standalone mode it reserved ~34px of black bar below the hand, and
-        // in browser mode `h-dvh` already tracks the collapsing URL bar so no
-        // extra padding is needed. We accept that hand-card drags near the
-        // very bottom edge in PWA portrait risk triggering the home gesture;
-        // dnd-kit's pointer capture generally holds through the zone.
+        // Bottom safe-area (home-indicator): previously unpadded to maximize
+        // vertical budget. Users reported that dragging a hand card upward
+        // in landscape PWA occasionally triggered the iOS home gesture
+        // because the initial touch started inside the system gesture
+        // zone. Padding the bottom moves the hand up out of that zone.
+        // env() resolves to 0 in browsers without notches / home indicator
+        // (no budget impact); in PWA standalone it's ~21-34px.
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
         paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
         // Kill the 300ms tap delay and double-tap-to-zoom on the board. Pinch
         // zoom remains available (for accessibility — stat-delta badges and
         // keyword icons are ~8-12px) because we use `manipulation`, not
@@ -1869,7 +1871,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               hand are the same height — no board shift when a card is drawn
               into an empty hand. max-h still allows wrapping to 2 rows for
               rare large hands (which will shift, but that's acceptable). */}
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[65px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[65px] landscape-phone:!min-h-[65px] landscape-phone:!p-0">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[60px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[60px] landscape-phone:!min-h-[60px] landscape-phone:!p-0">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
