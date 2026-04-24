@@ -1,6 +1,6 @@
 import React from "react";
 import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcana-sim/engine";
-import { getEffectiveStrength, getEffectiveWillpower, getEffectiveLore } from "@lorcana-sim/engine";
+import { getEffectiveStrength, getEffectiveWillpower, getEffectiveLore, getGameModifiers } from "@lorcana-sim/engine";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import GameCard from "./GameCard.js";
@@ -805,7 +805,16 @@ export default function PendingChoiceModal({
     // Leviathan IT'S A MACHINE: "banish any number of chosen opposing characters
     // with total {S} 10 or less" surfaces totalStrengthAtMost: 10 here.
     // The engine enforces server-side; this is UX so players don't submit a
-    // doomed selection. Effective stats (post-buff) per HANDOFF.md.
+    // doomed selection.
+    //
+    // Effective-stat call signature matches the engine validator (`95432e4`):
+    // both the per-instance static bonus (from gameModifiers.statBonuses) AND
+    // the full modifiers bundle are passed so static buffs like Lawrence -
+    // Jealous Manservant's PAYBACK ("+4 {S} while no damage") count toward
+    // the sum. Earlier the UI called `getEffectiveStrength(inst, def)` with
+    // both optional params defaulting, silently dropping every static bonus —
+    // a 4-S undamaged Lawrence summed as 0, the UI showed an under-cap total,
+    // then the engine rejected the resolve at submit time.
     const pc = pendingChoice;
     const hasAggregateCap =
       pc.totalStrengthAtMost !== undefined || pc.totalStrengthAtLeast !== undefined ||
@@ -816,16 +825,21 @@ export default function PendingChoiceModal({
 
     let sumStrength = 0, sumWillpower = 0, sumCost = 0, sumLore = 0, sumDamage = 0;
     if (hasAggregateCap) {
+      // Compute modifiers once per render — full static-effect pass is cheap
+      // but not free. React.useMemo is overkill here because the sum loop is
+      // already gated on hasAggregateCap + runs only for open choice modals.
+      const mods = getGameModifiers(gameState, definitions);
       for (const id of multiSelectTargets) {
         const inst = gameState.cards[id];
         if (!inst) continue;
         const def = definitions[inst.definitionId];
         if (!def) continue;
-        sumStrength += getEffectiveStrength(inst, def);
-        sumWillpower += getEffectiveWillpower(inst, def);
-        sumCost += def.cost;
-        sumLore += getEffectiveLore(inst, def);
-        sumDamage += inst.damage;
+        const bonus = mods.statBonuses.get(id);
+        sumStrength  += getEffectiveStrength (inst, def, bonus?.strength  ?? 0, mods);
+        sumWillpower += getEffectiveWillpower(inst, def, bonus?.willpower ?? 0, mods);
+        sumLore      += getEffectiveLore     (inst, def, bonus?.lore      ?? 0, mods);
+        sumCost      += def.cost; // no modifier pipeline for cost — printed is effective
+        sumDamage    += inst.damage;
       }
     }
 
