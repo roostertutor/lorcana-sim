@@ -1928,8 +1928,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
 
 
 
-      {/* ======================= Mobile: Sandbox drawer ======================= */}
-      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-200 ${showAnalysis ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+      {/* ======================= Mobile: Sandbox drawer =======================
+          Shown on < md AND on landscape-phone — same reasoning as the log
+          drawer (sidebar is hidden in landscape-phone). */}
+      <div className={`fixed inset-0 z-40 md:hidden landscape-phone:!block transition-opacity duration-200 ${showAnalysis ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
         <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
                         bg-gray-950 border-l border-gray-800 shadow-2xl
@@ -1962,8 +1964,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         </div>
       </div>
 
-      {/* ======================= Mobile: Log drawer ======================= */}
-      <div className={`fixed inset-0 z-40 md:hidden transition-opacity duration-200 ${showLog ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
+      {/* ======================= Mobile: Log drawer =======================
+          Shown on < md (portrait mobile) AND on landscape-phone (which is
+          usually md+ wide but has no visible sidebar — sidebar is hidden
+          by landscape-phone:!hidden). */}
+      <div className={`fixed inset-0 z-40 md:hidden landscape-phone:!block transition-opacity duration-200 ${showLog ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
         <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
                         bg-gray-950 border-l border-gray-800 shadow-2xl
