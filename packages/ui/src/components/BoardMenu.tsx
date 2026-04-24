@@ -15,6 +15,10 @@ interface Props {
   onBackOrConcede?: () => void;
   /** true → "Back to lobby", false → "Concede" */
   backLabel?: "back" | "concede";
+  /** Hide the kebab trigger (e.g. when a drawer or modal is open that
+   *  occupies the same viewport-corner real estate). Internal panel state
+   *  is preserved across hide/show. */
+  hidden?: boolean;
 }
 
 /**
@@ -36,8 +40,13 @@ export default function BoardMenu({
   onResign,
   onBackOrConcede,
   backLabel = "back",
+  hidden = false,
 }: Props) {
   const [open, setOpen] = useState(false);
+
+  // When hidden (drawer/modal open), render nothing. Internal state stays
+  // because React keeps the component mounted — just no DOM.
+  if (hidden) return null;
 
   const close = () => setOpen(false);
 

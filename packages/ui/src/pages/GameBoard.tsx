@@ -1936,11 +1936,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
                         bg-gray-950 border-l border-gray-800 shadow-2xl
                         transition-transform duration-200 ${showAnalysis ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
-            <span className="text-sm font-bold text-gray-300">Sandbox</span>
-            <button onClick={() => setShowAnalysis(false)} className="text-gray-500 hover:text-gray-300 active:scale-95">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 shrink-0">
+            {/* X on the left: keeps the close button clear of the status bar
+                / battery icon (landscape top-right) and the kebab (which
+                occupies the viewport top-right corner). */}
+            <button onClick={() => setShowAnalysis(false)} className="text-gray-500 hover:text-gray-300 active:scale-95 shrink-0">
               <Icon name="x-mark" className="w-4 h-4" />
             </button>
+            <span className="text-sm font-bold text-gray-300">Sandbox</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-4">
             <SandboxPanel
@@ -1973,11 +1976,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
                         bg-gray-950 border-l border-gray-800 shadow-2xl
                         transition-transform duration-200 ${showLog ? "translate-x-0" : "translate-x-full"}`}>
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
-            <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
-            <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 active:scale-95">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 shrink-0">
+            {/* X on the left: keeps the close button clear of the status bar
+                / battery icon (landscape top-right) and the kebab (which
+                occupies the viewport top-right corner). */}
+            <button onClick={() => setShowLog(false)} className="text-gray-500 hover:text-gray-300 active:scale-95 shrink-0">
               <Icon name="x-mark" className="w-4 h-4" />
             </button>
+            <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
             {recentLog.map((entry, i) => (
@@ -2114,12 +2120,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
       {/* ======================= Board Menu (kebab + connection dot) =======================
           Replaces the scoreboard's button row. Houses chrome-level actions
           (Log, Sandbox tools, Resign, Back/Concede). Lore lives in the play
-          divider; Active Effects lives in the bottom-right pill stack. */}
+          divider; Active Effects lives in the bottom-right pill stack.
+          Auto-hides when a drawer / effects modal / game-over overlay is up
+          so the kebab doesn't overlap the drawer's X button (both at the
+          viewport top-right corner). */}
       {(!sandboxMode || onBack) && (
         <BoardMenu
           sandboxMode={!!sandboxMode}
           isGameOver={isGameOver}
           connectionStatus={session.connectionStatus ?? null}
+          hidden={showLog || showAnalysis || showEffects || isGameOver}
           onOpenLog={() => setShowLog(true)}
           {...(sandboxMode ? { onOpenSandbox: () => setShowAnalysis(true) } : {})}
           {...(multiplayerGame && !isGameOver
