@@ -1689,6 +1689,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
         paddingTop: "env(safe-area-inset-top)",
+        // Kill the 300ms tap delay and double-tap-to-zoom on the board. Pinch
+        // zoom remains available (for accessibility — stat-delta badges and
+        // keyword icons are ~8-12px) because we use `manipulation`, not
+        // `none`. DraggableCard keeps its own touch-action for drag isolation.
+        touchAction: "manipulation",
       }}
     >
       {/* ======================= Main game area ======================= */}
