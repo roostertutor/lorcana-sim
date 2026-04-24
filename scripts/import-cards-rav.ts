@@ -618,9 +618,9 @@ function normName(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number; manualReplaced: number; sourceSkipped: number } {
+function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number; manualReplaced: number; sourceSkipped: number; lockedUpgradesAvailable: { slug: string; number: number; prevSource: string }[] } {
   const outPath = setJsonPath(setCode);
-  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0 };
+  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0, lockedUpgradesAvailable: [] };
 
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
   // Primary index: (id, number) composite. Same-slug-different-number is a
@@ -652,6 +652,12 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   let reslugged = 0;
   let manualReplaced = 0;
   let sourceSkipped = 0;
+  // Cards where a `_sourceLock: true` prevented a tier upgrade — i.e. we're
+  // holding a lorcast/manual entry while Ravensburger now publishes the
+  // same card. Surfaced at the end of the import so the user can decide
+  // whether to unlock + re-run (Lorcast's transcription may have been
+  // corrected upstream, Ravensburger may now supply authoritative data, etc).
+  const lockedUpgradesAvailable: { slug: string; number: number; prevSource: string }[] = [];
 
   for (let i = 0; i < newCards.length; i++) {
     const card = newCards[i]!;
@@ -675,6 +681,13 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
     if (prev._sourceLock) {
       newCards[i] = prev;
       sourceSkipped++;
+      // Reaching this branch means Ravensburger IS now publishing this card
+      // (we're iterating over mapped Rav API results). If the locked entry
+      // is lower-tier, that's an upgrade opportunity the user may want — we
+      // surface it at the end so they can remove the lock and re-run.
+      if (prev._source !== "ravensburger") {
+        lockedUpgradesAvailable.push({ slug: prev.id, number: prev.number, prevSource: prev._source });
+      }
       continue;
     }
     // Hierarchy check: ravensburger > lorcast > manual. Never downgrade.
@@ -783,7 +796,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
     carriedOver++;
   }
 
-  return { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped };
+  return { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, lockedUpgradesAvailable };
 }
 
 // =============================================================================
@@ -881,7 +894,7 @@ async function main() {
 
   for (const [setCode, setCards] of cardsBySet) {
     const outPath = setJsonPath(setCode);
-    const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped } = mergeWithExisting(setCode, setCards);
+    const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, lockedUpgradesAvailable } = mergeWithExisting(setCode, setCards);
     if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0 || manualReplaced > 0 || sourceSkipped > 0) {
       console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
         (keywordsRescued > 0 ? `; rescued ${keywordsRescued} keyword field(s)` : "") +
@@ -889,6 +902,16 @@ async function main() {
         (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") +
         (manualReplaced > 0 ? `; replaced ${manualReplaced} manual pre-reveal entry/entries` : "") +
         (sourceSkipped > 0 ? `; skipped ${sourceSkipped} card(s) (lower-tier source would downgrade existing data)` : "") + ".");
+    }
+    // Flag _sourceLock cards where Ravensburger NOW publishes the same card —
+    // the lock is preventing a potential tier upgrade. User can remove the
+    // lock and re-run if the upstream correction matches our locked value.
+    if (lockedUpgradesAvailable.length > 0) {
+      console.log(`  ⚠ ${lockedUpgradesAvailable.length} locked card(s) in set ${setCode} could be upgraded — Ravensburger now publishes this data:`);
+      for (const c of lockedUpgradesAvailable) {
+        console.log(`      - ${c.slug} #${c.number} (currently _source: "${c.prevSource}", _sourceLock: true)`);
+      }
+      console.log(`    If the upstream transcription is now correct, remove _sourceLock: true and re-run.`);
     }
     // Derive maxCopies from any deck_rule abilities now that manually-wired
     // abilities have been merged back in. Cards without a deck_rule ability
