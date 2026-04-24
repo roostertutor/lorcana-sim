@@ -2157,6 +2157,96 @@ describe("Set 12 — Leviathan IT'S A MACHINE! (totalStrengthAtMost aggregate)",
     expect(getZone(r.newState, "player2", "play").length).toBe(4);
   });
 
+  it("aggregate sum uses effective strength including statBonuses (Lawrence PAYBACK)", () => {
+    // Regression for user QA 2026-04-24: Leviathan's validator was calling
+    // getEffectiveStrength(inst, def) without staticBonus/modifiers, so
+    // Lawrence Jealous Manservant (printed S=0, PAYBACK +4 while undamaged)
+    // counted as 0 toward the sum-cap budget instead of his effective 4.
+    // Fix: validator now resolves modifiers once and passes the per-instance
+    // statBonus + full modifiers object, matching the challenge-damage
+    // reader pattern (reducer.ts CRD 4.6.6.1).
+    let state = startGame();
+    // Need the condition to surface a pendingChoice — use the same
+    // direct-effect approach as earlier tests.
+    // Opponent has Lawrence undamaged (effective S = 0 + 4 PAYBACK = 4).
+    let lawrenceId: string;
+    ({ state, instanceId: lawrenceId } = injectCard(state, "player2", "lawrence-jealous-manservant", "play", { isDrying: false, damage: 0 }));
+    // Also add Maui S=8 so a 2-pick selection of 4+8=12 should REJECT (over cap 10).
+    let mauiId: string;
+    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-demigod", "play", { isDrying: false }));
+
+    // Trigger Leviathan's aggregate-sum banish.
+    state = applyEffect(
+      state,
+      {
+        type: "banish",
+        isMay: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+          totalStrengthAtMost: 10,
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    // Picking Lawrence + Maui → sum = 4 (effective) + 8 = 12 → OVER cap 10.
+    // Pre-fix: validator computed 0 + 8 = 8 → UNDER cap, accepted (wrong).
+    // Post-fix: validator computes 4 + 8 = 12, rejects.
+    const reject = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [lawrenceId, mauiId] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(reject.success).toBe(false);
+
+    // Picking Lawrence alone (effective S = 4) is under cap.
+    const accept = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [lawrenceId] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(accept.success).toBe(true);
+  });
+
+  it("damaged Lawrence drops PAYBACK's +4 bonus → counts as 0 toward sum-cap", () => {
+    // Counterpart to the above: when PAYBACK is NOT active (damaged
+    // Lawrence), effective S collapses to printed 0. Confirms the
+    // modifier lookup is live, not cached — damage state changes
+    // instantaneously affect the aggregate sum.
+    let state = startGame();
+    let lawrenceId: string, mauiId: string;
+    ({ state, instanceId: lawrenceId } = injectCard(state, "player2", "lawrence-jealous-manservant", "play", { isDrying: false, damage: 1 }));
+    ({ state, instanceId: mauiId } = injectCard(state, "player2", "maui-demigod", "play", { isDrying: false }));
+
+    state = applyEffect(
+      state,
+      {
+        type: "banish",
+        isMay: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { owner: { type: "opponent" }, zone: "play", cardType: ["character"] },
+          totalStrengthAtMost: 10,
+        },
+      } as any,
+      "synthetic-source", "player1", CARD_DEFINITIONS, [],
+    );
+    // Lawrence (0 effective S with damage) + Maui (8) = 8 ≤ 10 → accepted.
+    const r = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [lawrenceId, mauiId] } as any,
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+  });
+
   it("count:any with no aggregate cap still lets player pick 0..N", () => {
     // Ever as Before pattern — "remove up to 2 damage from any number of chosen characters".
     // Migrated from count: 99 → count: "any"; behavior unchanged.

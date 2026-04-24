@@ -1047,17 +1047,25 @@ function validateResolveChoice(
       pc.totalDamageAtMost !== undefined || pc.totalDamageAtLeast !== undefined
     );
     if (hasAnyCap && choice.length > 0) {
-      // Resolve each picked instance → sum effective properties.
+      // Resolve each picked instance → sum effective properties per CRD 1.9.2.
+      // MUST pass both staticBonus (from modifiers.statBonuses) AND the
+      // modifiers object itself — without them, statics like Lawrence
+      // Jealous Manservant PAYBACK ("+4 {S} while no damage") and Belle
+      // Strange but Special's +strength are silently dropped from the sum.
+      // Matches the challenge-damage reader pattern at reducer.ts:1220.
+      // Fixed 2026-04-24 (user QA: Leviathan sum was using printed values).
+      const mods = getGameModifiers(state, definitions);
       let sumStrength = 0, sumWillpower = 0, sumCost = 0, sumLore = 0, sumDamage = 0;
       for (const id of choice) {
         const inst = state.cards[id];
         if (!inst) continue;
         const def = definitions[inst.definitionId];
         if (!def) continue;
-        sumStrength += getEffectiveStrength(inst, def);
-        sumWillpower += getEffectiveWillpower(inst, def);
+        const bonus = mods.statBonuses.get(id);
+        sumStrength += getEffectiveStrength(inst, def, bonus?.strength ?? 0, mods);
+        sumWillpower += getEffectiveWillpower(inst, def, bonus?.willpower ?? 0, mods);
         sumCost += getEffectiveCost(inst, def);
-        sumLore += getEffectiveLore(inst, def);
+        sumLore += getEffectiveLore(inst, def, bonus?.lore ?? 0, mods);
         sumDamage += inst.damage;
       }
       if (pc.totalStrengthAtMost !== undefined && sumStrength > pc.totalStrengthAtMost) {
