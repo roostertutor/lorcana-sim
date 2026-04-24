@@ -1933,9 +1933,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           drawer (sidebar is hidden in landscape-phone). */}
       <div className={`fixed inset-0 z-40 md:hidden landscape-phone:!block transition-opacity duration-200 ${showAnalysis ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
-        <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
-                        bg-gray-950 border-l border-gray-800 shadow-2xl
-                        transition-transform duration-200 ${showAnalysis ? "translate-x-0" : "translate-x-full"}`}>
+        <div
+          className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
+                      bg-gray-950 border-l border-gray-800 shadow-2xl
+                      transition-transform duration-200 ${showAnalysis ? "translate-x-0" : "translate-x-full"}`}
+          style={{
+            // Safe-area insets so the header clears the Dynamic Island
+            // (portrait top) and notch-side (landscape). Bottom pad keeps
+            // content above the home-indicator on PWA standalone.
+            paddingTop: "env(safe-area-inset-top)",
+            paddingRight: "env(safe-area-inset-right)",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
+        >
           <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 shrink-0">
             {/* X on the left: keeps the close button clear of the status bar
                 / battery icon (landscape top-right) and the kebab (which
@@ -1973,9 +1983,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           by landscape-phone:!hidden). */}
       <div className={`fixed inset-0 z-40 md:hidden landscape-phone:!block transition-opacity duration-200 ${showLog ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLog(false)} />
-        <div className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
-                        bg-gray-950 border-l border-gray-800 shadow-2xl
-                        transition-transform duration-200 ${showLog ? "translate-x-0" : "translate-x-full"}`}>
+        <div
+          className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
+                      bg-gray-950 border-l border-gray-800 shadow-2xl
+                      transition-transform duration-200 ${showLog ? "translate-x-0" : "translate-x-full"}`}
+          style={{
+            // Safe-area insets so the header clears the Dynamic Island
+            // (portrait top) and notch-side (landscape). Bottom pad keeps
+            // content above the home-indicator on PWA standalone.
+            paddingTop: "env(safe-area-inset-top)",
+            paddingRight: "env(safe-area-inset-right)",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
+        >
           <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 shrink-0">
             {/* X on the left: keeps the close button clear of the status bar
                 / battery icon (landscape top-right) and the kebab (which
