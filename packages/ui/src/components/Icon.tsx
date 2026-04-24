@@ -35,7 +35,8 @@ export type IconName =
   | "document-text"
   // Selection overlays
   | "check"
-  | "arrows-right-left";
+  | "arrows-right-left"
+  | "ellipsis-vertical";
 
 interface IconProps {
   name: IconName;
@@ -148,5 +149,15 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
 
     case "arrows-right-left":
       return outline("M7.5 21 3 16.5m0 0 4.5-4.5M3 16.5h13.5m0-13.5L21 7.5m0 0-4.5 4.5M21 7.5H7.5");
+
+    case "ellipsis-vertical":
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
+          <path d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+          <circle cx="12" cy="6" r="1.5" />
+          <circle cx="12" cy="12" r="1.5" />
+          <circle cx="12" cy="18" r="1.5" />
+        </svg>
+      );
   }
 }

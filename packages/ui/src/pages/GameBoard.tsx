@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers } from "@lorcana-sim/engine";
-import { parseDecklist, getGameModifiers, evaluateCondition, hasKeyword, getKeywordValue, isSong } from "@lorcana-sim/engine";
+import { parseDecklist, getGameModifiers, evaluateCondition, hasKeyword, getKeywordValue, isSong, getLoreThreshold } from "@lorcana-sim/engine";
 import {
   GreedyBot,
   RandomBot,
@@ -34,6 +34,8 @@ import PendingChoiceModal from "../components/PendingChoiceModal.js";
 import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
 import RevealPill from "../components/RevealPill.js";
+import BoardMenu from "../components/BoardMenu.js";
+import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -1374,7 +1376,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
   // PLAYING MODE
   // =========================================================================
 
-  const { legalActions, pendingChoice, actionLog, isGameOver, winner, error } = session;
+  const { legalActions, pendingChoice, actionLog, isGameOver, winner } = session;
   // In replay mode, show the replay state instead of the live game state.
   // replaySession.state may be null while states are being built — fall back to session.gameState.
   // Cast to GameState: the null guard below prevents any actual null from reaching the render.
@@ -1438,13 +1440,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     // reserve their rotated footprint so the visual overhang doesn't get
     // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
-    // Landscape-phone uses explicit 63×45 (landscape-oriented for the
-    // rotate-90'd card inside) to match the 45×63 ready-card parity. 63×45
+    // Landscape-phone uses explicit 70×50 (landscape-oriented for the
+    // rotate-90'd card inside) to match the 50×70 ready-card parity. 70×50
     // is 5:7 rotated. Explicit pixel sizing bypasses the h-full resolution
     // bug — no ancestor in this branch has an explicit height, so h-full
     // resolved to auto and max-h never triggered.
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[70px] landscape-phone:!h-[50px] flex items-center justify-center overflow-hidden" : ""}`}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );
@@ -1713,104 +1715,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         )}
 
-        {/* ---- Scoreboard ---- */}
-        <div className="shrink-0 rounded-xl bg-gray-900/60 border border-gray-800/50 px-3 py-2 landscape-phone:!py-0 landscape-phone:!px-2 landscape-phone:!rounded-md">
-          <div className="flex items-center gap-2">
-
-            {/* Mobile compact lore scores */}
-            <div className="flex items-center gap-1.5 ml-1 md:hidden">
-              <span className="text-green-400 font-mono text-sm font-black">{p1.lore}</span>
-              <span className="text-gray-700 text-xs">♦</span>
-              <span className="text-gray-600 text-xs">vs</span>
-              <span className="text-red-400 font-mono text-sm font-black">{p2.lore}</span>
-              <span className="text-gray-700 text-xs">♦</span>
-              <span className="text-gray-600 text-[10px]">/20</span>
-            </div>
-
-            {/* Mobile drawer toggles — pushed right via ml-auto in sandbox mode;
-                in multiplayer mode the ml-auto is on the !sandboxMode block instead */}
-            <div className={`flex items-center gap-1 md:hidden ${sandboxMode ? "ml-auto" : ""}`}>
-              <button
-                className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 active:scale-95 transition-colors"
-                onClick={() => setShowLog(true)}
-                title="Game Log"
-              >
-                <Icon name="document-text" className="w-4 h-4" />
-              </button>
-              {sandboxMode && (
-                <button
-                  className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800/50 active:scale-95 transition-colors"
-                  onClick={() => setShowAnalysis(true)}
-                  title="Sandbox"
-                >
-                  <Icon name="wrench" className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            {/* Desktop full lore trackers */}
-            <div className="hidden md:flex md:flex-1 md:flex-col md:gap-0.5 md:ml-2">
-              <LoreTracker lore={p1.lore} label="You" color="green" />
-              <LoreTracker lore={p2.lore} label={multiplayerGame ? "Opp" : "Bot"} color="red" />
-            </div>
-
-            {/* Active Effects pill */}
-            {activeEffects.length > 0 && (
-              <button
-                className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-900/60 border border-amber-700/40 text-amber-300 hover:bg-amber-800/60 transition-colors"
-                onClick={() => setShowEffects(true)}
-              >
-                {activeEffects.length} effect{activeEffects.length !== 1 ? "s" : ""}
-              </button>
-            )}
-
-            {(!sandboxMode || onBack) && (
-              <div className="ml-auto shrink-0 flex items-center gap-1">
-                {session.connectionStatus && (
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      session.connectionStatus === "connected" ? "bg-green-500" : "bg-red-500 animate-pulse"
-                    }`}
-                    title={session.connectionStatus === "connected" ? "Connected" : "Reconnecting…"}
-                  />
-                )}
-                {multiplayerGame && !isGameOver && (
-                  <button
-                    className="px-2 py-1 text-red-600 hover:text-red-400 rounded transition-colors"
-                    onClick={() => {
-                      import("../lib/serverApi.js").then(({ resignGame }) =>
-                        resignGame(multiplayerGame.gameId)
-                      );
-                    }}
-                    title="Resign"
-                  >
-                    <span className="text-[10px] uppercase tracking-wider font-medium">Resign</span>
-                  </button>
-                )}
-                <button
-                  className="px-2 py-1 text-gray-600 hover:text-gray-400 rounded transition-colors"
-                  onClick={() => {
-                    session.reset();
-                    onBack?.();
-                  }}
-                  title={onBack ? "Back" : "Concede"}
-                >
-                  <Icon name="arrow-left" className="w-4 h-4 md:hidden" />
-                  <span className="hidden md:inline text-[10px] uppercase tracking-wider">
-                    {onBack ? "Back" : "Concede"}
-                  </span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {error && (
-          <div className="shrink-0 text-red-400 text-sm bg-red-950/30 border border-red-800/50 rounded-lg px-3 py-2">
-            {error}
-          </div>
-        )}
-
         {/* ---- Opponent hand — hoisted OUT of the opponent zone so that
                the opponent/player zones compete for equal flex-1 vertical
                space and end up with equal effective play-area heights.
@@ -1874,6 +1778,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           <DroppableQuestDivider
             isValidTarget={!!dnd.activeId && dnd.isValidQuestDrop(dnd.activeId)}
             activeId={dnd.activeId}
+            myLore={p1.lore}
+            opponentLore={p2.lore}
+            loreThreshold={getLoreThreshold(gameState, definitions, myId)}
           />
 
           {/* Pass / Cancel — right side */}
@@ -1957,7 +1864,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
               hand are the same height — no board shift when a card is drawn
               into an empty hand. max-h still allows wrapping to 2 rows for
               rare large hands (which will shift, but that's acceptable). */}
-          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[60px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[60px] landscape-phone:!min-h-[60px] landscape-phone:!p-0">
+          <div className="h-20 overflow-hidden flex flex-nowrap items-start justify-center md:h-auto md:overflow-hidden md:flex-wrap md:max-h-[260px] lg:max-h-[355px] md:p-1 md:min-h-[160px] lg:min-h-[180px] landscape-phone:!h-[65px] landscape-phone:!flex-nowrap landscape-phone:!max-h-[65px] landscape-phone:!min-h-[65px] landscape-phone:!p-0">
             {p1Zones.hand.length === 0 ? (
               <span className="text-gray-700 text-xs italic self-center">Empty hand</span>
             ) : (
@@ -2198,6 +2105,38 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
           </div>
         ) : null}
       </DragOverlay>
+
+      {/* ======================= Board Menu (kebab + connection dot) =======================
+          Replaces the scoreboard's button row. Houses chrome-level actions
+          (Log, Sandbox tools, Resign, Back/Concede). Lore lives in the play
+          divider; Active Effects lives in the bottom-right pill stack. */}
+      {(!sandboxMode || onBack) && (
+        <BoardMenu
+          sandboxMode={!!sandboxMode}
+          isGameOver={isGameOver}
+          connectionStatus={session.connectionStatus ?? null}
+          onOpenLog={() => setShowLog(true)}
+          {...(sandboxMode ? { onOpenSandbox: () => setShowAnalysis(true) } : {})}
+          {...(multiplayerGame && !isGameOver
+            ? {
+                onResign: () => {
+                  void import("../lib/serverApi.js").then(({ resignGame }) =>
+                    resignGame(multiplayerGame.gameId),
+                  );
+                },
+              }
+            : {})}
+          {...(onBack
+            ? {
+                onBackOrConcede: () => {
+                  session.reset();
+                  onBack();
+                },
+                backLabel: sandboxMode ? "back" : "concede",
+              }
+            : {})}
+        />
+      )}
 
       {/* ======================= Pending Choice Modal ======================= */}
       {pendingChoice && pendingChoice.choosingPlayerId === myId && !choiceModalHidden && (
@@ -2447,12 +2386,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
         );
       })()}
 
-      {/* ======================= Reveal Pills (collapsed reveal viewers) =======================
-          Bottom-right stack, independent of the mid-screen "View Choice" pill
-          which lives bottom-center. Clears at next turn boundary via the
-          `revealHandTurnAnchor` / `revealCardsTurnAnchor` gate. */}
-      {(showRevealHandPill || showRevealCardsPill) && (
-        <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
+      {/* ======================= Status Pill Stack =======================
+          Bottom-right floating stack, independent of the mid-screen
+          "View Choice" pill (bottom-center). Contains:
+          - Active Effects pill (conditional on gameModifiers producing any)
+          - Reveal Hand pill (collapsed reveal viewer)
+          - Reveal Cards pill (collapsed reveal viewer)
+          RevealPills clear at next turn boundary via the
+          `revealHandTurnAnchor` / `revealCardsTurnAnchor` gate; Active
+          Effects is always live state. */}
+      {(showRevealHandPill || showRevealCardsPill || activeEffects.length > 0) && (
+        <div
+          className="fixed right-4 z-40 flex flex-col items-end gap-2 pointer-events-none"
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+        >
+          {activeEffects.length > 0 && (
+            <ActiveEffectsPill count={activeEffects.length} onClick={() => setShowEffects(true)} />
+          )}
           {showRevealHandPill && gameState?.lastRevealedHand && (
             <RevealPill
               title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} hand`}
@@ -2659,9 +2609,18 @@ function DroppablePlayZone({
 function DroppableQuestDivider({
   isValidTarget,
   activeId,
+  myLore,
+  opponentLore,
+  loreThreshold,
 }: {
   isValidTarget: boolean;
   activeId: string | null;
+  /** Your lore total — rendered in green on the pill. */
+  myLore: number;
+  /** Opponent's lore total — rendered in red on the pill. */
+  opponentLore: number;
+  /** Win threshold (usually 20, but cards can change it) — only shown as a tiny badge. */
+  loreThreshold: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: DROP_QUEST });
   // When a valid quester is being dragged, thicken the divider and shift
@@ -2671,18 +2630,42 @@ function DroppableQuestDivider({
     ? `${isOver ? "bg-amber-400" : "bg-amber-500/70 animate-pulse"}`
     : "bg-gradient-to-r from-transparent via-gray-700/50 to-transparent";
   const lineHeight = isValidTarget ? "h-0.5" : "h-px";
-  const textColor = isValidTarget
-    ? (isOver ? "text-amber-200" : "text-amber-400")
-    : "text-gray-700";
+  // Lore pill: always-visible game state. When a valid quester is dragged,
+  // the pill pulses amber to signal the drop target. When `isOver`, a `+1`
+  // overlay confirms the drop will gain lore.
+  const pillBorder = isValidTarget
+    ? (isOver ? "border-amber-300 bg-amber-900/60" : "border-amber-500/70 bg-amber-950/40 animate-pulse")
+    : "border-gray-800/50 bg-gray-900/60";
   return (
     <div
       ref={setNodeRef}
       className={`flex-1 flex items-center gap-2 py-0.5 transition-colors duration-150 ${activeId && !isValidTarget ? "opacity-70" : ""}`}
     >
       <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
-      <span className={`text-[9px] uppercase tracking-widest shrink-0 transition-colors ${textColor}`}>
-        {isValidTarget ? (isOver ? "Drop to Quest" : "Quest") : "Play"}
-      </span>
+
+      {/* Lore pill — always present. Acts as both the scoreboard and the
+          quest drop target. Tiny threshold `/20` badge on the right keeps
+          the win condition visible without taking a full pip bar. */}
+      <div
+        className={`shrink-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all duration-150 ${pillBorder}`}
+        title={`You ${myLore} · Opp ${opponentLore} (first to ${loreThreshold})`}
+      >
+        <span className="text-green-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
+          {myLore}
+        </span>
+        <span className="text-gray-600 text-[10px] leading-none">♦</span>
+        <span className="text-gray-700 text-[9px] leading-none">–</span>
+        <span className="text-red-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
+          {opponentLore}
+        </span>
+        <span className="text-gray-600 text-[10px] leading-none">♦</span>
+        {isOver && isValidTarget && (
+          <span className="text-amber-200 text-[9px] font-bold uppercase tracking-wider leading-none ml-0.5">
+            +1
+          </span>
+        )}
+      </div>
+
       <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
     </div>
   );
