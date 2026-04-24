@@ -9,7 +9,7 @@ playable sandbox exists as a thin UI layer over the engine.
 
 ## Status
 
-- **engine** — done, 460 tests passing. `pnpm catalog > docs/ENGINE_PRIMITIVES.md` dumps the live primitive inventory (~80). Tests split: `reducer.test.ts` (CRD rules), `setN.test.ts` (per-set card behavior), `mech-gaps-batch.test.ts`, `undo-rng-isolation.test.ts`, `angela-eternal-night.test.ts` (regression coverage for two silent bug classes).
+- **engine** — done, 662 tests passing. `pnpm catalog > docs/ENGINE_PRIMITIVES.md` dumps the live primitive inventory (~80). Tests split: `reducer.test.ts` (CRD rules), `setN.test.ts` (per-set card behavior), `mech-gaps-batch.test.ts` (cross-cutting mechanic regressions), `undo-rng-isolation.test.ts`, `play-draw.test.ts`, `seededRng.test.ts`, `dynamic-amount.test.ts`.
 - **simulator** — done, 47 tests passing. Layer 3 data-integrity invariants enforced. RL bot implemented (Actor-Critic + GAE). `rl.test.ts` has a pre-existing flake unrelated to engine work.
 - **analytics** — done, 15 tests passing.
 - **cli** — done. Commands: `analyze`, `compare`, `query`, `learn`.

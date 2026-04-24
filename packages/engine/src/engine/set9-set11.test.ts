@@ -5,6 +5,7 @@
 
 import { describe, it, expect } from "vitest";
 import { applyAction, applyEffect, getAllLegalActions } from "./reducer.js";
+import { applyMoveCostReduction } from "./validator.js";
 import { getGameModifiers } from "./gameModifiers.js";
 import {
   CARD_DEFINITIONS,
@@ -1472,5 +1473,111 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
     // After playing, a pendingChoice should be active for the FIRST player's may-play.
     expect(state.pendingChoice).toBeDefined();
     expect(state.pendingChoice?.type).toBe("choose_may");
+  });
+});
+
+// Verify Angela Night Warrior's ETERNAL NIGHT (remove_named_ability) actually
+// works end-to-end. The concern isn't the JSON wiring — it's whether the
+// suppressed-ability path in gameModifiers correctly prevents STONE BY DAY
+// from blocking ready.
+// =============================================================================
+// P1 PROMO — Jolly Roger - Hook's Ship (move-to-self cost reduction)
+// =============================================================================
+describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
+  it("ALL HANDS ON DECK!: modifier slot populated with Pirate filter for Jolly Roger", () => {
+    // Jolly Roger itself has moveCost 0, so the "for free" reduction is a
+    // no-op for moves to Jolly Roger. The static is still correctly registered
+    // on the modifier slot keyed by Jolly Roger's instanceId — verified directly.
+    let state = startGame();
+    let jollyId: string;
+    ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const entries = mods.costReductions.filter((r) =>
+      r.kind === "move" && r.locationInstanceId === jollyId
+    );
+    expect(entries.length).toBe(1);
+    const entry = entries[0]!;
+    expect(entry.amount).toBe("all");
+    expect(entry.kind === "move" && entry.cardFilter?.hasTrait).toBe("Pirate");
+  });
+
+  it("applyMoveCostReduction helper: Pirate gets cost reduced to 0; non-Pirate pays full", () => {
+    // Use the helper directly with a synthetic location moveCost of 1.
+    let state = startGame();
+    let jollyId: string, smeeId: string, mickeyId: string;
+    ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
+    ({ state, instanceId: smeeId } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const smeeInst = getInstance(state, smeeId);
+    const smeeDef = CARD_DEFINITIONS[smeeInst.definitionId]!;
+    const mickeyInst = getInstance(state, mickeyId);
+    const mickeyDef = CARD_DEFINITIONS[mickeyInst.definitionId]!;
+
+    expect(applyMoveCostReduction(2, smeeInst, smeeDef, jollyId, mods, state, "player1")).toBe(0);
+    expect(applyMoveCostReduction(2, mickeyInst, mickeyDef, jollyId, mods, state, "player1")).toBe(2);
+  });
+
+  it("LOOK ALIVE, YOU SWABS!: characters at Jolly Roger gain Rush via grant_keyword static", () => {
+    let state = startGame();
+    let jollyId: string, smeeId: string;
+    ({ state, instanceId: jollyId } = injectCard(state, "player1", "jolly-roger-hooks-ship", "play", { isDrying: false }));
+    ({ state, instanceId: smeeId } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false, atLocationInstanceId: jollyId }));
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const granted = mods.grantedKeywords.get(smeeId) ?? [];
+    expect(granted.some(k => k.keyword === "rush")).toBe(true);
+  });
+});
+
+describe("§11 Set 11 — Angela Night Warrior ETERNAL NIGHT", () => {
+  it("baseline: Demona with 3+ cards in hand can't be effect-readied (Stone by Day blanket)", () => {
+    let state = startGame();
+    // Demona starts exerted, player1 has 3 cards in hand from opening.
+    const { state: s1, instanceId: demonaId } = injectCard(
+      state, "player1", "demona-betrayer-of-the-clan", "play",
+      { isDrying: false, isExerted: true },
+    );
+    state = s1;
+    expect(state.zones.player1.hand.length).toBeGreaterThanOrEqual(3);
+
+    // Simulate Fan-the-Flames effect-ready (directly call applyEffect path
+    // via a synthesized "ready chosen character" flow is awkward from tests;
+    // simplest probe: check that turn-start ready loop skips Demona).
+    // Pass a full turn cycle so player1 becomes active again.
+    for (let i = 0; i < 2; i++) {
+      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    // Demona should still be exerted because STONE BY DAY blocks ready.
+    expect(state.cards[demonaId]!.isExerted).toBe(true);
+  });
+
+  it("with Angela in play, Gargoyles' Stone by Day is suppressed — Demona rearies", () => {
+    let state = startGame();
+    const { state: s1, instanceId: angelaId } = injectCard(
+      state, "player1", "angela-night-warrior", "play", { isDrying: false },
+    );
+    state = s1;
+    const { state: s2, instanceId: demonaId } = injectCard(
+      state, "player1", "demona-betrayer-of-the-clan", "play",
+      { isDrying: false, isExerted: true },
+    );
+    state = s2;
+
+    for (let i = 0; i < 2; i++) {
+      const r = applyAction(state, { type: "PASS_TURN", playerId: state.currentPlayer }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    // With Angela suppressing STONE BY DAY, Demona readies normally.
+    expect(state.cards[demonaId]!.isExerted).toBe(false);
+    // Angela itself isn't a Gargoyle only in the sense of... actually she IS
+    // Gargoyle (trait) so ETERNAL NIGHT suppresses her own Stone by Day too,
+    // but she doesn't have that ability printed. No assertion needed.
+    void angelaId;
   });
 });
