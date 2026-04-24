@@ -1054,7 +1054,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtLeast": 5
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 5
+                  }
+                ]
               }
             }
           }
@@ -3771,7 +3777,13 @@
               "item",
               "location"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -5405,7 +5417,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -5719,7 +5737,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -6019,7 +6043,13 @@
           "cardType": [
             "character"
           ],
-          "strengthAtMost": 2
+          "statComparisons": [
+            {
+              "stat": "strength",
+              "op": "lte",
+              "value": 2
+            }
+          ]
         }
       }
     ],
@@ -6972,7 +7002,13 @@
               "cardType": [
                 "character"
               ],
-              "strengthAtLeast": 4
+              "statComparisons": [
+                {
+                  "stat": "strength",
+                  "op": "gte",
+                  "value": 4
+                }
+              ]
             }
           }
         }
@@ -7718,7 +7754,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 1
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 1
+                  }
+                ]
               }
             }
           }
@@ -7851,7 +7893,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -8156,7 +8204,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -8508,7 +8562,13 @@
               "character"
             ],
             "atLocation": "this",
-            "strengthAtLeast": 3
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 3
+              }
+            ]
           }
         },
         "effects": [
@@ -8533,7 +8593,13 @@
               }
             ],
             "condition": {
-              "strengthAtLeast": 6
+              "statComparisons": [
+                {
+                  "stat": "strength",
+                  "op": "gte",
+                  "value": 6
+                }
+              ]
             },
             "target": {
               "type": "triggering_card"
@@ -9820,7 +9886,13 @@
               }
             ],
             "condition": {
-              "costAtMost": 3
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 3
+                }
+              ]
             },
             "target": {
               "type": "last_resolved_target"
@@ -12035,7 +12107,13 @@
             "type": "this"
           },
           "attackerFilter": {
-            "costAtMost": 4
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 4
+              }
+            ]
           }
         }
       }
@@ -12905,7 +12983,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtLeast": 5
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 5
+                  }
+                ]
               }
             }
           }
@@ -13517,7 +13601,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -13567,7 +13657,13 @@
               "character"
             ],
             "atLocation": "this",
-            "strengthAtLeast": 3
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 3
+              }
+            ]
           }
         },
         "effects": [
@@ -13592,7 +13688,13 @@
               }
             ],
             "condition": {
-              "strengthAtLeast": 6
+              "statComparisons": [
+                {
+                  "stat": "strength",
+                  "op": "gte",
+                  "value": 6
+                }
+              ]
             },
             "target": {
               "type": "triggering_card"
@@ -13756,7 +13858,13 @@
               }
             ],
             "condition": {
-              "costAtMost": 3
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 3
+                }
+              ]
             },
             "target": {
               "type": "last_resolved_target"

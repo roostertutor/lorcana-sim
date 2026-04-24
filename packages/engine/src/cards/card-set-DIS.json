@@ -179,7 +179,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [

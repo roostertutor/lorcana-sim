@@ -894,11 +894,15 @@ describe("Set 12 — Firefly Swarm (choose with conditional second option)", () 
     expect(effects[0].count).toBe(1);
     expect(effects[0].options).toHaveLength(2);
 
-    // Option A: banish chosen character with strengthAtMost 2 (no gating).
+    // Option A: banish chosen character with strength ≤ 2 (no gating).
+    // Post-2026-04-24 CardFilter refactor: per-axis numeric caps live in
+    // `statComparisons`, not flat `strengthAtMost`.
     const optA = effects[0].options[0];
     expect(optA).toHaveLength(1);
     expect(optA[0].type).toBe("banish");
-    expect(optA[0].target.filter.strengthAtMost).toBe(2);
+    const cmps = optA[0].target.filter.statComparisons ?? [];
+    const strCap = cmps.find((c: any) => c.stat === "strength" && c.op === "lte");
+    expect(strCap?.value).toBe(2);
 
     // Option B: self_replacement gates the banish on discard-this-turn condition.
     const optB = effects[0].options[1];

@@ -414,24 +414,21 @@ export function matchesFilter(
     if (instance.isExerted !== filter.isExerted) return false;
   }
 
-  if (filter.costAtMost !== undefined) {
-    if (definition.cost > filter.costAtMost) return false;
-  }
-  if (filter.costAtMostFromLastResolvedSourcePlus !== undefined) {
-    const srcCost = state.lastResolvedSource?.cost;
-    if (srcCost === undefined) return false;
-    if (definition.cost > srcCost + filter.costAtMostFromLastResolvedSourcePlus) return false;
-  }
-  if (filter.costAtMostFromSourceStrength && sourceInstanceId) {
-    const src = state.cards[sourceInstanceId];
-    const srcDef = src ? definitions?.[src.definitionId] : undefined;
-    if (!src || !srcDef) return false;
-    const srcStrength = getEffectiveStrength(src, srcDef);
-    if (definition.cost > srcStrength) return false;
-  }
-
-  if (filter.costAtLeast !== undefined) {
-    if (definition.cost < filter.costAtLeast) return false;
+  // Structured per-axis comparisons (replaces the legacy flat fields —
+  // costAtMost, costAtLeast, strengthAtMost, strengthAtLeast,
+  // willpowerAtMost, willpowerAtLeast, costAtMostFromLastResolvedSourcePlus,
+  // costAtMostFromSourceStrength, strengthAtMostFromBanishedSource).
+  //
+  // Each entry is `{stat, op, value}`. All entries AND together. `value` is
+  // a number or `{from, property?, offset?}` reference resolved at match
+  // time. Unresolvable references (ref missing from state) fail the filter.
+  if (filter.statComparisons && filter.statComparisons.length > 0) {
+    for (const cmp of filter.statComparisons) {
+      const actual = resolveCardStat(instance, definition, cmp.stat);
+      const bound = resolveStatValue(cmp.value, cmp.stat, state, sourceInstanceId, definitions);
+      if (bound === undefined) return false;
+      if (!checkStatOp(actual, cmp.op, bound)) return false;
+    }
   }
 
   if (filter.excludeInstanceId) {
@@ -477,25 +474,9 @@ export function matchesFilter(
     if (!filter.hasDamage && instance.damage > 0) return false;
   }
 
-  if (filter.strengthAtMost !== undefined || filter.strengthAtLeast !== undefined) {
-    const str = getEffectiveStrength(instance, definition);
-    if (filter.strengthAtMost !== undefined && str > filter.strengthAtMost) return false;
-    if (filter.strengthAtLeast !== undefined && str < filter.strengthAtLeast) return false;
-  }
-
-  if (filter.willpowerAtMost !== undefined || filter.willpowerAtLeast !== undefined) {
-    const wp = getEffectiveWillpower(instance, definition);
-    if (filter.willpowerAtMost !== undefined && wp > filter.willpowerAtMost) return false;
-    if (filter.willpowerAtLeast !== undefined && wp < filter.willpowerAtLeast) return false;
-  }
-
-  // Wreck-it Ralph Raging Wrecker WHO'S COMIN' WITH ME?: cap by the
-  // pre-banish snapshot of Ralph's strength. The snapshot is captured in
-  // zoneTransition before leave-play cleanup drops the cardsUnder bonus.
-  if (filter.strengthAtMostFromBanishedSource && state.lastBanishedSourceStrength !== undefined) {
-    const str = getEffectiveStrength(instance, definition);
-    if (str > state.lastBanishedSourceStrength) return false;
-  }
+  // strength/willpower/lore/damage + dynamic variants (FromLastResolvedSource,
+  // FromBanishedSource, FromSourceStrength) are now all handled by the
+  // statComparisons block above.
 
   if (filter.challengedThisTurn !== undefined) {
     if (filter.challengedThisTurn && !instance.challengedThisTurn) return false;
@@ -528,6 +509,127 @@ export function matchesFilter(
   }
 
   return true;
+}
+
+// -----------------------------------------------------------------------------
+// StatComparison helpers — support the unified statComparisons block above.
+// Exported so decompiler/compiler tests can reuse the dispatch semantics.
+// -----------------------------------------------------------------------------
+
+/** Read the effective value of a stat on a card instance.
+ *  - `cost` reads definition.cost (printed; cost never has runtime modifiers today).
+ *  - `strength` / `willpower` / `lore` use the existing effective-stat helpers
+ *    (printed + timedEffects; static bonuses are applied by the caller's
+ *    modifiers object when needed by a specific call site — filters evaluate
+ *    against effective base because the static layer is evaluated per-instance
+ *    elsewhere).
+ *  - `damage` reads instance.damage (counters currently on the card). */
+export function resolveCardStat(
+  instance: CardInstance,
+  definition: CardDefinition,
+  stat: import("../types/index.js").StatName,
+): number {
+  switch (stat) {
+    case "cost":      return definition.cost;
+    case "strength":  return getEffectiveStrength(instance, definition);
+    case "willpower": return getEffectiveWillpower(instance, definition);
+    case "lore":      return getEffectiveLore(instance, definition);
+    case "damage":    return instance.damage;
+  }
+}
+
+/** Resolve a StatValue (either a literal number or a `{from, property?, offset?}`
+ *  reference) to a concrete number. Returns undefined when the reference can't
+ *  be resolved (e.g. `lastResolvedSource` absent), which should fail the
+ *  enclosing filter — same "reference missing = filter fails" semantic the
+ *  legacy `costAtMostFromLastResolvedSourcePlus` path had. */
+export function resolveStatValue(
+  value: import("../types/index.js").StatValue,
+  axisStat: import("../types/index.js").StatName,
+  state: GameState,
+  sourceInstanceId?: string,
+  definitions?: Record<string, CardDefinition>,
+): number | undefined {
+  if (typeof value === "number") return value;
+  const property = value.property ?? axisStat;
+  const offset = value.offset ?? 0;
+  // Resolve the reference source to a number for the requested property.
+  let refValue: number | undefined;
+  switch (value.from) {
+    case "last_resolved_source": {
+      const ref = state.lastResolvedSource;
+      if (!ref) return undefined;
+      refValue = readRefProperty(ref, property, state);
+      break;
+    }
+    case "last_resolved_target": {
+      const ref = state.lastResolvedTarget;
+      if (!ref) return undefined;
+      refValue = readRefProperty(ref, property, state);
+      break;
+    }
+    case "last_banished_source": {
+      // Special-case for strength: state.lastBanishedSourceStrength is the
+      // pre-banish snapshot that includes POWERED UP / cardsUnder bonuses
+      // (Wreck-it Ralph). For other properties we'd need a similar snapshot
+      // — not currently captured, so undefined → filter fails.
+      if (property === "strength") return state.lastBanishedSourceStrength !== undefined
+        ? state.lastBanishedSourceStrength + offset
+        : undefined;
+      // Fallback: read from lastResolvedSource if it was populated by the banish.
+      const ref = state.lastResolvedSource;
+      refValue = ref ? readRefProperty(ref, property, state) : undefined;
+      break;
+    }
+    case "source": {
+      if (!sourceInstanceId || !definitions) return undefined;
+      const src = state.cards[sourceInstanceId];
+      const srcDef = src ? definitions[src.definitionId] : undefined;
+      if (!src || !srcDef) return undefined;
+      refValue = resolveCardStat(src, srcDef, property);
+      break;
+    }
+    case "triggering_card": {
+      // Triggering card's snapshot lives on state.lastResolvedTarget for
+      // most effect paths where a triggering card is surfaced into a filter.
+      // If a future card needs a distinct triggering-card channel, add one.
+      const ref = state.lastResolvedTarget;
+      if (!ref) return undefined;
+      refValue = readRefProperty(ref, property, state);
+      break;
+    }
+  }
+  if (refValue === undefined) return undefined;
+  return refValue + offset;
+}
+
+function readRefProperty(
+  ref: import("../types/index.js").ResolvedRef,
+  property: import("../types/index.js").StatName,
+  _state: GameState,
+): number | undefined {
+  switch (property) {
+    case "cost":      return ref.cost;
+    case "strength":  return ref.strength;
+    case "willpower": return ref.willpower;
+    case "lore":      return ref.lore;
+    case "damage":    return ref.damage;
+  }
+}
+
+/** Apply a comparison operator between two numbers. */
+export function checkStatOp(
+  actual: number,
+  op: import("../types/index.js").StatOp,
+  bound: number,
+): boolean {
+  switch (op) {
+    case "lte": return actual <= bound;
+    case "gte": return actual >= bound;
+    case "lt":  return actual <  bound;
+    case "gt":  return actual >  bound;
+    case "eq":  return actual === bound;
+  }
 }
 
 /** Find all instances in the game matching a filter */

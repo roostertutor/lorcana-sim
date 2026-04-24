@@ -127,11 +127,17 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 6,
               "zone": "hand",
               "owner": {
                 "type": "self"
-              }
+              },
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 6
+                }
+              ]
             }
           }
         ]
@@ -1624,11 +1630,17 @@
           "cardType": [
             "character"
           ],
-          "costAtMost": 5,
           "zone": "discard",
           "owner": {
             "type": "self"
-          }
+          },
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 5
+            }
+          ]
         }
       }
     ],
@@ -2134,7 +2146,13 @@
                 "owner": {
                   "type": "opponent"
                 },
-                "costAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           },
@@ -2156,7 +2174,13 @@
                     "owner": {
                       "type": "opponent"
                     },
-                    "costAtMost": 3
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -2188,7 +2212,13 @@
                     "owner": {
                       "type": "opponent"
                     },
-                    "costAtMost": 3
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -2220,7 +2250,13 @@
                     "owner": {
                       "type": "opponent"
                     },
-                    "costAtMost": 3
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -3299,7 +3335,13 @@
                       "item",
                       "location"
                     ],
-                    "costAtMost": 3
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -4052,7 +4094,13 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }
@@ -6835,7 +6883,13 @@
                     "cardType": [
                       "character"
                     ],
-                    "strengthAtLeast": 5
+                    "statComparisons": [
+                      {
+                        "stat": "strength",
+                        "op": "gte",
+                        "value": 5
+                      }
+                    ]
                   }
                 }
               }
@@ -6859,7 +6913,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtLeast": 10
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 10
+                  }
+                ]
               }
             }
           }
@@ -7644,7 +7704,13 @@
               "cardType": [
                 "action"
               ],
-              "costAtMost": 6
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 6
+                }
+              ]
             },
             "target": {
               "type": "self"
@@ -9534,7 +9600,13 @@
               "cardType": [
                 "item"
               ],
-              "costAtMost": 5
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "sourceZone": [
               "hand",
@@ -11180,7 +11252,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 4
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 4
+              }
+            ]
           }
         }
       }
@@ -11902,11 +11980,17 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 5,
               "zone": "hand",
               "owner": {
                 "type": "self"
-              }
+              },
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             }
           }
         ]
@@ -13254,11 +13338,17 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 6,
               "zone": "hand",
               "owner": {
                 "type": "self"
-              }
+              },
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 6
+                }
+              ]
             }
           }
         ]
@@ -13404,11 +13494,17 @@
           "cardType": [
             "character"
           ],
-          "costAtMost": 5,
           "zone": "discard",
           "owner": {
             "type": "self"
-          }
+          },
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 5
+            }
+          ]
         }
       }
     ],
@@ -13903,7 +13999,13 @@
               "cardType": [
                 "action"
               ],
-              "costAtMost": 6
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 6
+                }
+              ]
             },
             "target": {
               "type": "self"

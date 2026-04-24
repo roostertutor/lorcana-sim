@@ -2489,6 +2489,49 @@ export type CardTarget =
    *  triggering_card (which would only be one of N). */
   | { type: "last_song_singers" };
 
+/** A numeric stat axis a CardFilter can compare against. */
+export type StatName = "cost" | "strength" | "willpower" | "lore" | "damage";
+
+/** Comparison operator for StatComparison. `lte` = ≤, `gte` = ≥, etc. */
+export type StatOp = "lte" | "gte" | "lt" | "gt" | "eq";
+
+/** Either a literal number OR a dynamic reference to another card's stat.
+ *  Used by `StatComparison.value` so every numeric filter axis can take
+ *  either a static cap or a reference without needing a per-axis flat field.
+ *
+ *  When `property` is omitted, the reference reads the SAME stat as the
+ *  enclosing comparison — so `{from: "last_resolved_source"}` inside a
+ *  `{stat: "cost"}` comparison reads `lastResolvedSource.cost`, and the
+ *  same shape inside a `{stat: "strength"}` comparison reads
+ *  `lastResolvedSource.strength`. Override `property` for cross-axis
+ *  references like Magica De Spell's "cost ≤ this character's strength"
+ *  (→ `{stat: "cost", op: "lte", value: {from: "source", property: "strength"}}`).
+ *
+ *  `offset` adds an arithmetic adjustment (Retro Evolution Device's "cost
+ *  up to 2 more than the banished character" → `{from: "last_resolved_source",
+ *  offset: 2}`). Defaults to 0. */
+export type StatValue = number | {
+  from: "last_resolved_source"
+      | "last_banished_source"
+      | "source"
+      | "triggering_card"
+      | "last_resolved_target";
+  property?: StatName;
+  offset?: number;
+};
+
+/** One AND-ed comparison inside `CardFilter.statComparisons`. The effective
+ *  stat named by `stat` (printed value + runtime modifiers — uses
+ *  getEffectiveStrength / getEffectiveWillpower / getEffectiveLore; cost is
+ *  printed, damage is from the instance) is compared with `op` against
+ *  `value` (static or dynamic). Each comparison's `value` is resolved at
+ *  match time against the passed-in state. */
+export interface StatComparison {
+  stat: StatName;
+  op: StatOp;
+  value: StatValue;
+}
+
 export interface CardFilter {
   owner?: PlayerTarget;
   zone?: ZoneName | ZoneName[];
@@ -2505,25 +2548,30 @@ export interface CardFilter {
   /** Negated keyword check — matches cards that do NOT have the keyword.
    *  Used by Tug-of-War ("each opposing character without Evasive"). */
   lacksKeyword?: Keyword;
-  /** Cap effective-strength by the pre-banish snapshot of the source's
-   *  strength (state.lastBanishedSourceStrength). Used by Wreck-it Ralph
-   *  Raging Wrecker WHO'S COMIN' WITH ME? ("banish all characters with {S}
-   *  equal to or less than the {S} he had in play"). */
-  strengthAtMostFromBanishedSource?: boolean;
+  /** Structured per-axis numeric comparisons. Replaces the former flat
+   *  `costAtMost` / `costAtLeast` / `strengthAtMost` / `strengthAtLeast` /
+   *  `willpowerAtMost` / `willpowerAtLeast` fields AND the three dynamic
+   *  variants (`costAtMostFromLastResolvedSourcePlus`,
+   *  `costAtMostFromSourceStrength`, `strengthAtMostFromBanishedSource`).
+   *
+   *  Each entry is `{stat, op, value}`. Entries AND together — a card
+   *  matches the filter only if every comparison in the array is satisfied.
+   *  Compound filters (e.g. "cost ≤ 5 AND strength ≥ 3") are expressed as
+   *  two entries.
+   *
+   *  `value` is either a literal number or a dynamic `{from, property?, offset?}`
+   *  reference. See StatValue for the reference semantics.
+   *
+   *  Uses of each axis today:
+   *    cost      — Just in Time "cost 5 or less", Bibbidi Bobbidi Boo
+   *                "same cost or less", Retro Evolution Device "cost up to
+   *                2 more", Magica De Spell "cost ≤ source's strength"
+   *    strength  — many static caps + Wreck-it Ralph "{S} ≤ banished source {S}"
+   *    willpower — static caps only (Chip, Monterey Jack)
+   *    lore      — no current users; available for future cards
+   *    damage    — no current users; available for future cards */
+  statComparisons?: StatComparison[];
   isExerted?: boolean;
-  costAtMost?: number;
-  /** Dynamic cost cap: `state.lastResolvedSource.cost + offset`. Used by Retro
-   *  Evolution Device: "play a character with cost up to 2 more than the
-   *  banished character for free" — the banish step sets lastResolvedSource,
-   *  the play step reads its cost. Resolved at match time. */
-  costAtMostFromLastResolvedSourcePlus?: number;
-  /** Dynamic cost cap: the source card's current effective strength.
-   *  Used by Magica De Spell Thieving Sorceress TELEKINESIS: "Return chosen
-   *  item with cost equal to or less than this character's {S} to its
-   *  player's hand." Resolved at match time against the source instance
-   *  passed to matchesFilter. */
-  costAtMostFromSourceStrength?: boolean;
-  costAtLeast?: number;
   /** Exclude a specific card instance (e.g. Support can't target itself) */
   excludeInstanceId?: string;
   /** Exclude the source card (for "other" effects — resolved at runtime) */
@@ -2556,17 +2604,9 @@ export interface CardFilter {
   nameFromSource?: boolean;
   /** Match characters with damage > 0 */
   hasDamage?: boolean;
-  /** Match characters with effective strength ≤ N */
-  strengthAtMost?: number;
-  /** Match characters with effective strength ≥ N */
-  strengthAtLeast?: number;
-  /** Match characters with effective willpower ≤ N */
-  willpowerAtMost?: number;
-  /** Match characters with effective willpower ≥ N. Used by Monterey Jack
-   *  Hypnotized by Cheese BREAK THE TRANCE ("character with 4 {W} or more"),
-   *  Chip Retrieval Expert ("character card with 4 {W} or more from your
-   *  discard"), Chip Team Player ("another character with 4 {W} or more"). */
-  willpowerAtLeast?: number;
+  // NOTE: strengthAtMost / strengthAtLeast / willpowerAtMost / willpowerAtLeast
+  // have been removed — use `statComparisons` (defined above) instead. The
+  // migration on 2026-04-24 collapsed all numeric axes into one structured field.
   /** Match characters that were challenged this turn */
   challengedThisTurn?: boolean;
   /** CRD 8.4.2: Match characters/locations with at least one card in their

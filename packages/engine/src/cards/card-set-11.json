@@ -987,7 +987,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           }
         ]
@@ -1223,7 +1229,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             },
             "isMay": true,
             "revealPicks": true
@@ -2082,7 +2094,13 @@
               ],
               "anyOf": [
                 {
-                  "costAtMost": 3
+                  "statComparisons": [
+                    {
+                      "stat": "cost",
+                      "op": "lte",
+                      "value": 3
+                    }
+                  ]
                 },
                 {
                   "hasName": "Pocahontas"
@@ -2328,7 +2346,13 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -4161,7 +4185,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 5
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "grantKeywords": [
               "rush"
@@ -6478,7 +6508,16 @@
                 "sourceZone": "hand",
                 "filter": {
                   "cardType": "character",
-                  "costAtMostFromLastResolvedSourcePlus": 2
+                  "statComparisons": [
+                    {
+                      "stat": "cost",
+                      "op": "lte",
+                      "value": {
+                        "from": "last_resolved_source",
+                        "offset": 2
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -6706,7 +6745,15 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMostFromBanishedSource": true
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": {
+                      "from": "last_banished_source"
+                    }
+                  }
+                ]
               }
             }
           }
@@ -6988,7 +7035,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "effect": {
@@ -7935,7 +7988,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }
@@ -7967,7 +8026,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }
@@ -8515,7 +8580,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -9643,7 +9714,13 @@
                   "cardType": [
                     "item"
                   ],
-                  "costAtMost": 5
+                  "statComparisons": [
+                    {
+                      "stat": "cost",
+                      "op": "lte",
+                      "value": 5
+                    }
+                  ]
                 }
               }
             ]
@@ -11752,7 +11829,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           }
         ]
@@ -13555,7 +13638,13 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -14647,7 +14736,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           }
         ]
@@ -15353,7 +15448,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }
@@ -15385,7 +15486,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }

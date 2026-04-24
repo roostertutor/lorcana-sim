@@ -3339,7 +3339,13 @@
                     "cardType": [
                       "character"
                     ],
-                    "costAtMost": 2
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
                   }
                 }
               }
@@ -3965,11 +3971,17 @@
           "type": "chosen",
           "filter": {
             "zone": "play",
-            "costAtMost": 3,
             "cardType": [
               "character",
               "item",
               "location"
+            ],
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 3
+              }
             ]
           }
         }
@@ -4174,7 +4186,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "followUpEffects": [
@@ -4683,7 +4701,13 @@
                     "owner": {
                       "type": "opponent"
                     },
-                    "strengthAtMost": 2
+                    "statComparisons": [
+                      {
+                        "stat": "strength",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
                   }
                 }
               }
@@ -7030,7 +7054,13 @@
             "owner": {
               "type": "self"
             },
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "effects": [
@@ -7400,7 +7430,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -7945,9 +7981,15 @@
                 "character"
               ],
               "excludeSelf": true,
-              "strengthAtLeast": 7,
               "inkColors": [
                 "ruby"
+              ],
+              "statComparisons": [
+                {
+                  "stat": "strength",
+                  "op": "gte",
+                  "value": 7
+                }
               ]
             }
           },
@@ -8189,7 +8231,13 @@
               "cardType": [
                 "action"
               ],
-              "costAtMost": 5
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "isMay": true,
             "thenPutOnBottomOfDeck": true
@@ -8258,7 +8306,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -8429,7 +8483,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -8580,7 +8640,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         }
       }
@@ -8676,7 +8742,13 @@
           "cardType": [
             "location"
           ],
-          "costAtMost": 3
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 3
+            }
+          ]
         }
       },
       {
@@ -8820,7 +8892,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -8994,7 +9072,13 @@
               "character"
             ],
             "atLocation": "this",
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "condition": {
@@ -9701,7 +9785,13 @@
             "cardType": [
               "character"
             ],
-            "costAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "effects": [
@@ -10921,7 +11011,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 3
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 3
+              }
+            ]
           }
         }
       }
@@ -15685,7 +15781,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -15807,7 +15909,13 @@
               "cardType": [
                 "action"
               ],
-              "costAtMost": 5
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "isMay": true,
             "thenPutOnBottomOfDeck": true
@@ -15871,7 +15979,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         }
       }
@@ -16178,7 +16292,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 3
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 3
+              }
+            ]
           }
         }
       }

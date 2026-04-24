@@ -33,7 +33,13 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             },
             "followUpEffects": [
@@ -113,7 +119,13 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             },
             "followUpEffects": [
@@ -761,7 +773,13 @@
               "owner": {
                 "type": "self"
               },
-              "willpowerAtLeast": 4
+              "statComparisons": [
+                {
+                  "stat": "willpower",
+                  "op": "gte",
+                  "value": 4
+                }
+              ]
             }
           }
         },
@@ -905,7 +923,13 @@
                 "owner": {
                   "type": "self"
                 },
-                "willpowerAtLeast": 4
+                "statComparisons": [
+                  {
+                    "stat": "willpower",
+                    "op": "gte",
+                    "value": 4
+                  }
+                ]
               }
             }
           }
@@ -1006,11 +1030,17 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2,
               "owner": {
                 "type": "self"
               },
-              "zone": "hand"
+              "zone": "hand",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             },
             "isMay": true
           }
@@ -1420,7 +1450,13 @@
             "owner": {
               "type": "self"
             },
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -1944,8 +1980,14 @@
             "owner": {
               "type": "self"
             },
-            "willpowerAtLeast": 4,
-            "excludeSelf": true
+            "excludeSelf": true,
+            "statComparisons": [
+              {
+                "stat": "willpower",
+                "op": "gte",
+                "value": 4
+              }
+            ]
           }
         },
         "effects": [
@@ -2169,7 +2211,13 @@
           "cardType": [
             "character"
           ],
-          "costAtMost": 4
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 4
+            }
+          ]
         },
         "cost": "free",
         "condition": {
@@ -3513,7 +3561,13 @@
                       "item"
                     ],
                     "zone": "play",
-                    "costAtMost": 2
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
                   }
                 }
               }
@@ -5710,7 +5764,13 @@
               "item",
               "location"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -5743,8 +5803,14 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2,
-            "excludeSelf": true
+            "excludeSelf": true,
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -6288,10 +6354,16 @@
                 "cardType": [
                   "action"
                 ],
-                "costAtMost": 7,
                 "owner": {
                   "type": "self"
-                }
+                },
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 7
+                  }
+                ]
               }
             }
           }
@@ -7261,10 +7333,16 @@
                 "cardType": [
                   "action"
                 ],
-                "costAtMost": 4,
                 "owner": {
                   "type": "self"
-                }
+                },
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 4
+                  }
+                ]
               }
             }
           }
@@ -8161,7 +8239,13 @@
             "owner": {
               "type": "self"
             },
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -9095,7 +9179,13 @@
                   "cardType": [
                     "character"
                   ],
-                  "strengthAtMost": 2
+                  "statComparisons": [
+                    {
+                      "stat": "strength",
+                      "op": "lte",
+                      "value": 2
+                    }
+                  ]
                 }
               }
             }
@@ -9885,11 +9975,17 @@
               "cardType": [
                 "item"
               ],
-              "costAtMost": 3,
               "owner": {
                 "type": "self"
               },
-              "zone": "hand"
+              "zone": "hand",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 3
+                }
+              ]
             }
           }
         ],
@@ -11502,7 +11598,13 @@
             "cardType": [
               "character"
             ],
-            "willpowerAtLeast": 4
+            "statComparisons": [
+              {
+                "stat": "willpower",
+                "op": "gte",
+                "value": 4
+              }
+            ]
           }
         }
       }
@@ -11662,7 +11764,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtLeast": 10
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 10
+                  }
+                ]
               }
             }
           }
@@ -12051,7 +12159,13 @@
                 "character"
               ],
               "hasTrait": "Robot",
-              "costAtMost": 8
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 8
+                }
+              ]
             }
           }
         ]
@@ -13275,7 +13389,13 @@
             "cardType": [
               "action"
             ],
-            "costAtLeast": 4
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "gte",
+                "value": 4
+              }
+            ]
           }
         },
         "condition": {
@@ -13360,7 +13480,13 @@
               "cardType": [
                 "location"
               ],
-              "costAtMost": 4
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 4
+                }
+              ]
             }
           }
         ]
@@ -14036,9 +14162,15 @@
             }
           },
           "attackerFilter": {
-            "costAtMost": 2,
             "cardType": [
               "character"
+            ],
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
             ]
           }
         },
@@ -15158,10 +15290,16 @@
                 "cardType": [
                   "action"
                 ],
-                "costAtMost": 7,
                 "owner": {
                   "type": "self"
-                }
+                },
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 7
+                  }
+                ]
               }
             }
           }

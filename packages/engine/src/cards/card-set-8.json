@@ -285,7 +285,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 3
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 3
+                }
+              ]
             },
             "target": {
               "type": "self"
@@ -704,7 +710,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           }
         ]
@@ -1190,7 +1202,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 5
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "matchAction": "play_card",
             "isMay": true,
@@ -1661,7 +1679,13 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "costAtMost": 6
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 6
+                  }
+                ]
               }
             }
           }
@@ -1689,7 +1713,13 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "costAtMost": 6
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 6
+                  }
+                ]
               }
             }
           }
@@ -2896,7 +2926,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       },
@@ -3231,7 +3267,13 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -3675,7 +3717,13 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -8020,7 +8068,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtMost": 3
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 3
+              }
+            ]
           }
         }
       }
@@ -9324,7 +9378,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "storyName": "PAY ATTENTION",
@@ -12207,7 +12267,13 @@
           "type": "self"
         },
         "filter": {
-          "costAtMost": 6
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 6
+            }
+          ]
         },
         "isMay": true,
         "revealPicks": true
@@ -14050,7 +14116,13 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "costAtMost": 6
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 6
+                  }
+                ]
               }
             }
           }
@@ -14078,7 +14150,13 @@
                   "character"
                 ],
                 "hasTrait": "Racer",
-                "costAtMost": 6
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 6
+                  }
+                ]
               }
             }
           }

@@ -106,7 +106,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     expect(matchesFilter(inst, def, {
       cardType: ["character"],
       anyOf: [
-        { costAtMost: 3 },
+        { statComparisons: [{ stat: "cost", op: "lte", value: 3 }] },
         { hasName: "Pocahontas" },
       ],
     }, state, "player1")).toBe(true);
@@ -119,7 +119,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     expect(matchesFilter(muscleInst, muscleDef, {
       cardType: ["character"],
       anyOf: [
-        { costAtMost: 3 },
+        { statComparisons: [{ stat: "cost", op: "lte", value: 3 }] },
         { hasName: "Pocahontas" },
       ],
     }, state, "player1")).toBe(false);
@@ -132,7 +132,7 @@ describe("§11 Set 11 — John Smith's Compass YOUR PATH (anyOf filter)", () => 
     expect(matchesFilter(cheapInst, cheapDef, {
       cardType: ["character"],
       anyOf: [
-        { costAtMost: 3 },
+        { statComparisons: [{ stat: "cost", op: "lte", value: 3 }] },
         { hasName: "Pocahontas" },
       ],
     }, state, "player1")).toBe(true);

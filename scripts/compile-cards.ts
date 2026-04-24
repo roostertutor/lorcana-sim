@@ -308,7 +308,7 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
           : m[2] === "non-character"
             ? { cardType: ["action", "item", "location"] }
             : {}),
-        costAtMost: parseInt(m[1], 10),
+        statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
       },
     }),
   },
@@ -621,7 +621,11 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "banish",
       target: {
         type: "chosen",
-        filter: { zone: "play", cardType: ["character"], strengthAtMost: parseInt(m[1], 10) },
+        filter: {
+          zone: "play",
+          cardType: ["character"],
+          statComparisons: [{ stat: "strength", op: "lte", value: parseInt(m[1], 10) }],
+        },
       },
     }),
   },
@@ -1301,8 +1305,8 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
         filter: {
           zone: "discard",
           cardType: ["action"],
-          costAtMost: parseInt(m[1], 10),
           owner: { type: "self" },
+          statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
         },
       },
     }),
@@ -1359,9 +1363,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "play_card",
       filter: {
         cardType: ["character"],
-        costAtMost: parseInt(m[1], 10),
         owner: { type: "self" },
         zone: "hand",
+        statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
       },
       isMay: true,
     }),
@@ -1373,9 +1377,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "play_card",
       filter: {
         cardType: ["action"],
-        costAtMost: parseInt(m[1], 10),
         owner: { type: "self" },
         zone: "hand",
+        statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
       },
       isMay: true,
     }),
@@ -1389,9 +1393,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       filter: {
         cardType: ["action"],
         hasTrait: "Song",
-        costAtMost: parseInt(m[1], 10),
         zone: "hand",
         owner: { type: "self" },
+        statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
       },
     }),
   },
@@ -1403,9 +1407,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       isMay: true,
       filter: {
         cardType: ["item"],
-        costAtMost: parseInt(m[1], 10),
         owner: { type: "self" },
         zone: "hand",
+        statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
       },
     }),
   },
@@ -2377,7 +2381,10 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
         effect: {
           type: "cant_be_challenged",
           target: { type: "all", filter: { owner: { type: "self" }, zone: "play", cardType: ["location"] } },
-          attackerFilter: { costAtMost: parseInt(statLocationProtection[1], 10), cardType: ["character"] },
+          attackerFilter: {
+            cardType: ["character"],
+            statComparisons: [{ stat: "cost", op: "lte", value: parseInt(statLocationProtection[1], 10) }],
+          },
         },
       },
       unmatched: "",
@@ -2387,7 +2394,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // "This character can't quest unless you have a character with N {W/S} or more in play."
   const statCantQuestUnless = /^This character can't quest unless you have a character with (\d+) \{(S|W)\} or more in play\.?$/i.exec(rest);
   if (statCantQuestUnless) {
-    const statField = statCantQuestUnless[2].toUpperCase() === "S" ? "strengthAtLeast" : "willpowerAtLeast";
+    const stat = statCantQuestUnless[2].toUpperCase() === "S" ? "strength" : "willpower";
     return {
       ability: {
         type: "static",
@@ -2399,7 +2406,7 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
               cardType: ["character"],
               zone: "play",
               owner: { type: "self" },
-              [statField]: parseInt(statCantQuestUnless[1], 10),
+              statComparisons: [{ stat, op: "gte", value: parseInt(statCantQuestUnless[1], 10) }],
             },
           },
         },

@@ -1887,7 +1887,13 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               },
               "count": 2
             }
@@ -2357,7 +2363,13 @@
                   "action"
                 ],
                 "hasTrait": "Song",
-                "costAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }
@@ -3023,7 +3035,13 @@
                   "item",
                   "location"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             },
             "followUpEffects": [
@@ -3503,7 +3521,13 @@
                     "cardType": [
                       "character"
                     ],
-                    "costAtMost": 3
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -9197,7 +9221,13 @@
                     "cardType": [
                       "character"
                     ],
-                    "strengthAtMost": 2
+                    "statComparisons": [
+                      {
+                        "stat": "strength",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
                   }
                 }
               }
@@ -9493,7 +9523,13 @@
               "owner": {
                 "type": "self"
               },
-              "strengthAtLeast": 7
+              "statComparisons": [
+                {
+                  "stat": "strength",
+                  "op": "gte",
+                  "value": 7
+                }
+              ]
             }
           }
         }
@@ -9994,7 +10030,13 @@
                 "cardType": [
                   "item"
                 ],
-                "costAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -13006,7 +13048,13 @@
                 "character"
               ],
               "hasTrait": "Ally",
-              "costAtMost": 3
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 3
+                }
+              ]
             }
           }
         ]
@@ -13677,7 +13725,13 @@
                   "action"
                 ],
                 "hasTrait": "Song",
-                "costAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             }
           }

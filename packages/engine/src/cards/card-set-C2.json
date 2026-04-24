@@ -717,7 +717,13 @@
           "type": "self"
         },
         "filter": {
-          "costAtMost": 6
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 6
+            }
+          ]
         },
         "isMay": true,
         "revealPicks": true
@@ -848,7 +854,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         },
         "storyName": "PAY ATTENTION",

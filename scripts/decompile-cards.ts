@@ -2053,8 +2053,8 @@ function renderTarget(t: Json): string {
       // "chosen character of yours with damage").
       if (t.filter?.owner?.type === "self") {
         const hasTrailing = !!(t.filter.hasDamage || t.filter.hasCardUnder || t.filter.challengedThisTurn
-          || t.filter.hasName || t.filter.costAtMost !== undefined || t.filter.costAtLeast !== undefined
-          || t.filter.strengthAtMost !== undefined || t.filter.strengthAtLeast !== undefined);
+          || t.filter.hasName
+          || (Array.isArray(t.filter.statComparisons) && t.filter.statComparisons.length > 0));
         if (isAnyCount) return `any number of your ${pluralizeFilter(f)}${totalSuffix}`;
         if (hasTrailing) return `one of your ${pluralizeFilter(f)}${totalSuffix}`;
         return `chosen ${count}${f} of yours${totalSuffix}`;
@@ -2079,6 +2079,64 @@ function renderTarget(t: Json): string {
     default:
       return `[target:${t.type}]`;
   }
+}
+
+/** Render one CardFilter.statComparisons entry as an English clause.
+ *  Post-2026-04-24 refactor: replaces the former per-axis renderer blocks
+ *  (costAtMost, strengthAtLeast, etc.). Dispatch: static number → simple
+ *  "with X {S} or less"-style phrase; dynamic {from, property?, offset?}
+ *  → "with cost equal to or less than the banished character's strength"-
+ *  style phrase depending on the reference source. */
+function renderStatComparison(c: Json): string {
+  const statGlyph = c.stat === "cost" ? "cost"
+    : c.stat === "strength" ? "{S}"
+    : c.stat === "willpower" ? "{W}"
+    : c.stat === "lore" ? "{L}"
+    : "damage";
+  const opPhrase = c.op === "lte" ? "or less"
+    : c.op === "gte" ? "or more"
+    : c.op === "lt" ? "less than"
+    : c.op === "gt" ? "more than"
+    : "equal to";
+  // Static numeric value — "with cost 5 or less", "with {S} 3 or more".
+  if (typeof c.value === "number") {
+    if (c.stat === "cost") {
+      return `with cost ${c.value} ${opPhrase}`;
+    }
+    return `with ${c.value} ${statGlyph} ${opPhrase}`;
+  }
+  // Dynamic reference — try to produce oracle-matching phrasing for each
+  // known `from` source. Fallback is a generic "referencing X" marker.
+  const v = c.value ?? {};
+  const from: string = v.from ?? "last_resolved_source";
+  const property: string = v.property ?? c.stat;
+  const offset: number = v.offset ?? 0;
+  const refPhrase = from === "last_resolved_source"
+      ? (property === "cost" ? "the exerted character's cost"
+         : property === "strength" ? "this character's {S} at the time it was resolved"
+         : `that character's ${property === "willpower" ? "{W}" : property === "lore" ? "{L}" : property}`)
+    : from === "last_banished_source"
+      ? (property === "strength" ? "the {S} he had in play" : `the banished character's ${property}`)
+    : from === "source"
+      ? (property === "strength" ? "this character's {S}"
+         : property === "willpower" ? "this character's {W}"
+         : property === "lore" ? "this character's {L}"
+         : `this character's ${property}`)
+    : from === "triggering_card"
+      ? `the triggering character's ${property}`
+    : `${from}.${property}`;
+  const offsetPhrase = offset === 0 ? "" : offset > 0 ? ` +${offset}` : ` ${offset}`;
+  // "cost equal to or less than X" / "{S} equal to or less than X" wording
+  // matches most in-game oracle text for the dynamic cases.
+  const opDynamic = c.op === "lte" ? "equal to or less than"
+    : c.op === "gte" ? "equal to or greater than"
+    : c.op === "lt" ? "less than"
+    : c.op === "gt" ? "greater than"
+    : "equal to";
+  if (c.stat === "cost") {
+    return `with cost ${opDynamic} ${refPhrase}${offsetPhrase}`;
+  }
+  return `with ${statGlyph} ${opDynamic} ${refPhrase}${offsetPhrase}`;
 }
 
 function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
@@ -2115,33 +2173,18 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // Trailing qualifiers
   if (f.hasName) bits.push(`named ${f.hasName}`);
   if (f.notHasName) bits.push(`not named ${f.notHasName}`);
-  if (f.costAtMost !== undefined || f.maxCost !== undefined) {
-    bits.push(`with cost ${f.costAtMost ?? f.maxCost} or less`);
-  }
-  if (f.costAtLeast !== undefined || f.minCost !== undefined) {
-    bits.push(`with cost ${f.costAtLeast ?? f.minCost} or more`);
-  }
-  if (f.strengthAtMost !== undefined) bits.push(`with ${f.strengthAtMost} {S} or less`);
-  if (f.strengthAtLeast !== undefined) bits.push(`with ${f.strengthAtLeast} {S} or more`);
-  if (f.willpowerAtMost !== undefined) bits.push(`with ${f.willpowerAtMost} {W} or less`);
-  if (f.willpowerAtLeast !== undefined) bits.push(`with ${f.willpowerAtLeast} {W} or more`);
-  // Magica De Spell Thieving Sorceress: "chosen item with cost equal to or
-  // less than this character's {S}" — the source's live strength is the cap.
-  if (f.costAtMostFromSourceStrength) bits.push("with cost equal to or less than this character's {S}");
-  // Ursula Voice Stealer SING FOR ME: "with cost equal to or less than the
-  // exerted character's cost" — renders when filter references the cost
-  // snapshot from the previous effect step.
-  if (f.costAtMostFromLastResolvedSourcePlus !== undefined) {
-    const plus = f.costAtMostFromLastResolvedSourcePlus;
-    if (plus === 0) bits.push("with cost equal to or less than the exerted character's cost");
-    else bits.push(`with cost equal to or less than the exerted character's cost +${plus}`);
+  if (f.maxCost !== undefined) bits.push(`with cost ${f.maxCost} or less`);  // legacy alias still used by one card
+  if (f.minCost !== undefined) bits.push(`with cost ${f.minCost} or more`);
+  // statComparisons — unified numeric-axis block. Replaces the former flat
+  // costAtMost/AtLeast/strengthAtMost/AtLeast/willpowerAtMost/AtLeast fields
+  // AND the three dynamic variants. See renderStatComparison for the phrase
+  // dictionary. Multiple entries render as independent clauses ("with X and Y").
+  if (Array.isArray(f.statComparisons)) {
+    for (const c of f.statComparisons) bits.push(renderStatComparison(c));
   }
   if (f.hasDamage) bits.push("with damage");
   // Tug-of-War: "each opposing character without Evasive".
   if (f.lacksKeyword) bits.push(`without ${cap(f.lacksKeyword)}`);
-  // Wreck-it Ralph Raging Wrecker WHO'S COMIN' WITH ME?: cap by Ralph's
-  // pre-banish strength.
-  if (f.strengthAtMostFromBanishedSource) bits.push("with {S} equal to or less than the {S} he had in play");
   // Hades Double Dealer: play a character "with the same name as the
   // banished character" — nameFromLastResolvedSource pins the name to
   // state.lastResolvedSource (set by the preceding banish effect).

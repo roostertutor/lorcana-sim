@@ -7163,6 +7163,14 @@ function applyEffectToTarget(
       return state;
     }
     case "return_to_hand": {
+      // Snapshot the returned card BEFORE the zoneTransition so a subsequent
+      // reward step (Bibbidi Bobbidi Boo: "Return chosen character of yours
+      // to your hand to play a character with the same cost or less for
+      // free") can reference the returned card via statComparisons value
+      // `{from: "last_resolved_source"}`. Mirrors banish/exert snapshot
+      // pattern. Added 2026-04-24 alongside the CardFilter refactor.
+      const srcRef = makeResolvedRef(state, definitions, targetInstanceId);
+      if (srcRef) state = { ...state, lastResolvedSource: srcRef };
       state = zoneTransition(state, targetInstanceId, "hand", definitions, events, { reason: "returned" });
       if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
         for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {

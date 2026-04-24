@@ -274,7 +274,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -479,7 +485,13 @@
                   "character"
                 ],
                 "isExerted": true,
-                "strengthAtLeast": 5
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 5
+                  }
+                ]
               }
             }
           }
@@ -1966,7 +1978,13 @@
             "cardType": [
               "character"
             ],
-            "strengthAtLeast": 5
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 5
+              }
+            ]
           }
         }
       }
@@ -2866,7 +2884,15 @@
             "isMay": true,
             "filter": {
               "hasTrait": "Song",
-              "costAtMostFromLastResolvedSourcePlus": 0
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": {
+                    "from": "last_resolved_source"
+                  }
+                }
+              ]
             }
           }
         ]
@@ -3951,7 +3977,13 @@
               "item",
               "location"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -4854,10 +4886,16 @@
                   "filter": {
                     "zone": "discard",
                     "hasTrait": "Song",
-                    "costAtMost": 3,
                     "owner": {
                       "type": "self"
-                    }
+                    },
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 3
+                      }
+                    ]
                   }
                 }
               }
@@ -5002,7 +5040,13 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 4
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 4
+                }
+              ]
             },
             "thenPutOnBottomOfDeck": true,
             "isMay": true
@@ -6264,7 +6308,13 @@
           "cardType": [
             "character"
           ],
-          "strengthAtMost": 2
+          "statComparisons": [
+            {
+              "stat": "strength",
+              "op": "lte",
+              "value": 2
+            }
+          ]
         }
       }
     ],
@@ -7119,7 +7169,13 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 9
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 9
+                }
+              ]
             },
             "target": {
               "type": "self"
@@ -7741,7 +7797,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 1
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 1
+                  }
+                ]
               }
             }
           }
@@ -9316,7 +9378,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "oncePerTurn": true,
@@ -9349,7 +9417,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           },
           "stat": "strength",
@@ -15096,7 +15170,13 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 4
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 4
+                }
+              ]
             },
             "thenPutOnBottomOfDeck": true,
             "isMay": true
@@ -15299,7 +15379,13 @@
                 "action"
               ],
               "hasTrait": "Song",
-              "costAtMost": 9
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 9
+                }
+              ]
             },
             "target": {
               "type": "self"
@@ -15533,7 +15619,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "oncePerTurn": true,
@@ -15566,7 +15658,13 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             }
           },
           "stat": "strength",
@@ -16068,7 +16166,13 @@
                   "character"
                 ],
                 "isExerted": true,
-                "strengthAtLeast": 5
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 5
+                  }
+                ]
               }
             }
           }

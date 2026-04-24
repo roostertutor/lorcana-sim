@@ -633,7 +633,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 1
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 1
+                  }
+                ]
               }
             }
           }
@@ -3831,11 +3837,17 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2,
               "owner": {
                 "type": "self"
               },
-              "zone": "hand"
+              "zone": "hand",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             },
             "isMay": true
           }
@@ -3935,11 +3947,17 @@
               "cardType": [
                 "character"
               ],
-              "costAtMost": 2,
               "owner": {
                 "type": "self"
               },
-              "zone": "hand"
+              "zone": "hand",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
             },
             "isMay": true
           }

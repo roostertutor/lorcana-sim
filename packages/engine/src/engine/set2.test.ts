@@ -1284,4 +1284,53 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(r.newState.pendingChoice).toBeDefined();
     expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
   });
+
+  // Bibbidi Bobbidi Boo: "Return chosen character of yours to your hand to
+  // play a character with the same cost or less for free."
+  //
+  // User QA 2026-04-24: the cost cap was missing from the filter entirely.
+  // Fixed alongside the CardFilter refactor that collapsed 9 legacy numeric
+  // fields into `statComparisons`. Engine fix: `return_to_hand` snapshots
+  // `lastResolvedSource` so the dynamic reference resolves. Card JSON:
+  // reward play_card filter now carries
+  // `statComparisons: [{stat:"cost", op:"lte", value:{from:"last_resolved_source"}}]`.
+  it("Bibbidi Bobbidi Boo caps the reward play at the returned card's cost", () => {
+    let state = { ...startGame(), interactive: true };
+    state = giveInk(state, "player1", 3);
+
+    // Return target — Mickey Mouse True Friend, cost 3.
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Hand candidates to contrast the cap:
+    //   Lilo Making a Wish — cost 1 (under cap, should qualify).
+    //   Maui Demigod       — cost 8 (over cap, must NOT qualify).
+    let liloId: string, mauiId: string;
+    ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-making-a-wish", "hand"));
+    ({ state, instanceId: mauiId } = injectCard(state, "player1", "maui-demigod", "hand"));
+
+    // Inject Bibbidi and play it (skip sing path, play as action).
+    let bibbidiId: string;
+    ({ state, instanceId: bibbidiId } = injectCard(state, "player1", "bibbidi-bobbidi-boo", "hand"));
+    const r0 = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: bibbidiId }, CARD_DEFINITIONS);
+    expect(r0.success).toBe(true);
+    state = r0.newState;
+
+    // Step 1: choose_target for the return. Pick Mickey.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r1 = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mickeyId] }, CARD_DEFINITIONS);
+    expect(r1.success).toBe(true);
+    state = r1.newState;
+
+    // Mickey in hand, lastResolvedSource captured with cost=3.
+    expect(state.cards[mickeyId].zone).toBe("hand");
+    expect(state.lastResolvedSource?.cost).toBe(3);
+
+    // Step 2: reward play_card surfaces a chooser honoring the cost cap.
+    // Maui (cost 8) excluded; Lilo (cost 1) and Mickey (cost 3) included.
+    expect(state.pendingChoice).toBeDefined();
+    const valid: string[] = (state.pendingChoice as any).validTargets ?? [];
+    expect(valid).toContain(liloId);
+    expect(valid).toContain(mickeyId);
+    expect(valid).not.toContain(mauiId);
+  });
 });

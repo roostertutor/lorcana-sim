@@ -1244,7 +1244,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "effects": [
@@ -1587,7 +1593,13 @@
           "cardType": [
             "character"
           ],
-          "costAtMost": 5
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 5
+            }
+          ]
         },
         "isMay": true
       }
@@ -3464,7 +3476,13 @@
               "character",
               "item"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -4226,11 +4244,17 @@
               "cardType": [
                 "action"
               ],
-              "costAtMost": 5,
               "owner": {
                 "type": "self"
               },
-              "zone": "hand"
+              "zone": "hand",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 5
+                }
+              ]
             },
             "isMay": true
           }
@@ -6812,7 +6836,13 @@
                 "cardType": [
                   "character"
                 ],
-                "costAtMost": 3
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 3
+                  }
+                ]
               }
             },
             "followUpEffects": [
@@ -9708,7 +9738,13 @@
             "type": "this"
           },
           "attackerFilter": {
-            "costAtMost": 3
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 3
+              }
+            ]
           }
         },
         "storyName": "STOLEN DUST",
@@ -9872,7 +9908,13 @@
             "type": "opponent"
           },
           "filter": {
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         },
         "storyName": "UNDER ARREST",

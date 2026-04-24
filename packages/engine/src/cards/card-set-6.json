@@ -1797,7 +1797,13 @@
             "cardType": [
               "character"
             ],
-            "costAtMost": 2
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
           }
         }
       }
@@ -6214,7 +6220,13 @@
                 "cardType": [
                   "character"
                 ],
-                "strengthAtMost": 2
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
               }
             }
           }
@@ -11462,7 +11474,13 @@
             "type": "this"
           },
           "attackerFilter": {
-            "strengthAtLeast": 2
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 2
+              }
+            ]
           }
         }
       }
