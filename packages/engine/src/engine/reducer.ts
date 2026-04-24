@@ -3005,8 +3005,14 @@ export function applyEffect(
         const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
         // Ever as Before: "any number of chosen characters" — count>1 enables
-        // multi-select; isMay lets the player pick 0.
-        const count = effect.target.count ?? 1;
+        // multi-select; isMay lets the player pick 0. The "any" sentinel
+        // (added 2026-04-23 with Leviathan) maps to validTargets.length —
+        // this branch didn't handle it, so Ever as Before was falling back
+        // to 1 pick. Fixed 2026-04-24 to mirror resolveTargetAndApply's
+        // "any" handling.
+        const count = effect.target.count === "any"
+          ? validTargets.length
+          : (effect.target.count ?? 1);
         return {
           ...state,
           pendingChoice: {
@@ -3744,7 +3750,12 @@ export function applyEffect(
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
         const validTargets = findChosenTargets(state, effect.target.filter, choosingPlayerId, definitions, sourceInstanceId);
         if (validTargets.length === 0) return state; // CRD 1.7.7
-        const count = effect.target.count ?? 1;
+        // Resolve "any" sentinel like the canonical resolveTargetAndApply
+        // (fixed 2026-04-24 alongside remove_damage — any inline chooser
+        // needs this mapping or "any number" oracles collapse to single-pick).
+        const count = effect.target.count === "any"
+          ? validTargets.length
+          : (effect.target.count ?? 1);
         return {
           ...state,
           pendingChoice: {
@@ -5440,8 +5451,11 @@ export function applyEffect(
         // It Calls Me "choose up to 3": target.count>1 surfaces a multi-select.
         // isUpTo (on DealDamage-style effects) isn't on ShuffleIntoDeckEffect,
         // so reuse isMay to gate optional (0..count) picks — semantically
-        // equivalent for the "up to N" wording.
-        const count = effect.target.count ?? 1;
+        // equivalent for the "up to N" wording. "any" sentinel resolves to
+        // validTargets.length for unbounded multi-select.
+        const count = effect.target.count === "any"
+          ? validTargets.length
+          : (effect.target.count ?? 1);
         return {
           ...state,
           pendingChoice: {
@@ -5798,11 +5812,13 @@ function canPerformChooseOption(
       return pool.length >= (effect.amount ?? 1);
     }
     default: {
-      // CRD 6.1.5.2: If the effect targets "chosen" cards, check if enough valid targets exist
+      // CRD 6.1.5.2: If the effect targets "chosen" cards, check if enough valid targets exist.
+      // `count: "any"` means "any number 0..N" — the effect is always executable
+      // (fizzles cleanly with zero targets), so treat it as required=0.
       const target = (effect as any).target;
       if (target?.type === "chosen" && target.filter && definitions) {
         const validTargets = findChosenTargets(state, target.filter, controllingPlayerId, definitions, sourceInstanceId ?? "");
-        const requiredCount = target.count ?? 1;
+        const requiredCount = target.count === "any" ? 0 : (target.count ?? 1);
         return validTargets.length >= requiredCount;
       }
       return true;
@@ -7411,7 +7427,12 @@ function applyEffectToTarget(
       // equal to their {S}" reads last_resolved_source_strength).
       const srcRef = makeResolvedRef(state, definitions, targetInstanceId);
       if (srcRef) state = { ...state, lastResolvedSource: srcRef };
-      return updateInstance(state, targetInstanceId, { isExerted: true });
+      // Use exertInstance (not updateInstance directly) so the
+      // `character_exerted` trigger fires on ready→exerted transitions.
+      // Without this, effect-driven exerts (Sword of Shan-Yu, Magical
+      // Maneuvers, any "chosen" exert path) wouldn't wake Fergus JUST THE
+      // SPOT or similar watchers. Fixed 2026-04-24.
+      return exertInstance(state, targetInstanceId, definitions);
     }
     case "grant_keyword": {
       const timedEffect: TimedEffect = {
@@ -7703,6 +7724,14 @@ function applyEffectToTarget(
             if (!dstNow) continue;
             state = updateInstance(state, targetInstanceId, { damage: dstNow.damage + moveAmt });
           }
+          // "Move" removes damage from the source perspective — fire the
+          // damage_removed_from trigger and mark the turn-scoped flag so
+          // Pepa SILVER LINING / Bruno FIND THAT VISION / Julieta arepas
+          // etc. see it. Oracle treats moving as removing for the losing
+          // side (Bestow a Gift, Cheshire Cat Inexplicable, Isabela FEEL
+          // BETTER etc. should all trigger those watchers). Fixed 2026-04-24.
+          state = markRemovedDamageThisTurn(state, controllingPlayerId);
+          state = queueTrigger(state, "damage_removed_from", src.instanceId, definitions, {});
           totalMoved += moveAmt;
         }
         state = { ...state, lastEffectResult: totalMoved };
@@ -7753,6 +7782,9 @@ function applyEffectToTarget(
         if (moveAmt > 0) {
           state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
           state = updateInstance(state, targetInstanceId, { damage: dst.damage + moveAmt });
+          // "Move" removes damage from source — fire damage_removed_from.
+          state = markRemovedDamageThisTurn(state, controllingPlayerId);
+          state = queueTrigger(state, "damage_removed_from", src.instanceId, definitions, {});
         }
         // Record actually-moved count on lastResolvedTarget for follow-up effects.
         const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: moveAmt });
@@ -7771,6 +7803,12 @@ function applyEffectToTarget(
         if (moveAmt > 0) {
           state = updateInstance(state, targetInstanceId, { damage: src.damage - moveAmt });
           state = updateInstance(state, sourceInstanceId, { damage: dst.damage + moveAmt });
+          // "Move" removes damage from source (targetInstanceId here because
+          // the destination is "this" = the ability source). Fires the
+          // damage_removed_from trigger so Pepa/Bruno watchers see Isabela-
+          // style moves.
+          state = markRemovedDamageThisTurn(state, controllingPlayerId);
+          state = queueTrigger(state, "damage_removed_from", targetInstanceId, definitions, {});
         }
         const deltaRef = makeResolvedRef(state, definitions, sourceInstanceId, { delta: moveAmt });
         if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };

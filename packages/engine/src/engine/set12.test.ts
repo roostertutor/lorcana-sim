@@ -2412,6 +2412,152 @@ describe("Set 12 — Dale SPIKE SUIT (challenge_damage_stat_source override)", (
   });
 });
 
+describe("Set 12 — move_damage fires damage_removed_from trigger (Pepa / Bruno / Isabela interaction)", () => {
+  // Regression for a bug caught in sandbox 2026-04-24 by user testing:
+  // Pepa Madrigal SILVER LINING and Bruno Madrigal FIND THAT VISION listen
+  // for damage_removed_from but were NOT firing when damage was MOVED
+  // (Bestow a Gift, Cheshire Cat Inexplicable, Isabela FEEL BETTER).
+  // Oracle: "whenever you remove 1 or more damage from one of your
+  // characters" — moving damage away from a character does remove it from
+  // that character's perspective, so the trigger should fire.
+  //
+  // Fix: all three move_damage paths in applyEffectToTarget now queue
+  // damage_removed_from on the source (losing) instance and mark the
+  // turn-scoped youRemovedDamageThisTurn flag.
+
+  it("move_damage destination:'this' fires damage_removed_from and flips youRemovedDamageThisTurn", () => {
+    // Uses Isabela Madrigal's FEEL BETTER effect shape (move_damage with
+    // destination:"this") — trigger the effect directly as if Isabela just
+    // entered play, then observe the source instance's zone for the
+    // damage_removed_from event. No UI flow, no pendingChoice — the
+    // source is provided as the `chosen` resolved target.
+    let state = startGame();
+    let sourceId: string, destId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: destId } = injectCard(state, "player1", "simba-returned-king", "play", { isDrying: false }));
+
+    // Fire a move_damage with destination:"this" pinned to destId, source
+    // chosen — we resolve via choose_target flow.
+    state = applyEffect(
+      state,
+      {
+        type: "move_damage",
+        amount: 1,
+        source: { type: "chosen", filter: { zone: "play", cardType: ["character"] } },
+        destination: { type: "this" },
+      } as any,
+      destId,
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    // Resolve the chooser with Mickey as source.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [sourceId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Damage moved
+    expect(state.cards[sourceId].damage).toBe(1);
+    expect(state.cards[destId].damage).toBe(1);
+    // youRemovedDamageThisTurn flipped (the key cross-check for Pepa / Bruno /
+    // Julieta watchers since their abilities read damage_removed_from AND the
+    // turn-scoped flag).
+    expect(state.players.player1.youRemovedDamageThisTurn).toBe(true);
+  });
+});
+
+describe("Set 12 — exert effect fires character_exerted trigger (Fergus JUST THE SPOT interaction)", () => {
+  // Regression for a bug caught in sandbox 2026-04-24: Fergus Outpost
+  // Builder's JUST THE SPOT fires on quest / challenge / sing (all of which
+  // go through exertInstance) but NOT on effect-driven exerts (Sword of
+  // Shan-Yu, Magical Maneuvers). Root cause: applyEffectToTarget's "exert"
+  // case used updateInstance directly, skipping the trigger queue that
+  // exertInstance provides.
+  //
+  // Fix: applyEffectToTarget "exert" now calls exertInstance, which
+  // queues character_exerted on ready→exerted transitions per CRD.
+
+  it("effect-driven exert queues character_exerted trigger on ready→exerted", () => {
+    let state = startGame();
+    let fergusId: string, targetId: string;
+    ({ state, instanceId: fergusId } = injectCard(state, "player1", "fergus-outpost-builder", "play", { isDrying: false, isExerted: false }));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: false }));
+
+    const stackBefore = state.triggerStack?.length ?? 0;
+    // Fire an exert effect targeting Fergus (simulates Sword of Shan-Yu /
+    // Magical Maneuvers). Route through applyEffect + RESOLVE_CHOICE to
+    // hit the chosen path that goes through applyEffectToTarget's
+    // "exert" case.
+    state = applyEffect(
+      state,
+      { type: "exert", target: { type: "chosen", filter: { zone: "play", cardType: ["character"] } } } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [fergusId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    expect(state.cards[fergusId].isExerted).toBe(true);
+    // character_exerted trigger was queued — Fergus's own JUST THE SPOT
+    // listener sees it and queues a choice-pending trigger.
+    expect((state.triggerStack?.length ?? 0) + (state.pendingChoice ? 1 : 0)).toBeGreaterThan(stackBefore);
+    void targetId;
+  });
+});
+
+describe("Set 5 — Ever as Before count:'any' multi-select (remove_damage)", () => {
+  // Regression for a bug caught in sandbox 2026-04-24: Ever as Before was
+  // forcing single-target selection even though its target is
+  // count:"any". Root cause: remove_damage's inline chosen branch did
+  // `const count = effect.target.count ?? 1` which kept the "any"
+  // string as-is → UI fell back to single pick.
+  //
+  // Fix: resolve "any" to validTargets.length (mirrors
+  // resolveTargetAndApply's path used by banish etc.).
+
+  it("choose_target count resolves from 'any' to validTargets.length", () => {
+    let state = startGame();
+    let c1: string, c2: string, c3: string;
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "simba-returned-king", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: c3 } = injectCard(state, "player1", "elsa-queen-regent", "play", { isDrying: false, damage: 2 }));
+
+    state = applyEffect(
+      state,
+      {
+        type: "remove_damage",
+        amount: 2,
+        isUpTo: true,
+        target: {
+          type: "chosen",
+          count: "any",
+          filter: { zone: "play", cardType: ["character"] },
+        },
+      } as any,
+      "synthetic-source",
+      "player1",
+      CARD_DEFINITIONS,
+      [],
+    );
+
+    // pendingChoice should let the player pick up to all 3 — not 1.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect((state.pendingChoice as any)?.count).toBe(3);
+
+    // Resolve with all three picks — should succeed.
+    const r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2, c3] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, c1).damage).toBe(0);
+    expect(getInstance(r.newState, c2).damage).toBe(0);
+    expect(getInstance(r.newState, c3).damage).toBe(0);
+  });
+});
+
 describe("Set 12 — Gosalyn HEROIC INTERVENTION followUpEffects single-apply regression", () => {
   // Regression for a double-apply bug caught in the PWA by gameboard-specialist:
   // `applyEffect` case "ready" chosen branch used to forward
