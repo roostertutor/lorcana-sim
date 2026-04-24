@@ -2295,3 +2295,120 @@ describe("Set 5 — Royal Tantrum (count:'any' + cost_result draw)", () => {
   });
 });
 
+// =============================================================================
+// PR 4 — 2026-04-23: Dale Ready for His Shot SPIKE SUIT (challenge_damage_stat_source).
+// First card in the "game-rule modifier" family to override the CRD 4.6.6
+// damage step. Tests cover attacker-side, defender-side, removal on banish,
+// and interaction with Resist.
+// =============================================================================
+
+describe("Set 12 — Dale SPIKE SUIT (challenge_damage_stat_source override)", () => {
+  it("attacker deals willpower-as-damage when Dale is in play", () => {
+    // Tamatoa Drab Little Crab has S=1, W=4. Without Dale, a challenge would
+    // deal 1 damage. With Dale, Tamatoa should deal 4 (willpower).
+    let state = startGame();
+    let daleId: string, attackerId: string, defenderId: string;
+    ({ state, instanceId: daleId } = injectCard(state, "player1", "dale-ready-for-his-shot", "play", { isDrying: false }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "tamatoa-drab-little-crab", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false, isExerted: true }));
+    void daleId;
+
+    const tamDef = CARD_DEFINITIONS[getInstance(state, attackerId).definitionId]!;
+    expect(tamDef.strength).toBe(1);
+    expect(tamDef.willpower).toBe(4);
+
+    const r = applyAction(
+      state,
+      { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId },
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    // Maximus took Tamatoa's willpower (4) as damage, not strength (1).
+    expect(r.newState.cards[defenderId].damage).toBe(4);
+  });
+
+  it("defender deals willpower-as-damage too (role-agnostic)", () => {
+    // Dale on player1's side. Player2 attacks player1's character; player1's
+    // defender counter-damage uses willpower. Confirms the override applies
+    // to defender-side damage output, not just attacker-side.
+    let state = startGame();
+    let daleId: string, p1DefenderId: string, p2AttackerId: string;
+    ({ state, instanceId: daleId } = injectCard(state, "player1", "dale-ready-for-his-shot", "play", { isDrying: false }));
+    // Tamatoa (S=1, W=4) is player1's defender here.
+    ({ state, instanceId: p1DefenderId } = injectCard(state, "player1", "tamatoa-drab-little-crab", "play", { isDrying: false, isExerted: true }));
+    // Maui (S=8, W=6) attacks it from player2's side.
+    ({ state, instanceId: p2AttackerId } = injectCard(state, "player2", "maui-demigod", "play", { isDrying: false }));
+    void daleId;
+
+    // Advance to player2's turn so they can challenge.
+    state = passTurns(state, 1, CARD_DEFINITIONS);
+
+    const r = applyAction(
+      state,
+      { type: "CHALLENGE", playerId: "player2", attackerInstanceId: p2AttackerId, defenderInstanceId: p1DefenderId },
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    // Maui (player2's attacker — no Dale on that side) dealt his strength (8).
+    // Tamatoa (W=4) is banished by 8 damage; her damage field is wiped by
+    // CRD 7.1.6 leave-play cleanup, so check the zone transition instead.
+    expect(r.newState.cards[p1DefenderId].zone).toBe("discard");
+    // Tamatoa (player1's defender — Dale applies) dealt her WILLPOWER (4)
+    // back to Maui (W=8, survives). Without Dale this would have been her
+    // strength (1) — 4× more damage confirms the override fired on the
+    // defender side.
+    expect(r.newState.cards[p2AttackerId].damage).toBe(4);
+  });
+
+  it("override removed when Dale leaves play", () => {
+    let state = startGame();
+    let daleId: string, attackerId: string, defenderId: string;
+    ({ state, instanceId: daleId } = injectCard(state, "player1", "dale-ready-for-his-shot", "play", { isDrying: false }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "tamatoa-drab-little-crab", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false, isExerted: true }));
+
+    // Banish Dale.
+    state = applyEffect(
+      state,
+      { type: "banish", target: { type: "triggering_card" } } as any,
+      "synthetic-source", "player1", CARD_DEFINITIONS, [], daleId,
+    );
+
+    const r = applyAction(
+      state,
+      { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId },
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    // With Dale gone, Tamatoa deals her strength (1), not willpower (4).
+    expect(r.newState.cards[defenderId].damage).toBe(1);
+  });
+
+  it("Resist still reduces damage AFTER the willpower override", () => {
+    // Override sets the damage source (4 from willpower). Resist +1 on
+    // defender reduces final damage by 1 → 3. Confirms Resist runs
+    // downstream of the stat-source swap, not against the printed strength.
+    let state = startGame();
+    let daleId: string, attackerId: string, defenderId: string;
+    ({ state, instanceId: daleId } = injectCard(state, "player1", "dale-ready-for-his-shot", "play", { isDrying: false }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "tamatoa-drab-little-crab", "play", { isDrying: false }));
+    // Maximus Palace Horse doesn't have Resist; grant it via a timed effect
+    // to isolate the interaction.
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "maximus-palace-horse", "play", {
+      isDrying: false,
+      isExerted: true,
+      timedEffects: [{ type: "grant_keyword", keyword: "resist", value: 1, amount: 0, expiresAt: "end_of_turn", appliedOnTurn: state.turnNumber, casterPlayerId: "player2" }],
+    }));
+    void daleId;
+
+    const r = applyAction(
+      state,
+      { type: "CHALLENGE", playerId: "player1", attackerInstanceId: attackerId, defenderInstanceId: defenderId },
+      CARD_DEFINITIONS,
+    );
+    expect(r.success).toBe(true);
+    // Dale's willpower swap: 4. Resist +1: 4 - 1 = 3.
+    expect(r.newState.cards[defenderId].damage).toBe(3);
+  });
+});
+

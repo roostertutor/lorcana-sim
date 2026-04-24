@@ -1540,7 +1540,18 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SPIKE SUIT",
+        "rulesText": "During challenges, your characters deal damage with their {W} instead of their {S}.",
+        "effect": {
+          "type": "challenge_damage_stat_source",
+          "stat": "willpower",
+          "affectedPlayer": "self"
+        }
+      }
+    ],
     "setId": "12",
     "number": 22,
     "rarity": "legendary",

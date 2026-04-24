@@ -1461,6 +1461,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return "this character takes no damage from the challenge";
   },
 
+  // Dale SPIKE SUIT: "During challenges, your characters deal damage with
+  // their {W} instead of their {S}." Game-rule modifier swapping the
+  // CRD 4.6.6 damage-source stat for affected players' characters.
+  challenge_damage_stat_source: (e) => {
+    const stat = e.stat === "willpower" ? "{W}" : "{S}";
+    const otherStat = e.stat === "willpower" ? "{S}" : "{W}";
+    const scope = e.affectedPlayer === "opponent" ? "opposing characters"
+      : e.affectedPlayer === "both" ? "all characters"
+      : "your characters";
+    return `during challenges, ${scope} deal damage with their ${stat} instead of their ${otherStat}`;
+  },
+
   // "While being challenged, the challenging character gets -1 {S}" — `affects`
   // is "attacker" or "self" depending on which side of the challenge gets the
   // modifier.

@@ -1213,48 +1213,79 @@ function applyChallenge(
     return state;
   }
 
-  // CRD 4.6.6.1: Calculate damage with current modifiers (post-trigger)
+  // CRD 4.6.6.1: Calculate damage with current modifiers (post-trigger).
+  // Variables named "Str" historically but hold effective damage output —
+  // usually strength, but may be willpower under
+  // `challenge_damage_stat_source` (Dale Ready for His Shot SPIKE SUIT:
+  // "During challenges, your characters deal damage with their {W} instead
+  // of their {S}"). The override applies to every damage-dealer belonging
+  // to an affected player — role-agnostic, covers both attacker and defender
+  // sides. When willpower is the damage source, strength-specific bonuses
+  // (statBonuses.strength, "gets +N {S} while being challenged", Challenger,
+  // turn/conditional challenge bonuses) all route to .willpower equivalents
+  // or are skipped — strength is no longer the damage-relevant stat.
   const modifiers = getGameModifiers(state, definitions);
-  const atkStaticStr = modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0;
-  const defStaticStr = modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0;
-  let attackerStr = getEffectiveStrength(atkNow, attackerDef, atkStaticStr, modifiers);
-  let defenderStr = getEffectiveStrength(defNow, defenderDef, defStaticStr, modifiers);
+  const atkDmgSource = modifiers.challengeDamageStatSource.get(atkNow.ownerId) ?? "strength";
+  const defDmgSource = modifiers.challengeDamageStatSource.get(defNow.ownerId) ?? "strength";
+  const atkStaticBonus = atkDmgSource === "willpower"
+    ? (modifiers.statBonuses.get(attackerInstanceId)?.willpower ?? 0)
+    : (modifiers.statBonuses.get(attackerInstanceId)?.strength ?? 0);
+  const defStaticBonus = defDmgSource === "willpower"
+    ? (modifiers.statBonuses.get(defenderInstanceId)?.willpower ?? 0)
+    : (modifiers.statBonuses.get(defenderInstanceId)?.strength ?? 0);
+  let attackerStr = atkDmgSource === "willpower"
+    ? getEffectiveWillpower(atkNow, attackerDef, atkStaticBonus, modifiers)
+    : getEffectiveStrength(atkNow, attackerDef, atkStaticBonus, modifiers);
+  let defenderStr = defDmgSource === "willpower"
+    ? getEffectiveWillpower(defNow, defenderDef, defStaticBonus, modifiers)
+    : getEffectiveStrength(defNow, defenderDef, defStaticBonus, modifiers);
 
-  // "While being challenged" stat bonuses
+  // "While being challenged" stat bonuses. Match against the damage source
+  // so "gets +N {S} while being challenged" only applies when strength is
+  // the damage-relevant stat (Dale's override skips these). A future card
+  // with "gets +N {W} while being challenged" would naturally apply when
+  // willpower is the damage source.
   for (const ability of defenderDef.abilities) {
     if (ability.type !== "static") continue;
     const effsChal = Array.isArray(ability.effect) ? ability.effect : [ability.effect];
     for (const eff of effsChal) {
       if (eff.type !== "gets_stat_while_being_challenged") continue;
-      if (eff.stat !== "strength") continue;
       if (eff.affects === "attacker") {
+        if (eff.stat !== atkDmgSource) continue;
         attackerStr += eff.amount;
       } else {
+        if (eff.stat !== defDmgSource) continue;
         defenderStr += eff.amount;
       }
     }
   }
 
-  // CRD 8.5.1: Challenger +N bonus
-  if (defenderDef.cardType === "character") {
+  // CRD 8.5.1: Challenger +N bonus. Per CRD, Challenger grants "+N {S} while
+  // challenging" — strength-specific. Skip when Dale's override makes
+  // willpower the damage source (the strength bonus doesn't apply to
+  // willpower output).
+  if (defenderDef.cardType === "character" && atkDmgSource === "strength") {
     const challengerValue = getKeywordValue(atkNow, attackerDef, "challenger", modifiers.grantedKeywords.get(attackerInstanceId));
     attackerStr += challengerValue;
   }
 
-  // Conditional challenge bonuses
-  const turnBonuses = state.players[playerId].turnChallengeBonuses;
-  if (turnBonuses && turnBonuses.length > 0) {
-    for (const bonus of turnBonuses) {
-      if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
-        attackerStr += bonus.strength;
+  // Conditional challenge bonuses — all strength-oriented per CRD.
+  // Skip when damage source is willpower (same reason as Challenger above).
+  if (atkDmgSource === "strength") {
+    const turnBonuses = state.players[playerId].turnChallengeBonuses;
+    if (turnBonuses && turnBonuses.length > 0) {
+      for (const bonus of turnBonuses) {
+        if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
+          attackerStr += bonus.strength;
+        }
       }
     }
-  }
-  const selfBonuses = modifiers.conditionalChallengerSelf.get(attackerInstanceId);
-  if (selfBonuses && selfBonuses.length > 0) {
-    for (const bonus of selfBonuses) {
-      if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
-        attackerStr += bonus.strength;
+    const selfBonuses = modifiers.conditionalChallengerSelf.get(attackerInstanceId);
+    if (selfBonuses && selfBonuses.length > 0) {
+      for (const bonus of selfBonuses) {
+        if (matchesFilter(defNow, defenderDef, bonus.defenderFilter, state, playerId)) {
+          attackerStr += bonus.strength;
+        }
       }
     }
   }

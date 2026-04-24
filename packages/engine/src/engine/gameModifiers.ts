@@ -131,6 +131,17 @@ export interface GameModifiers {
   challengeDamagePrevention: Map<string, import("../types/index.js").CardFilter | undefined>;
 
   /**
+   * CRD 4.6.6 (Challenge Damage Step) stat-source override — Dale Ready for
+   * His Shot SPIKE SUIT: "During challenges, your characters deal damage
+   * with their {W} instead of their {S}." Key = PlayerID whose characters
+   * are affected; value = which stat to use as damage source. Absence of
+   * a key means default (strength). Reader lives in applyChallenge's
+   * CRD 4.6.6.1 damage-calculation branch — picks the damage output based
+   * on the damage-dealer's ownerId, role-agnostic (attacker AND defender).
+   */
+  challengeDamageStatSource: Map<import("../types/index.js").PlayerID, "strength" | "willpower">;
+
+  /**
    * Ongoing damage immunity from static abilities (Baloo Ol' Iron Paws —
    * source "all"; Hercules Mighty Leader — source "non_challenge"). Key =
    * instanceId of the card that IS immune. Value = set of damage sources
@@ -381,6 +392,7 @@ export function getGameModifiers(
     extraInkPlays: new Map(),
     damageRedirects: new Map(),
     challengeDamagePrevention: new Map(),
+    challengeDamageStatSource: new Map(),
     damagePrevention: new Map(),
     damagePreventionCharges: new Map(),
     grantedActivatedAbilities: new Map(),
@@ -944,6 +956,27 @@ export function getGameModifiers(
         case "challenge_damage_prevention": {
           // Raya - Leader of Heart: immune to challenge damage vs damaged characters
           modifiers.challengeDamagePrevention.set(instance.instanceId, effect.targetFilter);
+          break;
+        }
+
+        case "challenge_damage_stat_source": {
+          // Dale Ready for His Shot SPIKE SUIT: "During challenges, your
+          // characters deal damage with their {W} instead of their {S}."
+          // Maps affectedPlayer scope to concrete PlayerID(s). The reader
+          // lives in applyChallenge (CRD 4.6.6.1) and checks the damage-
+          // dealer's ownerId against this map. Role-agnostic — an affected
+          // player's character uses the override whether they're attacker
+          // or defender. Later-applied overrides don't overwrite earlier
+          // ones (both would be "willpower"); a mix of different stats
+          // targeting the same player would be a contradiction — last write
+          // wins, which is deterministic given the static iteration order.
+          const opponentId = instance.ownerId === "player1" ? "player2" : "player1";
+          if (effect.affectedPlayer === "self" || effect.affectedPlayer === "both") {
+            modifiers.challengeDamageStatSource.set(instance.ownerId, effect.stat);
+          }
+          if (effect.affectedPlayer === "opponent" || effect.affectedPlayer === "both") {
+            modifiers.challengeDamageStatSource.set(opponentId, effect.stat);
+          }
           break;
         }
 

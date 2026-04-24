@@ -565,6 +565,18 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // ============= GAME-RULE MODIFIERS =========================================
+  // Dale SPIKE SUIT: "During challenges, your characters deal damage with
+  // their {W} instead of their {S}." Game-rule modifier family.
+  {
+    name: "challenge_damage_stat_source_self_willpower",
+    pattern: /^during challenges, your characters deal damage with their \{W\} instead of their \{S\}/i,
+    build: () => ({
+      type: "static",
+      effect: { type: "challenge_damage_stat_source", stat: "willpower", affectedPlayer: "self" },
+    }),
+  },
+
   // ============= BANISH ======================================================
   // "banish any number of chosen opposing characters with total {S} N or less"
   // — Leviathan IT'S A MACHINE. Aggregate-sum cap on the selection. Place

@@ -1729,6 +1729,7 @@ export type StaticEffect =
   | CanChallengeReadyStatic
   | DamageRedirectStatic
   | ChallengeDamagePreventionStatic
+  | ChallengeDamageStatSourceStatic
   | DamagePreventionStatic
   | GrantActivatedAbilityStatic
   | CantActionSelfStatic
@@ -2232,6 +2233,37 @@ export interface ChallengeDamagePreventionStatic {
   type: "challenge_damage_prevention";
   /** Only immune when challenging characters matching this filter */
   targetFilter?: CardFilter;
+}
+
+/**
+ * Dale - Ready for His Shot SPIKE SUIT: "During challenges, your characters
+ * deal damage with their {W} instead of their {S}."
+ *
+ * Game-rule modifier family (same shape pattern as modify_win_threshold,
+ * ink_from_discard, skip_draw_step_self, etc.): overrides one CRD rule
+ * for the affected player's characters. This one swaps the damage-source
+ * stat for CRD 4.6.6 (Challenge Damage Step).
+ *
+ * Scope is role-agnostic: the override applies whenever an affected
+ * player's character is dealing challenge damage, regardless of whether
+ * they're the attacker or defender in the current challenge. Reader looks
+ * up the damage-dealer's ownerId in modifiers.challengeDamageStatSource.
+ *
+ * affectedPlayer:
+ *   "self"     — only the controlling player's characters (Dale)
+ *   "opponent" — opposing player's characters (hypothetical debuff)
+ *   "both"     — all characters in the game
+ *
+ * New rule-benders should prefer explicit affectedPlayer over "_self"-
+ * suffixed names so future sets that broaden scope don't need new
+ * discriminators.
+ */
+export interface ChallengeDamageStatSourceStatic {
+  type: "challenge_damage_stat_source";
+  /** Which stat to use as the damage source during challenges */
+  stat: "strength" | "willpower";
+  /** Who the override applies to */
+  affectedPlayer: "self" | "opponent" | "both";
 }
 
 /**
