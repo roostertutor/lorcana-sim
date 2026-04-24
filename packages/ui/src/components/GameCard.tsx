@@ -64,7 +64,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Mobile width: play cards shrink to fit 7 ready across; exerted cards use rotated width so
   // flex layout nudges neighbours rather than overlapping them. Hand cards stay full size.
   const isExerted = !isLocation && instance.isExerted;
-  // Play-zone (and face-down) card sizing:
+  // Play-zone card sizing:
   //
   // Portrait mobile (base, < sm) — height-adaptive: `h-full` fills the zone's
   // available vertical height, `w-auto` + aspect-[5/7] drive width. Capped at
@@ -74,27 +74,37 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // Tablet + desktop (sm+) — reverts to the natural width-based sizing from
   // baseClass (`sm:w-[104px] lg:w-[120px]`).
   //
-  // Landscape phone — explicit 28×39 box (!important beats sm: rules). The
+  // Landscape phone — explicit 45×63 box (!important beats sm: rules). True
+  // 5:7 (45÷5 = 63÷7 = 9). Bumped from 28×39 so landscape play cards match
+  // portrait's visual weight instead of looking like utility tiles. The
   // height-adaptive approach fails here because no ancestor has an explicit
-  // height, so `h-full` resolves to auto and `max-h` never triggers. 28×39
-  // matches the 5:7 Lorcana card aspect (28 × 7/5 = 39.2, rounded down) and
-  // parity with the deck / discard / inkwell tiles (h-[39px] × w-7).
-  // Note: setting both w and h explicitly causes CSS to ignore
-  // aspect-[5/7] from baseClass, so the 28×39 dimensions must themselves
-  // be 5:7 — which they are.
-  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[39px] landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]";
-  // naturalSize: used by inkwell + discard tile mini-previews where a
-  // scale-[0.538] wrapper expects a 52px-wide GameCard. The baseClass
-  // `sm:w-[104px] lg:w-[120px]` would normally widen this for desktop scale-
-  // fan sizing; the landscape-phone !important override locks it back to
-  // 52px so the scaled output fits the 28×40 landscape utility tile.
+  // height, so `h-full` resolves to auto and `max-h` never triggers.
+  // Note: setting both w and h explicitly causes CSS to ignore aspect-[5/7]
+  // from baseClass, so the explicit dimensions must themselves be 5:7.
+  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[45px] landscape-phone:!h-[63px] landscape-phone:!max-h-[63px] landscape-phone:!min-w-[45px]";
+  // Face-down opp-hand peek: kept smaller (28×39 landscape) so the peek ratio
+  // (strip-height / card-height) stays close to portrait. Bumping to 45×63
+  // halves the visible fraction of the card-back in landscape.
+  const adaptiveFaceDownCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[39px] landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]";
+  // naturalSize: inkwell + discard-tile mini-previews scaled via scale-[0.538].
+  // Portrait: 52w → 28 visual (fits w-7 tile). Landscape: 45w → 24.2 visual
+  // (fits the new w-[25px] tile with ~0.8px slack).
   const mobileWidth = naturalSize
     ? (faceDown || zone === "play"
-        ? "w-[52px] landscape-phone:!w-[52px]"
+        ? "w-[52px] landscape-phone:!w-[45px]"
         : "w-[88px] landscape-phone:!w-[88px]")
-    : (faceDown || zone === "play")
+    : zone === "play"
     ? adaptivePlayCard
+    : faceDown
+    ? adaptiveFaceDownCard
     : "w-[88px] landscape-phone:!w-[72px]";
+  // Radius scales with card width (~4-5% — close to the real Lorcana card
+  // radius). Play cards are narrower than hand cards at every breakpoint, so
+  // they get a smaller radius. Overrides the previous fixed `rounded-md
+  // sm:rounded-xl` that was 21% of a 28-wide landscape card.
+  const mobileRadius = (faceDown || zone === "play")
+    ? "rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[2px]"
+    : "rounded sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[3px]";
 
   // Play restriction check — grey out hand cards whose playRestrictions fail
   const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&
@@ -125,7 +135,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   if (faceDown) {
     return (
       <div
-        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] rounded-md sm:rounded-xl overflow-hidden shrink-0`}
+        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] ${mobileRadius} overflow-hidden shrink-0`}
         onClick={onClick}
         tabIndex={0}
         onKeyDown={handleKey}
@@ -250,7 +260,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const rotationClass = isExerted && !skipRotation
     ? `rotate-90 ${isTarget ? "" : "brightness-50"}`
     : isLocation && zone === "play" ? "rotate-90" : "";
-  const baseClass = `game-card relative border-2 rounded-md sm:rounded-xl ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+  const baseClass = `game-card relative border-2 ${mobileRadius} ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
     ${rotationClass}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
@@ -413,7 +423,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
         {/* Summoning sickness overlay — blue-cyan wash, like MTGO */}
         {isDrying && (
-          <div className="absolute inset-0 rounded-md sm:rounded-xl bg-cyan-400/25 pointer-events-none" />
+          <div className={`absolute inset-0 ${mobileRadius} bg-cyan-400/25 pointer-events-none`} />
         )}
 
         {/* Damage counter — centered on card */}
@@ -518,7 +528,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
 
       {/* Summoning sickness overlay */}
       {isDrying && (
-        <div className="absolute inset-0 rounded-xl bg-cyan-400/25 pointer-events-none" />
+        <div className={`absolute inset-0 ${mobileRadius} bg-cyan-400/25 pointer-events-none`} />
       )}
 
       {/* Damage counter — centered on card */}
