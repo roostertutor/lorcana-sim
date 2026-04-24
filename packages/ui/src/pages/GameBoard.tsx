@@ -2589,8 +2589,17 @@ function DraggableCard({
     disabled: !isEnabled,
     data: { zone },
   });
+  // touch-action required by @dnd-kit PointerSensor/TouchSensor: without it the
+  // browser claims a touch gesture for native panning before the 8px activation
+  // distance fires, and drag never starts in Chrome device mode / real mobile.
+  // - play zone: "none" — cards are in fixed slots, no panning needed, full drag
+  // - hand zone: "pan-x" — hand is horizontal (flex-nowrap); allow horizontal
+  //   pan so the browser can scroll the hand if it ever becomes overflow-x-auto
+  //   (currently overflow-hidden, but pan-x keeps behavior correct if that
+  //   changes) while still letting a vertical drag lift a card into play.
+  const touchAction = zone === "hand" ? "pan-x" : "none";
   return (
-    <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.3 : 1 }}>
+    <div ref={setNodeRef} {...listeners} {...attributes} style={{ opacity: isDragging ? 0.3 : 1, touchAction }}>
       {children}
     </div>
   );
