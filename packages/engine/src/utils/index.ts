@@ -824,19 +824,31 @@ export function isSong(def: CardDefinition): boolean {
   return def.cardType === "action" && def.traits.includes("Song");
 }
 
-/** CRD 5.4.4.2 / 8.11: Can this character sing this song? */
+/** CRD 5.4.4.2 / 8.11: Can this character sing this song?
+ *
+ *  staticGrants: optional list of keyword grants from `gameModifiers
+ *  .grantedKeywords.get(singerInstance.instanceId)`. Required when the singer's
+ *  Singer keyword comes from a STATIC ability (e.g. Mickey Mouse Amber Champion
+ *  FRIENDLY CHORUS — "While you have 2 or more other Amber characters in play,
+ *  this character gains Singer 8"). Without it, hasKeyword/getKeywordValue
+ *  miss static grants and the singer is treated as having no Singer at all,
+ *  blocking the sing entirely. instance.grantedKeywords / .timedEffects-driven
+ *  grants are still picked up automatically by the inner helpers — only
+ *  modifier-pass static grants need to be threaded through. */
 export function canSingSong(
   singerInstance: CardInstance,
   singerDef: CardDefinition,
   songDef: CardDefinition,
-  virtualBonus = 0
+  virtualBonus = 0,
+  staticGrants?: { keyword: import("../types/index.js").Keyword; value?: number }[]
 ): boolean {
   // CRD 5.4.4.2: Only characters can sing songs (items/actions cannot)
   if (singerDef.cardType !== "character") return false;
   // CRD 8.11.1: Singer N — count as cost N for singing
   let effectiveCost = singerDef.cost;
-  if (hasKeyword(singerInstance, singerDef, "singer")) {
-    effectiveCost = getKeywordValue(singerInstance, singerDef, "singer");
+  const hasGrantedSinger = (staticGrants ?? []).some(g => g.keyword === "singer");
+  if (hasKeyword(singerInstance, singerDef, "singer") || hasGrantedSinger) {
+    effectiveCost = getKeywordValue(singerInstance, singerDef, "singer", staticGrants);
   }
   // Virtual bonus from "while at this location" effects (Atlantica Concert Hall).
   effectiveCost += virtualBonus;

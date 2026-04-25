@@ -16,6 +16,94 @@ import {
 } from "./test-helpers.js";
 import { getInstance, getZone, getEffectiveStrength, moveCard, matchesFilter } from "../utils/index.js";
 
+// Two regressions both blocking Circle of Life:
+//   1. Static-granted Singer (Mickey Mouse Amber Champion FRIENDLY CHORUS,
+//      "this character gains Singer 8" once you control 2+ other Amber chars)
+//      was invisible to validator.ts — canSingSong didn't receive
+//      modifiers.grantedKeywords, so hasKeyword/getKeywordValue missed the
+//      static grant. Mickey couldn't solo-sing the 8-cost Circle of Life and
+//      couldn't contribute his (granted) cost-8 to a Sing Together. Now
+//      validator passes the static-grant list through both code paths.
+//   2. Circle of Life had isMay:true on its play_card actionEffect. Oracle:
+//      "Play a character from your discard for free" — no "may". Once the
+//      song resolves, you must pick a character (assuming any are eligible).
+//      isMay made the choose_target prompt offer a decline option that
+//      shouldn't exist. Removed.
+describe("§9 Set 9 — Mickey Amber Champion FRIENDLY CHORUS + Circle of Life", () => {
+  it("Mickey with 2 other Amber characters in play can solo-sing Circle of Life (Singer 8 from static)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    // Mickey + 2 other Amber characters, all in play and ready.
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-amber-champion", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "lilo-making-a-wish", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+
+    // Confirm FRIENDLY CHORUS is firing — modifier.grantedKeywords carries Singer 8.
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const grants = mods.grantedKeywords.get(mickeyId) ?? [];
+    expect(grants.some(g => g.keyword === "singer" && g.value === 8)).toBe(true);
+
+    // Circle of Life in hand. Cost 8, no Sing Together.
+    let songId: string, targetCharId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "circle-of-life", "hand"));
+    // Need a character in discard for the play_card target.
+    ({ state, instanceId: targetCharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceId: mickeyId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey is exerted (paid the sing cost). Song's choose_target prompt is
+    // up — and it must NOT be optional (Circle of Life isn't a "may").
+    expect(state.cards[mickeyId]!.isExerted).toBe(true);
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.optional ?? false).toBe(false);
+
+    // Resolve: pick Mickey True Friend out of discard → he comes into play for free.
+    const r2 = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [targetCharId],
+    }, CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    expect(getInstance(r2.newState, targetCharId).zone).toBe("play");
+  });
+
+  it("Mickey with only 1 other Amber character can NOT sing Circle of Life (FRIENDLY CHORUS condition fails)", () => {
+    // Sanity check that the static is condition-gated: with only 1 other Amber
+    // in play, FRIENDLY CHORUS doesn't fire and Mickey's effective cost is 4.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-amber-champion", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "lilo-making-a-wish", "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const grants = mods.grantedKeywords.get(mickeyId) ?? [];
+    expect(grants.some(g => g.keyword === "singer")).toBe(false);
+
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "circle-of-life", "hand"));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "discard"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: songId,
+      singerInstanceId: mickeyId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+  });
+});
+
 describe("§9 Set 9 — Max Goof Rockin' Teen (cant_action_self move)", () => {
   it("I JUST WANNA STAY HOME: MOVE_CHARACTER is rejected for Max Goof", () => {
     let state = startGame();

@@ -1389,7 +1389,7 @@
               "amber"
             ]
           },
-          "minCount": 2
+          "minimum": 2
         }
       }
     ],

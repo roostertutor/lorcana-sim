@@ -271,7 +271,12 @@ function validatePlayCard(
       .reduce((s, t) => s + (t.amount ?? 0), 0);
     // Record Player HIT PARADE: per-character static sing-cost bonus.
     const singerCharBonus = modifiers.singCostBonusCharacters.get(singerInstanceId) ?? 0;
-    if (!canSingSong(singer, singerDef, def, singerLocBonus + singerTimedBonus + singerCharBonus)) {
+    // Static-granted keywords (Mickey Mouse Amber Champion FRIENDLY CHORUS:
+    // "this character gains Singer 8" via grant_keyword static). These live
+    // in modifiers.grantedKeywords and aren't visible to canSingSong's inner
+    // hasKeyword/getKeywordValue calls unless we forward them.
+    const singerStaticGrants = modifiers.grantedKeywords.get(singerInstanceId);
+    if (!canSingSong(singer, singerDef, def, singerLocBonus + singerTimedBonus + singerCharBonus, singerStaticGrants)) {
       return fail(`Singer's cost is too low to sing this song.`);
     }
     return OK; // No ink check — singing replaces ink cost entirely (CRD 1.5.5.1)
@@ -301,10 +306,14 @@ function validatePlayCard(
       if (isActionRestricted(s, sDef, "sing", playerId, state, stModifiers)) {
         return fail("One of the singers can't sing songs.");
       }
-      // CRD 8.11.1: Singer N counts as cost N
+      // CRD 8.11.1: Singer N counts as cost N. Static-granted Singer (Mickey
+      // Mouse Amber Champion FRIENDLY CHORUS) lives in modifiers.grantedKeywords
+      // — must be threaded through hasKeyword/getKeywordValue or it's invisible.
+      const sStaticGrants = stModifiers.grantedKeywords.get(sId);
+      const sHasGrantedSinger = (sStaticGrants ?? []).some(g => g.keyword === "singer");
       let effectiveCost = sDef.cost;
-      if (hasKeyword(s, sDef, "singer")) {
-        effectiveCost = getKeywordValue(s, sDef, "singer");
+      if (hasKeyword(s, sDef, "singer") || sHasGrantedSinger) {
+        effectiveCost = getKeywordValue(s, sDef, "singer", sStaticGrants);
       }
       // Atlantica Concert Hall: per-singer location bonus.
       if (s.atLocationInstanceId) {

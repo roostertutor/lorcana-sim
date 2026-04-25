@@ -1774,8 +1774,7 @@
           "cardType": [
             "character"
           ]
-        },
-        "isMay": true
+        }
       }
     ],
     "singTogetherCost": 8,
@@ -14790,8 +14789,7 @@
           "cardType": [
             "character"
           ]
-        },
-        "isMay": true
+        }
       }
     ],
     "singTogetherCost": 8,

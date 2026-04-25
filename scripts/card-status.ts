@@ -296,6 +296,26 @@ function validateCardFields(card: any): FieldError[] {
   function walkCondition(c: any, path: string) {
     if (!c || typeof c !== "object") return;
     checkType(c, path);
+    // Per-condition-type field whitelist for the count-style condition
+    // primitives. The interface declares `minimum?: number` but JSON authors
+    // sometimes write `minCount`/`min`/`count` — silent typo, evaluator falls
+    // through to the default of 1 and the condition fires sooner than oracle.
+    // Caught Mickey Mouse Amber Champion FRIENDLY CHORUS ("…2 or more other
+    // Amber characters in play, this character gains Singer 8") shipping with
+    // minCount:2 — Mickey would gain Singer 8 with even 1 other Amber.
+    if (c.type === "you_control_matching" || c.type === "opponent_controls_matching") {
+      const allowed = new Set(["type", "filter", "minimum"]);
+      for (const key of Object.keys(c)) {
+        if (!allowed.has(key)) {
+          errors.push({
+            path,
+            field: key,
+            value: JSON.stringify(c[key]),
+            validValues: `not a field on ${c.type} — likely a typo (allowed: ${[...allowed].join(", ")}; common mistake: 'minCount' should be 'minimum')`,
+          });
+        }
+      }
+    }
     // Validate CardFilter fields embedded in condition types like
     // you_control_matching / opponent_controls_matching (they carry a
     // `filter` keyed to CardFilter). Without this check, a typo like
@@ -543,17 +563,36 @@ function validateCardFields(card: any): FieldError[] {
         });
       }
     }
+    // play_card with isMay:true must match an oracle "may play" clause.
+    // Without the may, the engine offers a decline option that the oracle
+    // doesn't grant. Caught Circle of Life ("Play a character from your
+    // discard for free" — no may) shipping with isMay:true. Uses the card-
+    // level rulesText so abilities with split-clause oracles (Queen Diviner
+    // CONSULT THE SPELLBOOK: "may reveal..." sentence #1, "may play it for
+    // free" sentence #2) still see the full text and aren't false-positives.
+    if (node.type === "play_card" && node.isMay === true) {
+      if (!/\bmay\s+(?:\w+\s+){0,5}play\b/i.test(oracle)) {
+        errors.push({
+          path,
+          field: "isMay",
+          value: "true",
+          validValues: `oracle has no "may play" clause — play_card.isMay:true offers a decline option the card text doesn't grant; once chosen the play is mandatory`,
+        });
+      }
+    }
     for (const k of Object.keys(node)) walkMayConsistency(node[k], `${path}.${k}`, oracle);
   };
   // Card-level oracle text for actionEffects.
   (card.actionEffects ?? []).forEach((e: any, i: number) =>
     walkMayConsistency(e, `actionEffects[${i}]`, String(card.rulesText ?? ""))
   );
-  // Ability-level: each ability uses its own oracle slice (preferring
-  // ab.rulesText when present, falling back to the card-level rulesText so
-  // we still flag anything obvious).
+  // Ability-level: concat ability rulesText AND card-level rulesText so
+  // split-clause oracles (Queen Diviner CONSULT THE SPELLBOOK whose ab.rulesText
+  // truncates after sentence 1 but whose card.rulesText carries the "may play
+  // it for free" sentence-2 clause) aren't false-positives. Trades a small
+  // amount of per-ability isolation for fewer noise flags.
   (card.abilities ?? []).forEach((ab: any, i: number) => {
-    const oracle = String(ab.rulesText ?? card.rulesText ?? "");
+    const oracle = String((ab.rulesText ?? "") + " " + (card.rulesText ?? "")).trim();
     if (Array.isArray(ab.effects)) {
       ab.effects.forEach((e: any, j: number) => walkMayConsistency(e, `abilities[${i}].effects[${j}]`, oracle));
     }
