@@ -3276,6 +3276,38 @@ section only — public games section can ship without it.
 
 ## FROM gameboard-specialist → engine-expert + server-specialist: persist GameEvent stream + decision metadata for bot post-analysis
 
+**Status (2026-04-25):** ✅ engine-side done. ⏳ server-side schema + plumbing
+still pending.
+
+Engine work that landed:
+- Verified plumbing — same `events: GameEvent[]` array threads from
+  `applyAction()` entry through every internal subroutine and back to
+  `ActionResult.events`. No accumulator drops. (`packages/engine/src/engine/reducer.ts:82-204`.)
+- Added cascade attribution: new `cause?: "primary" | "trigger" | "replacement"`
+  field on `GameEvent`. `processTriggerStack` stamps every event emitted during
+  bag drainage with `cause: "trigger"`; events emitted directly from the
+  dispatched action keep `cause` undefined (consumers interpret as `"primary"`).
+  Implementation is wrapper-based (one start-index snapshot at function entry,
+  one stamp-suffix loop at exit), so it didn't touch any of the ~50 emit sites.
+  `replacement` is reserved for the future CRD 6.5 implementation. See
+  `packages/engine/src/types/index.ts` (GameEventCause + intersected GameEvent
+  shape) and `packages/engine/src/engine/reducer.ts:processTriggerStack`.
+- Two regression tests in `reducer.test.ts > §Engine — GameEvent stream …`:
+  smoke check that PLAY_CARD/QUEST emit non-empty events, and a Mickey
+  Giant + Pluto cascade scenario confirming primary vs trigger attribution.
+
+Known gap left for follow-up (NOT a blocker for the server work):
+- ~40 sites in `reducer.ts` call `moveCard()` directly (vs `zoneTransition`),
+  so they bypass the `card_moved` event emit. Examples: most tutor / search
+  / deck-shuffle paths. Doesn't affect the high-signal events
+  (`damage_dealt`, `lore_gained`, `card_banished`, `ability_triggered`,
+  `card_revealed`, `card_drawn`, `turn_passed`) — those are emitted from the
+  central paths. Backfill emit sites can be added incrementally if/when the
+  trainer wants per-zone-transition granularity. Three internal helper
+  functions (`performMove`, `applyBoostCard`, the `parentIds` dist helper at
+  ~line 8005) take a `_events: GameEvent[]` param they don't use — those are
+  the natural next emit sites if/when card_moved coverage matters.
+
 Discovered 2026-04-25 during a record-keeping audit comparing the UI
 game log, the engine GameEvent stream, and server-side `game_actions`.
 Three surfaces overlap incompletely; one is being thrown away.

@@ -3996,7 +3996,18 @@ export interface ActionResult {
   events: GameEvent[];
 }
 
-export type GameEvent =
+/** Cascade attribution for a GameEvent — distinguishes events that came
+ *  directly from the dispatched action (`primary`) from events that came
+ *  out of a triggered ability resolving from the bag (`trigger`), or from
+ *  a replacement effect substituting for a base effect (`replacement`,
+ *  reserved for CRD 6.5 implementation). Stamped by processTriggerStack
+ *  on events emitted during trigger resolution; `undefined` means
+ *  `"primary"` (the user-dispatched action's own effects). Persisted via
+ *  ActionResult.events for trainer/replay/audit consumers per HANDOFF.md
+ *  GameEvent-stream item. */
+export type GameEventCause = "primary" | "trigger" | "replacement";
+
+export type GameEvent = (
   | { type: "card_moved"; instanceId: string; from: ZoneName; to: ZoneName }
   | { type: "damage_dealt"; instanceId: string; amount: number }
   | { type: "card_banished"; instanceId: string }
@@ -4005,4 +4016,5 @@ export type GameEvent =
   | { type: "ability_triggered"; instanceId: string; abilityType: string }
   | { type: "card_revealed"; instanceId: string; playerId: PlayerID; sourceInstanceId: string }
   | { type: "hand_revealed"; playerId: PlayerID; cardInstanceIds: string[]; sourceInstanceId: string; privateTo?: PlayerID }
-  | { type: "turn_passed"; to: PlayerID };
+  | { type: "turn_passed"; to: PlayerID }
+) & { cause?: GameEventCause };

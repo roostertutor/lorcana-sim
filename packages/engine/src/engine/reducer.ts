@@ -6209,6 +6209,16 @@ function processTriggerStack(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[]
 ): GameState {
+  // HANDOFF: cascade attribution for the persisted GameEvent stream. Anything
+  // emitted while processTriggerStack drains the bag came out of a triggered
+  // ability resolving, not the user's dispatched action — stamp those events
+  // with cause:"trigger". Events emitted before/after this call (or directly
+  // inside applyActionInner) keep `cause` undefined, which downstream
+  // consumers interpret as "primary". Replacement effects (CRD 6.5, not yet
+  // implemented) will stamp `replacement` from their own resolution path.
+  // Pre-existing events keep whatever cause they had so nested
+  // processTriggerStack invocations don't get re-stamped.
+  const stampStartIdx = events.length;
   let safety = 0;
   while (state.triggerStack.length > 0 && !state.pendingChoice) {
     if (++safety > MAX_TRIGGER_CHAIN) throw new Error("Trigger loop detected");
@@ -6412,6 +6422,15 @@ function processTriggerStack(
         }
         break;
       }
+    }
+  }
+  // Stamp newly-emitted events as caused by trigger resolution. Existing
+  // cause fields aren't overwritten (preserves replacement-effect tagging
+  // from a future CRD 6.5 implementation).
+  for (let i = stampStartIdx; i < events.length; i++) {
+    const ev = events[i];
+    if (ev && ev.cause === undefined) {
+      events[i] = { ...ev, cause: "trigger" };
     }
   }
   return state;

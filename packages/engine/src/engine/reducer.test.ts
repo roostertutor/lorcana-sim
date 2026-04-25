@@ -4166,3 +4166,86 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
     expect(after.pendingChoice?.choosingPlayerId).toBe("player2");
   });
 });
+
+// =============================================================================
+// GameEvent stream — plumbing & cascade attribution
+//
+// Per HANDOFF.md ("persist GameEvent stream + decision metadata for bot
+// post-analysis"), ActionResult.events must be a fully-populated, accurately
+// attributed sequence. Plumbing: the same array reference threads from the
+// applyAction() entry through every internal subroutine and back to the
+// caller — no events get accumulated and dropped. Attribution: events from
+// triggered abilities resolving from the bag carry cause:"trigger"; events
+// directly from the dispatched action are unstamped (consumers interpret
+// undefined as "primary").
+// =============================================================================
+
+describe("§Engine — GameEvent stream plumbing & cascade attribution", () => {
+  it("ActionResult.events is non-empty for the common action types", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mickeyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // PLAY_CARD: card_moved (hand → play). Smoke check; the exact set varies
+    // by card but a play of any character should emit ≥1 event.
+    expect(r.events.length).toBeGreaterThan(0);
+    expect(r.events.some(e => e.type === "card_moved")).toBe(true);
+
+    // QUEST after a turn cycle so Mickey is dry.
+    let state2 = r.newState;
+    state2 = passTurns(state2, 2);
+    const r2 = applyAction(state2, { type: "QUEST", playerId: "player1", instanceId: mickeyId }, CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    expect(r2.events.some(e => e.type === "lore_gained")).toBe(true);
+  });
+
+  it("cascade attribution: trigger-driven events carry cause:'trigger'; direct ones are unstamped", () => {
+    // Mickey Giant (10 STR / 10 WP, "When this character is banished, deal 5
+    // damage to each opposing character") challenges a buffed Lilo (1/1 with
+    // +10 STR). Both die from challenge damage. Mickey's THE BIGGEST STAR
+    // EVER fires from the bag → 5 dmg to each remaining Lilo. The damage
+    // dealt during the challenge step is "primary"; the AOE-from-trigger
+    // damage is "trigger".
+    let state = startGame();
+    let mickeyId: string, liloAId: string, liloBId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-giant-mouse", "play", { isDrying: false }));
+    ({ state, instanceId: liloAId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: liloBId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false }));
+    void liloBId;
+
+    const liloA = state.cards[liloAId]!;
+    state = {
+      ...state,
+      cards: {
+        ...state.cards,
+        [liloAId]: {
+          ...liloA,
+          timedEffects: [
+            ...(liloA.timedEffects ?? []),
+            { type: "modify_strength" as any, amount: 5, expiresAt: "end_of_turn" as any, appliedOnTurn: state.turnNumber },
+            { type: "modify_strength" as any, amount: 5, expiresAt: "end_of_turn" as any, appliedOnTurn: state.turnNumber },
+          ],
+        },
+      },
+    };
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: mickeyId,
+      defenderInstanceId: liloAId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Challenge-damage events are "primary" (no cause stamp), and the AOE
+    // damage from THE BIGGEST STAR EVER is "trigger".
+    const damageEvents = r.events.filter(e => e.type === "damage_dealt");
+    const primaryDamage = damageEvents.filter(e => e.cause === undefined);
+    const triggerDamage = damageEvents.filter(e => e.cause === "trigger");
+    expect(primaryDamage.length).toBeGreaterThan(0);   // attacker / defender exchange
+    expect(triggerDamage.length).toBeGreaterThan(0);   // 5-damage AOE from is_banished
+  });
+});
