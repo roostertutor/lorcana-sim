@@ -115,10 +115,11 @@ Lobby** in the primary slot because the Rematch slot is empty.
 2. **Client `lib/serverApi.ts`**: add `requestRematch(gameId)` calling
    the endpoint.
 3. **GameBoard.tsx victory modal** (existing slot already prepared):
-   the unified modal block already has comments at the relevant line
-   noting "primary slot empty in MP end-of-match — see HANDOFF for
-   rematch trigger." Add a `Rematch` button that calls
-   `requestRematch()` and navigates to the new game ID on response.
+   add a `Rematch` button to the primary slot in the MP end-of-match
+   branch. Calls `requestRematch()` and navigates to the new game ID
+   on response. The unified modal block has a code comment marking the
+   spot ("no rematch UI yet — see HANDOFF.md for client-side rematch
+   trigger").
 4. **UX flow**: when one player requests rematch but the other hasn't
    yet, show a "Waiting for opponent…" state on the rematch button
    (similar to the existing "Waiting for opponent" toast). Server
