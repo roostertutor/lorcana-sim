@@ -2,6 +2,7 @@
 
 Status: **draft / discussion doc.** Not a decision. Nothing in code has been changed.
 Last updated: 2026-04-22 — revised to align with `docs/STRATEGY.md` and `docs/COMPETITIVE.md`.
+Last reconciled: 2026-04-24 — portrait-first-as-signature framing dropped; replaced with chrome-craft (both phone orientations supported). See STRATEGY.md reconciliation note.
 
 ---
 
@@ -9,13 +10,13 @@ Last updated: 2026-04-22 — revised to align with `docs/STRATEGY.md` and `docs/
 
 ### What we're actually selling
 
-A **portrait-first mobile Lorcana play client, simulator, and creator toolkit** — built on a deterministic headless engine that powers Monte Carlo deck analytics, what-if branching replay, and clone-trainer bot infrastructure.
+A **chrome-efficient Lorcana play client, simulator, and creator toolkit** — built on a deterministic headless engine that powers Monte Carlo deck analytics, what-if branching replay, and clone-trainer bot infrastructure.
 
-One-liner (from `docs/STRATEGY.md`): *"Lorcana, actually built for your phone. Portrait-first, one-handed, no rotation — plus a bot that doesn't suck, sim-based deck analytics, and real tools for creators."*
+One-liner (from `docs/STRATEGY.md`): *"Lorcana, with less chrome and more game — on every screen. Plus a bot that doesn't suck, sim-based deck analytics, and real tools for creators."*
 
-Three audience segments, three pitches, one unified claim ("Lorcana done right on mobile"):
+Three audience segments, three pitches, one unified claim ("Lorcana, with less chrome and more game"):
 
-1. **duels.ink users on mobile** — we're the better phone experience. Portrait-first is our signature.
+1. **duels.ink users on phone** — we're the cleaner phone experience. Less chrome, more game state per screen, both orientations supported.
 2. **Inktable users (solo practice)** — we're the solo sim with a bot that actually works, plus real analytics.
 3. **Creators** — we're the only toolkit shipping sandbox + branching replay + clip export + scenario URLs.
 
@@ -25,12 +26,12 @@ The brand has to carry all three without over-indexing on any one.
 
 | Segment | Today they use | Our wedge | Brand must signal |
 |---|---|---|---|
-| **duels.ink users on phone** | duels.ink, landscape-on-phone | Portrait-first mobile UX. One-handed, no rotation. | "This feels right on my phone" — on first open, before features register |
+| **duels.ink users on phone** | duels.ink (both orientations; portrait okay, landscape unpolished) | Less chrome, more game. Both orientations supported; landscape genuinely polished. | "This feels cleaner than what I had" — on first open, before features register |
 | **Creators** (YT/Twitch/TikTok) | OBS + duels.ink screen recordings + handwritten annotations | Sandbox + branching replay + clip export | "This is a production tool, not just a play app" |
 | **Inktable users / solo practice** | Inktable.net (bad bot, no MP) | Good bot. Real analytics. | "The sim Inktable should have been" |
 | **Analytical players** (mid-to-top ladder) | Spreadsheets, vibes, Discord chat | Monte Carlo deck analysis + what-if replay | "Rigorous, deliberate, examines the game" |
 
-Primary brand audience: **duels.ink users on phone first, creators second.** Every chrome/identity decision gets evaluated against "does this pull a duels.ink mobile user into trying us?" The other audiences are pitch-compatible and downstream.
+Primary brand audience: **duels.ink users on phone first, creators second.** Every chrome/identity decision gets evaluated against "does this pull a duels.ink phone user into trying us?" The other audiences are pitch-compatible and downstream.
 
 ### Tone register
 
@@ -152,7 +153,7 @@ Added after learning about Inktable, Inkdecks, and the Lorecast collision:
 
 ### Recommendation
 
-**Reprise** is now my lead pick. The revised strategy is explicitly about giving users a place to *rehearse* — portrait-first practice, what-if replay branching, creator-produced teaching content. A reprise is literally a deliberate re-performance for mastery. The word does exactly what the product does. It also survives every filter: IP-clean, outside the Ink- namespace, warm enough for the duels.ink-user migration pitch, serious enough for the creator and analyst pitches, Disney-song-adjacent without trademark touch.
+**Reprise** is now my lead pick. The revised strategy is explicitly about giving users a place to *rehearse* — chrome-efficient phone practice, what-if replay branching, creator-produced teaching content. A reprise is literally a deliberate re-performance for mastery. The word does exactly what the product does. It also survives every filter: IP-clean, outside the Ink- namespace, warm enough for the duels.ink-user migration pitch, serious enough for the creator and analyst pitches, Disney-song-adjacent without trademark touch.
 
 Fallback: **Gloss** if Reprise is unavailable in acceptable TLDs. Narrower but distinctive; strong on the creator-annotation surface.
 

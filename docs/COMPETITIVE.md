@@ -1,16 +1,16 @@
 # Competitive Landscape
 
-Last updated: 2026-04-22. Drafted from a session briefing — sections marked **[needs briefing]** are my guesses and should be corrected by the user before anything downstream depends on them.
+Last updated: 2026-04-22. Last reconciled: 2026-04-24 (duels.ink section corrected against user empirical data — they ship both phone orientations; portrait is "okay," landscape is "not polished," desktop is good). Sections marked **[needs briefing]** are my guesses and should be corrected by the user before anything downstream depends on them.
 
 ---
 
 ## The six tools
 
 ### duels.ink
-**Positioning:** the incumbent Lorcana play client. Casual *and* competitive ELO-matched ranked play. Mobile-optimized but **landscape-on-phone**.
-**Strength:** network effects — it's where players are. Execution quality on mobile is the strongest in the category right now.
-**Weakness:** landscape orientation on phone is a UX compromise inherited from the physical-game mental model, not an active design choice. No sim-based analytics, no branching replay, no creator tooling. Play client only.
-**Origin story worth remembering:** displaced Lorcanito.com (below) by being meaningfully better on mobile. Precedent says the market migrates fast when the mobile-UX delta is large enough.
+**Positioning:** the incumbent Lorcana play client. Casual *and* competitive ELO-matched ranked play. Ships desktop, phone-portrait, and phone-landscape.
+**Strength:** network effects — it's where players are. Desktop execution is good. Phone-portrait is okay. Origin story (displacing Lorcanito by shipping better mobile UX) is the precedent that matters.
+**Weakness:** phone-landscape is not polished — the visible execution gap in their lineup. Across all surfaces, chrome-density is high (per-screen pixel budget consumed by bars, padding, controls relative to the actual game state shown). No sim-based analytics, no branching replay, no creator tooling. Play client only.
+**Origin story worth remembering:** displaced Lorcanito.com (below) by being meaningfully better on mobile. Precedent says the market migrates fast when the execution delta is large enough.
 
 ### Lorcanito.com
 **Positioning:** the original "full-featured" Lorcana simulator. Had ELO matchmaking, multiplayer, most of the feature surface before duels.ink existed.
@@ -68,17 +68,19 @@ Mapping the six tools against plausible product categories:
 
 | Category | Tool(s) that occupy it | Gap? |
 |---|---|---|
-| Mobile-first play client | duels.ink (landscape-on-phone) | **Yes — portrait-first is untried in Lorcana.** |
+| Low-chrome phone play client (more game per screen) | duels.ink (chrome-heavy across both orientations) | **Yes — chrome-density is the visible-execution wedge.** |
+| Polished phone-landscape play client | duels.ink (their weakest surface) | **Yes — their landscape is not polished; secondary wedge.** |
 | Solo practice with a good bot | Inktable (bad bot) | **Yes — Inktable is addressable.** |
 | Deterministic engine / Monte Carlo sim | nobody | **Yes — unique to us.** |
 | What-if branching replay | nobody | **Yes — unique to us.** |
 | Creator tooling (clip export, scenario URLs, annotations, scripted opponents) | nobody | **Yes — unique to us.** |
 | Deckbuilder + collection | Dreamborn (probably) | No — utility, don't compete. |
 | Tournament deck database | Inkdecks | No — consume, don't compete. |
-| Casual ranked MP | duels.ink | Partial — we contest via better mobile UX, but network effects are real. |
+| Desktop play client | duels.ink (good) | No — parity is fine; don't market against it. |
+| Casual ranked MP | duels.ink | Partial — we contest via execution craft, but network effects are real. |
 | Competitive ELO MP | duels.ink | Partial — same as above. |
 
-Five genuinely open categories is a strong position. The competitive claim is not "we have one thing nobody has" — it's "we occupy five categories nobody occupies, united by engine + mobile-UX differentiation."
+Five genuinely open execution/feature categories is a strong position. The competitive claim is not "we have one thing nobody has" — it's "we occupy five categories nobody occupies, united by engine craft + chrome-efficiency differentiation."
 
 ---
 
