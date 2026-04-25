@@ -262,3 +262,104 @@ Currently `deleteDeck(id)` in `packages/ui/src/lib/deckApi.ts` hard-deletes the 
 Noted during a GUI session where the user asked whether Reset should keep deck history. Delete is the reset path (Delete → New Deck), but the DB should preserve the record for analytics even when the user removes it from their list.
 
 ---
+
+### `decks` / `deck_versions` consolidation
+
+**Considered**: Collapse the two-table shape. Three options: (a) drop `decks.decklist_text` and always read latest from `deck_versions`; (b) replace `decks.decklist_text` with `current_version_id FK → deck_versions.id`; (c) add a sync trigger to keep `decks.decklist_text` in lockstep with the latest version.
+
+**Why parked (audited 2026-04-25)**: Two-table shape is intentional. `decks` carries non-versioned metadata (name, box_card_id, format_family, format_rotation) and is the clean FK target for `games.deck_id` / `matches.deck_id`. The redundancy hasn't actually drifted — `snapshotVersion()` in `packages/ui/src/lib/deckApi.ts:46` enforces it by convention.
+
+**Trigger to reconsider**: (a) observed drift bug where `decks.decklist_text` and latest `deck_versions.decklist_text` diverge in production data, OR (b) we're already touching this area for another reason (e.g., adding `games.deck_id` FK and need to decide whether to point at deck or version).
+
+**Expected scope**: ~half-day for option (b) — 1 schema migration + rewrite of ~6 deck-read paths in `serverApi.ts` / `deckApi.ts` + tests.
+
+---
+
+## Engine / Bot
+
+### Reveal-info model — bots have oracle access
+
+**Considered**: Two-layer design to stop bots from seeing hidden info. (1) Engine-side `buildObservation(state, viewerId)` filter that respects `lastRevealedHand.privateTo` and replaces hidden instances with `__HIDDEN__` sentinels. (2) Bot-side `KnownFacts` memory buffer that tracks "instance X seen in opponent hand at turn N until I see it leave." Hybrid recommendation: keep analytics bots as oracles (existing `policies/*.json` weights stay valid; symmetric cheating doesn't bias relative win-rates), build a separate `ObservedBot` adapter for sandbox / clone-trainer / MP.
+
+**Why parked**: Explicitly deferred 2026-04-21 by user — not a current product priority. Analytics use case (the actual product) is fine with oracle bots since both sides cheat symmetrically. The cost is high: filter is ~half a day, but memory model is 1-2 weeks AND every existing trained policy would need retraining (none generalize from oracle to observation input).
+
+**Trigger to reconsider**: any one of —
+1. Multiplayer deployed and Stream 5 (supervised clone trainer) starts ingesting human game logs — clone fidelity requires bots that don't telegraph hidden info.
+2. MP bot opponents ship as a feature (e.g. queue-filler bots when no human opponent available) and a user reports the bot "cheating" / making plays only possible with hand knowledge.
+3. Sandbox clone-trainer calibration shows systematic bias traceable to oracle access.
+
+**Expected scope**: ~half-day engine PR for `buildObservation` + `__HIDDEN__` sentinels (engine-expert). Then 1-2 weeks bot-trainer for `ObservedBot` wrapper, `KnownFacts` memory buffer, encoder updates, and full retrain of any policy in the observed-bot path. Detailed implementation sketch was preserved in HANDOFF git history (commit `e47d057` parent has the full original entry); pull from there rather than re-derive.
+
+---
+
+### Engine deferred / low-priority queue (CRD edge cases + GameEvent extensions)
+
+Three small items engine-expert verified (2026-04-21) as legitimate gaps with no current card depending on them. Grouped here because each is small and the trigger is the same shape: a card or feature that actually exercises the gap.
+
+**a. CRD 1.8.4 — strict simultaneity in `runGameStateCheck`**
+- *Considered*: Rework cascading loop in `reducer.ts:7870` so banishes within a single pass are truly parallel (not iteration-order dependent).
+- *Why parked*: No current card depends on within-pass ordering. 2P behavior is correct.
+- *Trigger*: A 3+P variant ships, OR a "leaves play together" trigger (CRD 7.4.3) ships that's sensitive to within-pass banish ordering.
+- *Scope*: Refactor to two-phase (collect-then-apply); ~1 day plus tests.
+
+**b. CRD 6.5.4 / 6.5.7 / 6.5.8 — replacement edge cases**
+- *Considered*: 6.5.4 (replaced events don't fire triggers — currently `damage_redirect` still emits damage triggers on the redirected path), 6.5.7 (multi-replacement ordering), 6.5.8 (same replacement can't apply twice).
+- *Why parked*: No current card pair has competing replacements; Lilo's once-per-turn rule is enforced via a per-card counter rather than the general 6.5.8 rule.
+- *Trigger*: New card ships with damage-redirect interaction where damage triggers must be suppressed, OR two replacements compete on the same event.
+- *Scope*: ~1-2 days for suppression flag + ordering decision tree + tests.
+
+**c. GameEvent system extensions**
+- *Considered*: Richer event log, event-driven animations, sound hooks, expanded UI consumers beyond `card_revealed`.
+- *Why parked*: No user-facing need yet; per `feedback_function_before_polish.md`, animations/sound deferred.
+- *Trigger*: Sandbox creator-tool work needs richer per-event hooks (e.g. clip-export annotations), OR a UI polish pass prioritizes visible feedback for state mutations.
+- *Scope*: Per-event consumer hooks are small (per consumer); the listing tool itself is already done via `pnpm catalog`.
+
+---
+
+## Server
+
+### Server-side test infrastructure
+
+**Considered**: Add vitest + `test`/`test:watch` scripts to `server/package.json`. Create `stateFilter.test.ts` (3 cases: public reveal_hand, private look_at_hand, post-reveal drift) and `lobbyService.test.ts` (format legality rejection). Wire `pnpm --filter server test` into CI.
+
+**Why parked**: No CI exists yet; server bug rate is low (~1 fix in last 2 weeks); manual MP testing has caught issues so far; engine has the high-volume test surface.
+
+**Trigger to reconsider**: any one of —
+1. Railway deploy is being set up and we're adding CI in the same pass.
+2. A second server-side anti-cheat / state-filter bug ships without coverage.
+3. We add a >200-LOC server feature that warrants its own test file (matchmaking queue from MP UX Phase 3 is a candidate).
+
+**Expected scope**: ~1 day for scaffolding + the two minimal test files.
+
+---
+
+## Creator tooling
+
+### Clip / GIF export (combined design + implementation)
+
+Highest-value creator-tool surface — GIFs embed natively on Discord/Twitter/Reddit/forums, a creator shares a cool play in 30 seconds with no video workflow. Was originally Priority #1 in `project_near_term_priorities.md` (2026-04-16); status hasn't been re-confirmed since the chrome-craft strategy reconciliation 2026-04-24.
+
+**Considered (frame model)**: Snapshot-per-action pacing — one frame per engine action / meaningful `GameEvent`. Not motion-tween — GIFs sample at 10-15fps so 200ms CSS transitions get 1-2 mid-transition frames and look choppy. Each frame = rendered gameboard at that `GameState` + transient overlay callouts for the event(s) that just resolved, held for an event-keyed duration:
+- Draw / ink / pass: 400ms
+- Turn boundary banner: 500ms
+- Play a card: 700ms
+- Sing / Challenge / Quest: 800-900ms
+- Damage resolution / banish: 1000ms
+
+Capture mode: strip `transition-*` → `transition-none`, disable hover, freeze `animate-pulse` so the connection-status dot doesn't strobe.
+
+**Considered (implementation)**: Clip mode toggle in `ReplayControls`. Hidden-mount per-frame capture via `html-to-image` (CORS-safe now that R2 migration landed 2026-04-21). Encode with `gifenc` in a worker. Presets: Discord (480p, ≤8MB), Twitter (480p, ≤15MB), HD (720p). Watermark + "clip this moment" shortcut from the live game-over modal.
+
+**Dependency status**: R2 migration UNBLOCKED 2026-04-21 (commit `7d37d23`) — canvas capture no longer tainted. Caveat: R2's default public bucket has a ~20 req/s rate cap; clip render is bursty (~30 frames × ~30 cards = ~900 fetches). Mitigations: pre-cache visible images at clip start, OR provision a custom domain (eliminates the cap), OR fall back to lower-fps presets.
+
+**Why parked (2026-04-25)**: Strategy reconciliation 2026-04-24 changed the headline wedge from "creator tooling priority #1" to "chrome-craft first." Need user re-confirmation that creator tools are still the next-after-mobile-UX priority before sinking 1-2 sessions of UI work.
+
+**Trigger to reconsider**: any one of —
+1. User confirms creator-tool wedge is still strategic priority post-chrome-craft pivot.
+2. A creator / streamer requests the feature directly.
+3. Mobile gameboard chrome-density redesign (P1 in STRATEGY) lands and we need the next P1 for the creator audience.
+
+**Expected scope**: 1-2 sessions for full implementation. Pure DOM-to-canvas-to-GIF + picker UX, no engine/sim changes. Frame-model design above is reusable as the implementation prompt's spec.
+
+---
+

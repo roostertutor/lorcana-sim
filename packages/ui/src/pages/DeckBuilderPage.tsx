@@ -655,7 +655,12 @@ export default function DeckBuilderPage() {
                   >
                     {imgUrl ? (
                       <img
-                        src={imgUrl.replace("/digital/normal/", "/digital/small/")}
+                        // Box-art picker thumbs render at ~100-160 CSS wide.
+                        // getBoardCardImage delivers DPR-aware small/normal
+                        // pair via srcSet — replaces the dead-code Lorcast
+                        // path-shape `.replace("/digital/normal/", ...)` that
+                        // was a silent no-op on R2-shaped URLs.
+                        {...getBoardCardImage(imgUrl)}
                         alt={def.fullName}
                         className="w-full aspect-[5/7] object-cover"
                         loading="lazy"
