@@ -93,6 +93,15 @@ export function applyAction(
     let newState = applyActionInner(state, action, definitions, events);
     // After applying the action, check and resolve triggers
     newState = processTriggerStack(newState, definitions, events);
+    // CRD 4.6.7: once the bag has fully drained, the challenge is officially
+    // over — clear activeChallengeIds before the post-bag GSC so banishes from
+    // subsequent cascades (e.g. damage cascading via 1.8.3) aren't tagged as
+    // "in a challenge" anymore. If processTriggerStack pended a choice the
+    // bag isn't drained yet — leave activeChallengeIds set so the resumed
+    // resolution still tags banishes correctly.
+    if (newState.activeChallengeIds && !newState.pendingChoice && newState.triggerStack.length === 0) {
+      newState = { ...newState, activeChallengeIds: undefined };
+    }
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
@@ -1154,6 +1163,16 @@ function applyChallenge(
         charactersChallengedThisTurn: (state.players[playerId].charactersChallengedThisTurn ?? 0) + 1,
       },
     },
+  };
+
+  // CRD 4.6.7: mark the challenge as "active" so subsequent banishes — including
+  // ones queued by triggers in the bag (Cheshire LOSE SOMETHING? banishing the
+  // challenger after Cheshire is herself banished) — are correctly tagged as
+  // "in a challenge". Cleared by applyAction's outer wrapper once the bag has
+  // drained. See CRD Example B for the canonical scenario.
+  state = {
+    ...state,
+    activeChallengeIds: { attackerId: attackerInstanceId, defenderId: defenderInstanceId },
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -6937,10 +6956,23 @@ function banishCard(
   events: GameEvent[],
   challengeCtx?: { challengeOpponentId: string }
 ): GameState {
+  // CRD 4.6.7: if the banished card is one of the two challengers of the still
+  // active challenge AND the caller didn't supply explicit challengeCtx, infer
+  // it from state.activeChallengeIds. This is what makes CRD Example B work —
+  // Cheshire Cat's LOSE SOMETHING? resolves from the bag (no challengeCtx in
+  // the banish effect handler) and banishes Marshmallow, but Marshmallow's
+  // DURABLE ("when this character is banished in a challenge") still needs to
+  // fire because the challenge isn't over until the bag drains.
+  let effectiveCtx = challengeCtx;
+  if (!effectiveCtx && state.activeChallengeIds) {
+    const { attackerId, defenderId } = state.activeChallengeIds;
+    if (instanceId === attackerId) effectiveCtx = { challengeOpponentId: defenderId };
+    else if (instanceId === defenderId) effectiveCtx = { challengeOpponentId: attackerId };
+  }
   return zoneTransition(state, instanceId, "discard", definitions, events, {
     reason: "banished",
-    fromChallenge: !!challengeCtx,
-    challengeOpponentId: challengeCtx?.challengeOpponentId,
+    fromChallenge: !!effectiveCtx,
+    challengeOpponentId: effectiveCtx?.challengeOpponentId,
   });
 }
 

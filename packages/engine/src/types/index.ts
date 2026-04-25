@@ -3642,6 +3642,20 @@ export interface GameState {
    *  "ready them" to target the singers for post-resolution effects. */
   lastSongSingerIds?: string[];
 
+  /** CRD 4.6.7: while the challenge is "active" — declared but not yet over —
+   *  any banish of the attacker or defender is "in a challenge" for trigger
+   *  dispatch. The challenge is over only after the bag drains following the
+   *  damage step. Marshmallow Persistent Guardian DURABLE relies on this in
+   *  CRD Example B: Cheshire Cat's LOSE SOMETHING? resolves from the bag and
+   *  banishes Marshmallow; because the challenge isn't over yet, Marshmallow's
+   *  banish is still "in a challenge" and DURABLE fires.
+   *
+   *  Set by applyChallenge at the start; cleared by applyAction's outer wrapper
+   *  after processTriggerStack drains the bag. While set, banishCard infers
+   *  `fromChallenge`/`challengeOpponentId` for these instances even when the
+   *  caller (e.g. a banish effect resolving from the bag) didn't pass them. */
+  activeChallengeIds?: { attackerId: string; defenderId: string };
+
   winner: PlayerID | null;
   isGameOver: boolean;
 }

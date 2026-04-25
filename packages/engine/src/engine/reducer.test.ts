@@ -1857,6 +1857,53 @@ it("Maximus enters play → chosen character gets -2 STR", () => {
     expect(getInstance(acceptResult.newState, attackerId).zone).toBe("discard");
   });
 
+  // CRD 4.6 Example B (verbatim): Marshmallow challenges Cheshire Cat.
+  //   - Marshmallow's DURABLE: "When this character is banished in a challenge,
+  //     you may return this card to your hand."
+  //   - Cheshire's LOSE SOMETHING?: "When this character is challenged and
+  //     banished, banish the challenging character."
+  // Damage step banishes Cheshire (3 WP, eats 5 from Marshmallow). Cheshire's
+  // LOSE SOMETHING? then resolves from the bag and banishes Marshmallow. Per
+  // CRD 4.6.7 the challenge isn't over until the bag drains, so Marshmallow's
+  // banish is still "in a challenge" and DURABLE fires — Marshmallow returns
+  // to hand instead of going to discard.
+  it("CRD 4.6 Example B: Marshmallow's DURABLE fires when banished by Cheshire's LOSE SOMETHING? during bag resolution", () => {
+    let state = startGame();
+    let marshId: string, catId: string;
+    ({ state, instanceId: marshId } = injectCard(state, "player1", "marshmallow-persistent-guardian", "play", { isDrying: false }));
+    ({ state, instanceId: catId } = injectCard(state, "player2", "cheshire-cat-not-all-there", "play", { isExerted: true, isDrying: false }));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: marshId,
+      defenderInstanceId: catId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Cheshire is banished by challenge damage.
+    expect(getInstance(state, catId).zone).toBe("discard");
+
+    // DURABLE is "may"-prompted. Accept it.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.sourceInstanceId).toBe(marshId);
+    const accept = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: "accept",
+    }, CARD_DEFINITIONS);
+    expect(accept.success).toBe(true);
+    state = accept.newState;
+
+    // Marshmallow is back in hand (NOT in discard) and the player's hand size
+    // has grown by exactly one — Marshmallow returned, no extra cards drawn.
+    expect(getInstance(state, marshId).zone).toBe("hand");
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
+  });
+
 // Flynn Rider - Charming Rogue: is_challenged → challenger discards 1
   it("Flynn Rider forces challenger to discard when challenged", () => {
     let state = startGame(["flynn-rider-charming-rogue"]);
