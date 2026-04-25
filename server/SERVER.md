@@ -118,13 +118,18 @@ CREATE TABLE games (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Action log (for replay and debugging)
+-- Action log (for replay, debugging, and clone-trainer data collection).
+-- See db/schema.sql for the source of truth — this is the high-level shape.
 CREATE TABLE game_actions (
   id BIGSERIAL PRIMARY KEY,
   game_id UUID REFERENCES games(id),
   player_id UUID REFERENCES profiles(id),
-  action JSONB NOT NULL,              -- GameAction
-  result_state JSONB NOT NULL,        -- GameState after action
+  action JSONB NOT NULL,                       -- GameAction
+  state_before JSONB NOT NULL,                 -- GameState before the action
+  state_after JSONB NOT NULL,                  -- GameState after the action
+  events JSONB NOT NULL DEFAULT '[]',          -- ActionResult.events (cascade-attributed)
+  legal_action_count INTEGER,                  -- |getAllLegalActions(state_before)|, NULL for pendingChoice
+  turn_number INTEGER NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
@@ -299,12 +304,20 @@ export async function processAction(
     })
     .eq("id", gameId)
 
-  // 6. Log the action
+  // 6. Log the action — state_before/state_after for replay, events for
+  //    cascade attribution, legal_action_count for decision difficulty.
+  //    See gameService.ts for the source of truth.
   await supabase.from("game_actions").insert({
     game_id: gameId,
     player_id: playerId,
     action,
-    result_state: result.newState,
+    state_before: state,
+    state_after: result.newState,
+    events: result.events,
+    legal_action_count: stateBefore.pendingChoice
+      ? null
+      : getAllLegalActions(state, playerSide, definitions).length,
+    turn_number: state.turnNumber,
   })
 
   return { success: true, newState: result.newState }

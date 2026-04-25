@@ -3276,8 +3276,49 @@ section only — public games section can ship without it.
 
 ## FROM gameboard-specialist → engine-expert + server-specialist: persist GameEvent stream + decision metadata for bot post-analysis
 
-**Status (2026-04-25):** ✅ engine-side done. ⏳ server-side schema + plumbing
-still pending.
+**Status (2026-04-25):** ✅ engine-side done. ✅ server-side schema + plumbing
+done — see follow-up note immediately below. ✅ migration applied to live
+Supabase (user ran the two `ALTER TABLE` statements 2026-04-25 before this
+commit landed); subsequent server deploys will populate the new columns
+from the first action onward.
+
+### Server-side resolution (2026-04-25)
+
+Schema migration (`server/src/db/schema.sql`):
+- `ALTER TABLE game_actions ADD COLUMN IF NOT EXISTS events JSONB NOT NULL DEFAULT '[]'`
+- `ALTER TABLE game_actions ADD COLUMN IF NOT EXISTS legal_action_count INTEGER` (nullable)
+- Idempotent — safe to re-run. Existing rows get `events='[]'` from the
+  default; no separate backfill script needed (historical games predate
+  the trainer anyway).
+
+Plumbing (`server/src/services/gameService.ts:processAction`):
+- Added `getAllLegalActions` import from `@lorcana-sim/engine`.
+- Snapshot `legalActionCount` BEFORE `applyAction` — `null` when
+  `state_before.pendingChoice` is set (engine returns `[]` in that case
+  because choice-value enumeration is context-dependent), else the
+  cardinality of the legal-action set. Encoded distinctly so the trainer
+  can tell "no enumeration available" from "literally zero options."
+- `events: result.events` written verbatim from `ActionResult` into the
+  insert. The cascade-attributed cause field (`primary` / `trigger` /
+  `replacement`) flows through unchanged because it's part of the
+  GameEvent type the engine emits.
+- `resignGame` is unchanged — resignations don't go through `applyAction`
+  and don't write `game_actions` rows, so they have nothing to persist.
+
+Audit invariant (commented in `schema.sql`):
+- A SQL probe that should return zero rows post-deploy: any `PLAY_CARD` /
+  `QUEST` / `CHALLENGE` row with `jsonb_array_length(events) = 0` is a
+  silent emit-site drop in the engine. Companion probe checks
+  `legal_action_count IS NULL` for non-RESOLVE_CHOICE actions.
+
+What's NOT covered by this PR (out of scope, mentioned for clarity):
+- Solo / sandbox games still don't write `game_actions` (MP-only path).
+  Schema is now ready for it whenever clone-trainer wants solo data.
+- The ~40 `moveCard`-direct sites in the engine that bypass `card_moved`
+  emission — engine-expert flagged that as a follow-up; the high-signal
+  events are already covered.
+
+### Original handoff (kept for context)
 
 Engine work that landed:
 - Verified plumbing — same `events: GameEvent[]` array threads from

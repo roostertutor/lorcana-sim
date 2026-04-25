@@ -351,3 +351,59 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_bot BOOLEAN NOT NULL DEFAULT FA
 -- Partial index — 99%+ of rows are humans; only bots get indexed. Small,
 -- fast, and the filter condition `is_bot = false` can use the main heap scan.
 CREATE INDEX IF NOT EXISTS profiles_is_bot_idx ON profiles (is_bot) WHERE is_bot = true;
+
+-- ── GameEvent stream + decision metadata for clone-trainer post-analysis ───
+-- Added 2026-04-25 per HANDOFF.md → "persist GameEvent stream + decision metadata".
+--
+-- Engine's `ActionResult.events` (cascade-attributed `card_moved`,
+-- `damage_dealt`, `lore_gained`, `ability_triggered`, `card_revealed`,
+-- `card_drawn`, `card_banished`, `turn_passed`, `hand_revealed`) used to be
+-- transient — UI consumed them for the next render frame, then they were
+-- garbage-collected. Persisting them gives downstream analysis three things
+-- a state-diff can't reconstruct:
+--   1. Cascade attribution (cause: "primary" | "trigger" | "replacement")
+--      — distinguishes "user banished it" from "their on-banish trigger did".
+--   2. Hidden-information reveals — `card_revealed` / `hand_revealed` carry
+--      `privateTo` annotations so the trainer can audit "what did the bot
+--      actually see at decision time" vs what the underlying state contained.
+--   3. Effect granularity — `card_moved { from: "deck", to: "hand" }` is
+--      ambiguous between "drew this card" / "tutored from deck" / "discarded
+--      then returned"; the typed event chain disambiguates.
+--
+-- `legal_action_count` is denormalized "decision difficulty" — the cardinality
+-- of `getAllLegalActions(state_before)` at decision time. Lets training
+-- pipelines weight hard decisions more heavily, and analytics queries pull
+-- "avg branching factor at turn N" without re-running the enumerator across
+-- millions of historical state_before snapshots. Nullable: NULL means the
+-- pre-action state had a `pendingChoice` (engine's getAllLegalActions
+-- returns [] in that case — choice-value enumeration is context-dependent
+-- and not yet captured here).
+--
+-- Storage: ~5-30 events per action × 50-200 actions per game = ~50-200KB
+-- JSONB per game. Acceptable. Backfill not needed — DEFAULT '[]' makes
+-- existing rows valid and historical games predate the trainer anyway.
+ALTER TABLE game_actions ADD COLUMN IF NOT EXISTS events JSONB NOT NULL DEFAULT '[]';
+ALTER TABLE game_actions ADD COLUMN IF NOT EXISTS legal_action_count INTEGER;
+
+-- Sanity invariant — run periodically post-deploy. After any MP play has
+-- happened, this should return zero rows. A non-zero count means an emit
+-- site in the engine is silently dropping events for a high-signal action
+-- type (PLAY_CARD/QUEST/CHALLENGE always cause at least one card_moved or
+-- damage_dealt or lore_gained). Replace the date with the post-deploy
+-- cutoff so old pre-column rows (events='[]' default) don't false-positive.
+--   SELECT id, action->>'type' AS atype, created_at
+--   FROM game_actions
+--   WHERE jsonb_array_length(events) = 0
+--     AND action->>'type' IN ('PLAY_CARD', 'QUEST', 'CHALLENGE')
+--     AND created_at > '2026-04-25'
+--   ORDER BY created_at DESC LIMIT 100;
+--
+-- Companion check: legal_action_count NULL is normal for RESOLVE_CHOICE
+-- (pendingChoice path), but should be non-null for PLAY_CARD / QUEST /
+-- CHALLENGE / PLAY_INK / PASS_TURN / SHIFT.
+--   SELECT id, action->>'type' AS atype
+--   FROM game_actions
+--   WHERE legal_action_count IS NULL
+--     AND action->>'type' NOT IN ('RESOLVE_CHOICE')
+--     AND created_at > '2026-04-25'
+--   ORDER BY created_at DESC LIMIT 100;

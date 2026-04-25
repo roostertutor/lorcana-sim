@@ -5,6 +5,7 @@ import {
   ENGINE_VERSION,
   INFINITY_ROTATIONS,
   createGame,
+  getAllLegalActions,
   type GameConfig,
   type GameAction,
   type GameState,
@@ -135,6 +136,18 @@ export async function processAction(
 
   const stateBefore = state
 
+  // Snapshot decision difficulty BEFORE applying — number of legal actions
+  // the player could have chosen at this state. The engine returns [] when
+  // a pendingChoice is set (choice-value enumeration is context-dependent),
+  // so encode that as NULL on the row instead of 0 to keep "no enumeration
+  // available" distinct from "literally zero options". Persisted on
+  // game_actions.legal_action_count for the clone trainer (weight hard
+  // decisions more heavily) and analytics queries (avg branching factor).
+  // Cheap relative to the DB round-trips that bracket it.
+  const legalActionCount: number | null = stateBefore.pendingChoice
+    ? null
+    : getAllLegalActions(stateBefore, playerSide, definitions).length
+
   // Apply the action — engine validates and produces new state
   const result = applyAction(state, action, definitions)
 
@@ -171,12 +184,23 @@ export async function processAction(
   // same value). Removed 2026-04-22 — see games.p1_elo_at_start /
   // p2_elo_at_start for the snapshot, games.engine_version for the
   // engine stamp, and profiles.is_bot for bot-vs-human filtering.
+  //
+  // `events` carries the ActionResult.events stream — cascade-attributed
+  // typed events (card_moved, damage_dealt, lore_gained, ability_triggered,
+  // card_revealed, hand_revealed, card_drawn, card_banished, turn_passed)
+  // with `cause: "primary" | "trigger" | "replacement"` stamped by the
+  // engine. Persisting these gives the trainer cascade attribution +
+  // hidden-info reveal audit + effect granularity that a state-diff can't
+  // reconstruct. See HANDOFF.md → "persist GameEvent stream + decision
+  // metadata" and schema.sql for the column docs.
   await supabase.from("game_actions").insert({
     game_id: gameId,
     player_id: userId,
     action,
     state_before: stateBefore,
     state_after: newState,
+    events: result.events,
+    legal_action_count: legalActionCount,
     turn_number: state.turnNumber,
   })
 
