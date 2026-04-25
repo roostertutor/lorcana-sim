@@ -11585,7 +11585,7 @@
           {
             "type": "fill_hand_to",
             "target": {
-              "type": "both"
+              "type": "active_player"
             },
             "n": 2
           }
@@ -16342,7 +16342,7 @@
           {
             "type": "fill_hand_to",
             "target": {
-              "type": "both"
+              "type": "active_player"
             },
             "n": 2
           }

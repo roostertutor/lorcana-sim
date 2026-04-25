@@ -507,6 +507,30 @@ function validateCardFields(card: any): FieldError[] {
         });
       }
     }
+    // active_player vs both: when an "at the end / start of each player's
+    // turn" oracle uses third-person "they / their" wording, the effect is
+    // scoped to the active player whose turn is ending/starting, NOT both
+    // players. Wiring this as target:"both" runs the effect on both players
+    // per turn-end. Use target:"active_player" instead. Caught Goliath Clan
+    // Leader DUSK TO DAWN in the 2026-04-25 sweep — opponent ending their
+    // turn was firing the fill_hand_to on YOUR side too.
+    if (node.target?.type === "both") {
+      // The oracle clause specific to this trigger; check for "each player's
+      // turn" + "they/their" referent. False-positive proof: skip if oracle
+      // contains "each player draws" / "each player gains" — those are
+      // legitimate both-target patterns.
+      const hasEachTurn = /\bat the (?:start|end) of each player'?s? turn\b/i.test(oracle);
+      const hasTheyClause = /\bthey\b/i.test(oracle);
+      const hasEachAction = /\beach player (?:draws|gains|loses|reveals|chooses\b)/i.test(oracle);
+      if (hasEachTurn && hasTheyClause && !hasEachAction) {
+        errors.push({
+          path,
+          field: "target",
+          value: '{ "type": "both" }',
+          validValues: `oracle "at the [start|end] of each player's turn, they..." scopes to the active player whose turn is ending — use target:{type:"active_player"} so the effect fires once per turn-end on the right player`,
+        });
+      }
+    }
     if (node.type === "each_player" && !node.isMay) {
       const innerHasPlayOrReveal = Array.isArray(node.effects) &&
         node.effects.some((e: any) => e?.type === "play_card" || e?.type === "reveal_top_conditional");

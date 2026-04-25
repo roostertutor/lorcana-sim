@@ -2437,6 +2437,14 @@ export type PlayerTarget =
   | { type: "both" }
   | { type: "choosing_player" }
   | { type: "target_owner" }
+  /** Resolves to `state.currentPlayer` — the player whose turn it currently
+   *  is. For triggered abilities watching `turn_end` / `turn_start` with
+   *  `player: "both"`, this scopes the effect to whichever player's turn is
+   *  ending/starting, since the turn transition hasn't happened yet at trigger
+   *  resolution time. Goliath Clan Leader DUSK TO DAWN ("at the end of each
+   *  player's turn, if they..."). Distinct from `self` (source's owner) and
+   *  from `triggering_player` (which would require trigger context plumbing). */
+  | { type: "active_player" }
   /** "Chosen player" — controller picks any player. Surfaces a choose_player
    *  pendingChoice. Set excludeSelf for "chosen opponent" patterns (in 2P this
    *  collapses to a single valid target → auto-resolves; in 3+P it'd genuinely

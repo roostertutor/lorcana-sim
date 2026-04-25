@@ -4661,6 +4661,7 @@ export function applyEffect(
       if (effect.target.type === "self") affected.push(controllingPlayerId);
       else if (effect.target.type === "opponent") affected.push(getOpponent(controllingPlayerId));
       else if (effect.target.type === "both") affected.push("player1", "player2");
+      else if (effect.target.type === "active_player") affected.push(state.currentPlayer);
       else affected.push(controllingPlayerId);
 
       for (const pid of affected) {

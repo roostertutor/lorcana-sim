@@ -397,6 +397,56 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     expect(getZone(state, "player1", "hand").length).toBe(2);
   });
 
+  it("Goliath Clan Leader: DUSK TO DAWN scopes to the player whose turn just ended (not both)", () => {
+    // Regression: target was wired as { type: "both" }, so end-of-turn fired
+    // the fill_hand_to on BOTH players. Oracle: "At the end of each player's
+    // turn, if THEY have more than 2... THEY draw" — the "they" is the player
+    // whose turn just ended, NOT both. Wired now as
+    // target: { type: "active_player" } which resolves to state.currentPlayer
+    // at trigger-resolve time (the turn transition hasn't happened yet, so
+    // currentPlayer is the player whose turn is ending).
+    //
+    // Note: player2 will draw their natural start-of-turn card after the
+    // pass — that's not part of DUSK TO DAWN, so we expect player2 at 1
+    // (not 0) after passing player1's turn. The bug-shape would have put
+    // player2 at 3 (DUSK TO DAWN's fill-to-2 + start-of-turn draw of 1).
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "goliath-clan-leader", "play", { isDrying: false }));
+    for (const pid of ["player1", "player2"] as const) {
+      const hand = getZone(state, pid, "hand").slice();
+      state = {
+        ...state,
+        cards: { ...state.cards, ...Object.fromEntries(hand.map((id) => [id, { ...state.cards[id], zone: "discard" as const }])) },
+        zones: {
+          ...state.zones,
+          [pid]: { ...state.zones[pid], hand: [], discard: [...state.zones[pid].discard, ...hand] },
+        },
+      };
+    }
+    expect(getZone(state, "player1", "hand").length).toBe(0);
+    expect(getZone(state, "player2", "hand").length).toBe(0);
+
+    // Pass player1's turn — DUSK TO DAWN scopes to player1 (active player).
+    // Player2 only draws their start-of-turn card (1).
+    state = passTurns(state, 1);
+    expect(getZone(state, "player1", "hand").length).toBe(2);
+    expect(getZone(state, "player2", "hand").length).toBe(1);
+
+    // Empty both hands again, pass player2's turn — DUSK TO DAWN scopes to
+    // player2 only. player1 draws their start-of-turn card.
+    for (const pid of ["player1", "player2"] as const) {
+      const hand = getZone(state, pid, "hand").slice();
+      state = {
+        ...state,
+        cards: { ...state.cards, ...Object.fromEntries(hand.map((id) => [id, { ...state.cards[id], zone: "discard" as const }])) },
+        zones: { ...state.zones, [pid]: { ...state.zones[pid], hand: [], discard: [...state.zones[pid].discard, ...hand] } },
+      };
+    }
+    state = passTurns(state, 1);
+    expect(getZone(state, "player1", "hand").length).toBe(1);
+    expect(getZone(state, "player2", "hand").length).toBe(2);
+  });
+
   it("Chicha Dedicated Mother: ONE ON THE WAY queues a may-draw on the second ink play of the turn (not the first)", () => {
     let state = startGame();
     let chichaId: string;

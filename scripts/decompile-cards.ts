@@ -1302,7 +1302,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // `trimOnly: true` means it only fires when the target's hand is below N.
   fill_hand_to: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    return `${tgt === "you" ? "you draw" : tgt + " draws"} cards until ${tgt === "you" ? "you have" : "they have"} ${e.n ?? "?"} cards in hand`;
+    // "they" (active_player) takes singular-verb agreement same as "each
+    // player" — both render as third-person singular here.
+    const useThirdPerson = tgt !== "you";
+    return `${useThirdPerson ? tgt + " draws" : "you draw"} cards until ${useThirdPerson ? "they have" : "you have"} ${e.n ?? "?"} cards in hand`;
   },
 
   // Superseded by self_replacement (target omitted → state-based condition
@@ -2032,6 +2035,12 @@ function renderTarget(t: Json): string {
       return "each opponent";
     case "both":
       return "each player";
+    case "active_player":
+      // Goliath Clan Leader DUSK TO DAWN: "at the end of each player's turn,
+      // they..." — the trigger fires on each turn-end with the effect scoped
+      // to the player whose turn just ended (= state.currentPlayer at trigger
+      // resolution). Renders as "they" so the oracle reads the same.
+      return "they";
     case "this":
       return "this character";
     case "__pronoun_they":
