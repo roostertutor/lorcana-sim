@@ -1414,17 +1414,20 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
     state = giveInk(state, "player1", 10);
     let songId: string;
     ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+    // Empty each player's deck and seed a single character on top, so the
+    // shuffleBefore-driven shuffle is a no-op (shuffling a 1-card deck leaves
+    // the card in place). Without this the seeded RNG would reorder the
+    // 50+-card opening decks and Smee/Mickey wouldn't be the revealed top.
     let smeeId: string, p2TopId: string;
     ({ state, instanceId: smeeId } = injectCard(state, "player1", "goofy-musketeer", "deck"));
     ({ state, instanceId: p2TopId } = injectCard(state, "player2", "mickey-mouse-true-friend", "deck"));
     void p2TopId;
-    // Hoist to deck top (injectCard appends to bottom).
     state = {
       ...state,
       zones: {
         ...state.zones,
-        player1: { ...state.zones.player1, deck: [smeeId, ...state.zones.player1.deck.filter((id) => id !== smeeId)] },
-        player2: { ...state.zones.player2, deck: [p2TopId, ...state.zones.player2.deck.filter((id) => id !== p2TopId)] },
+        player1: { ...state.zones.player1, deck: [smeeId] },
+        player2: { ...state.zones.player2, deck: [p2TopId] },
       },
     };
 
@@ -1481,6 +1484,51 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
     // After playing, a pendingChoice should be active for the FIRST player's may-play.
     expect(state.pendingChoice).toBeDefined();
     expect(state.pendingChoice?.type).toBe("choose_may");
+  });
+
+  // Oracle: "Each player shuffles their deck and then reveals the top card."
+  // Regression for the user-reported bug: the engine was peeking the existing
+  // top of deck without shuffling, so any prior peek leaked through and the
+  // reveal was deterministic against whatever ordering happened to be on top.
+  // The JSON now carries shuffleBefore:true on the reveal_top_conditional
+  // effect, and the handler shuffles each player's deck via the seeded RNG
+  // before peeking.
+  it("each player's deck is shuffled before the reveal", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+
+    // Snapshot deck ordering BEFORE the action. With shuffle wired and a
+    // 50+-card opening deck, at least one of the two decks should land in a
+    // different order. (False-negative probability is vanishingly small.)
+    const p1Before = [...state.zones.player1.deck];
+    const p2Before = [...state.zones.player2.deck];
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Walk any pending choices to drain. Decline so no card actually leaves
+    // the deck through play_card — we want to compare deck orderings without
+    // play-side noise. The no-match path only relocates the revealed top to
+    // the bottom (decline path goes through applyRevealNoMatchRoute too).
+    let safety = 6;
+    while (state.pendingChoice && safety-- > 0) {
+      const rr = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "decline" }, CARD_DEFINITIONS);
+      if (!rr.success) break;
+      state = rr.newState;
+    }
+
+    const p1After = state.zones.player1.deck;
+    const p2After = state.zones.player2.deck;
+    // Same set of cards, but at least one ordering changed.
+    expect(p1After.length).toBe(p1Before.length);
+    expect(p2After.length).toBe(p2Before.length);
+    const p1Reordered = p1After.some((id, i) => id !== p1Before[i]);
+    const p2Reordered = p2After.some((id, i) => id !== p2Before[i]);
+    expect(p1Reordered || p2Reordered).toBe(true);
   });
 
   // CRD 4.3.3.2: action cards go to discard once their effect (and any nested

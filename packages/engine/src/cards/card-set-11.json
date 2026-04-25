@@ -12957,6 +12957,7 @@
         "matchAction": "play_card",
         "noMatchDestination": "bottom",
         "matchIsMay": true,
+        "shuffleBefore": true,
         "target": {
           "type": "both"
         }
@@ -16119,6 +16120,7 @@
         "matchAction": "play_card",
         "noMatchDestination": "bottom",
         "matchIsMay": true,
+        "shuffleBefore": true,
         "target": {
           "type": "both"
         }

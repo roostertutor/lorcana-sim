@@ -1001,18 +1001,26 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       : e.noMatchDestination === "discard" ? "put it in your discard"
       : e.noMatchDestination === "top" ? "put it on the top of your deck"
       : "put it back";
+    // shuffleBefore drives the "shuffles their deck and then" prefix. Without
+    // the flag the engine peeks at the existing top — render WITHOUT shuffle
+    // wording so a missing flag surfaces as an oracle-vs-JSON diff. Was
+    // previously hardcoded for target:both, which let the Let's Get Dangerous
+    // bug class hide.
+    const shufflePrefix = e.shuffleBefore
+      ? (isBoth ? "shuffles their deck and then reveals" : "shuffles your deck and then reveals")
+      : (isBoth ? "reveals" : "reveals");
     if (isBoth) {
-      // "Each player shuffles their deck and then reveals the top card."
-      const prefix = `${subject} shuffles their deck and then reveals the top card. ${subject}`;
+      const prefix = `${subject} ${shufflePrefix} the top card. ${subject}`;
       if (!hasFilter) return `${prefix} ${match}. Otherwise, ${noMatch}`;
       return `${prefix} who reveals ${filter} ${match}. Otherwise, ${noMatch}`;
     }
     // When filter is empty (Kristoff's Lute — match ANY revealed card),
     // skip the "If it's X" clause and just say "reveal ... and do Y."
+    const singleRevealVerb = e.shuffleBefore ? "shuffle your deck and reveal" : "reveal";
     if (!hasFilter) {
-      return `reveal the top card of ${deckPossessive}. ${cap(match)}. Otherwise, ${noMatch}`;
+      return `${singleRevealVerb} the top card of ${deckPossessive}. ${cap(match)}. Otherwise, ${noMatch}`;
     }
-    return `reveal the top card of ${deckPossessive}. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
+    return `${singleRevealVerb} the top card of ${deckPossessive}. If it's ${filter}, ${match}. Otherwise, ${noMatch}`;
   },
   search: (e) => {
     const filter = e.filter ? renderFilter(e.filter) : "a card";

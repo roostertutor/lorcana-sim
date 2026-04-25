@@ -1167,6 +1167,15 @@ export interface RevealTopConditionalEffect {
    *  hand and repeat this effect." After a successful match, run the same
    *  reveal again with the new top card. Loops until a non-match. */
   repeatOnMatch?: boolean;
+  /** Let's Get Dangerous: "Each player shuffles their deck and then reveals
+   *  the top card." When true, the affected deck(s) are shuffled (via the
+   *  seeded RNG) before the top card is peeked. For target:"both", each
+   *  player's deck shuffles independently before that player's reveal. The
+   *  shuffle is part of the same atomic beat as the reveal — it's not a
+   *  separable step the player can interact with mid-effect. Currently used
+   *  only by Let's Get Dangerous; promote to a standalone primitive if a
+   *  future card needs shuffle without a paired reveal. */
+  shuffleBefore?: boolean;
   /** CRD 6.1.4: first "may" — player may decline to run this whole effect
    *  (i.e. "you may reveal the top card"). Handled at the trigger layer via a
    *  choose_may before this effect is applied. */

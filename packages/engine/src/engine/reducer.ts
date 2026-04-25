@@ -3242,28 +3242,44 @@ export function applyEffect(
       // Else, put it back on top (default) or bottom of deck.
       // repeatOnMatch (Sisu Uniting Dragon): loop until a non-match.
       // target "both": iterate over each player independently (Let's Get Dangerous).
+      // shuffleBefore (Let's Get Dangerous): shuffle the affected deck(s) via
+      // the seeded RNG before peeking the top. Strip the flag on the recursive
+      // child invocation so the shuffle only happens once per player even when
+      // the parent dispatches per-player effects.
       if (effect.target.type === "both") {
         // Resolve player1 first; if their reveal creates a pendingChoice
         // (matchIsMay), queue player2's reveal as a continuation so the
         // second player isn't dropped (Let's Get Dangerous regression).
-        const player2Effect: Effect = { ...effect, target: { type: "self" as const } };
-        state = applyEffect(state, { ...effect, target: { type: "self" } }, sourceInstanceId, "player1", definitions, events, triggeringCardInstanceId);
+        // shuffleBefore: shuffle BOTH decks before either reveal runs — that
+        // matches the oracle's atomic "each player shuffles their deck and
+        // then reveals" reading and ensures player2's deck is randomized
+        // even when player1's reveal pends a choice.
+        if (effect.shuffleBefore) {
+          state = shuffleDeck(state, "player1");
+          state = shuffleDeck(state, "player2");
+        }
+        const childEffect: Effect = { ...effect, shuffleBefore: false, target: { type: "self" as const } };
+        state = applyEffect(state, childEffect, sourceInstanceId, "player1", definitions, events, triggeringCardInstanceId);
         if (state.pendingChoice) {
           const existingQueue = state.pendingEffectQueue?.effects ?? [];
           state = {
             ...state,
             pendingEffectQueue: {
-              effects: [player2Effect, ...existingQueue],
+              effects: [childEffect, ...existingQueue],
               sourceInstanceId,
               controllingPlayerId: "player2",
             },
           };
           return state;
         }
-        state = applyEffect(state, player2Effect, sourceInstanceId, "player2", definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, childEffect, sourceInstanceId, "player2", definitions, events, triggeringCardInstanceId);
         return state;
       }
       const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;
+      // Single-target shuffle-before — symmetric with the both branch above.
+      if (effect.shuffleBefore) {
+        state = shuffleDeck(state, targetPlayer);
+      }
       let safety = 60; // bound to deck size
       // eslint-disable-next-line no-constant-condition
       while (safety-- > 0) {

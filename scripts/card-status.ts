@@ -492,6 +492,21 @@ function validateCardFields(card: any): FieldError[] {
         });
       }
     }
+    // shuffleBefore consistency: oracle wording "shuffle [their|your] deck and
+    // then reveal" must produce shuffleBefore:true on the reveal_top_conditional.
+    // Without the flag the engine peeks the existing top — bypasses the
+    // randomization the oracle requires. Caught Let's Get Dangerous in the
+    // 2026-04-25 sweep.
+    if (node.type === "reveal_top_conditional" && !node.shuffleBefore) {
+      if (/\bshuffles?\s+(?:their|your)\s+deck\s+and\s+(?:then\s+)?reveal/i.test(oracle)) {
+        errors.push({
+          path,
+          field: "shuffleBefore",
+          value: "missing",
+          validValues: `oracle says "shuffle [their|your] deck and then reveal" but the reveal_top_conditional effect is missing shuffleBefore:true — the engine will peek the existing deck top without shuffling first`,
+        });
+      }
+    }
     if (node.type === "each_player" && !node.isMay) {
       const innerHasPlayOrReveal = Array.isArray(node.effects) &&
         node.effects.some((e: any) => e?.type === "play_card" || e?.type === "reveal_top_conditional");

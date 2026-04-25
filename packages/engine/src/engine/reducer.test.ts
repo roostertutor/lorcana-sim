@@ -2979,13 +2979,16 @@ describe("§8 Keywords", () => {
       ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
       ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "deck"));
       ({ state, instanceId: p2TopId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "deck"));
-      // Hoist to deck top.
+      // Trim each player's deck to exactly the seeded character so the
+      // shuffleBefore-driven shuffle is a no-op (1-card decks shuffle to
+      // themselves). Without this, the seeded RNG reorders the 50+-card
+      // opening deck and Goofy/Minnie aren't on top anymore.
       state = {
         ...state,
         zones: {
           ...state.zones,
-          player1: { ...state.zones.player1, deck: [goofyId, ...state.zones.player1.deck.filter(id => id !== goofyId)] },
-          player2: { ...state.zones.player2, deck: [p2TopId, ...state.zones.player2.deck.filter(id => id !== p2TopId)] },
+          player1: { ...state.zones.player1, deck: [goofyId] },
+          player2: { ...state.zones.player2, deck: [p2TopId] },
         },
       };
       let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);

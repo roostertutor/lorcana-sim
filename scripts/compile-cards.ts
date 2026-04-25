@@ -1532,6 +1532,8 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   // top card. Each player who reveals a [type] card may play that [type] for
   // free. Otherwise, put the revealed cards on the bottom of their player's
   // deck." matchIsMay:true is mandatory — without it the engine force-plays.
+  // shuffleBefore:true is mandatory — without it the engine peeks at the
+  // existing top of deck rather than shuffling first.
   {
     name: "reveal_top_conditional_each_player_play_or_bottom",
     pattern: /^each player shuffles their deck and then reveals the top card\. each player who reveals (?:a |an )([\w ]+?) card may play that [\w ]+ for free\. otherwise,? put the revealed cards? on the bottom of their player's deck/i,
@@ -1541,6 +1543,7 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       matchAction: "play_card",
       noMatchDestination: "bottom",
       matchIsMay: true,
+      shuffleBefore: true,
       target: { type: "both" },
     }),
   },

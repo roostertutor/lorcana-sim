@@ -708,8 +708,16 @@ export function moveCard(
     (id) => id !== instanceId
   );
 
-  // Add to target zone
-  const currentTargetZone = state.zones[targetPlayerId]?.[targetZone] ?? [];
+  // Add to target zone. When source AND target are the same player+zone (e.g.
+  // reveal_top_conditional's no-match path moves a deck-top card to deck-
+  // bottom), build the target list FROM the card-removed source list so the
+  // card isn't duplicated. Without this, the same-zone case would read the
+  // un-filtered original `state.zones[...].targetZone` (still containing the
+  // card) and append it again — deck length silently +1 per same-zone move.
+  const sameZone =
+    sourcePlayerId === targetPlayerId && sourceZone === targetZone;
+  const currentTargetZone =
+    sameZone ? newSourceZone : (state.zones[targetPlayerId]?.[targetZone] ?? []);
   let newTargetZone: string[];
   if (position === "top") {
     newTargetZone = [instanceId, ...currentTargetZone];
