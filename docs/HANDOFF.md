@@ -3271,3 +3271,170 @@ section only — public games section can ship without it.
 - **True MMR queue tuning** — Phase 3 ships the infrastructure; tuning
   band-widening curves, queue-depth display, region-based matching all
   live in a future phase once real usage data exists.
+
+---
+
+## FROM gameboard-specialist → engine-expert + server-specialist: persist GameEvent stream + decision metadata for bot post-analysis
+
+Discovered 2026-04-25 during a record-keeping audit comparing the UI
+game log, the engine GameEvent stream, and server-side `game_actions`.
+Three surfaces overlap incompletely; one is being thrown away.
+
+### The audit findings
+
+| Surface | Granularity | Persisted? | Where | Consumer |
+|---|---|---|---|---|
+| `actionLog` (`GameLogEntry[]`) | Per-action human-readable string | Yes — in `GameState` | `packages/engine/src/types/index.ts:3853`, populated via `appendLog()` in `packages/engine/src/utils/index.ts:797` | UI narrative only |
+| `GameEvent` stream (`ActionResult.events[]`) | Per-state-mutation struct | **No — transient** | `packages/engine/src/types/index.ts:3999`, returned by `applyAction()` | UI animations/sounds, then garbage-collected |
+| `game_actions` table | Per-action + full state before/after | Yes (MP only) | `packages/server/src/db/schema.sql:41-50`, written in `gameService.ts:174-181` | Clone trainer (planned), replays, audit |
+
+**The orphan is the `GameEvent` stream.** Every `applyAction()` call
+emits a sequence of typed events — `card_moved`, `damage_dealt`,
+`lore_gained`, `ability_triggered`, `card_revealed`, `hand_revealed`,
+`turn_passed`, `card_drawn`, `card_banished`. These are exactly the
+"things that happened during this action" that downstream analysis
+wants. The UI consumes them for the next render frame, then they vanish.
+Server never sees them.
+
+### What's missing for high-quality bot post-analysis
+
+Listed by addressability:
+
+**Genuine data loss (only fixable by persisting events):**
+1. **Cascade attribution.** "Did the user banish that character, or did
+   their own triggered ability banish it as a side effect?" `game_actions`
+   only records the user-dispatched action. The actual chain — challenge
+   resolves → on-banish trigger → banish-other-character — is reconstructable
+   only from the event stream.
+2. **Hidden-information reveals.** `card_revealed` / `hand_revealed`
+   events carry `privateTo` annotations. Currently `gameService` filters
+   state per-player on read, but the per-event reveal log is gone, making
+   it hard to audit "what did the bot actually see at decision time" vs
+   what the underlying state contained.
+3. **Effect granularity.** `card_moved { from: "deck", to: "hand" }`
+   distinguishes "drew this card" from "tutored this card from deck" vs
+   "discarded then returned." A state-diff between before/after can't
+   reliably reconstruct the path.
+
+**Already in the data, just not denormalized:**
+4. **RNG sequence.** `state.rng.s` is in `state_before` and `state_after`,
+   so RNG progression is recoverable. Worth verifying the seed is captured
+   at game start (there's a `games.seed` column already per
+   `packages/server/src/db/schema.sql`).
+5. **Counterfactual states.** "What if bot had picked legal action #6
+   instead of #5?" Computed on demand from `state_before` + `applyAction`.
+   Don't denormalize — storage cost would be `state_size × N legal actions
+   per row`, which is huge.
+6. **Legal-action set at decision time.** Not stored, but recoverable by
+   re-running `getAllLegalActions(state_before)`. Cheap to add as a
+   denormalized column for analysis convenience (see below).
+
+### Proposed change
+
+#### Engine (small)
+
+The events are already emitted. No change to event production. Just
+make sure the `events: GameEvent[]` array on `ActionResult` is fully
+populated before return — confirm no events are dropped between the
+internal reducer-step accumulator and the public return type.
+
+Optional but useful: add `event.cause` field tagging events as
+`"primary" | "trigger" | "replacement"` so cascade attribution is
+explicit instead of implied by event order. This would make trainer
+feature-extraction much simpler. Can defer if it touches too many
+emit sites.
+
+#### Server (primary work)
+
+Two schema changes to `game_actions`:
+
+```sql
+ALTER TABLE game_actions
+  ADD COLUMN events JSONB NOT NULL DEFAULT '[]',
+  ADD COLUMN legal_action_count INTEGER;
+```
+
+- `events`: the `GameEvent[]` array from `ActionResult.events`. Stored
+  as JSONB for query flexibility. ~5-30 events per action × 50-200 actions
+  per game = ~500-6000 events per game; rough storage estimate ~50-200KB
+  per game JSON-encoded. Acceptable.
+- `legal_action_count`: number of legal actions available at
+  `state_before` time. One integer per row. Surfaces "decision difficulty"
+  without needing to replay. Useful for trainer batch sorting (hard
+  decisions get more weight) and analytics queries ("avg branching
+  factor at turn N").
+
+`gameService.ts:174-181` becomes:
+
+```ts
+const result = applyAction(state, action, definitions);
+if (!result.success) return { error: result.error };
+const legalActions = getAllLegalActions(state, definitions);
+await db.insert("game_actions", {
+  game_id, player_id, turn_number,
+  action,
+  state_before: state,
+  state_after: result.newState,
+  events: result.events,                  // NEW
+  legal_action_count: legalActions.length, // NEW
+});
+```
+
+Backfill is unnecessary — historical games predate the trainer, and
+the column has a `DEFAULT '[]'` so existing rows stay valid.
+
+#### Solo / sandbox
+
+Currently solo play doesn't write `game_actions` (it's MP-only). For
+clone-trainer data quality we may want to optionally log solo-vs-bot
+games too — punt that decision to a follow-up entry, just leave the
+schema ready for it.
+
+### What does NOT need to change
+
+- **`actionLog` (`GameLogEntry[]`)** — leave as-is. It's a UI artifact for
+  player-facing narrative. Don't try to make it serve double duty.
+- **GameEvent type definitions** — already complete enough. Adding `cause`
+  is optional polish.
+- **No new tables.** The two columns on `game_actions` cover everything.
+
+### Tests
+
+- **Engine** (existing test files):
+  - `applyAction()` returns `events.length > 0` for every PLAY_CARD,
+    QUEST, CHALLENGE, RESOLVE_CHOICE in a smoke-test game.
+  - Cascade scenario (e.g., banish-trigger): events array contains
+    BOTH the primary banish AND the cascading trigger, in order.
+- **Server**:
+  - `game_actions.events` is non-empty for every action row after a
+    test game. Round-trip: read row, parse events, verify it matches
+    the `applyAction()` return shape.
+  - `legal_action_count` matches `getAllLegalActions(state_before).length`
+    for sampled rows.
+- **No UI test needed** — UI doesn't read these new columns yet.
+
+### Audit improvement
+
+Per CLAUDE.md bug-fix workflow rule. Add a check to verify every
+`game_actions` row written post-deploy has non-null `legal_action_count`
+and non-empty `events` for non-trivial actions (PLAY_CARD, QUEST,
+CHALLENGE). Could live as an integration-test invariant or a periodic
+sanity query in the server health endpoint.
+
+### Scope
+
+- Engine: ~30 min if no `cause` field, ~2-3h with `cause` (touches every
+  emit site)
+- Server: ~1h (migration + service-method update + tests)
+- Total: half a day for engine + server, ships separately, no UI work
+- Unblocks: clone-trainer feature extraction, replay UI improvements,
+  per-turn analytics queries
+
+### Why now
+
+We don't have the trainer yet, but the event stream is being thrown
+away on every action right now. Persisting it before the trainer ships
+means we'll have a usable training corpus from day one of MP play
+instead of needing to wait for post-trainer data accumulation. Two
+schema columns is the cheapest way to capture work the engine is
+already doing.
