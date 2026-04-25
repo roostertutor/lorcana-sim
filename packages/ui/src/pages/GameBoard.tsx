@@ -843,7 +843,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     const sDef = definitions[s.definitionId];
     if (!sDef || sDef.cardType !== "character") return 0;
     let cost = sDef.cost;
-    if (hasKeyword(s, sDef, "singer")) cost = getKeywordValue(s, sDef, "singer");
+    // CRD 8.11.1: Singer N counts as cost N. Static-granted Singer (Mickey
+    // Mouse Amber Champion FRIENDLY CHORUS) lives in modifiers.grantedKeywords
+    // — mirrors engine validator.canSingTogether so the UI's local Sing
+    // Together gating doesn't underestimate when the keyword comes from a
+    // static ability rather than the printed card.
+    const sStaticGrants = gameModifiers.grantedKeywords.get(singerInstanceId);
+    const sHasGrantedSinger = (sStaticGrants ?? []).some(g => g.keyword === "singer");
+    if (hasKeyword(s, sDef, "singer") || sHasGrantedSinger) {
+      cost = getKeywordValue(s, sDef, "singer", sStaticGrants);
+    }
     if (s.atLocationInstanceId) {
       cost += gameModifiers.singCostBonusHere.get(s.atLocationInstanceId) ?? 0;
     }
