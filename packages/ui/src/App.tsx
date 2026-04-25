@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import type { ReplayData } from "./hooks/useGameSession.js";
 import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
+import { supabase } from "./lib/supabase.js";
 import DecksPage from "./pages/DecksPage.js";
 import DeckBuilderPage from "./pages/DeckBuilderPage.js";
 import SimulationView from "./pages/SimulationView.js";
@@ -146,6 +147,90 @@ function LobbyJoinPage() {
 }
 
 // ---------------------------------------------------------------------------
+// UserMenu — avatar + sign-out menu in the top-right of Shell. Subscribes
+// to supabase auth so it reflects sign-in/out from anywhere (lobby still
+// has its own form; this is the global indicator + escape hatch).
+// ---------------------------------------------------------------------------
+
+function UserMenu({ navigate }: { navigate: (path: string) => void }) {
+  const [session, setSession] = useState<{ email: string } | null | undefined>(undefined);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ? { email: s.user.email ?? "" } : null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Close popover on outside click. mousedown beats click so a click on
+  // the avatar after the popover is open doesn't immediately re-open it.
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setSession(null);
+    setOpen(false);
+  }
+
+  // Loading state — render nothing to avoid flicker between "Sign in" and
+  // the avatar on first paint while supabase resolves the cached session.
+  if (session === undefined) return null;
+
+  if (!session) {
+    return (
+      <button
+        onClick={() => navigate("/multiplayer")}
+        className="text-xs px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg font-medium transition-colors shrink-0"
+        title="Sign in to save decks and play multiplayer"
+      >
+        Sign in
+      </button>
+    );
+  }
+
+  // First letter of email — placeholder for proper avatar art. Falls back
+  // to "?" if email is empty (shouldn't happen with supabase, but defensive).
+  const initial = session.email[0]?.toUpperCase() ?? "?";
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 text-gray-950 text-xs font-bold flex items-center justify-center transition-colors"
+        title={session.email}
+        aria-label={`Account: ${session.email}`}
+      >
+        {initial}
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-1 w-56 bg-gray-950 border border-gray-700 rounded-lg shadow-xl py-1 z-30">
+          <div className="px-3 py-2 border-b border-gray-800 text-[11px] text-gray-400 truncate" title={session.email}>
+            {session.email}
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Shell — header + tab nav wrapper
 // ---------------------------------------------------------------------------
 
@@ -204,6 +289,10 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
               ))}
             </div>
           </nav>
+          {/* Avatar + sign-out — right-aligned. Subscribes to supabase auth
+               independently from the lobby so signing out here propagates
+               to MultiplayerLobby's own session listener. */}
+          <UserMenu navigate={navigate} />
         </div>
       </header>
 
