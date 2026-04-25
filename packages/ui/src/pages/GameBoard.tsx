@@ -69,6 +69,9 @@ interface Props {
   definitions: Record<string, CardDefinition>;
   sandboxMode?: boolean;
   initialDeck?: DeckEntry[];
+  /** Solo mode: deck the bot plays with. Defaults to mirror (initialDeck)
+   *  when omitted. Set by the lobby's opponent picker. */
+  opponentDeck?: DeckEntry[];
   onBack?: () => void;
   multiplayerGame?: {
     gameId: string;
@@ -542,7 +545,7 @@ function UtilityStrip({
   );
 }
 
-export default function GameBoard({ definitions, sandboxMode, initialDeck, onBack, multiplayerGame, initialReplayData }: Props) {
+export default function GameBoard({ definitions, sandboxMode, initialDeck, opponentDeck, onBack, multiplayerGame, initialReplayData }: Props) {
   const session = useGameSession();
 
   // Replay mode — null = live mode; non-null = reviewing a completed game
@@ -1101,7 +1104,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, onBac
     if (session.gameState || replayData) return;
     session.startGame({
       player1Deck: initialDeck ?? [],
-      player2Deck: initialDeck ?? [],
+      // opponentDeck overrides the historical mirror behavior. Falls back
+      // to initialDeck when no opponent was picked in the lobby.
+      player2Deck: opponentDeck ?? initialDeck ?? [],
       definitions,
       botStrategy: GreedyBot,
       player1IsHuman: true,

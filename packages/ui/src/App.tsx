@@ -31,11 +31,20 @@ function SoloGamePage() {
       return raw ? (JSON.parse(raw) as DeckEntry[]) : [];
     } catch { return []; }
   });
+  // Opponent deck is optional — undefined falls back to mirror in GameBoard.
+  // sessionStorage entry is cleared by the lobby when the user picks Mirror.
+  const [opponentDeck] = useState<DeckEntry[] | undefined>(() => {
+    try {
+      const raw = sessionStorage.getItem("solo-opponent-deck");
+      return raw ? (JSON.parse(raw) as DeckEntry[]) : undefined;
+    } catch { return undefined; }
+  });
 
   return (
     <GameBoard
       definitions={CARD_DEFINITIONS}
       initialDeck={deck}
+      {...(opponentDeck ? { opponentDeck } : {})}
       onBack={() => navigate("/multiplayer")}
     />
   );
@@ -120,8 +129,15 @@ function LobbyJoinPage() {
           localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
           navigate(`/game/${gameId}`);
         }}
-        onPlaySolo={(deck) => {
+        onPlaySolo={(deck, opponentDeck) => {
           sessionStorage.setItem("solo-deck", JSON.stringify(deck));
+          // Mirror match (no opponent provided) — clear any prior pick so
+          // SoloGamePage falls back to deck-vs-deck.
+          if (opponentDeck) {
+            sessionStorage.setItem("solo-opponent-deck", JSON.stringify(opponentDeck));
+          } else {
+            sessionStorage.removeItem("solo-opponent-deck");
+          }
           navigate("/solo");
         }}
       />
@@ -242,8 +258,15 @@ function MultiplayerPage() {
           localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
           navigate(`/game/${gameId}`);
         }}
-        onPlaySolo={(deck) => {
+        onPlaySolo={(deck, opponentDeck) => {
           sessionStorage.setItem("solo-deck", JSON.stringify(deck));
+          // Mirror match (no opponent provided) — clear any prior pick so
+          // SoloGamePage falls back to deck-vs-deck.
+          if (opponentDeck) {
+            sessionStorage.setItem("solo-opponent-deck", JSON.stringify(opponentDeck));
+          } else {
+            sessionStorage.removeItem("solo-opponent-deck");
+          }
           navigate("/solo");
         }}
       />

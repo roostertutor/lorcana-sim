@@ -11,7 +11,12 @@ import { formatDisplayName, FORMAT_FAMILY_ACCENT } from "../utils/deckRules.js";
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
-  onPlaySolo: (deck: import("@lorcana-sim/engine").DeckEntry[]) => void;
+  /** opponentDeck is undefined for mirror match (default), or the parsed
+   *  entries of a saved deck the user picked as the bot's deck. */
+  onPlaySolo: (
+    deck: import("@lorcana-sim/engine").DeckEntry[],
+    opponentDeck?: import("@lorcana-sim/engine").DeckEntry[],
+  ) => void;
   /** Pre-fill the join code (from /lobby/:code URL) */
   initialJoinCode?: string;
 }
@@ -22,6 +27,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [password, setPassword] = useState("");
   const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  // Opponent deck for solo mode. null = mirror (same deck as the user, the
+  // historical default). Otherwise = id of a saved deck to feed to the bot.
+  // Only meaningful when the user has saved decks beyond the one selected
+  // as their own; gated below by `opponentOptions`.
+  const [opponentDeckId, setOpponentDeckId] = useState<string | null>(null);
   const [deckText, setDeckText] = useState("");
   const [deckMode, setDeckMode] = useState<"saved" | "paste">("saved");
   const [deckOpen, setDeckOpen] = useState(false);
@@ -100,6 +110,29 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
   const deckReady = deck.length > 0 && deckErrors.length === 0;
   const cardCount = deck.reduce((s, e) => s + e.count, 0);
+
+  // Solo opponent options — every saved deck EXCEPT the one currently
+  // selected as the user's deck (in saved mode). In paste mode, all saved
+  // decks are eligible since the user's deck is the pasted text. Hidden
+  // entirely if there are no eligible opponents (signed-out or one-deck
+  // accounts), in which case solo defaults to mirror.
+  const opponentOptions = useMemo(
+    () =>
+      savedDecks.filter((d) => deckMode !== "saved" || d.id !== selectedDeckId),
+    [savedDecks, deckMode, selectedDeckId],
+  );
+
+  // Resolve the opponent's parsed deck on demand. Returns undefined for
+  // mirror (the historical default) or when the picked id no longer exists.
+  // Format legality is intentionally NOT validated for the opponent — solo
+  // play has no anti-cheat surface and creators may want to test cross-format
+  // matchups (e.g. set-12 brew vs current-meta deck).
+  function resolveOpponentDeck(): DeckEntry[] | undefined {
+    if (!opponentDeckId) return undefined;
+    const opp = savedDecks.find((d) => d.id === opponentDeckId);
+    if (!opp) return undefined;
+    return parseDecklist(opp.decklist_text, CARD_DEFINITIONS).entries;
+  }
 
   // Format that this match will be created under. Saved deck → read the
   // deck's stamp; paste mode → use the local pasteFormat state. The
@@ -459,16 +492,38 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
-        {/* Play Solo */}
-        <button
-          className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
-                     disabled:text-gray-600 text-gray-200 rounded-lg text-sm font-bold
-                     transition-colors active:scale-[0.98]"
-          onClick={() => onPlaySolo(deck)}
-          disabled={!deckReady}
-        >
-          Play Solo (vs bot)
-        </button>
+        {/* Play Solo — opponent picker + button. Opponent picker only
+             rendered when there's at least one saved deck the bot could
+             play (excluding the user's currently-selected deck in saved
+             mode). Defaults to mirror, which preserves the historical
+             one-click behavior for users with a single deck. */}
+        <div className="space-y-1.5">
+          {opponentOptions.length > 0 && (
+            <label className="flex items-center gap-2 text-[11px] text-gray-500">
+              <span className="shrink-0">Bot plays:</span>
+              <select
+                className="flex-1 min-w-0 bg-gray-950 border border-gray-700 rounded-md
+                           px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none"
+                value={opponentDeckId ?? ""}
+                onChange={(e) => setOpponentDeckId(e.target.value || null)}
+              >
+                <option value="">Mirror (your deck)</option>
+                {opponentOptions.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
+          <button
+            className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
+                       disabled:text-gray-600 text-gray-200 rounded-lg text-sm font-bold
+                       transition-colors active:scale-[0.98]"
+            onClick={() => onPlaySolo(deck, resolveOpponentDeck())}
+            disabled={!deckReady}
+          >
+            Play Solo (vs bot)
+          </button>
+        </div>
 
         {/* Divider */}
         <div className="flex items-center gap-3">
