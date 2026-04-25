@@ -1532,6 +1532,61 @@ describe("§P1 Promo — Jolly Roger - Hook's Ship", () => {
   });
 });
 
+// Regression: Pluto Steel Champion's MAKE ROOM oracle says "Whenever you play
+// ANOTHER Steel character" — the trigger filter needs excludeSelf:true or
+// Pluto's own card_played event matches and self-triggers when he enters play.
+// Caught in the 2026-04-24 sweep alongside Rama Vigilant Father and Basil
+// Tenacious Mouse (same class of bug).
+describe("§10 Set 10 — Pluto Steel Champion MAKE ROOM (excludeSelf on 'another' trigger)", () => {
+  it("does NOT self-trigger when Pluto himself is played", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+
+    // Inject an item the player would target if MAKE ROOM erroneously triggered.
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "pawpsicle", "play"));
+
+    // Inject Pluto into hand and play him.
+    let plutoId: string;
+    ({ state, instanceId: plutoId } = injectCard(state, "player1", "pluto-steel-champion", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: plutoId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Pluto's own play should NOT trigger MAKE ROOM. No pendingChoice for the
+    // may-banish prompt should be queued, and the item is still in play.
+    expect(state.pendingChoice).toBeFalsy();
+    expect(getZone(state, "player1", "play")).toContain(itemId);
+  });
+
+  it("DOES trigger when ANOTHER Steel character is played", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    // Pluto already in play (drying off — irrelevant for trigger).
+    ({ state } = injectCard(state, "player1", "pluto-steel-champion", "play", { isDrying: false }));
+
+    // An item to target with MAKE ROOM.
+    let itemId: string;
+    ({ state, instanceId: itemId } = injectCard(state, "player1", "pawpsicle", "play"));
+
+    // Another Steel character in hand — Goons Maleficent's Underlings is a
+    // vanilla 1-cost Steel character.
+    let goonsId: string;
+    ({ state, instanceId: goonsId } = injectCard(state, "player1", "goons-maleficents-underlings", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: goonsId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // MAKE ROOM should now be on the queue as a may-prompt for banishing the item.
+    expect(state.pendingChoice).toBeDefined();
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    void itemId;
+  });
+});
+
 describe("§11 Set 11 — Angela Night Warrior ETERNAL NIGHT", () => {
   it("baseline: Demona with 3+ cards in hand can't be effect-readied (Stone by Day blanket)", () => {
     let state = startGame();

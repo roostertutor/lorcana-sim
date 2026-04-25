@@ -379,6 +379,32 @@ function validateCardFields(card: any): FieldError[] {
           }
         }
       }
+      // "Whenever you play another X" wording on a card_played trigger needs
+      // excludeSelf:true on the filter — without it, the source's own card_played
+      // event matches the filter and self-triggers. Caught Pluto Steel Champion
+      // MAKE ROOM, Rama Vigilant Father PROTECTION OF THE PACK, and Basil
+      // Tenacious Mouse HOLD YOUR GROUND in the 2026-04-24 sweep.
+      // Skip "this character or another X" wording (Sneezy AH-CHOO!) which
+      // explicitly self-triggers in addition to firing on others.
+      if (
+        ab.type === "triggered" &&
+        ab.trigger?.on === "card_played" &&
+        ab.rulesText &&
+        !tf.excludeSelf
+      ) {
+        const oracle = String(ab.rulesText).toLowerCase();
+        const triggerClause = oracle.split(/,\s/)[0] ?? "";
+        const hasAnother = /\bplay another\b/.test(triggerClause);
+        const hasThisOrAnother = /\bplay this character or another\b/.test(triggerClause);
+        if (hasAnother && !hasThisOrAnother) {
+          errors.push({
+            path: `${path}.trigger.filter`,
+            field: "excludeSelf",
+            value: "missing",
+            validValues: `"play another" wording on card_played trigger needs excludeSelf:true — without it, the source self-triggers when played`,
+          });
+        }
+      }
     }
     // Check condition on ability
     if (ab.condition) walkCondition(ab.condition, path + ".condition");
