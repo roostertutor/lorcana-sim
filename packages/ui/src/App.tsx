@@ -170,29 +170,42 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
         paddingRight: "env(safe-area-inset-right)",
       }}
     >
+      {/* Top chrome — single row: logo + tabs. Consolidated 2026-04-25 from
+           a stacked header (logo) + nav (tabs) layout that ate ~90px of
+           vertical space before any content. New layout is ~45px and lands
+           the strategic claim ("less chrome, more game") in the surface
+           every user sees on every page. Tabs use overflow-x-auto with
+           scrollbar-none so narrow viewports can swipe through tabs
+           instead of wrapping to a second row (which defeats the
+           consolidation). The dev-flavored subtitle ("headless analytics
+           engine") was dropped — the brand is no longer dev-tools-first. */}
       <header
         className="border-b border-gray-800 bg-gray-950/80 backdrop-blur sticky top-0 z-10"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <span className="text-amber-400 text-xl font-bold tracking-tight">⬡ Lorcana Sim</span>
-          <span className="text-gray-600 text-sm hidden sm:block">headless analytics engine</span>
+        <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => navigate("/")}
+            className="text-amber-400 text-lg font-bold tracking-tight shrink-0 hover:text-amber-300 transition-colors"
+            title="Home"
+          >
+            ⬡ Lorcana Sim
+          </button>
+          <nav className="flex-1 min-w-0 overflow-x-auto scrollbar-none">
+            <div className="flex gap-1 flex-nowrap">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => navigate(t.path)}
+                  className={`shrink-0 ${activeTab === t.id ? "tab-active" : "tab-inactive"}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </nav>
         </div>
       </header>
-
-      <nav className="border-b border-gray-800 bg-gray-950">
-        <div className="max-w-6xl mx-auto px-4 py-2 flex gap-1 flex-wrap">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => navigate(t.path)}
-              className={activeTab === t.id ? "tab-active" : "tab-inactive"}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </nav>
 
       <main className={`flex-1 w-full ${
         activeTab === "multiplayer"
