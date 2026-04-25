@@ -786,6 +786,45 @@ describe("§7 Set 7 — Baloo Ol' Iron Paws (damage_prevention_static source=all
   });
 });
 
+// Regression for the "action card stays on the field" bug class — same root
+// cause as Let's Get Dangerous: any may-prompt branch in RESOLVE_CHOICE that
+// didn't run cleanupPendingAction left pendingActionInstanceId set, so the
+// action was never moved to discard. Return of Hercules uses each_player +
+// isMay (not reveal_top_conditional), but its may-prompt resolves via the
+// same regular choose_may handler.
+describe("§7 Set 7 — The Return of Hercules (CRD 4.3.3.2 cleanup after each_player + may)", () => {
+  it("the action moves to discard once both players resolve their may-prompts", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    // Action in player1's hand. A character in each player's hand so each may
+    // accept and play that character for free.
+    let actionId: string, p1CharId: string, p2CharId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "the-return-of-hercules", "hand"));
+    ({ state, instanceId: p1CharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: p2CharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+    void p1CharId; void p2CharId;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Walk both players' may-prompts. Decline both — we don't care about the
+    // played-character side effect, just that the action card cleans up.
+    let safety = 8;
+    while (state.pendingChoice && safety-- > 0) {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "decline" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    expect(state.pendingChoice).toBeFalsy();
+
+    expect(state.cards[actionId]!.zone).toBe("discard");
+    expect(getZone(state, "player1", "play")).not.toContain(actionId);
+    expect(state.pendingActionInstanceId).toBeUndefined();
+  });
+});
+
 describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_played trigger)", () => {
   it("puts a damage counter on opponent's character when they play one", () => {
     let state = startGame();

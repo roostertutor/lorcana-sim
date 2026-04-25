@@ -1474,6 +1474,53 @@ describe("§11 Set 11 — Let's Get Dangerous (action: each player reveals + may
     expect(state.pendingChoice).toBeDefined();
     expect(state.pendingChoice?.type).toBe("choose_may");
   });
+
+  // CRD 4.3.3.2: action cards go to discard once their effect (and any nested
+  // pendingChoices the effect surfaced) has fully resolved. Regression for a
+  // user-reported bug: Let's Get Dangerous "sometimes stayed on the field"
+  // after both players resolved their may-prompts. Cause: the choose_may
+  // _revealContinuation branch in RESOLVE_CHOICE returned without calling
+  // cleanupPendingAction, so pendingActionInstanceId stayed set and the action
+  // card was never moved out of play.
+  it("CRD 4.3.3.2: song moves to discard after both players' matchIsMay choices resolve", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "lets-get-dangerous", "hand"));
+
+    // Stack a known character on top of each deck so both reveals surface a may-prompt.
+    let p1TopId: string, p2TopId: string;
+    ({ state, instanceId: p1TopId } = injectCard(state, "player1", "mickey-mouse-true-friend", "deck"));
+    ({ state, instanceId: p2TopId } = injectCard(state, "player2", "mickey-mouse-true-friend", "deck"));
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: { ...state.zones.player1, deck: [p1TopId, ...state.zones.player1.deck.filter((id) => id !== p1TopId)] },
+        player2: { ...state.zones.player2, deck: [p2TopId, ...state.zones.player2.deck.filter((id) => id !== p2TopId)] },
+      },
+    };
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Walk both players' may-prompts. Each accept resolves a reveal continuation.
+    let safety = 6;
+    while (state.pendingChoice && safety-- > 0) {
+      r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+      state = r.newState;
+    }
+    expect(state.pendingChoice).toBeFalsy();
+
+    // The song must be in player1's discard, NOT still in play, and the
+    // pendingActionInstanceId must be cleared.
+    expect(state.cards[songId]!.zone).toBe("discard");
+    expect(getZone(state, "player1", "play")).not.toContain(songId);
+    expect(state.pendingActionInstanceId).toBeUndefined();
+  });
 });
 
 // Verify Angela Night Warrior's ETERNAL NIGHT (remove_named_ability) actually

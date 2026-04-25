@@ -102,6 +102,22 @@ export function applyAction(
     if (newState.activeChallengeIds && !newState.pendingChoice && newState.triggerStack.length === 0) {
       newState = { ...newState, activeChallengeIds: undefined };
     }
+    // CRD 4.3.3.2 safety net: if the action's effect (and any nested may-prompts
+    // / target choices) has fully resolved — no pendingChoice, no triggers in
+    // the bag, no queued residual effects — the action card should already be
+    // in discard. If pendingActionInstanceId is still set here, a RESOLVE_CHOICE
+    // branch forgot to call cleanupPendingAction. Belt-and-suspenders so the
+    // action doesn't stay on the field even if a future branch slips up. The
+    // per-branch cleanup calls remain so the action moves out of the play zone
+    // mid-action when intuitive (e.g. Sudden Chill resolving a discard prompt).
+    if (
+      newState.pendingActionInstanceId &&
+      !newState.pendingChoice &&
+      newState.triggerStack.length === 0 &&
+      !newState.pendingEffectQueue
+    ) {
+      newState = cleanupPendingAction(newState, action.playerId);
+    }
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
@@ -2201,6 +2217,11 @@ function applyResolveChoice(
         state = applyRevealNoMatchRoute(state, revealCont.revealedInstanceId, revealCont.noMatchDestination ?? "top", revealCont.targetPlayerId, definitions, events);
       }
       state = resumePendingEffectQueue(state, definitions, events);
+      // CRD 4.3.3.2: action source must move to discard once the reveal effect
+      // (and any nested may-prompts on either player's reveal) is fully done.
+      // Without this, Let's Get Dangerous "stayed on the field" whenever any
+      // player's revealed character triggered a matchIsMay prompt.
+      state = cleanupPendingAction(state, playerId);
       return state;
     }
     if (choice === "accept") {
@@ -2219,6 +2240,10 @@ function applyResolveChoice(
     // the same trigger (Graveyard of Christmas Future ANOTHER CHANCE has a
     // banish queued behind the may'd put_cards_under_into_hand).
     state = resumePendingEffectQueue(state, definitions, events);
+    // CRD 4.3.3.2: same rationale as the reveal-continuation path — the action
+    // source moves to discard once any may-prompt it surfaced is resolved and
+    // no further pendingChoice / effect-queue work is outstanding.
+    state = cleanupPendingAction(state, playerId);
     return state;
   }
 
