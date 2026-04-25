@@ -294,17 +294,17 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           return (
             <div className="absolute bottom-0.5 right-0.5 z-10 pointer-events-none flex flex-col gap-0.5 items-end">
               {sDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${sDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${sDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {sDelta > 0 ? "+" : ""}{sDelta} S
                 </span>
               )}
               {wDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${wDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${wDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {wDelta > 0 ? "+" : ""}{wDelta} W
                 </span>
               )}
               {loreDelta !== 0 && (
-                <span className={`inline-flex items-center h-4 px-1 rounded text-[7px] font-black shadow ${loreDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${loreDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
                   {loreDelta > 0 ? "+" : ""}{loreDelta} L
                 </span>
               )}
@@ -431,7 +431,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         {/* Damage counter — centered on card */}
         {damage > 0 && (
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-red-100 text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
+            <span className="inline-flex items-center justify-center w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full bg-red-600 text-red-100 text-[8px] sm:text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
           </div>
         )}
       </div>
@@ -536,7 +536,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
       {/* Damage counter — centered on card */}
       {damage > 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-red-100 text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
+          <span className="inline-flex items-center justify-center w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full bg-red-600 text-red-100 text-[8px] sm:text-[9px] font-black shadow-lg border border-red-400/50">{damage}</span>
         </div>
       )}
     </div>
