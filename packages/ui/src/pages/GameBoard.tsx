@@ -2710,11 +2710,6 @@ function DroppableQuestDivider({
           {opponentLore}
         </span>
         <span className="text-gray-600 text-[10px] leading-none">♦</span>
-        {isOver && isValidTarget && (
-          <span className="text-amber-200 text-[9px] font-bold uppercase tracking-wider leading-none ml-0.5">
-            +1
-          </span>
-        )}
       </div>
 
       <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
