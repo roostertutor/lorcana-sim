@@ -553,6 +553,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [replayData, setReplayData] = useState<ReplayData | null>(initialReplayData ?? null);
   const replaySession = useReplaySession(replayData, definitions);
 
+  // Multiplayer replay — solo mode populates `session.completedGame` from
+  // local action history when the game ends, but MP doesn't track action
+  // history client-side (server is authoritative). Fetch the saved replay
+  // from the server when an MP game ends so the same Review / Download
+  // affordances work in both modes. `mpReplay` is the MP equivalent of
+  // `session.completedGame`; downstream code reads `completedReplay`
+  // (preferring the local one).
+  const [mpReplay, setMpReplay] = useState<ReplayData | null>(null);
+
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
   const [p2DeckText, setP2DeckText] = useState(SAMPLE_DECK);
   const [botId, setBotId] = useState("greedy");
@@ -1096,6 +1105,31 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerGame]);
 
+  // MP game-over → fetch the server-side replay so Review / Download in
+  // the victory modal work the same as in solo mode. Server saves the
+  // replay automatically (per a751923) — we just GET /game/:id/replay.
+  // One-shot: gated on `mpReplay` being null so it doesn't refetch on
+  // every render. Solo mode never enters this branch (multiplayerGame
+  // is undefined).
+  useEffect(() => {
+    if (!multiplayerGame || !session.gameState?.isGameOver || mpReplay) return;
+    let cancelled = false;
+    void import("../lib/serverApi.js").then(({ getGameReplay }) =>
+      getGameReplay(multiplayerGame.gameId).then((replay) => {
+        if (cancelled || !replay) return;
+        setMpReplay({
+          seed: replay.seed,
+          p1Deck: replay.p1Deck,
+          p2Deck: replay.p2Deck,
+          actions: replay.actions,
+          winner: replay.winner as PlayerID | null,
+          turnCount: replay.turnCount,
+        });
+      }),
+    );
+    return () => { cancelled = true; };
+  }, [multiplayerGame, session.gameState?.isGameOver, mpReplay]);
+
   // Solo mode: auto-start with deck from lobby, bot plays P2. Re-fires whenever
   // session.gameState transitions to null (initial mount + after "Play Again"
   // in the victory modal, which calls session.reset()). Bails if a game is
@@ -1182,7 +1216,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   }
 
   const handleDownloadReplay = useCallback(() => {
-    const data = session.completedGame;
+    // Prefer locally-tracked replay (solo) over server-fetched (MP). They're
+    // structurally identical ReplayData; either works for the JSON export.
+    const data = session.completedGame ?? mpReplay;
     if (!data) return;
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: "application/json" });
@@ -1193,7 +1229,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     a.download = `replay_${ts}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [session.completedGame]);
+  }, [session.completedGame, mpReplay]);
 
   const handleUploadReplay = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -2268,57 +2304,83 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 {!hasNextGame && <span className="text-xs text-gray-500 ml-2">(final)</span>}
               </div>
             )}
-            <div className="flex flex-col items-center gap-2 pt-1">
-              {multiplayerGame && hasNextGame ? (
-                <button
-                  className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                  onClick={() => {
-                    // Navigate to the next game in the Bo3 match
-                    const nextId = matchNextGameId!;
-                    localStorage.setItem("mp-game", JSON.stringify({ gameId: nextId, myPlayerId: myId }));
-                    session.reset();
-                    window.location.href = `/game/${nextId}`;
-                  }}
-                >
-                  Next Game
-                </button>
-              ) : multiplayerGame ? (
-                <button
-                  className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                  onClick={() => {
-                    session.reset();
-                    setReplayData(null);
-                    onBack?.();
-                  }}
-                >
-                  Back to Lobby
-                </button>
-              ) : (
-                <>
-                  <button
-                    className="w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20"
-                    onClick={() => { session.reset(); setReplayData(null); }}
-                  >
-                    Play Again
-                  </button>
-                  {session.completedGame && (
-                    <>
+            {/* Unified button layout — same shape across solo / MP / Bo3.
+                Slot 1: contextual primary CTA (Play Again / Next Game),
+                  may be absent in MP end-of-match (no rematch UI yet —
+                  see HANDOFF.md for client-side rematch trigger).
+                Slot 2: Back to Lobby — always present. Promoted to amber
+                  primary styling when slot 1 is absent (MP end-of-match).
+                Slot 3: Review Game / Download Replay — when replay data
+                  exists. Solo: from session.completedGame. MP: from the
+                  mpReplay fetch effect above. */}
+            <div className="flex flex-col items-center gap-2 pt-1 w-full">
+              {(() => {
+                const completedReplay = session.completedGame ?? mpReplay;
+                const primaryStyle = "w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20";
+                const secondaryStyle = "w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700";
+                const tertiaryReviewStyle = "w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm";
+                const tertiaryDownloadStyle = "w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm";
+
+                const hasPrimary = (multiplayerGame && hasNextGame) || !multiplayerGame;
+                const backToLobby = () => {
+                  session.reset();
+                  setReplayData(null);
+                  onBack?.();
+                };
+                return (
+                  <>
+                    {/* Primary slot */}
+                    {multiplayerGame && hasNextGame && (
                       <button
-                        className="w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm"
-                        onClick={() => setReplayData(session.completedGame)}
+                        className={primaryStyle}
+                        onClick={() => {
+                          const nextId = matchNextGameId!;
+                          localStorage.setItem("mp-game", JSON.stringify({ gameId: nextId, myPlayerId: myId }));
+                          session.reset();
+                          window.location.href = `/game/${nextId}`;
+                        }}
                       >
-                        Review Game
+                        Next Game
                       </button>
+                    )}
+                    {!multiplayerGame && (
                       <button
-                        className="w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm"
-                        onClick={handleDownloadReplay}
+                        className={primaryStyle}
+                        onClick={() => { session.reset(); setReplayData(null); }}
                       >
-                        Download Replay
+                        Play Again
                       </button>
-                    </>
-                  )}
-                </>
-              )}
+                    )}
+
+                    {/* Secondary slot — Back to Lobby. Promoted to primary
+                        styling when there's no other primary CTA. */}
+                    <button
+                      className={hasPrimary ? secondaryStyle : primaryStyle}
+                      onClick={backToLobby}
+                    >
+                      Back to Lobby
+                    </button>
+
+                    {/* Tertiary row — Review + Download, when replay exists */}
+                    {completedReplay && (
+                      <div className="grid grid-cols-2 gap-2 w-full">
+                        <button
+                          className={tertiaryReviewStyle}
+                          onClick={() => setReplayData(completedReplay)}
+                        >
+                          Review
+                        </button>
+                        <button
+                          className={tertiaryDownloadStyle}
+                          onClick={handleDownloadReplay}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>

@@ -26,6 +26,44 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Server agent + UI agent: client-side Rematch trigger for MP end-of-match victory modal
+
+Discovered 2026-04-25 while unifying the victory-modal layout across
+solo / MP-Bo3-mid-match / MP-end-of-match. Server-side rematch flow was
+shipped in `a751923` ("MP UX Phase 2 — ELO delta, replay auto-save,
+**rematch**, share toggle"), but there's no client-side trigger for it
+yet. The unified modal currently leaves MP end-of-match with **Back to
+Lobby** in the primary slot because the Rematch slot is empty.
+
+### What's needed
+
+1. **Server**: confirm there's a `POST /game/:id/rematch` endpoint (or
+   equivalent) and what it returns. If yes — document its shape. If no —
+   wire one. Likely creates a new `games` row with the same two players
+   in swapped slots (CRD 2.1.3.2 — series loser elects play/draw; for
+   ad-hoc rematch we can default to coin-flip again, or maintain
+   loser-elects).
+2. **Client `lib/serverApi.ts`**: add `requestRematch(gameId)` calling
+   the endpoint.
+3. **GameBoard.tsx victory modal** (existing slot already prepared):
+   the unified modal block already has comments at the relevant line
+   noting "primary slot empty in MP end-of-match — see HANDOFF for
+   rematch trigger." Add a `Rematch` button that calls
+   `requestRematch()` and navigates to the new game ID on response.
+4. **UX flow**: when one player requests rematch but the other hasn't
+   yet, show a "Waiting for opponent…" state on the rematch button
+   (similar to the existing "Waiting for opponent" toast). Server
+   should expose a `rematch_pending` field on the game record so both
+   clients can poll/subscribe.
+
+### Why deferred
+
+Solo + Bo3-mid-match work without it. MP end-of-match still shows Back
+to Lobby (now in the primary amber-styled slot since there's no other
+primary). Layout is consistent — just one missing button. Low urgency.
+
+---
+
 ## UI agent: `choose_play_order` PendingChoiceModal variant
 
 Engine + server work shipped 2026-04-22 (CRD 2.1.3.2 play-draw rule —
