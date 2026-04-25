@@ -6,6 +6,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import type { CardDefinition, CardInstance, GameState, PlayerID } from "@lorcana-sim/engine";
 import type { GameSession } from "../hooks/useGameSession.js";
+import TopToast from "./TopToast.js";
 
 interface Props {
   session: GameSession;
@@ -391,9 +392,11 @@ export default function SandboxPanel({
 
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold shadow-lg animate-pulse">
-          {toast}
-        </div>
+        <TopToast>
+          <div className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold shadow-lg animate-pulse">
+            {toast}
+          </div>
+        </TopToast>
       )}
     </div>
   );

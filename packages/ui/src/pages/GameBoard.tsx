@@ -36,6 +36,7 @@ import ZoneViewModal from "../components/ZoneViewModal.js";
 import RevealPill from "../components/RevealPill.js";
 import BoardMenu from "../components/BoardMenu.js";
 import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
+import TopToast from "../components/TopToast.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -2031,24 +2032,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </div>
       </div>
 
-      {/* ======================= Floating mode toasts ======================= */}
+      {/* ======================= Floating mode toasts =======================
+          All use TopToast wrapper for safe-area-aware positioning. Without
+          it the toasts sat behind the Dynamic Island in iPhone portrait —
+          mode-toast Cancel/Confirm buttons became unreachable. */}
       {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+        <TopToast className="pointer-events-none">
           <div className="bg-yellow-950/90 border border-yellow-700/60 rounded-full px-4 py-1.5 shadow-lg">
             <span className="text-yellow-400 text-xs font-medium animate-pulse">Opponent is thinking…</span>
           </div>
-        </div>
+        </TopToast>
       )}
       {/* Multiplayer: waiting for opponent's turn (no pending choice, not your turn) */}
       {multiplayerGame && !pendingChoice && !isGameOver && !isYourTurn && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+        <TopToast className="pointer-events-none">
           <div className="bg-gray-900/90 border border-gray-700/60 rounded-full px-4 py-1.5 shadow-lg">
             <span className="text-gray-400 text-xs font-medium animate-pulse">Waiting for opponent…</span>
           </div>
-        </div>
+        </TopToast>
       )}
       {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId || singTogetherCardId || moveCharId) && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+        <TopToast className="flex items-center gap-2">
           {challengeAttackerId && (
             <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
               <span className="font-bold">Challenge</span>
@@ -2110,7 +2114,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               <button className="text-cyan-600 hover:text-cyan-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
             </div>
           )}
-        </div>
+        </TopToast>
       )}
 
       {/* ======================= DragOverlay ======================= */}
