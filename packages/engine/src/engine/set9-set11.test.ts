@@ -1587,6 +1587,101 @@ describe("§10 Set 10 — Pluto Steel Champion MAKE ROOM (excludeSelf on 'anothe
   });
 });
 
+// Big composite scenario covering challenge damage, simultaneous-banish trigger
+// dispatch, on-banish AOE cascade, and Pluto's WINNER TAKE ALL gain. The user
+// posed it as a hand-trace exercise: opponent has 4× Lilo Making a Wish (vanilla
+// 1/1, cost 1, 2 lore). One is exerted with 2× Force of a Great Typhoon stacked
+// on top for +10 STR (so 11 STR / 1 WP). Player1 challenges with Mickey Mouse -
+// Giant Mouse (10/10, Steel, Bodyguard, "When this character is banished, deal
+// 5 damage to each opposing character") while controlling Pluto Steel Champion
+// (5/5, Steel, "WINNER TAKE ALL: during your turn, whenever one of your other
+// Steel characters banishes another character in a challenge, gain 2 lore").
+// Expected after the dust settles:
+//   - Mickey banished (took 11 from buffed Lilo, exceeds 10 WP).
+//   - Buffed Lilo banished (took 10 from Mickey, exceeds 1 WP).
+//   - Mickey's THE BIGGEST STAR EVER deals 5 to each of the 3 remaining Lilos,
+//     and the post-bag GSC banishes all 3 (5 ≥ 1 WP). Lilo-A is already in
+//     discard and isn't a valid target.
+//   - WINNER TAKE ALL fires once (Mickey banished Lilo in a challenge — Lilo
+//     banishing Mickey doesn't trigger it because Lilo isn't player1's Steel
+//     character). +2 lore.
+describe("§Composite — Mickey Giant + Pluto Steel Champion vs 4× buffed Lilo", () => {
+  it("Mickey + Lilo-A trade banish, AOE wipes the 3 ready Lilos, Pluto +2 lore", () => {
+    let state = startGame();
+    const p1LoreBefore = state.players.player1.lore;
+
+    // Player1 — Mickey Giant + Pluto in play, both ready.
+    let mickeyId: string, plutoId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-giant-mouse", "play", { isDrying: false }));
+    ({ state, instanceId: plutoId } = injectCard(state, "player1", "pluto-steel-champion", "play", { isDrying: false }));
+
+    // Player2 — 4× Lilo. The first one is exerted (so Mickey can challenge it)
+    // and gets +10 STR via two synthetic this-turn buffs (substituting for
+    // resolving Force of a Great Typhoon — same end-state STR modifier).
+    let liloAId: string, liloBId: string, liloCId: string, liloDId: string;
+    ({ state, instanceId: liloAId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: liloBId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false }));
+    ({ state, instanceId: liloCId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false }));
+    ({ state, instanceId: liloDId } = injectCard(state, "player2", "lilo-making-a-wish", "play", { isDrying: false }));
+
+    // Stack two Force of a Great Typhoon equivalents on Lilo-A: 2x +5 STR,
+    // duration this_turn. Same shape as the action's actionEffects.
+    const liloA = state.cards[liloAId]!;
+    state = {
+      ...state,
+      cards: {
+        ...state.cards,
+        [liloAId]: {
+          ...liloA,
+          timedEffects: [
+            ...(liloA.timedEffects ?? []),
+            { type: "modify_strength" as any, amount: 5, expiresAt: "end_of_turn" as any, appliedOnTurn: state.turnNumber },
+            { type: "modify_strength" as any, amount: 5, expiresAt: "end_of_turn" as any, appliedOnTurn: state.turnNumber },
+          ],
+        },
+      },
+    };
+
+    // Confirm pre-conditions: Lilo-A effective STR is 11.
+    {
+      const mods = getGameModifiers(state, CARD_DEFINITIONS);
+      const liloDef = CARD_DEFINITIONS["lilo-making-a-wish"]!;
+      expect(getEffectiveStrength(state.cards[liloAId]!, liloDef, mods.statBonuses.get(liloAId)?.strength ?? 0, mods)).toBe(11);
+    }
+
+    // Action: Mickey challenges Lilo-A.
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: mickeyId,
+      defenderInstanceId: liloAId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey's THE BIGGEST STAR EVER + Pluto's WINNER TAKE ALL both queued. They
+    // resolve from the bag back-to-back without any pending choice (neither is
+    // optional, neither targets a chosen filter).
+    expect(state.pendingChoice).toBeFalsy();
+
+    // Verify the four banishes.
+    expect(state.cards[mickeyId]!.zone).toBe("discard");  // 11 dmg ≥ 10 WP
+    expect(state.cards[liloAId]!.zone).toBe("discard");   // 10 dmg ≥ 1 WP
+    expect(state.cards[liloBId]!.zone).toBe("discard");   // 5 dmg ≥ 1 WP (AOE)
+    expect(state.cards[liloCId]!.zone).toBe("discard");   // 5 dmg ≥ 1 WP (AOE)
+    expect(state.cards[liloDId]!.zone).toBe("discard");   // 5 dmg ≥ 1 WP (AOE)
+
+    // Pluto stayed in play and was untouched.
+    expect(state.cards[plutoId]!.zone).toBe("play");
+    expect(state.cards[plutoId]!.damage).toBe(0);
+
+    // WINNER TAKE ALL fires exactly once: Mickey banished Lilo-A in a challenge.
+    // (Lilo banishing Mickey doesn't qualify — Lilo isn't player1's Steel
+    // character, so the cross-card filter rejects.) +2 lore.
+    expect(state.players.player1.lore).toBe(p1LoreBefore + 2);
+  });
+});
+
 describe("§11 Set 11 — Angela Night Warrior ETERNAL NIGHT", () => {
   it("baseline: Demona with 3+ cards in hand can't be effect-readied (Stone by Day blanket)", () => {
     let state = startGame();

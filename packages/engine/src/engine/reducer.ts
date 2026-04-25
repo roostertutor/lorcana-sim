@@ -6030,6 +6030,23 @@ function queueTrigger(
   const grantedSelf = modifiers.grantedTriggeredAbilities.get(sourceInstanceId) ?? [];
   const effectiveAbilities: readonly import("../types/index.js").Ability[] =
     grantedSelf.length > 0 ? [...def.abilities, ...grantedSelf] : def.abilities;
+  // CRD 6.7.6 + 4.6.6.2: leave-play family events (is_banished, leaves_play,
+  // banished_in_challenge, banished_other_in_challenge) imply the source was
+  // in play when the event happened — the trigger fired BECAUSE the card left
+  // play. For simultaneous banishes (CRD 4.6.6.2), the runGameStateCheck loop
+  // banishes one card before the next, so when the second banish queues a
+  // banished_other_in_challenge whose source is the first (already in discard),
+  // any filter with `zone: "play"` mistakenly rejects the still-valid trigger.
+  // Strip `zone` from the filter for these events when matching against the
+  // source — its other axes (owner, cardType, traits, inkColors) still apply.
+  // Caught by the Mickey Giant + Pluto Steel Champion vs buffed Lilo scenario.
+  const isLeavePlaySourceFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge"].includes(eventType);
+  const stripZoneIfNeeded = (f: CardFilter): CardFilter => {
+    if (!isLeavePlaySourceFamily) return f;
+    if (!("zone" in f)) return f;
+    const { zone: _z, ...rest } = f;
+    return rest;
+  };
   const selfTriggers = effectiveAbilities
     .filter((a): a is TriggeredAbility => {
       if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
@@ -6038,7 +6055,7 @@ function queueTrigger(
       // "another item") can reject the source's own event — otherwise a card like
       // Magic Broom Illuminary Keeper fires its "another character" trigger on its
       // own play.
-      if (triggerFilter && !matchesFilter(instance, def, triggerFilter, state, instance.ownerId, sourceInstanceId)) return false;
+      if (triggerFilter && !matchesFilter(instance, def, stripZoneIfNeeded(triggerFilter), state, instance.ownerId, sourceInstanceId)) return false;
       // For `challenges` triggers, defenderFilter (optional) matches the
       // challenged character. The defender lives on context.triggeringCardInstanceId.
       // Used by Shenzi Head Hyena ("challenges a damaged character") etc.
@@ -6080,7 +6097,7 @@ function queueTrigger(
       // Check if the source card matches the trigger's filter. Pass the watcher's
       // instanceId so atLocation: "this" filters resolve relative to the watcher
       // (e.g. Graveyard of Christmas Future "Whenever you move a character HERE").
-      if (!matchesFilter(instance, def, triggerFilter, state, watcher.ownerId, watcher.instanceId)) continue;
+      if (!matchesFilter(instance, def, stripZoneIfNeeded(triggerFilter), state, watcher.ownerId, watcher.instanceId)) continue;
       // defenderFilter check for `challenges` triggers — see selfTriggers above.
       // Cross-card precedent: Scar Vengeful Lion watches "whenever ONE OF YOUR
       // characters challenges a damaged character".
