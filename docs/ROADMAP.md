@@ -1,9 +1,17 @@
 # ROADMAP.md
-# Ties together all the specs. What to build, in what order, and why.
+# Sequenced product plan — what to build, in what order, and why.
 # Cross-references all docs in docs/ folder.
-# Does NOT replace SPEC.md or DECISIONS.md.
+# Does NOT replace SPEC.md, DECISIONS.md, STRATEGY.md.
 #
-# Last updated: 2026-04-14 (nav consistency + saved decks: Sandbox/Simulate moved to dev-only URL routes, saved deck CRUD via Supabase, Multiplayer deck picker, Ravensburger disclaimer footer)
+# Last updated: 2026-04-14 (nav consistency + saved decks).
+# Last cross-ref refresh: 2026-04-25 (added BACKLOG.md companion).
+#
+# Companion docs:
+#   docs/STRATEGY.md  — product strategy / positioning / wedge claims
+#   docs/HANDOFF.md   — active cross-agent work queue (open items only)
+#   docs/BACKLOG.md   — parked design decisions with trigger conditions
+#   docs/SPEC.md      — type/API specs
+#   docs/DECISIONS.md — locked architecture decisions and rationale
 
 ---
 

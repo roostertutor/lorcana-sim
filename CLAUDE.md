@@ -88,8 +88,30 @@ Four scripts triangulate data quality; three (`card-status`, `audit-cards`, `dec
 
 ## Docs (read on demand)
 
+### Planning trio — read these before adding work items
+
+These three docs partition the "what's next" surface. Knowing where an item belongs is the bulk of correctly using them.
+
+| File | Purpose | An item belongs here when… |
+|------|---------|---------------------------|
+| `docs/ROADMAP.md` | Sequenced product plan — what to build next, in what order, why. | The work is committed and sequenced. "We're going to build this." |
+| `docs/HANDOFF.md` | Active cross-agent work queue — open items only. | Another agent type needs to pick this up. Strict convention: delete on completion. |
+| `docs/BACKLOG.md` | Parked design / strategy decisions with trigger conditions. | We considered it, didn't ship now, have a concrete trigger to revisit. No agent owner yet. |
+
+**Rules of thumb:**
+- If you're about to write "TODO: figure out X later" → write a BACKLOG entry with a trigger condition instead.
+- If a HANDOFF item has been `[DEFERRED]` for >2 weeks → move it to BACKLOG.
+- If an item is sequenced into a sprint plan → move it to ROADMAP.
+- Every BACKLOG entry MUST answer: what was considered, why parked, trigger to reconsider, expected scope. No trigger condition = the item is lost, not parked.
+- Don't create new top-level docs for parked work without checking BACKLOG first.
+
+### Other reference docs
+
 | File | Purpose | When to read |
 |------|---------|-------------|
+| `docs/STRATEGY.md` | Product strategy, positioning, wedge claims | Before strategic-direction work or claiming a UX wedge |
+| `docs/BRAND.md` | Brand identity, name candidates, screenshot test | Naming, marketing surface, visual identity calls |
+| `docs/COMPETITIVE.md` | Competitive landscape (duels.ink, Inktable, etc.) | Competitive analysis, wedge claims |
 | `docs/SPEC.md` | Full spec: APIs, types, build order | Starting a new package/feature |
 | `docs/DECISIONS.md` | Why decisions were made | Before proposing architecture changes |
 | `docs/CRD_TRACKER.md` | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
