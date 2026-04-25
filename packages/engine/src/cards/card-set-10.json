@@ -12897,7 +12897,7 @@
                 },
                 "matchAction": "play_card",
                 "noMatchDestination": "bottom",
-                "isMay": true
+                "matchIsMay": true
               }
             ]
           }

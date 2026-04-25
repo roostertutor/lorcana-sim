@@ -460,6 +460,67 @@ function validateCardFields(card: any): FieldError[] {
   // Walk actionEffects
   (card.actionEffects ?? []).forEach((e: any, i: number) => walkEffect(e, `actionEffects[${i}]`));
 
+  // CRD 4.3.3.2 / 6.1.4 may-flag oracle-vs-JSON consistency:
+  //   • reveal_top_conditional with matchAction:"play_card": oracle says "may play"
+  //     (Lorcana's reveal-and-play cards always do) → JSON must carry
+  //     matchIsMay:true. Without it, the engine auto-plays the revealed card —
+  //     bypassing the player choice. Caught Kristoff's Lute MOMENT OF
+  //     INSPIRATION (oracle "may play it" / JSON missing flag) and Fairy
+  //     Godmother STUNNING TRANSFORMATION (used isMay:true, a no-op on this
+  //     effect type — must be matchIsMay).
+  //   • each_player.isMay wrapping a play_card / reveal effect: same shape —
+  //     oracle "Each player may X" needs isMay:true on the each_player
+  //     combinator. Without it, every player is forced through the inner
+  //     effects.
+  // The walk is recursive so it catches these inside sequential / each_player /
+  // self_replacement nestings.
+  const walkMayConsistency = (node: any, path: string, oracle: string) => {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      node.forEach((c, i) => walkMayConsistency(c, `${path}[${i}]`, oracle));
+      return;
+    }
+    if (node.type === "reveal_top_conditional" && node.matchAction === "play_card" && !node.matchIsMay) {
+      // Oracle wording: any "may" within four words of "play" / "reveal" near
+      // this clause. Conservative — false positives are still useful flags.
+      if (/\bmay\s+(?:\w+\s+){0,3}play\b/i.test(oracle)) {
+        errors.push({
+          path,
+          field: "matchIsMay",
+          value: "missing",
+          validValues: `oracle says "may play" but the reveal_top_conditional effect is missing matchIsMay:true — the engine will auto-play without prompting (note: 'isMay' is a no-op on this effect; the field is matchIsMay)`,
+        });
+      }
+    }
+    if (node.type === "each_player" && !node.isMay) {
+      const innerHasPlayOrReveal = Array.isArray(node.effects) &&
+        node.effects.some((e: any) => e?.type === "play_card" || e?.type === "reveal_top_conditional");
+      if (innerHasPlayOrReveal && /\beach player may\b/i.test(oracle)) {
+        errors.push({
+          path,
+          field: "isMay",
+          value: "missing",
+          validValues: `oracle says "each player may" but each_player wrapping play_card/reveal is missing isMay:true — every player is forced through the inner effects`,
+        });
+      }
+    }
+    for (const k of Object.keys(node)) walkMayConsistency(node[k], `${path}.${k}`, oracle);
+  };
+  // Card-level oracle text for actionEffects.
+  (card.actionEffects ?? []).forEach((e: any, i: number) =>
+    walkMayConsistency(e, `actionEffects[${i}]`, String(card.rulesText ?? ""))
+  );
+  // Ability-level: each ability uses its own oracle slice (preferring
+  // ab.rulesText when present, falling back to the card-level rulesText so
+  // we still flag anything obvious).
+  (card.abilities ?? []).forEach((ab: any, i: number) => {
+    const oracle = String(ab.rulesText ?? card.rulesText ?? "");
+    if (Array.isArray(ab.effects)) {
+      ab.effects.forEach((e: any, j: number) => walkMayConsistency(e, `abilities[${i}].effects[${j}]`, oracle));
+    }
+    if (ab.effect) walkMayConsistency(ab.effect, `abilities[${i}].effect`, oracle);
+  });
+
   // actionEffects on non-action cards is silently ignored — flag as invalid.
   // Items / characters / locations should use `abilities` (activated/triggered/static)
   // instead. The runtime only consumes actionEffects when the card moves through

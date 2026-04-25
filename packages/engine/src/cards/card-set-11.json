@@ -8720,6 +8720,7 @@
             "filter": {},
             "matchAction": "play_card",
             "matchPayCost": true,
+            "matchIsMay": true,
             "noMatchDestination": "discard"
           }
         ]

@@ -985,8 +985,15 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const filter = hasFilter ? renderFilter(e.filter) : "a card";
     const exerted = e.matchEnterExerted ? " and they enter play exerted" : "";
     const playVerb = e.matchPayCost ? "play it as if it were in your hand" : `play it for free${exerted}`;
+    // matchIsMay drives whether the render emits "may" for play_card. Without
+    // matchIsMay the engine auto-plays — render WITHOUT "may" so a missing
+    // flag surfaces as an oracle-vs-JSON diff in the decompiler tail. Caught
+    // the Let's Get Dangerous bug class: had matchIsMay correctly set (so no
+    // rendered diff), but a similar future card forgetting the flag would now
+    // show "play it for free" vs oracle "may play it for free".
+    const may = e.matchIsMay ? "may " : "";
     const match = e.matchAction === "to_hand" ? "put it into your hand"
-      : e.matchAction === "play_card" ? (isBoth ? `that player may play it for free${exerted}` : `you may ${playVerb}`)
+      : e.matchAction === "play_card" ? (isBoth ? `that player ${may}play${e.matchIsMay ? "" : "s"} it for free${exerted}` : `you ${may}${playVerb}`)
       : e.matchAction === "to_inkwell_exerted" ? "put it into your inkwell facedown and exerted"
       : e.matchAction ?? "keep it";
     const noMatch = e.noMatchDestination === "bottom" ? (isBoth ? "put the revealed card on the bottom of their player's deck" : "put it on the bottom of your deck")

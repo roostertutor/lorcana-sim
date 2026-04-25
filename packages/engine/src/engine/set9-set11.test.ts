@@ -826,8 +826,16 @@ describe("§10 Set 10 — Boost (CRD 8.4)", () => {
     // Banish landed: opposing in-play Mickey is now in discard.
     expect(getInstance(state, oppCharId).zone).toBe("discard");
 
-    // Reveal-rider fired: opponent's top-of-deck Mickey was revealed and
-    // (since it's a character) played for free into opponent's play zone.
+    // Reveal-rider fired with matchIsMay: opponent must accept the may-prompt
+    // to play their revealed Mickey for free. (Was previously auto-played
+    // because the JSON used the no-op `isMay` field; the audit caught it and
+    // the field was corrected to `matchIsMay: true`.)
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
     expect(getInstance(state, oppTopId).zone).toBe("play");
     expect(getInstance(state, oppTopId).ownerId).toBe("player2");
   });

@@ -1528,6 +1528,38 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       revealPicks: true,
     }),
   },
+  // Let's Get Dangerous: "Each player shuffles their deck and then reveals the
+  // top card. Each player who reveals a [type] card may play that [type] for
+  // free. Otherwise, put the revealed cards on the bottom of their player's
+  // deck." matchIsMay:true is mandatory — without it the engine force-plays.
+  {
+    name: "reveal_top_conditional_each_player_play_or_bottom",
+    pattern: /^each player shuffles their deck and then reveals the top card\. each player who reveals (?:a |an )([\w ]+?) card may play that [\w ]+ for free\. otherwise,? put the revealed cards? on the bottom of their player's deck/i,
+    build: (m) => ({
+      type: "reveal_top_conditional",
+      filter: parseSimpleFilter(m[1].trim()),
+      matchAction: "play_card",
+      noMatchDestination: "bottom",
+      matchIsMay: true,
+      target: { type: "both" },
+    }),
+  },
+  // The Return of Hercules: "Each player may reveal a [type] card from their
+  // hand and play it for free." each_player.isMay wraps a reveal+play. Without
+  // isMay both players are forced through the play.
+  {
+    name: "each_player_may_reveal_and_play_from_hand",
+    pattern: /^each player may reveal (?:a |an )([\w ]+?) card from their hand and play it for free/i,
+    build: (m) => ({
+      type: "each_player",
+      isMay: true,
+      effects: [{
+        type: "play_card",
+        sourceZone: "hand",
+        filter: { cardType: parseSimpleFilter(m[1].trim()).cardType },
+      }],
+    }),
+  },
   // "Look at the top N cards of your deck. Put one into your hand and the
   // other into your inkwell facedown and exerted." — split routing
   {
