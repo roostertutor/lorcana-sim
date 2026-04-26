@@ -1086,6 +1086,34 @@ describe("§P2 Promo — Lilo Escape Artist NO PLACE I'D RATHER BE (paid play fr
   });
 });
 
+describe("§10 Set 10 — Mowgli Man Cub HAVE A BETTER LOOK (reveal then discard)", () => {
+  // Oracle: "When you play this character, chosen opponent reveals their
+  // hand and discards a non-character card of their choice." The reveal
+  // step was missing — JSON only wired the discard, so the caster never
+  // saw the opponent's hand and replay/UI never got the hand_revealed
+  // event. Fix prepends a reveal_hand effect.
+  it("emits hand_revealed before the discard prompt surfaces", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let mowgliId: string;
+    ({ state, instanceId: mowgliId } = injectCard(state, "player1", "mowgli-man-cub", "hand"));
+    // Seed opp's hand with a non-character so the discard has a valid pick.
+    ({ state } = injectCard(state, "player2", "nothing-to-hide", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mowgliId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // The events array should include hand_revealed for player2 — that's
+    // the public reveal step the oracle requires.
+    const handRevealedEvents = r.events.filter(e => e.type === "hand_revealed" && e.playerId === "player2");
+    expect(handRevealedEvents.length).toBeGreaterThan(0);
+
+    // After the reveal resolves, opp's choose_discard prompt surfaces.
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player2");
+  });
+});
+
 describe("§10 Set 10 — Pluto Clever Cluefinder ON THE TRAIL", () => {
   it("with Detective in play: returns an item from discard to hand", () => {
     let state = startGame();

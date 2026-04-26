@@ -9958,6 +9958,12 @@
     "foilMaskUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/masks/set2/165_6b0a716a52923d0c_base.jpg",
     "actionEffects": [
       {
+        "type": "reveal_hand",
+        "target": {
+          "type": "opponent"
+        }
+      },
+      {
         "type": "draw",
         "amount": 1,
         "target": {

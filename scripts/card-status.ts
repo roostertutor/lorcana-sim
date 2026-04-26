@@ -617,6 +617,47 @@ function validateCardFields(card: any): FieldError[] {
     if (ab.effect) walkMayConsistency(ab.effect, `abilities[${i}].effect`, oracle);
   });
 
+  // Card-level reveal-hand consistency: if oracle says "reveals their/your
+  // hand" or "look at chosen player's hand", the JSON must contain a
+  // reveal_hand or look_at_hand effect somewhere. Without it, the public
+  // reveal step (that the discard / draw rider conditions on) silently
+  // skips — caster never sees the opponent's hand, replay/UI never gets
+  // the hand_revealed event, and any oracle-implied "of your choice" rider
+  // runs without the caster having seen the cards. Caught Mowgli Man Cub
+  // HAVE A BETTER LOOK, Lenny Toy Binoculars TAKE A GOOD LOOK (×2 — set 12
+  // + P3), Ursula Eric's Bride VANESSA'S DESIGN, and Nothing to Hide in
+  // the 2026-04-26 sweep.
+  const cardOracleForReveal = String(card.rulesText ?? "");
+  const oracleSaysReveal =
+    /\breveal[s]?\s+(?:their|your|his|her)\s+hand\b/i.test(cardOracleForReveal)
+    || /\blook\s+at\s+(?:chosen\s+\w+\s+)?(?:their|your|his|her)\s+hand\b/i.test(cardOracleForReveal);
+  if (oracleSaysReveal) {
+    const subtreeHasReveal = (n: any): boolean => {
+      if (!n || typeof n !== "object") return false;
+      if (Array.isArray(n)) return n.some(subtreeHasReveal);
+      if (n.type === "reveal_hand" || n.type === "look_at_hand") return true;
+      for (const k of Object.keys(n)) if (subtreeHasReveal(n[k])) return true;
+      return false;
+    };
+    let found = subtreeHasReveal(card.actionEffects ?? []);
+    if (!found) {
+      for (const ab of (card.abilities ?? [])) {
+        if (subtreeHasReveal(ab.effects ?? null) || subtreeHasReveal(ab.effect ?? null)) {
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      errors.push({
+        path: card.actionEffects?.length ? "actionEffects" : "abilities",
+        field: "reveal_hand",
+        value: "missing",
+        validValues: `oracle says "reveal/look at hand" but no reveal_hand or look_at_hand effect is wired — the public reveal step silently skips, and any "of your choice" rider runs without the caster having seen the hand`,
+      });
+    }
+  }
+
   // actionEffects on non-action cards is silently ignored — flag as invalid.
   // Items / characters / locations should use `abilities` (activated/triggered/static)
   // instead. The runtime only consumes actionEffects when the card moves through

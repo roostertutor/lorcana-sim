@@ -3573,6 +3573,12 @@
         },
         "effects": [
           {
+            "type": "reveal_hand",
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
             "type": "discard_from_hand",
             "amount": 1,
             "target": {
