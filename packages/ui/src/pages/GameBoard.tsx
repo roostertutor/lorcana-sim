@@ -1614,6 +1614,69 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     );
   }
 
+  /**
+   * PROTOTYPE — render N identical-state items as a single staggered stack.
+   *
+   * Stack key is computed by `itemStackKey` (def + state). Same defId +
+   * same state (exerted, damage, timed effects, cardsUnder count) groups.
+   * Mixed states split into separate stacks (e.g. 3 ready Pawpsicles +
+   * 1 exerted = 2 slots).
+   *
+   * Visual: front card via the existing renderPlayCell (so taps + popover +
+   * inspect modal all flow naturally on the front instance). Behind it,
+   * 1-2 shadow layers (translated up-right, dimmed gray rectangles) hint
+   * at depth. Count badge in the top-right corner shows exact `×N`.
+   *
+   * Tap behavior is implicit — the front card's onClick handles the action;
+   * since items in a stack share state, activating the "front one" is
+   * equivalent to picking any.
+   */
+  function renderItemStack(ids: string[], isOpponent: boolean) {
+    const frontId = ids[0]!;
+    const count = ids.length;
+    // Shadows are colored rectangles matching the wrapper bounds, shifted
+    // up-right via transform so they peek out from behind the front card.
+    // Two layers max regardless of stack size; the count badge handles
+    // exact-precision signaling.
+    return (
+      <div key={`stack-${frontId}`} className="relative shrink-0">
+        {count >= 3 && (
+          <div
+            className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] bg-gray-800 border-2 border-gray-600/50 pointer-events-none"
+            style={{ transform: "translate(4px, -4px)" }}
+          />
+        )}
+        {count >= 2 && (
+          <div
+            className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] bg-gray-800 border-2 border-gray-500/50 pointer-events-none"
+            style={{ transform: "translate(2px, -2px)" }}
+          />
+        )}
+        {/* Front card — uses the existing cell renderer for tap/popover/inspect */}
+        <div className="relative">
+          {renderPlayCell(frontId, isOpponent)}
+        </div>
+        {/* Count badge — overlapping top-right corner of the front card */}
+        <span className="absolute -top-1 -right-1 z-20 text-[10px] font-black bg-amber-500 text-amber-950 rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-md border border-amber-300/60 pointer-events-none">
+          ×{count}
+        </span>
+      </div>
+    );
+  }
+
+  /** PROTOTYPE — stack key for grouping identical items.
+   *  Same defId + state (exert, damage, timed effects, cardsUnder count)
+   *  → same stack. Different state → separate stacks. */
+  function itemStackKey(inst: { definitionId: string; isExerted: boolean; damage?: number; timedEffects?: unknown[]; cardsUnder?: unknown[] }): string {
+    return [
+      inst.definitionId,
+      inst.isExerted ? "E" : "R",
+      inst.damage ?? 0,
+      (inst.timedEffects ?? []).length,
+      (inst.cardsUnder ?? []).length,
+    ].join("|");
+  }
+
   // Render the play area: locations (each with its hosted characters in a colored box),
   // wandering characters, then items/actions on the right.
   function renderPlayArea(playIds: string[], isOpponent: boolean) {
@@ -1635,6 +1698,26 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         wandering.push(cid);
       }
     }
+    // PROTOTYPE — group otherIds (items + actions) by stack key so 4
+    // identical-state Pawpsicles render as one staggered pile instead of
+    // 4 separate slots. Mixed-state items (3 ready + 1 exerted) split
+    // into 2 stacks. Insertion order preserved per stack so the stable
+    // first-id is the front card.
+    const otherStacks: string[][] = [];
+    const stackByKey = new Map<string, string[]>();
+    for (const id of otherIds) {
+      const inst = gameState!.cards[id];
+      if (!inst) continue;
+      const key = itemStackKey(inst);
+      const existing = stackByKey.get(key);
+      if (existing) {
+        existing.push(id);
+      } else {
+        const newStack = [id];
+        stackByKey.set(key, newStack);
+        otherStacks.push(newStack);
+      }
+    }
     return (
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 md:gap-2 pb-1 md:px-1">
         {/* Locations row — each with its hosted characters bordered together */}
@@ -1651,14 +1734,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             })}
           </div>
         )}
-        {/* Wandering characters + items/actions row */}
+        {/* Wandering characters + items/actions row.
+            Wandering chars NEVER stack (per-instance state matters too
+            much — boost stacks, drying, damage, timed effects). Items
+            CAN stack when state is identical (same defId + state). */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
           <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end">
             {wandering.map(id => renderPlayCell(id, isOpponent))}
           </div>
-          {otherIds.length > 0 && (
+          {otherStacks.length > 0 && (
             <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end">
-              {otherIds.map(id => renderPlayCell(id, isOpponent))}
+              {otherStacks.map(ids =>
+                ids.length > 1
+                  ? renderItemStack(ids, isOpponent)
+                  : renderPlayCell(ids[0]!, isOpponent),
+              )}
             </div>
           )}
         </div>
