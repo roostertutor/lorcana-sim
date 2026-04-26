@@ -37,6 +37,8 @@ import RevealPill from "../components/RevealPill.js";
 import BoardMenu from "../components/BoardMenu.js";
 import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
 import TopToast from "../components/TopToast.js";
+import InfoToast from "../components/InfoToast.js";
+import ModeToast from "../components/ModeToast.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -2115,56 +2117,36 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       </div>
 
       {/* ======================= Floating mode toasts =======================
-          All use TopToast wrapper for safe-area-aware positioning. Without
-          it the toasts sat behind the Dynamic Island in iPhone portrait —
-          mode-toast Cancel/Confirm buttons became unreachable. */}
+          All use TopToast wrapper for safe-area-aware positioning (without
+          it the toasts sat behind the Dynamic Island, with mode-toast
+          Cancel/Confirm buttons unreachable). InfoToast = passive pulse
+          for "Opponent thinking" / "Waiting." ModeToast = interactive
+          pill for the 2-step click modes (Challenge/Shift/Sing/Move). */}
       {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
-        <TopToast className="pointer-events-none">
-          <div className="bg-yellow-950/90 border border-yellow-700/60 rounded-full px-4 py-1.5 shadow-lg">
-            <span className="text-yellow-400 text-xs font-medium animate-pulse">Opponent is thinking…</span>
-          </div>
-        </TopToast>
+        <InfoToast text="Opponent is thinking…" theme="yellow" />
       )}
       {/* Multiplayer: waiting for opponent's turn (no pending choice, not your turn) */}
       {multiplayerGame && !pendingChoice && !isGameOver && !isYourTurn && (
-        <TopToast className="pointer-events-none">
-          <div className="bg-gray-900/90 border border-gray-700/60 rounded-full px-4 py-1.5 shadow-lg">
-            <span className="text-gray-400 text-xs font-medium animate-pulse">Waiting for opponent…</span>
-          </div>
-        </TopToast>
+        <InfoToast text="Waiting for opponent…" theme="gray" />
       )}
       {!pendingChoice && !isGameOver && isYourTurn && (challengeAttackerId || shiftCardId || singCardId || singTogetherCardId || moveCharId) && (
         <TopToast className="flex items-center gap-2">
           {challengeAttackerId && (
-            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-red-950/90 border border-red-700/60 text-red-300 text-xs shadow-lg">
-              <span className="font-bold">Challenge</span>
-              <span className="hidden sm:inline text-red-500">— tap a highlighted opponent card</span>
-              <button className="text-red-500 hover:text-red-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-            </div>
+            <ModeToast label="Challenge" hint="tap a highlighted opponent card" theme="red" onCancel={cancelMode} />
           )}
           {shiftCardId && (
-            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-purple-950/90 border border-purple-700/60 text-purple-300 text-xs shadow-lg">
-              <span className="font-bold">Shift</span>
-              <span className="hidden sm:inline text-purple-500">— tap a highlighted character</span>
-              <button className="text-purple-500 hover:text-purple-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-            </div>
+            <ModeToast label="Shift" hint="tap a highlighted character" theme="purple" onCancel={cancelMode} />
           )}
           {singCardId && (
-            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
-              <span className="font-bold">Sing</span>
-              <span className="hidden sm:inline text-yellow-600">— tap a highlighted character to sing</span>
-              <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-            </div>
+            <ModeToast label="Sing" hint="tap a highlighted character to sing" theme="yellow" onCancel={cancelMode} />
           )}
           {singTogetherCardId && (() => {
             const canConfirm = singTogetherSelected.length > 0 && singTogetherTotalCost >= singTogetherRequiredCost;
             return (
-              <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-950/90 border border-yellow-700/60 text-yellow-300 text-xs shadow-lg">
-                <span className="font-bold">Sing Together</span>
+              <ModeToast label="Sing Together" hint="tap singers to add/remove" theme="yellow" onCancel={cancelMode}>
                 <span className={`font-mono ${canConfirm ? "text-green-400" : "text-yellow-500"}`}>
                   {singTogetherTotalCost}/{singTogetherRequiredCost}
                 </span>
-                <span className="hidden sm:inline text-yellow-600">— tap singers to add/remove</span>
                 <button
                   className={`px-2 py-0.5 rounded font-bold active:scale-95 ${
                     canConfirm
@@ -2185,16 +2167,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 >
                   Confirm
                 </button>
-                <button className="text-yellow-600 hover:text-yellow-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-              </div>
+              </ModeToast>
             );
           })()}
           {moveCharId && (
-            <div className="flex items-center gap-2 rounded-full px-3 py-1 sm:px-4 sm:py-1.5 bg-cyan-950/90 border border-cyan-700/60 text-cyan-300 text-xs shadow-lg">
-              <span className="font-bold">Move</span>
-              <span className="hidden sm:inline text-cyan-600">— tap a highlighted location</span>
-              <button className="text-cyan-600 hover:text-cyan-300 font-bold active:scale-95" onClick={cancelMode}><Icon name="x-mark" className="w-3.5 h-3.5" /></button>
-            </div>
+            <ModeToast label="Move" hint="tap a highlighted location" theme="cyan" onCancel={cancelMode} />
           )}
         </TopToast>
       )}
