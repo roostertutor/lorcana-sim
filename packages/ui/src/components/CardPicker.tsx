@@ -25,6 +25,24 @@ interface Props {
   format?: GameFormat;
 }
 
+// Compare two setIds with numeric setIds sorted by their integer value
+// (so "2" < "10" < "11" instead of "10" < "11" < "2") and non-numeric
+// setIds sorted lexicographically AFTER all numeric ones (so promo /
+// challenge / D23 / etc. land at the end of the browse order). Plain
+// String#localeCompare gives the wrong order for our setId domain because
+// our set ids are stringified integers ("1" through "12") plus a handful
+// of alphabetic codes (P1, P2, P3, C1, C2, D23, DIS, CP).
+function compareSetIds(a: string, b: string): number {
+  const aNum = parseInt(a, 10);
+  const bNum = parseInt(b, 10);
+  const aIsNum = !isNaN(aNum) && String(aNum) === a;
+  const bIsNum = !isNaN(bNum) && String(bNum) === b;
+  if (aIsNum && bIsNum) return aNum - bNum;
+  if (aIsNum) return -1;  // numeric sets sort before non-numeric promo / challenge / etc.
+  if (bIsNum) return 1;
+  return a.localeCompare(b);
+}
+
 export default function CardPicker({ entries, definitions, onChange, format }: Props) {
   const [filters, setFilters] = React.useState<CardFilters>(EMPTY_FILTERS);
   const [inspectId, setInspectId] = React.useState<string | null>(null);
@@ -86,7 +104,7 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
       result.sort((a, b) => b.score - a.score);
     } else {
       result.sort((a, b) => {
-        const setDiff = a.def.setId.localeCompare(b.def.setId);
+        const setDiff = compareSetIds(a.def.setId, b.def.setId);
         if (setDiff !== 0) return setDiff;
         return a.def.number - b.def.number;
       });
