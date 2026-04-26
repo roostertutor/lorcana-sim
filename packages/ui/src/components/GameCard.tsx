@@ -21,6 +21,70 @@ const INK_THEME: Record<string, { border: string; gradFrom: string; gradTo: stri
 
 const DEFAULT_THEME = INK_THEME.steel!;
 
+// =============================================================================
+// CARD_SIZING — per-context width/height className strings
+//
+// Centralized so a card-size adjustment is a single edit. The card has four
+// distinct sizing contexts:
+//
+//   adaptivePlay:     live in-play card. Height-adaptive in portrait
+//                     (h-full + max-h:73 + min-w:28), explicit 45×63 in
+//                     landscape-phone, falls through to sm:w-[104px]
+//                     lg:w-[120px] from baseClass for tablet/desktop.
+//
+//   adaptiveFaceDown: opp-hand peek (face-down). Smaller landscape (28×39)
+//                     so the peek-strip / card-height ratio stays close to
+//                     portrait (bumping to 45×63 would halve visible
+//                     card-back area in landscape).
+//
+//   hand:             live face-up hand card. Explicit width per breakpoint
+//                     (88 portrait → 72 landscape → 104 sm → 120 lg).
+//
+//   previewPlay /     naturalSize mini-cards for inkwell + discard tile
+//   previewHand:      preview, scaled via scale-[0.538] in the parent. Width
+//                     is tuned so scaled output fits the utility tile.
+//
+// All values are true 5:7 (Lorcana card proportion). Setting both w + h
+// explicitly makes CSS ignore aspect-[5/7], so the explicit dims must
+// themselves be 5:7 — true for every value below.
+// =============================================================================
+const CARD_SIZING = {
+  adaptivePlay:
+    "w-auto h-full max-h-[73px] min-w-[28px] " +
+    "sm:!h-auto sm:!max-h-none " +
+    "landscape-phone:!w-[45px] landscape-phone:!h-[63px] " +
+    "landscape-phone:!max-h-[63px] landscape-phone:!min-w-[45px]",
+  adaptiveFaceDown:
+    "w-auto h-full max-h-[73px] min-w-[28px] " +
+    "sm:!h-auto sm:!max-h-none " +
+    "landscape-phone:!w-[28px] landscape-phone:!h-[39px] " +
+    "landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]",
+  hand: "w-[88px] landscape-phone:!w-[72px]",
+  previewPlay: "w-[52px] landscape-phone:!w-[45px]",
+  previewHand: "w-[88px] landscape-phone:!w-[88px]",
+} as const;
+
+// Sm+ width additions (applied uniformly via baseClass / face-down branch).
+// Kept separate from CARD_SIZING because they're added externally rather
+// than embedded in each context's mobileWidth string.
+const CARD_SIZING_DESKTOP = "sm:w-[104px] lg:w-[120px]";
+
+// =============================================================================
+// CARD_RADIUS — per-context border-radius className strings
+//
+// Two contexts: play/face-down (narrower cards → smaller radius) vs hand
+// (wider cards → slightly larger). Targets ~4-5% of card width at each
+// breakpoint, matching real Lorcana card radius proportions. Replaces the
+// previous fixed `rounded-md sm:rounded-xl` (which was 21% of a 28-wide
+// landscape card — over-rounded).
+// =============================================================================
+const CARD_RADIUS = {
+  playOrFaceDown:
+    "rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[2px]",
+  hand:
+    "rounded sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[3px]",
+} as const;
+
 interface Props {
   instanceId: string;
   gameState: GameState;
@@ -61,52 +125,21 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   // CRD 5.5.4: locations never exert and never dry
   const isLocation = def.cardType === "location";
 
-  // Mobile width: play cards shrink to fit 7 ready across; exerted cards use rotated width so
-  // flex layout nudges neighbours rather than overlapping them. Hand cards stay full size.
+  // Card sizing + radius selected from the module-level CARD_SIZING and
+  // CARD_RADIUS tables based on context (zone, faceDown, naturalSize). See
+  // those constants at the top of this file for the per-context strings
+  // and the design notes on portrait/landscape/sm+/lg+ behavior.
   const isExerted = !isLocation && instance.isExerted;
-  // Play-zone card sizing:
-  //
-  // Portrait mobile (base, < sm) — height-adaptive: `h-full` fills the zone's
-  // available vertical height, `w-auto` + aspect-[5/7] drive width. Capped at
-  // 73px tall (≈ 52w × 7/5). Works here because the portrait flex chain
-  // collapses to an explicit height in practice.
-  //
-  // Tablet + desktop (sm+) — reverts to the natural width-based sizing from
-  // baseClass (`sm:w-[104px] lg:w-[120px]`).
-  //
-  // Landscape phone — explicit 45×63 box (!important beats sm: rules). True
-  // 5:7 (45÷5 = 63÷7 = 9). Briefly bumped to 50×70 when the scoreboard bar
-  // was removed, but adding safe-area-inset-bottom padding (to avoid iOS
-  // home-gesture collision on card drag-up from hand) reclaims ~21px of
-  // budget, forcing the revert. The height-adaptive approach fails here
-  // because no ancestor in this branch has an explicit height, so `h-full`
-  // resolves to auto and `max-h` never triggers.
-  // Note: setting both w and h explicitly causes CSS to ignore aspect-[5/7]
-  // from baseClass, so the explicit dimensions must themselves be 5:7.
-  const adaptivePlayCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[45px] landscape-phone:!h-[63px] landscape-phone:!max-h-[63px] landscape-phone:!min-w-[45px]";
-  // Face-down opp-hand peek: kept smaller (28×39 landscape) so the peek ratio
-  // (strip-height / card-height) stays close to portrait. Bumping halves the
-  // visible fraction of the card-back in landscape.
-  const adaptiveFaceDownCard = "w-auto h-full max-h-[73px] min-w-[28px] sm:!h-auto sm:!max-h-none landscape-phone:!w-[28px] landscape-phone:!h-[39px] landscape-phone:!max-h-[39px] landscape-phone:!min-w-[28px]";
-  // naturalSize: inkwell + discard-tile mini-previews scaled via scale-[0.538].
-  // Portrait: 52w → 28 visual (fits w-7 tile). Landscape: 45w → 24.2 visual
-  // (fits the w-[25px] tile with ~0.8px slack).
   const mobileWidth = naturalSize
-    ? (faceDown || zone === "play"
-        ? "w-[52px] landscape-phone:!w-[45px]"
-        : "w-[88px] landscape-phone:!w-[88px]")
+    ? (faceDown || zone === "play" ? CARD_SIZING.previewPlay : CARD_SIZING.previewHand)
     : zone === "play"
-    ? adaptivePlayCard
+    ? CARD_SIZING.adaptivePlay
     : faceDown
-    ? adaptiveFaceDownCard
-    : "w-[88px] landscape-phone:!w-[72px]";
-  // Radius scales with card width (~4-5% — close to the real Lorcana card
-  // radius). Play cards are narrower than hand cards at every breakpoint, so
-  // they get a smaller radius. Overrides the previous fixed `rounded-md
-  // sm:rounded-xl` that was 21% of a 28-wide landscape card.
+    ? CARD_SIZING.adaptiveFaceDown
+    : CARD_SIZING.hand;
   const mobileRadius = (faceDown || zone === "play")
-    ? "rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[2px]"
-    : "rounded sm:rounded-[5px] lg:rounded-[6px] landscape-phone:!rounded-[3px]";
+    ? CARD_RADIUS.playOrFaceDown
+    : CARD_RADIUS.hand;
 
   // Play restriction check — grey out hand cards whose playRestrictions fail
   const hasFailedRestriction = zone === "hand" && (def as any).playRestrictions?.length > 0 &&
@@ -137,7 +170,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   if (faceDown) {
     return (
       <div
-        className={`${mobileWidth} sm:w-[104px] lg:w-[120px] aspect-[5/7] ${mobileRadius} overflow-hidden shrink-0`}
+        className={`${mobileWidth} ${CARD_SIZING_DESKTOP} aspect-[5/7] ${mobileRadius} overflow-hidden shrink-0`}
         onClick={onClick}
         tabIndex={0}
         onKeyDown={handleKey}
@@ -262,7 +295,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
   const rotationClass = isExerted && !skipRotation
     ? `rotate-90 ${isTarget ? "" : "brightness-50"}`
     : isLocation && zone === "play" ? "rotate-90" : "";
-  const baseClass = `game-card relative border-2 ${mobileRadius} ${mobileWidth} sm:w-[104px] lg:w-[120px] shrink-0 cursor-pointer
+  const baseClass = `game-card relative border-2 ${mobileRadius} ${mobileWidth} ${CARD_SIZING_DESKTOP} shrink-0 cursor-pointer
     transition-all duration-200 ${ringClass} ${restrictionOpacity} ${costReductionGlow} ${unplayableDim}
     ${rotationClass}
     hover:scale-105 hover:z-10 hover:shadow-lg hover:${theme.glow}`;
