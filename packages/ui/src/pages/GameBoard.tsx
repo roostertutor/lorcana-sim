@@ -774,26 +774,37 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     }
     prevRevealActionCount.current = session.actionCount;
   }, [currentRevealCardsKey, session.actionCount, session.gameState?.turnNumber]);
-  // Reveal is "visible" (as modal or pill) only while the anchor turn is the
-  // current turn. On next turn-advance, anchor no longer matches → hidden.
-  const revealCardsVisible =
+  // Reveal visibility — gated only on the turn anchor (the "no note-taking"
+  // contract: a reveal is available all turn for re-inspection, then clears).
+  //
+  // The MODAL is shown by default on a new reveal (the useEffect resets the
+  // dismiss flag when a fresh reveal arrives) and toggles via the pill —
+  // user closes modal → pill shows; user clicks pill → modal shows.
+  //
+  // We deliberately do NOT gate on `session.actionCount === birthActionCount`
+  // here. That used to be the gate, but it broke opponent-chooser flows
+  // (Mowgli Man Cub: reveal_hand → opponent picks discard → bot
+  // RESOLVE_CHOICE bumps actionCount immediately → both modal AND pill
+  // hidden, leaving no way to re-inspect the reveal). Stale-reveal
+  // resurrection on UNDO is already prevented by the
+  // `actionCount > prev` gate inside the tracking useEffects above —
+  // undo decrements actionCount and never re-fires the auto-open.
+  const revealCardsSameTurn =
     currentRevealCardsKey !== null
-    && session.actionCount === revealActionCount
     && revealCardsTurnAnchor != null
     && session.gameState?.turnNumber === revealCardsTurnAnchor;
   const showRevealCardsModal =
-    revealCardsVisible && revealCardsCollapsedKey !== currentRevealCardsKey;
+    revealCardsSameTurn && revealCardsCollapsedKey !== currentRevealCardsKey;
   const showRevealCardsPill =
-    revealCardsVisible && revealCardsCollapsedKey === currentRevealCardsKey;
-  // Hand-reveal visibility follows the same modal/pill split.
-  const revealHandVisible =
+    revealCardsSameTurn && revealCardsCollapsedKey === currentRevealCardsKey;
+
+  const revealHandSameTurn =
     currentRevealedHand != null
     && currentRevealedHand.cardIds.length > 0
-    && session.actionCount === revealHandActionCount
     && revealHandTurnAnchor != null
     && session.gameState?.turnNumber === revealHandTurnAnchor;
-  const showRevealHandModal = revealHandVisible && !revealHandCollapsedToPill;
-  const showRevealHandPill = revealHandVisible && revealHandCollapsedToPill;
+  const showRevealHandModal = revealHandSameTurn && !revealHandCollapsedToPill;
+  const showRevealHandPill = revealHandSameTurn && revealHandCollapsedToPill;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
