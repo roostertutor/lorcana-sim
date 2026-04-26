@@ -744,13 +744,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
      *  "both") get owner labels per card via `instance.ownerId` in the
      *  modal instead. */
     playerId: PlayerID;
+    /** session.actionCount at the moment this entry was pushed. Used to
+     *  prune entries when undo rewinds past their birth (otherwise the
+     *  pill would advertise a reveal that engine state has rolled back). */
+    birthActionCount: number;
   };
   const [revealHistory, setRevealHistory] = useState<RevealEntry[]>([]);
   const [revealHistoryTurn, setRevealHistoryTurn] = useState<number | null>(null);
-  /** sequenceId of the reveal currently expanded in the modal. null = no
-   *  modal open. New reveals auto-open (set this to the new sequenceId);
-   *  closing the modal sets back to null. Pills remain visible regardless. */
-  const [expandedRevealSeqId, setExpandedRevealSeqId] = useState<number | null>(null);
+  /** Single combined modal for the whole turn's reveals. Auto-opens on each
+   *  new reveal arrival (so the user sees the new content), closes on
+   *  dismiss. Pill remains visible until turn boundary regardless. */
+  const [revealHistoryModalOpen, setRevealHistoryModalOpen] = useState(false);
 
   // Compose a key for new-reveal detection. Engine increments sequenceId on
   // every reveal-producing action, so two back-to-back Daisy quests revealing
@@ -769,7 +773,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // the turn that produced the reveals.
     if (turn !== revealHistoryTurn) {
       setRevealHistory([]);
-      setExpandedRevealSeqId(null);
+      setRevealHistoryModalOpen(false);
       setRevealHistoryTurn(turn);
     }
     // Detect a new reveal arriving via forward play. Engine state-spreads
@@ -786,23 +790,42 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         instanceIds: rc.instanceIds,
         sourceInstanceId: rc.sourceInstanceId,
         playerId: rc.playerId,
+        birthActionCount: session.actionCount,
       };
       setRevealHistory(prev => {
         // Idempotent: dedupe by sequenceId in case useEffect re-runs.
         if (prev.some(e => e.sequenceId === newEntry.sequenceId)) return prev;
         return [...prev, newEntry];
       });
-      // Auto-expand the newest reveal modal.
-      setExpandedRevealSeqId(rc.sequenceId);
+      // Auto-open the combined modal so the user sees the new reveal content.
+      setRevealHistoryModalOpen(true);
     }
+    // Undo rewind — drop entries born after the current actionCount, since
+    // the engine state for those reveals has been rolled back. No-op when
+    // actionCount only advances forward.
+    setRevealHistory(prev => {
+      const filtered = prev.filter(e => e.birthActionCount <= session.actionCount);
+      return filtered.length === prev.length ? prev : filtered;
+    });
     prevRevealKey.current = currentRevealCardsKey;
     prevRevealActionCount.current = session.actionCount;
   }, [currentRevealCardsKey, session.actionCount, session.gameState?.turnNumber, session.gameState?.lastRevealedCards, revealHistoryTurn]);
 
-  /** The reveal currently expanded in the modal (null = no modal open). */
-  const expandedReveal = expandedRevealSeqId != null
-    ? revealHistory.find(e => e.sequenceId === expandedRevealSeqId)
-    : undefined;
+  /** Combined reveal data for the single per-turn modal — sums all
+   *  cardIds across history entries. Modal title shows the source when
+   *  there's only one event; switches to "Revealed this turn" with a
+   *  count when multiple events accumulated. */
+  const combinedRevealCardIds = revealHistory.flatMap(e => e.instanceIds);
+  const combinedRevealTitle = (() => {
+    if (revealHistory.length === 0) return "";
+    if (revealHistory.length === 1) {
+      const entry = revealHistory[0]!;
+      const srcInst = session.gameState?.cards[entry.sourceInstanceId];
+      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+      return `Revealed by ${srcDef?.fullName ?? "Card"}`;
+    }
+    return `Revealed this turn (${revealHistory.length} events, ${combinedRevealCardIds.length} cards)`;
+  })();
 
   const revealHandSameTurn =
     currentRevealedHand != null
@@ -2523,35 +2546,34 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         />
       )}
 
-      {/* ======================= Revealed Cards Viewer (search/look-at-top with reveal) =======================
-          Renders the currently-expanded reveal from the per-turn history.
-          Multi-owner reveals (Let's Get Dangerous: target "both") get
-          per-card "You / Opp" badges via the modal's myId prop. */}
-      {expandedReveal && (() => {
-        const srcInst = gameState.cards[expandedReveal.sourceInstanceId];
-        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-        const sourceName = srcDef?.fullName ?? "Card";
-        return (
-          <ZoneViewModal
-            title={`Revealed by ${sourceName}`}
-            cardIds={expandedReveal.instanceIds}
-            gameState={gameState}
-            definitions={definitions}
-            onClose={() => setExpandedRevealSeqId(null)}
-            myId={myId}
-          />
-        );
-      })()}
+      {/* ======================= Revealed Cards Viewer =======================
+          Single per-turn combined modal — shows ALL revealed cards from
+          all reveal events this turn in one grid. Owner badges (You/Opp)
+          appear when cards span multiple owners (Let's Get Dangerous:
+          target "both"). Title adapts: single-event reveals show the
+          source ("Revealed by Vision of the Future"); multi-event reveals
+          summarise ("Revealed this turn (3 events, 7 cards)"). */}
+      {revealHistoryModalOpen && combinedRevealCardIds.length > 0 && (
+        <ZoneViewModal
+          title={combinedRevealTitle}
+          cardIds={combinedRevealCardIds}
+          gameState={gameState}
+          definitions={definitions}
+          onClose={() => setRevealHistoryModalOpen(false)}
+          myId={myId}
+        />
+      )}
 
       {/* ======================= Status Pill Stack =======================
           Bottom-right floating stack, independent of the mid-screen
-          "View Choice" pill (bottom-center). Contains:
-          - Active Effects pill (conditional on gameModifiers producing any)
-          - Reveal Hand pill (collapsed hand-reveal viewer)
-          - One Reveal Cards pill PER reveal action this turn (per-turn
-            history accumulates them so two Daisy quests show two pills)
-          Reveal pills clear at next turn boundary via revealHandTurnAnchor
-          / revealHistoryTurn gates; Active Effects is always live state. */}
+          "View Choice" pill (bottom-center). Contains at most three chips:
+          - Active Effects (when active)
+          - Reveal Hand (when a hand reveal has been collapsed to pill)
+          - Reveal Cards (singleton — combined per-turn count of revealed
+            cards across all reveal events; tap opens the unified modal)
+          All chips clear at next turn boundary; Active Effects is live
+          state. Single combined reveal pill keeps the stack minimal even
+          when many reveals fire in one turn. */}
       {(showRevealHandPill || revealHistory.length > 0 || activeEffects.length > 0) && (
         <div
           className="fixed right-4 z-40 flex flex-col items-end gap-2 pointer-events-none"
@@ -2569,21 +2591,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               onClick={() => setRevealHandCollapsedToPill(false)}
             />
           )}
-          {revealHistory.map(entry => {
-            const srcInst = gameState.cards[entry.sourceInstanceId];
-            const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-            const sourceName = srcDef?.fullName ?? "Card";
-            return (
-              <RevealPill
-                key={entry.sequenceId}
-                title={sourceName}
-                cardIds={entry.instanceIds}
-                gameState={gameState}
-                definitions={definitions}
-                onClick={() => setExpandedRevealSeqId(entry.sequenceId)}
-              />
-            );
-          })}
+          {revealHistory.length > 0 && (
+            <RevealPill
+              title={combinedRevealTitle}
+              cardIds={combinedRevealCardIds}
+              gameState={gameState}
+              definitions={definitions}
+              onClick={() => setRevealHistoryModalOpen(true)}
+            />
+          )}
         </div>
       )}
 
