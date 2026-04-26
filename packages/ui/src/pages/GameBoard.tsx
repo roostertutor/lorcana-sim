@@ -39,6 +39,7 @@ import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
 import TopToast from "../components/TopToast.js";
 import InfoToast from "../components/InfoToast.js";
 import ModeToast from "../components/ModeToast.js";
+import ModalFrame from "../components/ModalFrame.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -2596,8 +2597,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       })()}
       {/* ======================= Active Effects Modal ======================= */}
       {showEffects && activeEffects.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShowEffects(false)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        <ModalFrame onClose={() => setShowEffects(false)} placement="bottom-sheet-mobile" backdropClass="bg-black/60 backdrop-blur-sm">
           <div
             className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl p-4 max-w-sm w-full sm:w-[90vw] shadow-2xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
@@ -2640,7 +2640,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               ))}
             </div>
           </div>
-        </div>
+        </ModalFrame>
       )}
     </DndContext>
   );

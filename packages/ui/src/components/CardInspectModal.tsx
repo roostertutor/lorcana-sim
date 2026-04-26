@@ -2,6 +2,7 @@ import React from "react";
 import type { CardDefinition, GameState, GameModifiers } from "@lorcana-sim/engine";
 import { getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
+import ModalFrame from "./ModalFrame.js";
 import { getInspectCardImage } from "../utils/cardImage.js";
 import CardPlaceholder from "./CardPlaceholder.js";
 
@@ -63,14 +64,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
-      // Only close when the actual backdrop is tapped, not when a scroll or
-      // momentum touch bubbles up from inside content. stopPropagation on
-      // the inner content handles descendant clicks but iOS touch momentum
-      // can still synthesize clicks on the backdrop.
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <ModalFrame onClose={onClose} placement="bottom-sheet-mobile">
       <div
         className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
@@ -340,7 +334,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
         {/* No actions: just padding */}
         {actions.length === 0 && <div className="pb-4" />}
       </div>
-    </div>
+    </ModalFrame>
   );
 }
 

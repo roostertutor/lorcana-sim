@@ -3,6 +3,7 @@ import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import GameCard from "./GameCard.js";
 import CardInspectModal from "./CardInspectModal.js";
 import Icon from "./Icon.js";
+import ModalFrame from "./ModalFrame.js";
 
 interface ZoneViewModalProps {
   title: string;
@@ -25,12 +26,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
   const isInspectFaceDown = inspectId !== null
     && ((faceDownIds ? faceDownIds.has(inspectId) : faceDown) ?? false);
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-      // Only close on direct backdrop taps; clicks inside the inspect-modal
-      // child bubble up here and must not double-dismiss.
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
+    <ModalFrame onClose={onClose}>
       <div
         className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -108,6 +104,6 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
           />
         );
       })()}
-    </div>
+    </ModalFrame>
   );
 }
