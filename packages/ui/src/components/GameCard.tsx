@@ -7,6 +7,7 @@ import type { CardDefinition, GameState, GameModifiers, KeywordAbility } from "@
 import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower, evaluateCondition } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import type { IconName } from "./Icon.js";
+import Glyph from "./Glyph.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 
 // Ink color → gradient + border
@@ -324,21 +325,33 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
           const timedW = (instance.timedEffects ?? []).filter((te: any) => te.type === "modify_willpower").reduce((s: number, te: any) => s + (te.amount ?? 0), 0);
           const sDelta = timedS + (staticBonus?.strength ?? 0);
           const wDelta = timedW + (staticBonus?.willpower ?? 0);
+          // Stat-delta pills — number followed by the matching glyph
+          // (strength/willpower/lore). Glyph adopts the pill's text color
+          // via bg-current. Two glyph sizes are emitted with responsive
+          // visibility so the icon scales with the pill height (7px in
+          // h-3 mobile pill, 9px in h-4 sm+ pill); Glyph takes a number
+          // size, not a class, hence the dual emit.
           return (
             <div className="absolute bottom-0.5 right-0.5 z-10 pointer-events-none flex flex-col gap-0.5 items-end">
               {sDelta !== 0 && (
-                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${sDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
-                  {sDelta > 0 ? "+" : ""}{sDelta} S
+                <span className={`inline-flex items-center gap-0.5 h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${sDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {sDelta > 0 ? "+" : ""}{sDelta}
+                  <Glyph name="strength" size={7} className="sm:hidden" ariaLabel="strength" />
+                  <Glyph name="strength" size={9} className="hidden sm:inline-block" ariaLabel="strength" />
                 </span>
               )}
               {wDelta !== 0 && (
-                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${wDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
-                  {wDelta > 0 ? "+" : ""}{wDelta} W
+                <span className={`inline-flex items-center gap-0.5 h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${wDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {wDelta > 0 ? "+" : ""}{wDelta}
+                  <Glyph name="willpower" size={7} className="sm:hidden" ariaLabel="willpower" />
+                  <Glyph name="willpower" size={9} className="hidden sm:inline-block" ariaLabel="willpower" />
                 </span>
               )}
               {loreDelta !== 0 && (
-                <span className={`inline-flex items-center h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${loreDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
-                  {loreDelta > 0 ? "+" : ""}{loreDelta} L
+                <span className={`inline-flex items-center gap-0.5 h-3 px-0.5 sm:h-4 sm:px-1 rounded text-[6px] sm:text-[7px] font-black shadow ${loreDelta > 0 ? "bg-green-700/90 text-white" : "bg-red-700/90 text-red-100"}`}>
+                  {loreDelta > 0 ? "+" : ""}{loreDelta}
+                  <Glyph name="lore" size={7} className="sm:hidden" ariaLabel="lore" />
+                  <Glyph name="lore" size={9} className="hidden sm:inline-block" ariaLabel="lore" />
                 </span>
               )}
             </div>
