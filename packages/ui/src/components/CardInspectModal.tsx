@@ -316,7 +316,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
                         <span className="text-[9px] text-gray-600 shrink-0">{duration}</span>
                       </div>
                       {srcText && (
-                        <div className="text-[10px] text-gray-400 leading-snug mt-0.5">{srcText.trim()}</div>
+                        <div className="text-[10px] text-gray-400 leading-snug mt-0.5">{renderRulesText(srcText.trim(), 10)}</div>
                       )}
                     </div>
                   );

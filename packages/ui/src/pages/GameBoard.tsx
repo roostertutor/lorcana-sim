@@ -43,6 +43,7 @@ import ModalFrame from "../components/ModalFrame.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
+import { renderRulesText } from "../utils/rulesTextRender.js";
 
 // -----------------------------------------------------------------------------
 // Shared sizing tokens for the utility-strip tiles (deck / discard / inkwell)
@@ -2651,7 +2652,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                     {e.duration && <span className="text-[9px] text-gray-600 shrink-0">{e.duration}</span>}
                     {e.target && <span className="text-[9px] text-gray-500 shrink-0">{e.target}</span>}
                   </div>
-                  <div className="text-[10px] text-gray-400 leading-snug mt-0.5">{e.label}</div>
+                  <div className="text-[10px] text-gray-400 leading-snug mt-0.5">{renderRulesText(e.label, 10)}</div>
                   {e.sourceName && e.source !== e.sourceName && (
                     <div className="text-[9px] text-gray-600 mt-0.5">{e.source}</div>
                   )}
