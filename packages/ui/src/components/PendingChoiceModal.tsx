@@ -152,7 +152,15 @@ export default function PendingChoiceModal({
         ? ""
         : "brightness-50";
     return (
-      <div className="relative flex flex-col items-center cursor-pointer overflow-hidden">
+      // aspect-[5/7] forces the layout box to a card-shaped rectangle keyed
+      // off grid-cell width. Without this, `transform: scale(0.78)` below
+      // shrinks only the visual — the layout box keeps GameCard's full
+      // natural height (~168px), making CardThumb 35px taller than the
+      // dashed empty-slot placeholder (which IS aspect-[5/7]) in the
+      // choose_order preview strip. With aspect-[5/7] + overflow-hidden
+      // the wrapper clamps to ~134px tall while the scaled visual at
+      // ~131px tall fits inside cleanly (origin-top keeps it anchored).
+      <div className="relative flex flex-col items-center cursor-pointer overflow-hidden aspect-[5/7]">
         {/* scale wrapper so cards fit comfortably in the modal */}
         <div className={`scale-[0.78] origin-top transition ${dimClass}`}>
           <GameCard
