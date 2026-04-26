@@ -42,6 +42,43 @@ import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 
 // -----------------------------------------------------------------------------
+// Shared sizing tokens for the utility-strip tiles (deck / discard / inkwell)
+//
+// All four sites — InkwellZone strip container, InkwellZone fan cells, deck
+// tile, discard tile — render the same 5:7 micro-card across the same
+// breakpoint ladder. Centralizing means changing the tile dimensions in one
+// place propagates everywhere. (5:7 ratios: 28×39 portrait, 56×78 sm,
+// 64×89 lg, 25×35 landscape-phone.)
+//
+// Radius scales with width — ~4% of the tile width, matching the radius
+// scaling we did on the play / hand cards. Smoother ladder than the prior
+// `rounded-[1px] sm:rounded lg:rounded` (which jumped 1px → 4px → 4px).
+//
+// Fan overlap is the negative left-margin used when stacking inked cards
+// in the inkwell strip. Pre-computed pixel values keep the visual overlap
+// fraction (~43%) consistent across breakpoints.
+// -----------------------------------------------------------------------------
+
+/** Width + height for the utility-strip tile (deck / discard / inkwell cell). */
+const TILE_DIMS =
+  "w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] " +
+  "landscape-phone:!w-[25px] landscape-phone:!h-[35px]";
+
+/** Height-only variant for the inkwell-strip outer container (which lays out
+ *  multiple tile cells horizontally). */
+const TILE_HEIGHT_ONLY =
+  "h-[39px] sm:h-[78px] lg:h-[89px] landscape-phone:!h-[35px]";
+
+/** Border-radius for tiles. ~4% of tile width at each breakpoint. */
+const TILE_RADIUS =
+  "rounded-[1px] sm:rounded-sm lg:rounded-[3px] landscape-phone:!rounded-[1px]";
+
+/** Negative left margin for fanned inkwell tiles — preserves ~43% overlap
+ *  fraction across all breakpoints. */
+const TILE_FAN_OVERLAP =
+  "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-[11px]";
+
+// -----------------------------------------------------------------------------
 // Bot options
 // -----------------------------------------------------------------------------
 
@@ -409,7 +446,7 @@ function InkwellZone({
           a 7:10 ratio that cropped card-back edges ~2% vertically via the
           object-cover img on the deck tile. Landscape-phone uses 25×35
           (smaller 5:7) to make room for larger live play cards. */}
-      <div className="h-[39px] sm:h-[78px] lg:h-[89px] landscape-phone:!h-[35px] flex flex-nowrap items-start px-1 -mt-px" style={{ clipPath: "inset(0 -9999px 0 0)" }}>
+      <div className={`${TILE_HEIGHT_ONLY} flex flex-nowrap items-start px-1 -mt-px`} style={{ clipPath: "inset(0 -9999px 0 0)" }}>
         {total === 0 ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <span className="text-[9px] text-gray-700 italic">No cards inked</span>
@@ -422,7 +459,7 @@ function InkwellZone({
               <div
                 key={id}
                 style={{ zIndex: i }}
-                className={`shrink-0 w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-[25px] landscape-phone:!h-[35px] relative transition-all duration-200 ${i > 0 ? "-ml-3 sm:-ml-6 lg:-ml-7 landscape-phone:!-ml-[11px]" : ""}`}
+                className={`shrink-0 ${TILE_DIMS} relative transition-all duration-200 ${i > 0 ? TILE_FAN_OVERLAP : ""}`}
               >
                 <div className="absolute top-0 left-0 origin-top-left scale-[0.538] pointer-events-none">
                   <div className={`transition-all duration-200 ${!isAvailable ? "rotate-90 grayscale brightness-75" : ""}`}>
@@ -470,7 +507,7 @@ function UtilityStrip({
       <button
         onClick={onDeckClick}
         disabled={!onDeckClick}
-        className="relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-[25px] landscape-phone:!h-[35px] shrink-0 rounded-[1px] sm:rounded lg:rounded landscape-phone:!rounded-[1px] overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40"
+        className={`relative ${TILE_DIMS} ${TILE_RADIUS} shrink-0 overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40`}
       >
         {deckTopId && deckTopVisible ? (
           (() => {
@@ -508,7 +545,7 @@ function UtilityStrip({
       <button
         onClick={onDiscardClick}
         disabled={discardCount === 0}
-        className={`relative w-7 h-[39px] sm:w-14 sm:h-[78px] lg:w-16 lg:h-[89px] landscape-phone:!w-[25px] landscape-phone:!h-[35px] shrink-0 rounded-[1px] sm:rounded lg:rounded landscape-phone:!rounded-[1px] overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
+        className={`relative ${TILE_DIMS} ${TILE_RADIUS} shrink-0 overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
           discardCount > 0 && (
             // Play from discard (Lilo Escape Artist, Pride Lands)
             Object.values(gameState.cards).some(
