@@ -419,18 +419,33 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Order picker (choose_order) — player clicks cards in their preferred bottom-of-deck order
+    // Order picker (choose_order) — player clicks cards in their preferred
+    // bottom-of-deck order. Three affordances make the abstract "click-order
+    // = sequence" mental model concrete:
+    //   1. Helper subtitle frames clicks as gameplay events ("first tap goes
+    //      to the bottom", "last tap will be drawn first") instead of slot
+    //      numbers.
+    //   2. A preview strip below the picker shows the final deck
+    //      arrangement being built — empty placeholder slots indicate what's
+    //      missing; clicking a placed card in the preview removes it.
+    //   3. Reset button lets the player clear all placements without
+    //      individually deselecting each card.
     if (pendingChoice.type === "choose_order") {
       const ids = pendingChoice.validTargets ?? [];
       const total = ids.length;
+      const placedCount = multiSelectTargets.length;
       return (
         <div className="space-y-3">
           <div>
             <div className="text-yellow-300 text-sm font-medium mb-0.5">{pendingChoice.prompt}</div>
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              Click cards in order — #1 goes deepest, #{total} sits on top
+              Tap in order — first tap → bottom of deck (drawn last). Last tap → drawn first of these.
             </div>
           </div>
+
+          {/* Picker grid — every valid target is shown; clicking adds to or
+              removes from the order queue. Placed cards display their slot
+              number via the "ordered" CardThumb badge. */}
           <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
             {ids.map((id) => {
               const posIndex = multiSelectTargets.indexOf(id);
@@ -449,13 +464,59 @@ export default function PendingChoiceModal({
               );
             })}
           </div>
-          <button
-            className="px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-            disabled={multiSelectTargets.length !== total}
-            onClick={() => onResolveChoice(multiSelectTargets)}
-          >
-            Confirm order ({multiSelectTargets.length}/{total})
-          </button>
+
+          {/* Final-order preview strip — left = bottom of deck (drawn last),
+              right = top of placed stack (drawn first of these). Empty slots
+              show as dashed boxes with their slot number, so the user can
+              see how many cards are still missing without counting badges. */}
+          <div className="rounded-lg p-2 bg-gray-900/60 border border-gray-800/50">
+            <div className="flex items-center justify-between text-[9px] text-gray-500 uppercase tracking-wider mb-1.5 px-0.5">
+              <span>← Drawn last</span>
+              <span>Drawn first →</span>
+            </div>
+            <div className="flex gap-1 items-stretch">
+              {Array.from({ length: total }, (_, i) => {
+                const cardId = multiSelectTargets[i];
+                return cardId ? (
+                  <div key={i} className="flex-1 min-w-0">
+                    <CardThumb
+                      id={cardId}
+                      selection={{ kind: "ordered", index: i + 1 }}
+                      onClick={() => onMultiSelectChange((prev) => prev.filter((t) => t !== cardId))}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    key={i}
+                    className="flex-1 aspect-[5/7] rounded border-2 border-dashed border-gray-700/50 flex items-center justify-center text-gray-700 text-xs font-mono min-w-0"
+                  >
+                    {i + 1}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Confirm + Reset. Reset only renders when there's something to
+              clear (placedCount > 0), so the row collapses to a single
+              full-width Confirm in the initial empty state. */}
+          <div className="flex gap-2">
+            <button
+              className="flex-1 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+              disabled={placedCount !== total}
+              onClick={() => onResolveChoice(multiSelectTargets)}
+            >
+              Confirm order ({placedCount}/{total})
+            </button>
+            {placedCount > 0 && (
+              <button
+                className="px-3 py-2 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 rounded-lg font-medium transition-colors border border-gray-700"
+                onClick={() => onMultiSelectChange([])}
+              >
+                Reset
+              </button>
+            )}
+          </div>
         </div>
       );
     }

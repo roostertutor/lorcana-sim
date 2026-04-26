@@ -95,6 +95,93 @@ case.
 
 ---
 
+## Engine agent: Hypnotic Deduction — honor "in any order" via choose_order
+
+Discovered 2026-04-26 while improving the `choose_order` PendingChoiceModal
+UI (added preview strip + reset button + clearer prompt for cards like
+Vision of the Future / Ariel Spectacular Singer / REPURPOSED). Hypnotic
+Deduction has the same oracle-text intent ("in any order") but doesn't
+surface a `choose_order` step — so the new UI improvements bypass it.
+
+### Oracle vs current wiring
+
+**Oracle**: "Draw 3 cards, then put 2 cards from your hand on the top
+of your deck **in any order**."
+
+**Current wiring** (`packages/engine/src/cards/card-set-5.json:6167-6189`):
+```json
+"actionEffects": [
+  { "type": "draw", "amount": 3, "target": { "type": "self" } },
+  {
+    "type": "put_card_on_bottom_of_deck",
+    "from": "hand",
+    "amount": 2,
+    "target": { "type": "chosen", "filter": { "zone": "hand", "owner": { "type": "self" } } },
+    "position": "top"
+  }
+]
+```
+
+The `put_card_on_bottom_of_deck` resolver (despite the misleading name —
+`position: "top"` here puts them on top of the deck) surfaces a
+`choose_target` with `count: 2` (verified by `set5-set8.test.ts:411-413`),
+then stacks the 2 picked cards in pick order. The "in any order"
+phrase is dropped — players can't choose which of their 2 picks ends
+up drawn first vs second.
+
+### Two implementation options
+
+#### Option A: Two-step pick → order
+
+After the existing `choose_target` resolves with 2 cards, surface a
+follow-up `choose_order` PendingChoice over those exact 2 cards. Mirrors
+the `look_at_top` → `choose_order` flow (Vision of the Future, Ariel
+Spectacular Singer) — the resolver in `reducer.ts:2404-2414` is the
+template. UX is two screens of clicks, but the existing modal handles
+both natively.
+
+Smaller engine change. UI gets the new ordering modal automatically (no
+UI work needed since the modal is shared).
+
+#### Option B: Single combined choose_order step
+
+Surface a single `choose_order` PendingChoice where `validTargets =
+entire hand` and the player picks AND orders 2 cards in one pass.
+Requires a new variant of `choose_order` where `count <
+validTargets.length` (currently the resolver in `reducer.ts:2433`
+expects every validTarget to be ordered exactly once — see
+`validator.ts:991-992`).
+
+Cleaner UX (one step) but bigger engine change: type union, validator,
+resolver, and UI modal all need to handle partial selection. Worth
+deferring unless we expect more cards with this pattern.
+
+### Recommendation
+
+**Option A.** It's the existing pattern, the engine change is small, and
+the UI is free. Players going through Hypnotic Deduction will hit the
+new preview-strip ordering modal for the second step automatically.
+
+### Generalization
+
+If other "choose K from hand and put on top in order" cards exist or
+get added, Option A applies the same way. Worth grepping
+`put_card_on_bottom_of_deck` actionEffects with `position: "top"` to
+see the full surface.
+
+### Test pattern
+
+Add to `set5-set8.test.ts`:
+- After PLAY_CARD, expect first PendingChoice to be `choose_target`
+  count:2 (existing test).
+- After RESOLVE_CHOICE with 2 hand cards, expect SECOND PendingChoice
+  to be `choose_order` with those 2 ids as validTargets.
+- After RESOLVE_CHOICE with the 2 ids in chosen order, expect those
+  cards to be on top of the deck in that order (last selected drawn
+  first).
+
+---
+
 ## Server agent + UI agent: client-side Rematch trigger for MP end-of-match victory modal
 
 Discovered 2026-04-25 while unifying the victory-modal layout across
