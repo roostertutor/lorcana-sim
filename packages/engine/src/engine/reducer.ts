@@ -3015,7 +3015,7 @@ export function applyEffect(
         sourceInstanceId,
         ...(privateTo ? { privateTo } : {}),
       } as GameEvent);
-      return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, ...(privateTo ? { privateTo } : {}) } };
+      return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, sourceInstanceId, ...(privateTo ? { privateTo } : {}) } };
     }
 
     // Unified lore adjustment — gain_lore and lose_lore are aliases.

@@ -26,57 +26,20 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## Engine agent: add `sourceInstanceId` to `lastRevealedHand` state
+## ~~Engine agent: add `sourceInstanceId` to `lastRevealedHand` state~~ DONE 2026-04-24
 
-User-reported 2026-04-26 while iterating on the unified reveal modal:
-the hand-reveal section header just says "Opponent's hand" with no
-indication of *which* card revealed it. Compare to deck reveals, which
-say "Revealed by Vision of the Future" — that works because
-`lastRevealedCards.sourceInstanceId` exists on engine state.
+Engine state shape extended; `reveal_hand` / `look_at_hand` now persist
+the source card instance alongside `playerId` / `cardIds` / `privateTo`.
 
-`lastRevealedHand` doesn't carry the source. The handler at
-`reducer.ts:3018` already has `sourceInstanceId` in scope and emits it
-on the `hand_revealed` GameEvent — it just isn't persisted on the
-state object alongside `playerId`/`cardIds`/`privateTo`.
+- `packages/engine/src/types/index.ts:3639` — added `sourceInstanceId: string` to the `lastRevealedHand` snapshot interface.
+- `packages/engine/src/engine/reducer.ts:3018` — populated the new field at the existing return site (`sourceInstanceId` was already in lexical scope from the `hand_revealed` event two lines above).
+- `packages/engine/src/engine/set12.test.ts` — extended the existing Dolores Madrigal NO SECRETS tests to assert `sourceInstanceId === doloresId` (PLAY_CARD path) and `=== source.instanceId` (direct `applyEffect` path for both `reveal_hand` and `look_at_hand`).
 
-### Proposed change
+All 679 engine tests pass. Typecheck shows only pre-existing
+`exactOptionalPropertyTypes` errors unrelated to this change.
 
-One-line additive change in two places:
-
-1. `packages/engine/src/types/index.ts:3639`:
-   ```ts
-   // Before:
-   lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; privateTo?: PlayerID };
-   // After:
-   lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; sourceInstanceId: string; privateTo?: PlayerID };
-   ```
-2. `packages/engine/src/engine/reducer.ts:3018`:
-   ```ts
-   return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, sourceInstanceId, ...(privateTo ? { privateTo } : {}) } };
-   ```
-
-Both `sourceInstanceId` references are already in lexical scope at the
-handler site.
-
-### UI follow-up (mine, after engine ships)
-
-GameBoard's reveal-tracking useEffect builds the hand entry — once the
-engine carries source info, swap the hand-section title from the
-current `"Your hand" / "Opponent's hand"` to `"Revealed by [Source]"`
-parallel to the deck-section format. The lookup is already in place
-for deck entries; just mirror it.
-
-### Tests
-
-Engine: a Mowgli or Ursula reveal_hand test asserts
-`state.lastRevealedHand.sourceInstanceId === <expected>`. Probably
-already covered by an existing test that checks playerId/cardIds — add
-the new field assertion alongside.
-
-### Why deferred
-
-Tiny but cross-package. CLAUDE.md routing — engine state shape changes
-go through engine-expert.
+UI follow-up (swap "Opponent's hand" → "Revealed by [Source]" in
+GameBoard's hand-reveal section) is now unblocked.
 
 ---
 

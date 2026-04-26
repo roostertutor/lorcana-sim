@@ -3636,7 +3636,7 @@ export interface GameState {
 
   /** Snapshot of the most recently revealed hand — set by the reveal_hand
    *  effect so the UI can show a modal without needing event listeners. */
-  lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; privateTo?: PlayerID };
+  lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; sourceInstanceId: string; privateTo?: PlayerID };
 
   /** Snapshot of cards revealed to all players during search/look_at_top effects.
    *  Set at the end of applyAction from card_revealed events so multiplayer

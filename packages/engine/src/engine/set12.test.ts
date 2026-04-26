@@ -756,6 +756,8 @@ describe("Set 12 — Dolores Madrigal NO SECRETS (look_at_hand)", () => {
     expect(r.newState.lastRevealedHand?.playerId).toBe("player2");
     expect(r.newState.lastRevealedHand?.privateTo).toBe("player1");
     expect(r.newState.lastRevealedHand?.cardIds.length).toBeGreaterThan(0);
+    // sourceInstanceId is persisted so the UI can attribute the reveal to Dolores.
+    expect(r.newState.lastRevealedHand?.sourceInstanceId).toBe(doloresId);
   });
 
   it("reveal_hand vs look_at_hand: same snapshot, only privateTo differs", () => {
@@ -772,6 +774,7 @@ describe("Set 12 — Dolores Madrigal NO SECRETS (look_at_hand)", () => {
       []
     );
     expect(reveal.lastRevealedHand?.privateTo).toBeUndefined();
+    expect(reveal.lastRevealedHand?.sourceInstanceId).toBe(source.instanceId);
     // look_at_hand with same target stamps privateTo=player1.
     const look = applyEffect(
       state,
@@ -782,6 +785,7 @@ describe("Set 12 — Dolores Madrigal NO SECRETS (look_at_hand)", () => {
       []
     );
     expect(look.lastRevealedHand?.privateTo).toBe("player1");
+    expect(look.lastRevealedHand?.sourceInstanceId).toBe(source.instanceId);
     // Snapshot should match across both paths.
     expect(look.lastRevealedHand?.cardIds).toEqual(reveal.lastRevealedHand?.cardIds);
   });
