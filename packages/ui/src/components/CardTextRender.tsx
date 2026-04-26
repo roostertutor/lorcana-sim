@@ -6,6 +6,8 @@
 // =============================================================================
 
 import type { CardDefinition, Ability, InkColor } from "@lorcana-sim/engine";
+import Glyph from "./Glyph.js";
+import { renderRulesText } from "../utils/rulesTextRender.js";
 
 // Background colors match the primary fill of each ink's SVG icon
 // (assets/icons/ink/) for visual consistency with gem indicators
@@ -39,7 +41,7 @@ function renderAbility(ability: Ability, i: number): JSX.Element {
   return (
     <div key={i} className="text-[10px] leading-snug">
       {storyName && <span className="font-bold text-amber-200 uppercase tracking-wide">{storyName} — </span>}
-      {rulesText && <span className="text-gray-300">{rulesText}</span>}
+      {rulesText && <span className="text-gray-300">{renderRulesText(rulesText, 10)}</span>}
     </div>
   );
 }
@@ -83,26 +85,28 @@ export default function CardTextRender({ def, compact = false }: Props) {
         )}
       </div>
 
-      {/* Stats line (characters) */}
+      {/* Stats line (characters) — glyphs replace STR/WILL/LORE labels for
+           visual density. Each stat keeps its color tint via text-* on the
+           wrapper span, which Glyph picks up via bg-current. */}
       {isCharacter && (
         <div className="flex items-center gap-3 text-[10px] border-y border-gray-800 py-1">
-          <span><span className="text-gray-500">STR</span> <span className="text-white font-bold">{def.strength ?? 0}</span></span>
-          <span><span className="text-gray-500">WILL</span> <span className="text-white font-bold">{def.willpower ?? 0}</span></span>
-          <span><span className="text-gray-500">LORE</span> <span className="text-white font-bold">{def.lore ?? 0}</span></span>
+          <span className="inline-flex items-center gap-1 text-red-400"><Glyph name="strength" size={12} /><span className="text-white font-bold">{def.strength ?? 0}</span></span>
+          <span className="inline-flex items-center gap-1 text-gray-300"><Glyph name="willpower" size={12} /><span className="text-white font-bold">{def.willpower ?? 0}</span></span>
+          <span className="inline-flex items-center gap-1 text-amber-400"><Glyph name="lore" size={12} /><span className="text-white font-bold">{def.lore ?? 0}</span></span>
         </div>
       )}
 
-      {/* Move cost (locations) + Willpower */}
+      {/* Locations: move cost + willpower + lore */}
       {isLocation && (
         <div className="flex items-center gap-3 text-[10px] border-y border-gray-800 py-1">
           {def.moveCost != null && (
-            <span><span className="text-gray-500">MOVE</span> <span className="text-white font-bold">{def.moveCost}</span></span>
+            <span className="inline-flex items-center gap-1 text-cyan-400"><Glyph name="move-cost" size={12} /><span className="text-white font-bold">{def.moveCost}</span></span>
           )}
           {def.willpower != null && (
-            <span><span className="text-gray-500">WILL</span> <span className="text-white font-bold">{def.willpower}</span></span>
+            <span className="inline-flex items-center gap-1 text-gray-300"><Glyph name="willpower" size={12} /><span className="text-white font-bold">{def.willpower}</span></span>
           )}
           {def.lore != null && (
-            <span><span className="text-gray-500">LORE</span> <span className="text-white font-bold">{def.lore}</span></span>
+            <span className="inline-flex items-center gap-1 text-amber-400"><Glyph name="lore" size={12} /><span className="text-white font-bold">{def.lore}</span></span>
           )}
         </div>
       )}
@@ -124,7 +128,7 @@ export default function CardTextRender({ def, compact = false }: Props) {
       {/* Action effects — actions don't have abilities, their rulesText is the effect */}
       {(isAction || isItem) && def.rulesText && def.abilities.length === 0 && (
         <div className="text-[10px] text-gray-300 leading-snug pt-0.5">
-          {def.rulesText}
+          {renderRulesText(def.rulesText, 10)}
         </div>
       )}
     </div>

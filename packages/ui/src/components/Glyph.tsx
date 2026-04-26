@@ -23,11 +23,14 @@ export type GlyphName =
   | "willpower"
   | "lore"
   | "exert"
-  | "inkable"
+  | "ink"        // ink cost glyph (rendered for {I} in rulesText). Same shape
+                  // the Lorcana app reuses as its collection-empty indicator —
+                  // we use it for its primary semantic (ink cost / inkwell).
+  | "inkable"    // top-of-card inkable indicator (rendered for {C}). Distinct
+                  // from "ink" — see Hidden Inkcaster: "count as having {C}".
   | "uninkable"
   | "move-cost"
   | "favorite"
-  | "owned-empty"
   | "owned-filled";
 
 interface Props {

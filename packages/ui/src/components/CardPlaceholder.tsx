@@ -15,6 +15,8 @@
 // =============================================================================
 
 import type { CardType, InkColor } from "@lorcana-sim/engine";
+import Glyph, { type GlyphName } from "./Glyph.js";
+import { renderRulesText } from "../utils/rulesTextRender.js";
 
 /** Subset of CardDefinition sufficient to render a placeholder. All fields
  *  optional so the /dev/add-card preview can render partial in-progress form
@@ -157,13 +159,14 @@ export default function CardPlaceholder({ data, className, compact = false }: Pr
         )}
       </div>
 
-      {/* Rules-text preview (non-compact only) — truncated middle block */}
+      {/* Rules-text preview (non-compact only) — truncated middle block.
+           Inline {S}/{W}/{L}/{E}/{C}/{I} tokens get swapped for glyphs. */}
       {!compact && rulesText && (
         <div
           className="absolute left-2 right-2 top-[64%] bottom-[18%] overflow-hidden bg-black/40 rounded px-1.5 py-1 border border-white/10"
         >
           <div className="text-[9px] leading-snug text-white/85 line-clamp-4">
-            {rulesText}
+            {renderRulesText(rulesText, 9)}
           </div>
         </div>
       )}
@@ -173,7 +176,7 @@ export default function CardPlaceholder({ data, className, compact = false }: Pr
         {/* Strength (characters) or set/num (others) — left slot */}
         <div className="flex items-center gap-0.5">
           {cardType === "character" && typeof data.strength === "number" ? (
-            <StatBadge label="STR" value={data.strength} color="bg-red-600" compact={compact} />
+            <StatBadge glyph="strength" value={data.strength} color="bg-red-600" compact={compact} />
           ) : (
             <span className={`text-white/50 font-mono ${compact ? "text-[8px]" : "text-[10px]"}`}>
               {data.setId ? `S${data.setId}` : ""}
@@ -184,10 +187,10 @@ export default function CardPlaceholder({ data, className, compact = false }: Pr
         {/* Willpower + lore (characters) or lore (locations) — right slot */}
         <div className="flex items-center gap-0.5">
           {cardType === "character" && typeof data.willpower === "number" && (
-            <StatBadge label="WIL" value={data.willpower} color="bg-gray-700" compact={compact} />
+            <StatBadge glyph="willpower" value={data.willpower} color="bg-gray-700" compact={compact} />
           )}
           {(cardType === "character" || cardType === "location") && typeof data.lore === "number" && data.lore > 0 && (
-            <StatBadge label="L" value={data.lore} color="bg-amber-500" compact={compact} />
+            <StatBadge glyph="lore" value={data.lore} color="bg-amber-500" compact={compact} />
           )}
         </div>
       </div>
@@ -203,12 +206,12 @@ export default function CardPlaceholder({ data, className, compact = false }: Pr
 }
 
 function StatBadge({
-  label,
+  glyph,
   value,
   color,
   compact,
 }: {
-  label: string;
+  glyph: GlyphName;
   value: number;
   color: string;
   compact: boolean;
@@ -218,9 +221,9 @@ function StatBadge({
       className={`flex items-center justify-center rounded ${color} text-white font-black shadow-md border border-black/30 ${
         compact ? "text-[9px] px-1 py-0.5 gap-0.5" : "text-xs px-1.5 py-0.5 gap-1"
       }`}
-      title={label}
+      title={glyph}
     >
-      <span className="opacity-75 font-bold">{label}</span>
+      <Glyph name={glyph} size={compact ? 9 : 12} className="opacity-90" />
       <span>{value}</span>
     </div>
   );

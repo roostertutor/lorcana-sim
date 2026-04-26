@@ -3,8 +3,10 @@ import type { CardDefinition, GameState, GameModifiers } from "@lorcana-sim/engi
 import { getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import ModalFrame from "./ModalFrame.js";
+import Glyph, { type GlyphName } from "./Glyph.js";
 import { getInspectCardImage } from "../utils/cardImage.js";
 import CardPlaceholder from "./CardPlaceholder.js";
+import { renderRulesText } from "../utils/rulesTextRender.js";
 
 type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
 
@@ -154,28 +156,36 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
               </div>
             )}
 
-            {/* Stats row (characters/locations) */}
+            {/* Stats row (characters/locations). Glyphs replace text labels
+                 (STR / WIL / Lore / Move) for visual density — Shift stays as
+                 text since there's no glyph for it. */}
             {(def.strength != null || def.willpower != null || def.lore != null || def.moveCost != null) && (
               <div className="flex items-center gap-3 text-xs">
                 {def.strength != null && (
                   <StatPill
-                    label="STR"
+                    glyph="strength"
                     base={def.strength}
                     effective={effStrength}
                   />
                 )}
                 {def.willpower != null && (
                   <StatPill
-                    label="WIL"
+                    glyph="willpower"
                     base={def.willpower}
                     effective={effWillpower}
                   />
                 )}
                 {def.lore != null && (
-                  <span className="text-amber-400 font-bold">Lore: {def.lore}</span>
+                  <span className="inline-flex items-center gap-1 text-amber-400 font-bold">
+                    <Glyph name="lore" size={14} />
+                    {def.lore}
+                  </span>
                 )}
                 {def.moveCost != null && (
-                  <span className="text-cyan-400 font-bold">Move: {def.moveCost}</span>
+                  <span className="inline-flex items-center gap-1 text-cyan-400 font-bold">
+                    <Glyph name="move-cost" size={14} />
+                    {def.moveCost}
+                  </span>
                 )}
                 {def.shiftCost != null && (
                   <span className="text-purple-400 font-bold">Shift: {def.shiftCost}</span>
@@ -212,10 +222,11 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
               </div>
             )}
 
-            {/* Rules text */}
+            {/* Rules text — inline {S}/{W}/{L}/{E}/{C}/{I} tokens get
+                 swapped for glyphs by renderRulesText. */}
             {def.rulesText && (
               <div className="text-gray-300 text-xs leading-relaxed border-t border-gray-800 pt-2 whitespace-pre-line">
-                {def.rulesText}
+                {renderRulesText(def.rulesText, 14)}
               </div>
             )}
 
@@ -338,15 +349,16 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
   );
 }
 
-// Stat pill: shows base → effective when modified
-function StatPill({ label, base, effective }: { label: string; base: number; effective: number | null }) {
+// Stat pill: shows base → effective when modified. Glyph (strength /
+// willpower / etc.) replaces the prior text label for visual density.
+function StatPill({ glyph, base, effective }: { glyph: GlyphName; base: number; effective: number | null }) {
   const modified = effective != null && effective !== base;
   const color = modified
     ? (effective! > base ? "text-green-400" : "text-red-400")
     : "text-gray-300";
   return (
-    <span className={`font-bold ${color}`}>
-      {label} {effective ?? base}
+    <span className={`inline-flex items-center gap-1 font-bold ${color}`}>
+      <Glyph name={glyph} size={14} /> {effective ?? base}
       {modified && <span className="text-gray-600 text-[9px] ml-0.5">({base})</span>}
     </span>
   );

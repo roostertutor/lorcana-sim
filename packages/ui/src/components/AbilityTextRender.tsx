@@ -8,6 +8,7 @@
 // =============================================================================
 
 import type { Ability } from "@lorcana-sim/engine";
+import { renderRulesText } from "../utils/rulesTextRender.js";
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " ");
@@ -50,7 +51,7 @@ export default function AbilityTextRender({ ability, cardName, compact = false }
       )}
       {rulesText && (
         <div className="text-[10px] text-gray-300 leading-snug mt-0.5">
-          {rulesText}
+          {renderRulesText(rulesText, 10)}
         </div>
       )}
     </div>
