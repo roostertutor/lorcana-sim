@@ -580,6 +580,24 @@ function validateCardFields(card: any): FieldError[] {
         });
       }
     }
+    // "discard that many" / "discard the same number" / "discard a card for
+    // each X" patterns require a DynamicAmount on discard_from_hand —
+    // hardcoded numeric amount silently caps the discard at the wrong count.
+    // Caught Tramp Street-Smart Dog HOW'S PICKINGS? ("draw a card for each
+    // other character you have in play, then choose and discard that many
+    // cards") shipping with amount:1 — Tramp drew N but always discarded 1.
+    if (node.type === "discard_from_hand" && typeof node.amount === "number") {
+      const isThatMany = /\bdiscard\s+(?:that\s+many|the\s+same(?:\s+number)?|equal\s+to)\b/i.test(oracle);
+      const isPerEach = /\bdiscard\s+(?:a\s+|one\s+)?cards?\s+for\s+each\b/i.test(oracle);
+      if (isThatMany || isPerEach) {
+        errors.push({
+          path,
+          field: "amount",
+          value: String(node.amount),
+          validValues: `oracle says "discard that many" / "discard for each" but amount is a hardcoded number — use a DynamicAmount (e.g. matching the paired draw / damage's count expression) so the discard scales with the producing step`,
+        });
+      }
+    }
     for (const k of Object.keys(node)) walkMayConsistency(node[k], `${path}.${k}`, oracle);
   };
   // Card-level oracle text for actionEffects.

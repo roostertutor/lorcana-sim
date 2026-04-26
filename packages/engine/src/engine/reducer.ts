@@ -5191,7 +5191,14 @@ export function applyEffect(
           };
         }
 
-        const discardCount = Math.min(effect.amount, hand.length);
+        // amount can be a number or a DynamicAmount (Tramp Street-Smart Dog:
+        // "discard that many" reads the same count expression as the paired
+        // draw). Resolve via resolveDynamicAmount when not numeric.
+        const rawAmount = effect.amount;
+        const resolvedAmount = typeof rawAmount === "number"
+          ? rawAmount
+          : resolveDynamicAmount(rawAmount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
+        const discardCount = Math.min(resolvedAmount, hand.length);
         if (discardCount === 0) continue;
 
         // Random chooser: pick uniformly at random from the eligible hand cards
@@ -5869,7 +5876,9 @@ function canPerformCostEffect(
       return state.players[controllingPlayerId].availableInk >= effect.amount;
     case "discard_from_hand":
       // "any" — performable if there's at least one card in hand (Geppetto).
-      // "all" — always performable. Numeric — need >= count.
+      // "all" — always performable. Numeric — need >= count. DynamicAmount —
+      // optimistic (true); the actual count resolves in the handler with
+      // full definitions context (canPerformCostEffect doesn't have them).
       // KNOWN GAP: when effect.filter is set, this doesn't check whether any
       // hand card matches the filter (canPerformCostEffect lacks definitions).
       // For ROYAL SUMMONS-style "discard a [filtered] card to reward", the may
@@ -5880,7 +5889,9 @@ function canPerformCostEffect(
         ? true
         : effect.amount === "any"
           ? getZone(state, controllingPlayerId, "hand").length > 0
-          : getZone(state, controllingPlayerId, "hand").length >= effect.amount;
+          : typeof effect.amount === "number"
+            ? getZone(state, controllingPlayerId, "hand").length >= effect.amount
+            : true;
     case "exert": {
       // CRD 6.1.5.1: exert cost on triggering_card — check not already exerted
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {

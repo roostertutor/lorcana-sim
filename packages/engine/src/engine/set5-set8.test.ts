@@ -868,6 +868,42 @@ describe("§7 Set 7 — The Return of Hercules (CRD 4.3.3.2 cleanup after each_p
   });
 });
 
+describe("§7 Set 7 — Tramp Street-Smart Dog HOW'S PICKINGS? (discard 'that many')", () => {
+  // Oracle: "When you play this character, you may draw a card for each
+  // other character you have in play, then choose and discard that many
+  // cards." Bug: discard_from_hand was hardcoded to amount:1 — Tramp drew
+  // N but always discarded only 1 regardless of N. Fix: extend
+  // DiscardEffect.amount to accept DynamicAmount and reuse the same
+  // {type:"count", filter:...} expression as the draw.
+  it("with 3 other characters in play: draws 3 then prompts for choose-and-discard 3 (not 1)", () => {
+    let state = startGame();
+    let trampId: string;
+    ({ state, instanceId: trampId } = injectCard(state, "player1", "tramp-street-smart-dog", "hand"));
+    // 3 other characters in player1's play zone (besides Tramp once he enters).
+    ({ state } = injectCard(state, "player1", "lilo-making-a-wish", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mr-smee-loyal-first-mate", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 10);
+
+    // Cast Tramp — enters_play triggers HOW'S PICKINGS? as a may-prompt.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: trampId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+
+    // Accept — should draw 3 cards for the 3 other characters in play.
+    const handBefore = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 3);
+
+    // Now should be a choose_discard prompting for 3 cards (not 1).
+    expect(state.pendingChoice?.type).toBe("choose_discard");
+    expect(state.pendingChoice?.count).toBe(3);
+  });
+});
+
 describe("§7 Set 7 — Queen of Hearts Unpredictable Bully (cross-player card_played trigger)", () => {
   it("puts a damage counter on opponent's character when they play one", () => {
     let state = startGame();

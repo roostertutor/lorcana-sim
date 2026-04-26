@@ -670,7 +670,19 @@
               },
               {
                 "type": "discard_from_hand",
-                "amount": 1,
+                "amount": {
+                  "type": "count",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "excludeSelf": true
+                  }
+                },
                 "target": {
                   "type": "self"
                 },

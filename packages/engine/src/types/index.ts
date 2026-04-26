@@ -1529,11 +1529,16 @@ export interface LookAtTopEffect {
 
 /**
  * Each target player chooses and discards cards from hand.
- * amount: "all" discards entire hand (no choice).
+ * amount: "all" discards entire hand (no choice). DynamicAmount supported
+ * for "discard that many" patterns where the count derives from another
+ * effect or board state (Tramp Street-Smart Dog HOW'S PICKINGS?: "draw a
+ * card for each other character you have in play, then choose and discard
+ * that many cards" — both the draw and the discard use the same
+ * {type:"count", filter:...} expression).
  */
 export interface DiscardEffect {
   type: "discard_from_hand";
-  amount: number | "all" | "any";
+  amount: DynamicAmount | "all" | "any";
   target: PlayerTarget;
   /** Who picks what to discard — "target_player" = they choose, "controller" = you choose from their hand,
    *  "random" = engine picks uniformly at random from the eligible hand cards (Bruno reveal, Lady Tremaine, etc.) */
