@@ -1597,8 +1597,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // is 5:7 rotated. Explicit pixel sizing bypasses the h-full resolution
     // bug — no ancestor in this branch has an explicit height, so h-full
     // resolved to auto and max-h never triggered.
+    //
+    // PROTOTYPE (compression): non-rotated portrait cells become flex
+    // items with `basis-52 shrink min-w-36 aspect-[5/7]`. As a row gets
+    // crowded (7+ cards in iPhone portrait), cells shrink uniformly to
+    // fit — all stay distinct rectangles, just smaller. Hits the 36px
+    // floor → wraps to next row. sm:/landscape-phone reset the wrapper
+    // to passthrough (card inside takes its explicit sizing).
+    const cellClasses = needsRotatedSlot
+      ? "shrink-0 w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden"
+      : "aspect-[5/7] basis-[52px] shrink min-w-[36px] sm:aspect-auto sm:basis-auto sm:shrink-0 sm:min-w-0 landscape-phone:!aspect-auto landscape-phone:!basis-auto landscape-phone:!shrink-0 landscape-phone:!min-w-0";
     return (
-      <div key={id} className={`shrink-0 ${needsRotatedSlot ? "w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden" : ""}`}>
+      <div key={id} className={cellClasses}>
         {renderCardWithActions(id, "play", isOpponent)}
       </div>
     );

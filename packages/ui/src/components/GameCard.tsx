@@ -50,9 +50,18 @@ const DEFAULT_THEME = INK_THEME.steel!;
 // themselves be 5:7 — true for every value below.
 // =============================================================================
 const CARD_SIZING = {
+  // PORTRAIT (prototype: compression mode):
+  //   Card fills its cell wrapper via w-full h-full. The cell wrapper in
+  //   renderPlayCell owns the actual sizing — basis 52px, shrink to 36px
+  //   floor, aspect-[5/7] for height. As a row gets crowded (7+ cards),
+  //   cells shrink uniformly so all fit; below the 36px floor they wrap.
+  // SM+: card returns to explicit width via CARD_SIZING_DESKTOP; cell
+  //   wrapper releases its flex/aspect at sm:.
+  // LANDSCAPE-PHONE: card uses explicit !w-[45px] !h-[63px] (matches
+  //   pre-prototype behavior — landscape-phone keeps fixed sizing).
   adaptivePlay:
-    "w-auto h-full max-h-[73px] min-w-[28px] " +
-    "sm:!h-auto sm:!max-h-none " +
+    "w-full h-full " +
+    "sm:!w-auto sm:!h-auto sm:!max-h-none " +
     "landscape-phone:!w-[45px] landscape-phone:!h-[63px] " +
     "landscape-phone:!max-h-[63px] landscape-phone:!min-w-[45px]",
   adaptiveFaceDown:
@@ -66,9 +75,10 @@ const CARD_SIZING = {
 } as const;
 
 // Sm+ width additions (applied uniformly via baseClass / face-down branch).
-// Kept separate from CARD_SIZING because they're added externally rather
-// than embedded in each context's mobileWidth string.
-const CARD_SIZING_DESKTOP = "sm:w-[104px] lg:w-[120px]";
+// !important on sm/lg widths so adaptivePlay's portrait `w-full` doesn't
+// linger at desktop breakpoints — sm:!w-[104px] needs to beat w-full when
+// both apply (without !important the cascade is non-deterministic).
+const CARD_SIZING_DESKTOP = "sm:!w-[104px] lg:!w-[120px]";
 
 // =============================================================================
 // CARD_RADIUS — per-context border-radius className strings
