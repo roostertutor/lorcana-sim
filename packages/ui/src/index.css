@@ -43,6 +43,20 @@
   button, a, [role="button"] {
     touch-action: manipulation;
   }
+  /* Prevent iOS Safari (mobile + PWA) from auto-zooming when a text
+     input gains focus. iOS triggers the zoom whenever the input's
+     computed font-size is < 16px — common with our `text-sm` (14px)
+     and `text-xs` (12px) form inputs. The `@supports
+     (-webkit-touch-callout: none)` query scopes the override to iOS
+     only, so non-iOS platforms keep their utility-class-driven sizes
+     (Android Chrome / desktop don't have this auto-zoom behavior).
+     `!important` is required to beat Tailwind utility-class
+     specificity. */
+  @supports (-webkit-touch-callout: none) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
 }
 
 @layer utilities {
