@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { CardDefinition, GameState } from "@lorcana-sim/engine";
+import type { CardDefinition, GameState, PlayerID } from "@lorcana-sim/engine";
 import GameCard from "./GameCard.js";
 import CardInspectModal from "./CardInspectModal.js";
 import Icon from "./Icon.js";
@@ -17,9 +17,19 @@ interface ZoneViewModalProps {
   faceDownIds?: Set<string>;
   /** Per-card action buttons (e.g. "Ink" on discard cards when Moana is active). */
   cardActions?: Map<string, { label: string; color: string; onClick: () => void }>;
+  /** Viewer's player ID. When provided AND the cardIds span multiple owners
+   *  (e.g. Let's Get Dangerous reveals from both decks), each card gets a
+   *  small "You" / "Opp" badge so the viewer can tell whose card it is.
+   *  Single-owner reveals (the common case) skip the badge to avoid noise. */
+  myId?: PlayerID;
 }
 
-export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds, cardActions }: ZoneViewModalProps) {
+export default function ZoneViewModal({ title, cardIds, gameState, definitions, onClose, faceDown, faceDownIds, cardActions, myId }: ZoneViewModalProps) {
+  // Owner-badge gating: only show when viewer ID is provided AND the cards
+  // span multiple owners. Lookup once outside the map to avoid recomputing
+  // per-card.
+  const ownerSet = new Set(cardIds.map(id => gameState.cards[id]?.ownerId).filter((p): p is PlayerID => p != null));
+  const showOwnerBadges = myId != null && ownerSet.size > 1;
   // Zoom: tapping a card opens a full-detail inspect modal layered on top
   // of this viewer. Face-down cards skip inspect (don't leak hidden info).
   const [inspectId, setInspectId] = useState<string | null>(null);
@@ -57,8 +67,21 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                 const zone = (instance?.zone === "play" ? "play" : "hand") as "play" | "hand";
                 const action = cardActions?.get(id);
                 const faceDownHere = faceDownIds ? faceDownIds.has(id) : faceDown;
+                const isMine = instance?.ownerId === myId;
                 return (
-                  <div key={id} className="flex flex-col items-center overflow-hidden" title={def?.fullName}>
+                  <div key={id} className="relative flex flex-col items-center overflow-hidden" title={def?.fullName}>
+                    {/* Owner badge (only when reveal spans multiple owners). */}
+                    {showOwnerBadges && (
+                      <span
+                        className={`absolute top-0.5 left-0.5 z-10 text-[8px] font-bold px-1 py-0.5 rounded shadow pointer-events-none ${
+                          isMine
+                            ? "bg-green-700/90 text-green-100"
+                            : "bg-red-700/90 text-red-100"
+                        }`}
+                      >
+                        {isMine ? "You" : "Opp"}
+                      </span>
+                    )}
                     <div className="scale-[0.78] origin-top">
                       <GameCard
                         instanceId={id}
