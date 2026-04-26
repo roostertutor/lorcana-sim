@@ -7,7 +7,7 @@
 
 import React from "react";
 import type { CardDefinition, DeckEntry, GameFormat, InkColor } from "@lorcana-sim/engine";
-import { isCardLegalInFormat } from "@lorcana-sim/engine";
+import { isCardLegalInFormat, CORE_ROTATIONS, INFINITY_ROTATIONS } from "@lorcana-sim/engine";
 import CardTile from "./CardTile.js";
 import CardFilterBar, { EMPTY_FILTERS, type CardFilters, type CostBucket, hasAnyFilter } from "./CardFilterBar.js";
 import { getMaxCopies, countById, cardMatchScore, INK_COLOR_CLASS, INK_ORDER } from "../utils/deckRules.js";
@@ -41,6 +41,51 @@ function compareSetIds(a: string, b: string): number {
   if (aIsNum) return -1;  // numeric sets sort before non-numeric promo / challenge / etc.
   if (bIsNum) return 1;
   return a.localeCompare(b);
+}
+
+// Return the legal-set whitelist for a format, or null when no format is
+// supplied (= show all printings of every card). null is the "no constraint"
+// sentinel — distinct from an empty Set which would mean "nothing is legal."
+function getLegalSetsForFormat(format: GameFormat | undefined): ReadonlySet<string> | null {
+  if (!format) return null;
+  const registry = format.family === "core" ? CORE_ROTATIONS : INFINITY_ROTATIONS;
+  return registry[format.rotation]?.legalSets ?? null;
+}
+
+// Effective printing for browser display. We want to show users the most
+// recent legal printing of a card — for a Set 12 Core deck, a card reprinted
+// in set 12 should display the set-12 art (familiar to new players) and sort
+// alongside other set-12 cards, NOT alongside its original set-1 print.
+// Without this, the browser shows the canonical CardDefinition's art (which
+// is whichever printing won the manual-ability tiebreaker — typically the
+// oldest), and sorts cards into the set their abilities were authored under.
+type EffectivePrinting = { setId: string; imageUrl?: string; number: number };
+
+function pickEffectivePrinting(
+  def: CardDefinition,
+  legalSets: ReadonlySet<string> | null,
+): EffectivePrinting {
+  // Build the full printing list: canonical + every entry in printings[]
+  // (falls back to variants[] for cards built before printings[] landed).
+  // exactOptionalPropertyTypes: omit imageUrl when absent rather than passing
+  // undefined, since the type marks it as strictly `string | (omitted)`.
+  const make = (setId: string, number: number, imageUrl?: string): EffectivePrinting =>
+    imageUrl !== undefined ? { setId, number, imageUrl } : { setId, number };
+  const all: EffectivePrinting[] = [make(def.setId, def.number, def.imageUrl)];
+  const extras = def.printings ?? def.variants ?? [];
+  for (const p of extras) {
+    // Dedupe — canonical may also appear in printings/variants
+    if (all.some((a) => a.setId === p.setId && a.number === p.number)) continue;
+    all.push(make(p.setId, p.number, p.imageUrl));
+  }
+  // Filter to format-legal printings; defensive fallback to all if filter
+  // empties the list (shouldn't happen for cards that passed the picker's
+  // own legality filter above).
+  const legal = legalSets ? all.filter((p) => legalSets.has(p.setId)) : all;
+  const candidates = legal.length > 0 ? legal : all;
+  // Sort newest setId first; pick top.
+  candidates.sort((a, b) => -compareSetIds(a.setId, b.setId));
+  return candidates[0]!;
 }
 
 export default function CardPicker({ entries, definitions, onChange, format }: Props) {
@@ -100,16 +145,28 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
       }
       result.push({ def, score });
     }
+    // Compute the effective printing once per card so both the sort
+    // comparator and the tile renderer agree on which printing represents
+    // the card. legalSets lookup is the only format-aware bit; default
+    // null = no filter.
+    const legalSets = getLegalSetsForFormat(format);
+    const decorated = result.map((r) => ({
+      ...r,
+      effective: pickEffectivePrinting(r.def, legalSets),
+    }));
     if (hasQuery) {
-      result.sort((a, b) => b.score - a.score);
+      decorated.sort((a, b) => b.score - a.score);
     } else {
-      result.sort((a, b) => {
-        const setDiff = compareSetIds(a.def.setId, b.def.setId);
+      // Newest set first (12 → 11 → 10 → … → 1, then promo / challenge /
+      // D23 / DIS / etc.). The leading minus inverts compareSetIds' default
+      // "lower setId first" ordering.
+      decorated.sort((a, b) => {
+        const setDiff = -compareSetIds(a.effective.setId, b.effective.setId);
         if (setDiff !== 0) return setDiff;
-        return a.def.number - b.def.number;
+        return a.effective.number - b.effective.number;
       });
     }
-    return result.map((r) => r.def);
+    return decorated;
   }, [definitions, filters, format]);
 
   function setCardQty(def: CardDefinition, newQty: number) {
@@ -131,7 +188,12 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
     }
   }
 
+  // For the inspect modal we want the same effective printing the tile shows —
+  // re-derive from the visibleCards list (already format-aware) when the
+  // inspected card is in view; fall back to the canonical otherwise.
+  const inspectEntry = inspectId ? visibleCards.find((v) => v.def.id === inspectId) : null;
   const inspectDef = inspectId ? definitions[inspectId] : null;
+  const inspectImageUrl = inspectEntry?.effective.imageUrl ?? inspectDef?.imageUrl;
 
   // Moxfield-style search-first UX: don't render tiles until the user picks
   // at least one filter or types a search query. Avoids mounting 2652 cards
@@ -217,10 +279,11 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
               containIntrinsicSize: "0 200px",
             }}
           >
-            {shownCards.map((def) => (
+            {shownCards.map(({ def, effective }) => (
               <CardTile
                 key={def.id}
                 def={def}
+                {...(effective.imageUrl ? { displayImageUrl: effective.imageUrl } : {})}
                 qty={qtyById.get(def.id) ?? 0}
                 maxCopies={getMaxCopies(def)}
                 onSetQty={(n) => setCardQty(def, n)}
@@ -244,9 +307,9 @@ export default function CardPicker({ entries, definitions, onChange, format }: P
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm cursor-zoom-out"
           onClick={() => setInspectId(null)}
         >
-          {inspectDef.imageUrl ? (
+          {inspectImageUrl ? (
             <img
-              {...getInspectCardImage(inspectDef.imageUrl)}
+              {...getInspectCardImage(inspectImageUrl)}
               alt={inspectDef.fullName}
               className="max-h-[95vh] max-w-[95vw] object-contain rounded-xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}

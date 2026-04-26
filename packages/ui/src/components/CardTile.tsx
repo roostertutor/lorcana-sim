@@ -15,6 +15,11 @@ import CardPlaceholder from "./CardPlaceholder.js";
 
 interface Props {
   def: CardDefinition;
+  /** Optional override for the displayed art. CardPicker uses this to show
+   *  the newest format-legal printing of a card instead of the canonical
+   *  CardDefinition's art (typically the oldest print, the one whose
+   *  abilities were authored). When omitted, falls back to def.imageUrl. */
+  displayImageUrl?: string;
   /** Current quantity of this card in the deck (0..maxCopies). */
   qty: number;
   /** Maximum copies allowed for this card. */
@@ -26,7 +31,7 @@ interface Props {
 }
 
 export default function CardTile({
-  def, qty, maxCopies, onSetQty, onInspect,
+  def, displayImageUrl: displayImageUrlProp, qty, maxCopies, onSetQty, onInspect,
 }: Props) {
   const inDeck = qty > 0;
   const atMax = qty >= maxCopies;
@@ -34,9 +39,10 @@ export default function CardTile({
   // actually building a 99-copy deck, and the "any number" flavor reads better.
   const maxLabel = maxCopies >= 99 ? "∞" : String(maxCopies);
 
-  // Browser tile always shows def.imageUrl (= the default / regular variant).
-  // Variant selection belongs to the deck entry and renders on the deck row.
-  const displayImageUrl = def.imageUrl ?? "";
+  // Use the caller's preferred printing (if any), else canonical. Variant /
+  // alt-art selection on a deck row uses a different mechanism (DeckRow's
+  // own variant picker writes to DeckEntry.variant).
+  const displayImageUrl = displayImageUrlProp ?? def.imageUrl ?? "";
 
   return (
     <div className={`relative rounded-md overflow-hidden border transition-colors ${
