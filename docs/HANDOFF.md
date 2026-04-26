@@ -26,6 +26,60 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Engine agent: add `sourceInstanceId` to `lastRevealedHand` state
+
+User-reported 2026-04-26 while iterating on the unified reveal modal:
+the hand-reveal section header just says "Opponent's hand" with no
+indication of *which* card revealed it. Compare to deck reveals, which
+say "Revealed by Vision of the Future" — that works because
+`lastRevealedCards.sourceInstanceId` exists on engine state.
+
+`lastRevealedHand` doesn't carry the source. The handler at
+`reducer.ts:3018` already has `sourceInstanceId` in scope and emits it
+on the `hand_revealed` GameEvent — it just isn't persisted on the
+state object alongside `playerId`/`cardIds`/`privateTo`.
+
+### Proposed change
+
+One-line additive change in two places:
+
+1. `packages/engine/src/types/index.ts:3639`:
+   ```ts
+   // Before:
+   lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; privateTo?: PlayerID };
+   // After:
+   lastRevealedHand?: { playerId: PlayerID; cardIds: string[]; sourceInstanceId: string; privateTo?: PlayerID };
+   ```
+2. `packages/engine/src/engine/reducer.ts:3018`:
+   ```ts
+   return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, sourceInstanceId, ...(privateTo ? { privateTo } : {}) } };
+   ```
+
+Both `sourceInstanceId` references are already in lexical scope at the
+handler site.
+
+### UI follow-up (mine, after engine ships)
+
+GameBoard's reveal-tracking useEffect builds the hand entry — once the
+engine carries source info, swap the hand-section title from the
+current `"Your hand" / "Opponent's hand"` to `"Revealed by [Source]"`
+parallel to the deck-section format. The lookup is already in place
+for deck entries; just mirror it.
+
+### Tests
+
+Engine: a Mowgli or Ursula reveal_hand test asserts
+`state.lastRevealedHand.sourceInstanceId === <expected>`. Probably
+already covered by an existing test that checks playerId/cardIds — add
+the new field assertion alongside.
+
+### Why deferred
+
+Tiny but cross-package. CLAUDE.md routing — engine state shape changes
+go through engine-expert.
+
+---
+
 ## ~~Engine agent: shifted character should keep target's play-array slot (visual continuity)~~ ✅ DONE 2026-04-26
 
 Shipped the recommended post-hoc splice. `applyPlayCard()` shift branch
