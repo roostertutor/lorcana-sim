@@ -167,6 +167,45 @@ No engine changes — same `DeckEntry.variant` model. Pure UI refactor in `DeckB
 
 ---
 
+### Drag-and-drop reordering — shared `ReorderableCardRow` for hand + choose_order modal
+
+**Considered**: A single `ReorderableCardRow` component used in two places:
+
+1. **`PendingChoiceModal` for `choose_order`** — replace tap-in-order with drag-into-position. Cards start in some order (engine-given), user drags to rearrange, confirm sends final order to engine. MTGA-style card row with "Top of deck" / "Bottom of deck" labels at the ends.
+2. **Hand strip** — drag cards within hand to reorder display. Pure cosmetic (engine treats hand as a set, not a sequence). Useful for keeping high-priority cards visible in a hand that overflows.
+
+```tsx
+<ReorderableCardRow
+  cards={cards}
+  onReorder={(newOrder) => ...}
+  topLabel="Top of deck"   // optional, modal-only
+  bottomLabel="Bottom of deck"
+  density="hand" | "modal"
+/>
+```
+
+Modal: `onReorder` updates choice resolution targets. Hand: `onReorder` writes to localStorage (client-only) or to a `displayOrder` field if persistence-across-reconnects matters.
+
+**Why parked**:
+- **Tap-in-order works today** for `choose_order` (we just simplified it 2026-04-25 — dropped the duplicate-cards preview strip in commit `e32177e`). The killer use-case for drag is *adjustments* ("I picked Belle for slot 1 but actually Tiana should be first" — drag swaps cleanly; tap requires clearing tail of sequence and re-tapping). Adjustment friction hasn't surfaced as a real pain point yet.
+- **Hand reorder is cosmetic only** — engine doesn't care. Discoverability problem ("you can drag these" has no visual affordance), so low ROI without onboarding chrome.
+- **Mobile drag is non-trivial** — hand needs `touch-action: pan-x` for horizontal scroll; drag wants `none`. Resolution requires either long-press-to-lift (200-400ms latency) or explicit "rearrange mode" toggle. Modal use-case is easier (no scroll conflict).
+- **Risk of feature creep** — building the shared component just to share code with hand reorder is the trap. Modal is the actual win; hand is "we have the tech, why not."
+
+**Trigger to reconsider**: any one of —
+1. Playtesting surfaces choose_order *adjustment* friction (users complaining tap-in-order is annoying when they want to swap cards mid-sequence).
+2. A user explicitly requests reorderable hand (signal that the missing affordance is noticed).
+3. A creator-tooling polish pass is scheduled and "premium-feeling interactions" become a deliberate investment.
+4. We notice duels.ink users on mobile reorder hand reflexively in our screenshot tests and dropping it makes us look thinner.
+
+**Expected scope**: ~2 sessions.
+- Session 1: build `ReorderableCardRow` + modal integration. Drop-in replacement for the existing `choose_order` picker. ~1 day.
+- Session 2: hand integration + mobile gesture polish (long-press lift OR rearrange-mode toggle). ~half-day.
+
+**Build modal-first, ship, evaluate.** Hand reorder is a follow-on if it earns its keep, not a co-shipped feature.
+
+---
+
 ## Strategy / Product
 
 ### Illumineer's Quest co-op mode as a unique feature
