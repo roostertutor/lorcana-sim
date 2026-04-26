@@ -970,6 +970,49 @@ describe("Set 12 — The Family Scattered / The Family's Scattered (opponent 3-w
     });
   }
 
+  it("with only 1 opposing character: returns it to hand, the two deck-placement effects fizzle (CRD 1.7.7)", () => {
+    // Oracle: "Chosen opponent chooses 3 of their characters and returns one
+    // of those cards to their hand, puts one on the bottom of their deck, and
+    // puts one on the top of their deck."
+    //
+    // With only 1 opposing character available, the opponent picks it for
+    // return-to-hand; the bottom-deck and top-deck effects then have no valid
+    // targets (filter requires zone:play, the only character is now in hand)
+    // and silently no-op per CRD 1.7.7 ("the player does as much as possible
+    // even if some part of that effect can't be done"). End state: the one
+    // character is in the opponent's hand, deck unchanged. Pin this behavior
+    // so a future refactor of the 3-step partition into a single batch
+    // primitive doesn't accidentally regress to "fizzle entirely if fewer
+    // than 3" or "force the opponent to pick the same character thrice".
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let songId: string, oppCharId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "the-family-scattered", "hand"));
+    ({ state, instanceId: oppCharId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    const p2DeckBefore = [...state.zones.player2.deck];
+
+    // Cast The Family Scattered. First effect surfaces choose_target on opponent.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player2");
+
+    // Opponent picks their only character for return-to-hand.
+    const r2 = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [oppCharId] }, CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    state = r2.newState;
+
+    // The remaining two deck-placement effects should fizzle (no valid targets,
+    // since the only character is now in hand).
+    expect(state.pendingChoice).toBeFalsy();
+    expect(getInstance(state, oppCharId).zone).toBe("hand");
+    // Deck order unchanged — neither bottom-deck nor top-deck effect placed a card.
+    expect(state.zones.player2.deck).toEqual(p2DeckBefore);
+    // The action card itself moved to discard.
+    expect(state.cards[songId]!.zone).toBe("discard");
+  });
+
   it("put_card_on_bottom_of_deck from:play now respects chooser:target_player (extension to existing primitive)", () => {
     let state = startGame();
     // Give player2 a character; have player1 cast the effect.
