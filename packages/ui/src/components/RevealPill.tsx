@@ -1,6 +1,5 @@
 import React from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
-import Icon from "./Icon.js";
 import Pill from "./Pill.js";
 import { getThumbCardImage } from "../utils/cardImage.js";
 
@@ -15,13 +14,20 @@ interface Props {
 }
 
 /**
- * Collapsed "recent reveal" chip.
+ * Compact "recent reveal" chip — single mini thumbnail of the first
+ * revealed card + count badge. Tapping re-opens the full ZoneViewModal,
+ * which carries the descriptive content (source name, all revealed
+ * cards, owner badges). The parent clears the pill at turn boundary so
+ * revealed info doesn't persist across turns ("no note-taking" intent).
  *
- * Lives in the bottom-right utility stack after the user dismisses the full
- * ZoneViewModal for a reveal (or inking-adjacent reveal). Clicking re-opens
- * the modal. The parent clears the pill when `gameState.turnNumber` advances
- * past the reveal's anchor turn — so revealed info doesn't persist across
- * turn boundaries, matching the "no note-taking IRL" expectation.
+ * Compact form (vs the prior fanned-thumbnails variant) is a deliberate
+ * trade — minimises footprint over hand cards in the bottom-right
+ * corner. The modal handles all the descriptive heavy-lifting.
+ *
+ * Multiple reveals in a turn render as a vertical stack of these chips
+ * (one per reveal event) — distinguished visually by their thumbnails
+ * (each shows the first card of THAT reveal). title is also passed via
+ * the button's tooltip for hover/screen-reader disambiguation.
  */
 export default function RevealPill({
   title,
@@ -31,43 +37,34 @@ export default function RevealPill({
   onClick,
   faceDown = false,
 }: Props) {
-  const previews = cardIds.slice(0, 3);
+  const firstId = cardIds[0];
+  const firstInst = firstId ? gameState.cards[firstId] : undefined;
+  const firstDef = firstInst ? definitions[firstInst.definitionId] : undefined;
+  const img = !faceDown && firstDef?.imageUrl ? getThumbCardImage(firstDef.imageUrl) : null;
   const count = cardIds.length;
   return (
-    <Pill theme="indigo" onClick={onClick} title="Click to view — clears at end of turn">
-      {/* Fanned thumbnail stack */}
-      <div className="flex -space-x-3 pl-2">
-        {previews.map((id, i) => {
-          const inst = gameState.cards[id];
-          const def = inst ? definitions[inst.definitionId] : undefined;
-          const img = !faceDown && def?.imageUrl ? getThumbCardImage(def.imageUrl) : null;
-          const rot = (i - (previews.length - 1) / 2) * 8;
-          return (
-            <div
-              key={id}
-              className="w-5 h-7 rounded-sm border border-indigo-300/60 shadow overflow-hidden bg-gradient-to-br from-indigo-800 to-indigo-950"
-              style={{ transform: `rotate(${rot}deg)`, zIndex: 10 - i }}
-            >
-              {img && (
-                <img
-                  {...img}
-                  className="w-full h-full object-cover"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </div>
-          );
-        })}
+    <Pill
+      theme="indigo"
+      size="compact"
+      onClick={onClick}
+      title={`Revealed by ${title}${count > 1 ? ` (${count} cards)` : ""} — tap to view`}
+    >
+      {/* Single mini thumbnail of the first revealed card. Acts as a
+          visual handle distinguishing chips when multiple stacked. */}
+      <div className="w-3 h-[17px] rounded-[1px] border border-indigo-300/60 shadow-sm overflow-hidden bg-gradient-to-br from-indigo-800 to-indigo-950">
+        {img && (
+          <img
+            {...img}
+            className="w-full h-full object-cover"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+        )}
       </div>
-      <div className="flex flex-col items-start leading-tight">
-        <span className="text-[9px] uppercase tracking-wider text-indigo-300 font-bold">
-          Revealed · {count}
-        </span>
-        <span className="text-[11px] font-semibold max-w-[140px] truncate">{title}</span>
-      </div>
-      <Icon name="eye" className="w-3.5 h-3.5 text-indigo-300" />
+      <span className="text-[10px] font-black text-indigo-100 leading-none tabular-nums">
+        {count}
+      </span>
     </Pill>
   );
 }

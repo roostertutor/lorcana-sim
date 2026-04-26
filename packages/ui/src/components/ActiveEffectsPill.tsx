@@ -8,24 +8,23 @@ interface Props {
 }
 
 /**
- * Floating "active effects" pill. Lives in the bottom-right status stack
+ * Compact "active effects" chip. Lives in the bottom-right status stack
  * alongside RevealPill. Conditional — parent only renders it when
- * `count > 0`. Tap opens the existing Active Effects modal.
+ * `count > 0`. Shows just a clock icon + count; tap opens the existing
+ * Active Effects modal which carries the descriptive content (effect
+ * names, sources, durations).
+ *
+ * Compact form is a deliberate choice to minimise pill footprint over
+ * the hand cards in the bottom-right corner — see GameBoard's pill
+ * stack comment for the layout reasoning.
  */
 export default function ActiveEffectsPill({ count, onClick }: Props) {
   return (
-    <Pill theme="amber" onClick={onClick} title="Tap to view active effects">
-      <div className="w-5 h-5 rounded-full bg-amber-600/80 flex items-center justify-center">
-        <Icon name="clock" className="w-3 h-3 text-amber-100" />
-      </div>
-      <div className="flex flex-col items-start leading-tight">
-        <span className="text-[9px] uppercase tracking-wider text-amber-300 font-bold">
-          Effects · {count}
-        </span>
-        <span className="text-[11px] font-semibold">
-          {count === 1 ? "1 active" : `${count} active`}
-        </span>
-      </div>
+    <Pill theme="amber" size="compact" onClick={onClick} title={`${count} active effect${count !== 1 ? "s" : ""} — tap to view`}>
+      <Icon name="clock" className="w-3 h-3 text-amber-300" />
+      <span className="text-[10px] font-black text-amber-100 leading-none tabular-nums">
+        {count}
+      </span>
     </Pill>
   );
 }
