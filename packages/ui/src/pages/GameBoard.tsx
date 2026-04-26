@@ -705,6 +705,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   type RevealEntry =
     | {
         kind: "deck";
+        /** Stable identifier for modal lookup — `deck:${sequenceId}`. */
+        key: string;
         /** Engine-provided sequence id; distinguishes back-to-back reveals of
          *  the same card definition. */
         sequenceId: number;
@@ -716,6 +718,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       }
     | {
         kind: "hand";
+        /** Stable identifier for modal lookup — `hand:${birthActionCount}`. */
+        key: string;
         /** Whose hand was revealed. Used for the section header and per-card
          *  badge defaulting. */
         playerId: PlayerID;
@@ -725,10 +729,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       };
   const [revealHistory, setRevealHistory] = useState<RevealEntry[]>([]);
   const [revealHistoryTurn, setRevealHistoryTurn] = useState<number | null>(null);
-  /** Single combined modal for the whole turn's reveals (deck + hand).
-   *  Auto-opens on each new reveal arrival; closes on dismiss. Pill
-   *  remains visible until turn boundary regardless. */
-  const [revealHistoryModalOpen, setRevealHistoryModalOpen] = useState(false);
+  /** Modal view state — three modes:
+   *  - null: no modal open
+   *  - { kind: "single", entryKey }: auto-popped modal showing just that one
+   *    event's cards (the natural "here's what just happened" view)
+   *  - { kind: "cumulative" }: user-requested via pill tap; sectioned view
+   *    with all the turn's reveals
+   *
+   *  Auto-pop on new reveal switches to single mode (or stays in cumulative
+   *  if the user opted into that view — don't disrupt it). */
+  type RevealModalView =
+    | { kind: "single"; entryKey: string }
+    | { kind: "cumulative" }
+    | null;
+  const [revealModalView, setRevealModalView] = useState<RevealModalView>(null);
 
   // Engine reveal sources we watch.
   const lastRevealedCards = session.gameState?.lastRevealedCards;
@@ -752,12 +766,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // (PASS_TURN) and undo-past-the-turn-start.
     if (turn !== revealHistoryTurn) {
       setRevealHistory([]);
-      setRevealHistoryModalOpen(false);
+      setRevealModalView(null);
       setRevealHistoryTurn(turn);
     }
 
     const advanced = session.actionCount > prevRevealActionCount.current;
-    let pushedAny = false;
+    /** key of the most recent newly-pushed entry (for auto-open below). */
+    let newestPushedKey: string | null = null;
 
     // New deck reveal? key change + forward advance.
     const deckKeyChanged = currentDeckRevealKey !== prevDeckRevealKey.current;
@@ -766,6 +781,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
       const newEntry: RevealEntry = {
         kind: "deck",
+        key: `deck:${lastRevealedCards.sequenceId}`,
         sequenceId: lastRevealedCards.sequenceId,
         sourceInstanceId: lastRevealedCards.sourceInstanceId,
         sourceLabel: srcDef?.fullName ?? "Card",
@@ -776,7 +792,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         if (prev.some(e => e.kind === "deck" && e.sequenceId === newEntry.sequenceId)) return prev;
         return [...prev, newEntry];
       });
-      pushedAny = true;
+      newestPushedKey = newEntry.key;
     }
 
     // New hand reveal? ref change + forward advance.
@@ -785,6 +801,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       const isMine = lastRevealedHand.playerId === myId;
       const newEntry: RevealEntry = {
         kind: "hand",
+        key: `hand:${session.actionCount}`,
         playerId: lastRevealedHand.playerId,
         sourceLabel: isMine ? "Your hand" : "Opponent's hand",
         instanceIds: lastRevealedHand.cardIds,
@@ -797,12 +814,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         if (prev.some(e => e.kind === "hand" && e.birthActionCount === newEntry.birthActionCount)) return prev;
         return [...prev, newEntry];
       });
-      pushedAny = true;
+      newestPushedKey = newEntry.key;
     }
 
-    if (pushedAny) {
-      // Auto-open the combined modal whenever a new reveal arrives.
-      setRevealHistoryModalOpen(true);
+    if (newestPushedKey != null) {
+      // Auto-open the new reveal as a single-event modal — but don't
+      // disrupt the user if they're already reviewing the cumulative view.
+      const keyToOpen = newestPushedKey;
+      setRevealModalView(prev => {
+        if (prev?.kind === "cumulative") return prev;
+        return { kind: "single", entryKey: keyToOpen };
+      });
     }
 
     // Undo rewind — drop entries born past the current actionCount.
@@ -816,24 +838,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     prevRevealActionCount.current = session.actionCount;
   }, [currentDeckRevealKey, lastRevealedCards, lastRevealedHand, session.actionCount, session.gameState?.turnNumber, session.gameState?.cards, definitions, myId, revealHistoryTurn]);
 
-  /** Combined view data for the unified reveal modal. Built from the
-   *  per-turn history; renders as sections via ZoneViewModal's optional
-   *  `sections` prop. */
-  const combinedRevealCardIds = revealHistory.flatMap(e => e.instanceIds);
+  /** Sections fed to ZoneViewModal in cumulative view. */
   const combinedRevealSections = revealHistory.map(e => ({
-    title: e.kind === "deck"
-      ? `Revealed by ${e.sourceLabel}`
-      : e.sourceLabel,
+    title: e.kind === "deck" ? `Revealed by ${e.sourceLabel}` : e.sourceLabel,
     cardIds: e.instanceIds,
   }));
-  const combinedRevealTitle = (() => {
-    if (revealHistory.length === 0) return "";
-    if (revealHistory.length === 1) {
-      const entry = revealHistory[0]!;
-      return entry.kind === "deck" ? `Revealed by ${entry.sourceLabel}` : entry.sourceLabel;
-    }
-    return `Revealed this turn (${revealHistory.length} events, ${combinedRevealCardIds.length} cards)`;
-  })();
+  /** All revealed cardIds flattened — used as the modal's count badge. */
+  const combinedRevealCardIds = revealHistory.flatMap(e => e.instanceIds);
+  const cumulativeRevealTitle = `Revealed this turn (${revealHistory.length} event${revealHistory.length !== 1 ? "s" : ""}, ${combinedRevealCardIds.length} card${combinedRevealCardIds.length !== 1 ? "s" : ""})`;
+  /** When the modal is in single mode, the entry it's showing. */
+  const singleViewEntry = revealModalView?.kind === "single"
+    ? revealHistory.find(e => e.key === revealModalView.entryKey)
+    : undefined;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -2531,19 +2547,31 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       })()}
 
       {/* ======================= Unified Reveal Modal =======================
-          Per-turn combined modal showing ALL reveals (deck + hand) as
-          sections. Auto-opens on each new reveal arrival. Title adapts
-          to single-event vs multi-event. Owner badges appear per card
-          when a section's reveals span multiple owners (Let's Get
-          Dangerous: target "both"). */}
-      {revealHistoryModalOpen && combinedRevealCardIds.length > 0 && (
+          Two view modes:
+          - SINGLE (auto-pop on new reveal): shows just that event's
+            cards. "Here's what just happened." Title = source.
+          - CUMULATIVE (user taps the pill): sectioned view of every
+            reveal this turn, deck + hand. Title summarises count.
+          Owner badges appear per section when a single section's
+          reveals span multiple owners (Let's Get Dangerous). */}
+      {revealModalView?.kind === "single" && singleViewEntry && (
         <ZoneViewModal
-          title={combinedRevealTitle}
-          cardIds={combinedRevealCardIds}
-          sections={revealHistory.length > 1 ? combinedRevealSections : undefined}
+          title={singleViewEntry.kind === "deck" ? `Revealed by ${singleViewEntry.sourceLabel}` : singleViewEntry.sourceLabel}
+          cardIds={singleViewEntry.instanceIds}
           gameState={gameState}
           definitions={definitions}
-          onClose={() => setRevealHistoryModalOpen(false)}
+          onClose={() => setRevealModalView(null)}
+          myId={myId}
+        />
+      )}
+      {revealModalView?.kind === "cumulative" && combinedRevealCardIds.length > 0 && (
+        <ZoneViewModal
+          title={cumulativeRevealTitle}
+          cardIds={combinedRevealCardIds}
+          sections={combinedRevealSections}
+          gameState={gameState}
+          definitions={definitions}
+          onClose={() => setRevealModalView(null)}
           myId={myId}
         />
       )}
@@ -2552,8 +2580,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           Bottom-right floating stack. Two chips at most:
           - Active Effects (live state — gameModifiers-derived)
           - Combined Reveal (singleton — count of all revealed cards
-            this turn, across deck and hand reveals; tap opens the
-            sectioned modal)
+            this turn; tap opens the cumulative sectioned modal)
           Both clear at next turn boundary. */}
       {(revealHistory.length > 0 || activeEffects.length > 0) && (
         <div
@@ -2565,11 +2592,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           )}
           {revealHistory.length > 0 && (
             <RevealPill
-              title={combinedRevealTitle}
+              title={cumulativeRevealTitle}
               cardIds={combinedRevealCardIds}
               gameState={gameState}
               definitions={definitions}
-              onClick={() => setRevealHistoryModalOpen(true)}
+              onClick={() => setRevealModalView({ kind: "cumulative" })}
             />
           )}
         </div>
