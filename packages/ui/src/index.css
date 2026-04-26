@@ -98,4 +98,35 @@
   .stat-label {
     @apply text-sm text-gray-500 mt-0.5;
   }
+
+  /* PROTOTYPE — play cell with CSS clamp width for squish-then-wrap.
+     Width clamps between 36px (min, before wrap kicks in) and 52px
+     (natural). Formula uses --card-count (set by parent row container)
+     and the parent's own width. With many cards in the row, each cell
+     shrinks toward the 36px floor; past that, total exceeds container
+     and flex-wrap wraps to a new row.
+
+     Active only on portrait mobile — sm+/landscape-phone reset to
+     auto width (cards there have explicit fixed sizes via Tailwind
+     utility overrides). */
+  .play-cell-compress {
+    aspect-ratio: 5 / 7;
+    width: clamp(
+      36px,
+      calc((100% - (var(--card-count, 1) - 1) * 4px) / var(--card-count, 1)),
+      52px
+    );
+  }
+  @media (min-width: 640px) {
+    .play-cell-compress {
+      aspect-ratio: auto;
+      width: auto;
+    }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    .play-cell-compress {
+      aspect-ratio: auto;
+      width: auto;
+    }
+  }
 }

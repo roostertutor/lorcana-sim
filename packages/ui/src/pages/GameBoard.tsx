@@ -1598,21 +1598,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // bug — no ancestor in this branch has an explicit height, so h-full
     // resolved to auto and max-h never triggered.
     //
-    // PROTOTYPE (compression): non-rotated portrait cells become flex
-    // items with `basis-52 shrink min-w-36 max-w-52 aspect-[5/7]`. The
-    // PARENT row uses flex-nowrap on portrait (set in renderPlayArea) so
-    // shrink kicks in BEFORE wrap — browsers prioritise wrap over shrink
-    // when both flex-wrap and flex-shrink are enabled, hence the nowrap
-    // requirement to get squish-before-wrap behavior.
-    //
-    // max-w-[52px] caps growth (otherwise cards would expand to fill
-    // empty rows when count is small).
-    //
-    // sm:/landscape-phone reset the wrapper to passthrough (card inside
-    // takes its explicit sizing).
+    // PROTOTYPE (compression): non-rotated portrait cells use the
+    // `play-cell-compress` CSS class (defined in index.css). Its width
+    // clamps between 36px and 52px based on the parent row's
+    // `--card-count` CSS variable, set on the row container below.
+    // flex-wrap kicks in naturally when the floor is hit and total
+    // width exceeds the container. sm+/landscape-phone reset the
+    // class to auto width via media queries — explicit card sizes
+    // take over at those breakpoints.
     const cellClasses = needsRotatedSlot
       ? "shrink-0 w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden"
-      : "aspect-[5/7] basis-[52px] shrink min-w-[36px] max-w-[52px] sm:aspect-auto sm:basis-auto sm:shrink-0 sm:min-w-0 sm:max-w-none landscape-phone:!aspect-auto landscape-phone:!basis-auto landscape-phone:!shrink-0 landscape-phone:!min-w-0 landscape-phone:!max-w-none";
+      : "play-cell-compress";
     return (
       <div key={id} className={cellClasses}>
         {renderCardWithActions(id, "play", isOpponent)}
@@ -1640,17 +1636,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   function renderItemStack(ids: string[], isOpponent: boolean) {
     const frontId = ids[0]!;
     const count = ids.length;
-    // Stack wrapper takes the SAME sizing classes as a non-rotated play
-    // cell so it slots in next to other cells in the items row uniformly.
-    // Without explicit sizing the wrapper auto-fills the items flex row
-    // (since cards inside use w-full), causing the bug where 2 stacked
-    // items rendered at 100% of the row width.
-    //
-    // shrink-0 here (vs the cell's `shrink`) — stacks don't squish in
-    // the items row because they already represent compressed content
-    // (1 stack = N cards). Items rows are also typically sparse so the
-    // shrink behavior isn't needed.
-    const stackSizing = "aspect-[5/7] basis-[52px] shrink-0 min-w-[52px] max-w-[52px] sm:aspect-auto sm:basis-auto sm:max-w-none sm:min-w-0 sm:w-[104px] sm:h-[146px] lg:w-[120px] lg:h-[168px] landscape-phone:!aspect-auto landscape-phone:!basis-auto landscape-phone:!max-w-none landscape-phone:!min-w-0 landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
+    // Stack wrapper uses the same `play-cell-compress` class as a
+    // regular cell — so a stack slot occupies the same footprint as a
+    // single card cell would, and stacks compress alongside other
+    // items in the row when many are present. Plus `relative` so the
+    // shadow + badge children position correctly. sm+/landscape get
+    // explicit fixed sizes via Tailwind utilities (which beat the
+    // media-query reset to auto in the .play-cell-compress class).
+    const stackSizing = "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     return (
       <div key={`stack-${frontId}`} className={`relative ${stackSizing}`}>
         {/* Shadows are colored rectangles matching wrapper bounds, shifted
@@ -1757,17 +1750,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             Wandering chars NEVER stack (per-instance state matters too
             much — boost stacks, drying, damage, timed effects). Items
             CAN stack when state is identical (same defId + state).
-            PROTOTYPE (compression): portrait wandering uses flex-nowrap
-            + overflow-x-auto so cards squish via flex-shrink (cell
-            wrapper has shrink/basis/min-w/max-w) before wrapping. sm+/
-            landscape-phone restore flex-wrap (cards there are explicit
-            size, no shrink behavior to preserve). */}
+            PROTOTYPE (compression): both rows are flex-wrap with a
+            `--card-count` CSS variable set to the row's item count.
+            Each cell uses `play-cell-compress` which clamps width
+            between 36-52px based on container width and count. When
+            the row would overflow even at 36px floor, flex-wrap wraps
+            to a new row. */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
-          <div className="flex flex-nowrap overflow-x-auto sm:flex-wrap sm:overflow-x-visible landscape-phone:!flex-wrap landscape-phone:!overflow-x-visible gap-1 md:gap-2 items-end content-end">
+          <div
+            className="flex flex-wrap gap-1 md:gap-2 items-end content-end"
+            style={{ "--card-count": wandering.length || 1 } as React.CSSProperties}
+          >
             {wandering.map(id => renderPlayCell(id, isOpponent))}
           </div>
           {otherStacks.length > 0 && (
-            <div className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end">
+            <div
+              className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end"
+              style={{ "--card-count": otherStacks.length || 1 } as React.CSSProperties}
+            >
               {otherStacks.map(ids =>
                 ids.length > 1
                   ? renderItemStack(ids, isOpponent)
