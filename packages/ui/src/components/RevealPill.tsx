@@ -1,6 +1,7 @@
 import React from "react";
 import type { CardDefinition, GameState } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
+import Pill from "./Pill.js";
 import { getThumbCardImage } from "../utils/cardImage.js";
 
 interface Props {
@@ -33,11 +34,7 @@ export default function RevealPill({
   const previews = cardIds.slice(0, 3);
   const count = cardIds.length;
   return (
-    <button
-      onClick={onClick}
-      className="pointer-events-auto flex items-center gap-2 pl-2 pr-3 py-1.5 bg-indigo-950/95 hover:bg-indigo-900 active:scale-95 text-white rounded-xl shadow-2xl border border-indigo-500/60 backdrop-blur-sm transition-all"
-      title="Click to view — clears at end of turn"
-    >
+    <Pill theme="indigo" onClick={onClick} title="Click to view — clears at end of turn">
       {/* Fanned thumbnail stack */}
       <div className="flex -space-x-3 pl-2">
         {previews.map((id, i) => {
@@ -71,6 +68,6 @@ export default function RevealPill({
         <span className="text-[11px] font-semibold max-w-[140px] truncate">{title}</span>
       </div>
       <Icon name="eye" className="w-3.5 h-3.5 text-indigo-300" />
-    </button>
+    </Pill>
   );
 }
