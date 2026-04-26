@@ -799,11 +799,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     const handRefChanged = lastRevealedHand !== prevHandRevealRef.current;
     if (handRefChanged && advanced && lastRevealedHand) {
       const isMine = lastRevealedHand.playerId === myId;
+      const handLabel = isMine ? "Your hand" : "Opponent's hand";
+      // sourceInstanceId on lastRevealedHand was added engine-side in
+      // commit eb53b79 (parallel to lastRevealedCards). Look up the source
+      // card so the section header reads "Opponent's hand revealed by
+      // Mowgli Man Cub" instead of just "Opponent's hand".
+      const srcInst = session.gameState?.cards[lastRevealedHand.sourceInstanceId];
+      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+      const srcName = srcDef?.fullName ?? "an effect";
       const newEntry: RevealEntry = {
         kind: "hand",
         key: `hand:${session.actionCount}`,
         playerId: lastRevealedHand.playerId,
-        sourceLabel: isMine ? "Your hand" : "Opponent's hand",
+        sourceLabel: `${handLabel} revealed by ${srcName}`,
         instanceIds: lastRevealedHand.cardIds,
         birthActionCount: session.actionCount,
       };
