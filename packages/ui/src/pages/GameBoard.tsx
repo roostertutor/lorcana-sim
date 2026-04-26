@@ -1732,9 +1732,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     }
     return (
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 md:gap-2 pb-1 md:px-1">
-        {/* Locations row — each with its hosted characters bordered together */}
+        {/* Locations row — each with its hosted characters bordered together.
+            Centered horizontally — locations are usually 1-2 in play; centered
+            looks more composed than left-anchored against the play area edge. */}
         {locationIds.length > 0 && (
-          <div className="flex flex-wrap gap-2 items-end content-end">
+          <div className="flex flex-wrap gap-2 items-end content-end justify-center">
             {locationIds.map(locId => {
               const hosted = byLocation.get(locId) ?? [];
               return (
@@ -1757,15 +1759,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             the row would overflow even at 36px floor, flex-wrap wraps
             to a new row. */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
+          {/* Wandering chars: centered on portrait (matches MTGA / Hearthstone
+              convention), left-anchored on md+ where wandering occupies the
+              left half of the side-by-side row. */}
           <div
-            className="flex flex-wrap gap-1 md:gap-2 items-end content-end"
+            className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-start"
             style={{ "--card-count": wandering.length || 1 } as React.CSSProperties}
           >
             {wandering.map(id => renderPlayCell(id, isOpponent))}
           </div>
+          {/* Items: centered on portrait, right-anchored on md+ (existing
+              md:justify-end) so they hug the right edge of the side-by-side
+              row opposite the wandering chars. */}
           {otherStacks.length > 0 && (
             <div
-              className="flex flex-wrap gap-1 md:gap-2 items-end content-end md:justify-end"
+              className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-end"
               style={{ "--card-count": otherStacks.length || 1 } as React.CSSProperties}
             >
               {otherStacks.map(ids =>
