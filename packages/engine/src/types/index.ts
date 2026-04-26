@@ -3803,6 +3803,13 @@ export interface PendingChoice {
   /** For choose_amount: min and max of the numeric range (CRD "up to N") */
   min?: number;
   max?: number;
+  /** For choose_order: where the ordered cards should land. Default "bottom"
+   *  (preserves Vision of the Future / Ariel Spectacular Singer / look_at_top
+   *  REPURPOSED behavior — first selected = bottommost). "top" routes to the
+   *  top of the deck in chosen order — first selected = topmost (drawn first).
+   *  Used by Hypnotic Deduction "put 2 cards from your hand on the top of your
+   *  deck in any order" as the second step of a pick → order flow. */
+  position?: "top" | "bottom";
   /** The effect waiting for this choice to resolve (absent for choose_mulligan) */
   pendingEffect?: Effect;
   /** CRD 6.1.4: player can decline with empty choice */

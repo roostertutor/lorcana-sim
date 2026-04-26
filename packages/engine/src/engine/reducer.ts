@@ -2431,10 +2431,16 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_order" && Array.isArray(choice)) {
-    // Player has specified an order for cards going to bottom of deck.
+    // Player has specified an order for cards going to top OR bottom of deck.
     // Route each card to ITS OWNER'S deck — Under the Sea sends opposing
     // characters to the bottom of their owner's deck (not the controller's).
+    // The new optional `position` field on the pendingChoice picks the side;
+    // legacy callers (Vision, Ariel, Under the Sea, look_at_top "rest to
+    // bottom") leave it undefined and fall through to "bottom" semantics.
+    // Hypnotic Deduction sets position:"top" so the chosen order routes to
+    // the top of the deck (first selected = topmost / drawn first).
     const ordered = choice as string[];
+    const position: "top" | "bottom" = pendingChoice.position ?? "bottom";
     const byOwner = new Map<PlayerID, string[]>();
     for (const id of ordered) {
       const inst = state.cards[id];
@@ -2443,14 +2449,19 @@ function applyResolveChoice(
       if (!byOwner.has(owner)) byOwner.set(owner, []);
       byOwner.get(owner)!.push(id);
       // For cards not currently in their owner's deck (Under the Sea sends
-      // characters from PLAY → bottom of deck), we need to actually MOVE them
-      // first. reorderDeckTopToBottom only re-orders cards already in deck.
+      // characters from PLAY → bottom of deck; Hypnotic Deduction sends from
+      // hand → top of deck), we need to actually MOVE them first.
+      // reorderDeckTopToBottom only re-orders cards already in deck.
       if (inst.zone !== "deck") {
         state = moveCard(state, id, owner, "deck");
       }
     }
     for (const [owner, ids] of byOwner) {
-      state = reorderDeckTopToBottom(state, owner, ids, []);
+      if (position === "top") {
+        state = reorderDeckTopToBottom(state, owner, [], ids);
+      } else {
+        state = reorderDeckTopToBottom(state, owner, ids, []);
+      }
     }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
@@ -2586,6 +2597,33 @@ function applyResolveChoice(
       state = resumePendingEffectQueue(state, definitions, events);
       state = cleanupPendingAction(state, playerId);
       return state;
+    }
+    // Hypnotic Deduction "in any order" — when the resolved pendingEffect is
+    // put_card_on_bottom_of_deck from:hand position:top and the player picked
+    // 2+ cards, the oracle says they choose the deck order. Surface a
+    // follow-up choose_order step over the just-picked cards instead of
+    // applying moves per-target (which would drop the order semantics: the
+    // current per-target moveCard implicitly orders by pick sequence with
+    // last-picked = topmost, but the player's choose_target UI doesn't
+    // surface that). The choose_order resolver routes the cards to the top
+    // in the explicit order (first selected = topmost / drawn first).
+    const peffPutTop = pendingEffect as Effect | undefined;
+    if (
+      peffPutTop?.type === "put_card_on_bottom_of_deck" &&
+      peffPutTop.from === "hand" &&
+      peffPutTop.position === "top" &&
+      choice.length > 1
+    ) {
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_order",
+          choosingPlayerId: playerId,
+          prompt: `Choose the order to put ${choice.length} cards on top of your deck (first selected = topmost / drawn first).`,
+          validTargets: choice as string[],
+          position: "top",
+        },
+      };
     }
     for (const targetId of choice) {
       // Track a snapshot of the targeted card. Used by follow-up effects like
@@ -8113,11 +8151,18 @@ function reorderDeckTopToBottom(
   state: GameState,
   playerId: PlayerID,
   cardsToBottom: string[],
-  _cardsToTop: string[]
+  cardsToTop: string[]
 ): GameState {
+  // Lift both groups out of the deck and reassemble: cardsToTop ends up at the
+  // very top in the order given (first selected = topmost / drawn first), then
+  // any cards that weren't moved, then cardsToBottom at the bottom (first
+  // selected = bottommost). Either group may be empty. Used by:
+  //   - look_at_top "rest to bottom" flows (Vision, Ariel) — cardsToBottom only
+  //   - Hypnotic Deduction "to top in chosen order" — cardsToTop only
   const deck = getZone(state, playerId, "deck");
-  const remaining = deck.filter((id) => !cardsToBottom.includes(id));
-  const newDeck = [...remaining, ...cardsToBottom];
+  const moved = new Set<string>([...cardsToBottom, ...cardsToTop]);
+  const remaining = deck.filter((id) => !moved.has(id));
+  const newDeck = [...cardsToTop, ...remaining, ...cardsToBottom];
   return {
     ...state,
     zones: {

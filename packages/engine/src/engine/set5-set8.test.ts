@@ -416,6 +416,49 @@ describe("§5 Set 5 — put_on_bottom_of_deck Effect", () => {
     expect(state.pendingChoice?.validTargets).toContain(h2);
     expect(state.pendingChoice?.validTargets).toContain(h3);
   });
+
+  it("Hypnotic Deduction: pick→order flow honors 'in any order' — chosen sequence determines deck order", () => {
+    // After the player resolves the pick step (choose_target with count:2),
+    // the engine surfaces a follow-up choose_order step over those exact 2
+    // cards. The order the player picks in the second step decides which
+    // card lands on top (drawn first). Mirrors the look_at_top → choose_order
+    // pattern that Vision of the Future / Ariel Spectacular Singer use.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let songId: string, h1: string, h2: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "hypnotic-deduction", "hand"));
+    ({ state, instanceId: h1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state, instanceId: h2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    // Pick h1 + h2.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [h1, h2] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // The follow-up step is choose_order over those 2 cards, position:top.
+    expect(state.pendingChoice?.type).toBe("choose_order");
+    expect(state.pendingChoice?.position).toBe("top");
+    expect(state.pendingChoice?.validTargets).toEqual([h1, h2]);
+
+    // Order them [h2, h1] — h2 should end up topmost (drawn first).
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [h2, h1] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice).toBeFalsy();
+
+    // Both cards now in deck. Top of deck = h2 (first selected = topmost),
+    // second = h1.
+    const deck = state.zones.player1.deck;
+    expect(deck[0]).toBe(h2);
+    expect(deck[1]).toBe(h1);
+    // Action card moved to discard.
+    expect(state.cards[songId]!.zone).toBe("discard");
+  });
 });
 
 describe("§5 Set 5 — Pride Lands Jungle Oasis (alt-source-zone: play from discard)", () => {
