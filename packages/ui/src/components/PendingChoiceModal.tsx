@@ -428,16 +428,15 @@ export default function PendingChoiceModal({
     }
 
     // Order picker (choose_order) — player clicks cards in their preferred
-    // bottom-of-deck order. Three affordances make the abstract "click-order
-    // = sequence" mental model concrete:
-    //   1. Helper subtitle frames clicks as gameplay events ("first tap goes
-    //      to the bottom", "last tap will be drawn first") instead of slot
-    //      numbers.
-    //   2. A preview strip below the picker shows the final deck
-    //      arrangement being built — empty placeholder slots indicate what's
-    //      missing; clicking a placed card in the preview removes it.
-    //   3. Reset button lets the player clear all placements without
+    // order. Two affordances:
+    //   1. Helper subtitle uses top/bottom-of-deck terminology to map tap
+    //      order to deck position (first tap = bottom, last tap = top).
+    //   2. Reset button lets the player clear all placements without
     //      individually deselecting each card.
+    // Preview strip was removed 2026-04-25 — it was visually duplicating
+    // the picker cards (each card appeared twice on screen) and inflating
+    // the modal height past mobile portrait viewports for N≥5. The slot
+    // badges on the picker cards are sufficient to track ordering.
     if (pendingChoice.type === "choose_order") {
       const ids = pendingChoice.validTargets ?? [];
       const total = ids.length;
@@ -447,7 +446,7 @@ export default function PendingChoiceModal({
           <div>
             <div className="text-yellow-300 text-sm font-medium mb-0.5">{pendingChoice.prompt}</div>
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              Tap in order — first tap → bottom of deck (drawn last). Last tap → drawn first of these.
+              Tap in order: first tap → <span className="text-gray-400">bottom of deck</span> · last tap → <span className="text-gray-400">top of deck</span> (next to draw).
             </div>
           </div>
 
@@ -471,42 +470,6 @@ export default function PendingChoiceModal({
                 />
               );
             })}
-          </div>
-
-          {/* Final-order preview strip — left = bottom of deck (drawn last),
-              right = top of placed stack (drawn first of these). Empty slots
-              show as dashed boxes with their slot number, so the user can
-              see how many cards are still missing without counting badges. */}
-          <div className="rounded-lg p-2 bg-gray-900/60 border border-gray-800/50">
-            <div className="flex items-center justify-between text-[9px] text-gray-500 uppercase tracking-wider mb-1.5 px-0.5">
-              <span>← Drawn last</span>
-              <span>Drawn first →</span>
-            </div>
-            {/* Preview strip uses the same grid layout as the picker above
-                 so source-cards and destination-slots match in size — flex
-                 with flex-1 children stretched the slots to 1/N of the
-                 modal width regardless of N, which made 3-card reveals
-                 render slots much bigger than the picker source cards. */}
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
-              {Array.from({ length: total }, (_, i) => {
-                const cardId = multiSelectTargets[i];
-                return cardId ? (
-                  <CardThumb
-                    key={i}
-                    id={cardId}
-                    selection={{ kind: "ordered", index: i + 1 }}
-                    onClick={() => onMultiSelectChange((prev) => prev.filter((t) => t !== cardId))}
-                  />
-                ) : (
-                  <div
-                    key={i}
-                    className="aspect-[5/7] rounded border-2 border-dashed border-gray-700/50 flex items-center justify-center text-gray-700 text-xs font-mono"
-                  >
-                    {i + 1}
-                  </div>
-                );
-              })}
-            </div>
           </div>
 
           {/* Confirm + Reset. Reset only renders when there's something to
