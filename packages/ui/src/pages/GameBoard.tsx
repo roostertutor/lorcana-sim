@@ -40,6 +40,7 @@ import TopToast from "../components/TopToast.js";
 import InfoToast from "../components/InfoToast.js";
 import ModeToast from "../components/ModeToast.js";
 import ModalFrame from "../components/ModalFrame.js";
+import Glyph from "../components/Glyph.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -688,152 +689,151 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     };
   }, [inspectCardId, inspectModalOpen]);
   const [autoPassP2, setAutoPassP2] = useState(true);
-  // `lastRevealedHand` (from reveal_hand effects, e.g. Ursula-Deceiver) has
-  // no sequenceId on the engine side, so a second Ursula revealing the same
-  // hand produces an identical content key. We detect new reveal events by
-  // OBJECT REFERENCE — the engine creates a fresh lastRevealedHand object
-  // on every reveal_hand action, and state-spread preserves references for
-  // non-reveal_hand actions in between, so reference equality cleanly
-  // distinguishes "new reveal" from "persisted stale reveal". Same
-  // actionCount-based freshness check as lastRevealedCards to hide the
-  // overlay once subsequent actions advance past it.
-  // Collapsed-to-pill (not dismissed): user closed the full modal but can
-  // re-expand via the bottom-right RevealPill until the turn anchor expires.
-  const [revealHandCollapsedToPill, setRevealHandCollapsedToPill] = useState(false);
-  const [revealHandActionCount, setRevealHandActionCount] = useState<number | null>(null);
-  // Turn number at which the current reveal fired. When gameState.turnNumber
-  // moves past this, both the modal AND the pill clear — matches "no note-
-  // taking" intent: you see the info once, you can re-open it during the
-  // same turn, but it's gone at the next turn boundary.
-  const [revealHandTurnAnchor, setRevealHandTurnAnchor] = useState<number | null>(null);
-  const currentRevealedHand = session.gameState?.lastRevealedHand;
-  // Forward-advance gate: undo reconstructs state from scratch, giving a
-  // fresh object reference for lastRevealedHand even when the content matches
-  // what the user already dismissed. Object-ref equality alone mis-fires on
-  // undo. Gate "new reveal" detection on session.actionCount advancing
-  // forward — undo decrements the count, so the effect correctly leaves the
-  // dismissed flag in place.
-  const prevHandRevealRef = useRef<{ playerId: PlayerID; cardIds: string[] } | undefined>(undefined);
-  const prevHandRevealActionCount = useRef<number>(-1);
-  useEffect(() => {
-    const refChanged = currentRevealedHand !== prevHandRevealRef.current;
-    const advanced = session.actionCount > prevHandRevealActionCount.current;
-    if (currentRevealedHand && refChanged && advanced) {
-      setRevealHandActionCount(session.actionCount);
-      setRevealHandTurnAnchor(session.gameState?.turnNumber ?? null);
-      setRevealHandCollapsedToPill(false);
-    } else if (!currentRevealedHand) {
-      setRevealHandActionCount(null);
-      setRevealHandTurnAnchor(null);
-    }
-    prevHandRevealRef.current = currentRevealedHand;
-    prevHandRevealActionCount.current = session.actionCount;
-  }, [currentRevealedHand, session.actionCount, session.gameState?.turnNumber]);
-  // Revealed cards (search/look-at-top) — per-turn history. Two Daisy quests
-  // in one turn each emit a separate `lastRevealedCards` event (engine state
-  // gets overwritten between actions), so the UI accumulates them locally
-  // into `revealHistory`. Each entry becomes its own RevealPill in the
-  // bottom-right stack; tapping any pill expands that reveal in the modal.
-  // History clears at turn boundary ("no note-taking" contract).
-  type RevealEntry = {
-    sequenceId: number;
-    instanceIds: string[];
-    sourceInstanceId: string;
-    /** Last-event playerId from the engine — only meaningful for single-
-     *  player reveals. Multi-player reveals (Let's Get Dangerous: target
-     *  "both") get owner labels per card via `instance.ownerId` in the
-     *  modal instead. */
-    playerId: PlayerID;
-    /** session.actionCount at the moment this entry was pushed. Used to
-     *  prune entries when undo rewinds past their birth (otherwise the
-     *  pill would advertise a reveal that engine state has rolled back). */
-    birthActionCount: number;
-  };
+
+  // myId is declared early so reveal-tracking effects below can use it for
+  // section labelling ("Your hand" vs "Opponent's hand"). Mirrored later in
+  // the file with a clarifying comment near the existing usages.
+  const myId = multiplayerGame?.myPlayerId ?? "player1";
+
+  // ── Unified reveal log ──────────────────────────────────────────────────
+  // Two engine concepts (`lastRevealedCards` for top-of-deck reveals,
+  // `lastRevealedHand` for hand reveals) are tracked here as a single
+  // discriminated-union history per turn. Each entry produces its own
+  // section in the modal; the count pill aggregates total cards. All
+  // entries clear at turn boundary ("no note-taking" intent — what
+  // happened during a turn is visible until the turn ends, then gone).
+  type RevealEntry =
+    | {
+        kind: "deck";
+        /** Engine-provided sequence id; distinguishes back-to-back reveals of
+         *  the same card definition. */
+        sequenceId: number;
+        sourceInstanceId: string;
+        /** "Vision of the Future", etc. — derived from sourceInstanceId. */
+        sourceLabel: string;
+        instanceIds: string[];
+        birthActionCount: number;
+      }
+    | {
+        kind: "hand";
+        /** Whose hand was revealed. Used for the section header and per-card
+         *  badge defaulting. */
+        playerId: PlayerID;
+        sourceLabel: string;
+        instanceIds: string[];
+        birthActionCount: number;
+      };
   const [revealHistory, setRevealHistory] = useState<RevealEntry[]>([]);
   const [revealHistoryTurn, setRevealHistoryTurn] = useState<number | null>(null);
-  /** Single combined modal for the whole turn's reveals. Auto-opens on each
-   *  new reveal arrival (so the user sees the new content), closes on
-   *  dismiss. Pill remains visible until turn boundary regardless. */
+  /** Single combined modal for the whole turn's reveals (deck + hand).
+   *  Auto-opens on each new reveal arrival; closes on dismiss. Pill
+   *  remains visible until turn boundary regardless. */
   const [revealHistoryModalOpen, setRevealHistoryModalOpen] = useState(false);
 
-  // Compose a key for new-reveal detection. Engine increments sequenceId on
-  // every reveal-producing action, so two back-to-back Daisy quests revealing
-  // the same card definition still produce distinct keys.
-  const currentRevealCardsKey = (() => {
-    const rc = session.gameState?.lastRevealedCards;
-    return rc ? `${rc.sequenceId}:${rc.instanceIds.join(",")}` : null;
-  })();
-  const prevRevealKey = useRef<string | null>(null);
+  // Engine reveal sources we watch.
+  const lastRevealedCards = session.gameState?.lastRevealedCards;
+  const lastRevealedHand = session.gameState?.lastRevealedHand;
+  // Compose a key for new-deck-reveal detection. Engine increments sequenceId
+  // on every reveal-producing action, so two back-to-back Daisy quests
+  // revealing the same card still produce distinct keys.
+  const currentDeckRevealKey = lastRevealedCards
+    ? `${lastRevealedCards.sequenceId}:${lastRevealedCards.instanceIds.join(",")}`
+    : null;
+  const prevDeckRevealKey = useRef<string | null>(null);
+  // Hand reveals have no sequenceId, so we detect new ones via object
+  // reference (engine creates a fresh lastRevealedHand on each reveal_hand
+  // action). The actionCount-advanced gate filters undo for both kinds.
+  const prevHandRevealRef = useRef<typeof lastRevealedHand>(undefined);
   const prevRevealActionCount = useRef<number>(-1);
 
   useEffect(() => {
     const turn = session.gameState?.turnNumber ?? null;
-    // Turn boundary — clear all history. Captures the case where the engine
-    // advances turn (PASS_TURN, etc.) AND the case where undo rewinds past
-    // the turn that produced the reveals.
+    // Turn boundary — clear all history. Catches both forward turn-advance
+    // (PASS_TURN) and undo-past-the-turn-start.
     if (turn !== revealHistoryTurn) {
       setRevealHistory([]);
       setRevealHistoryModalOpen(false);
       setRevealHistoryTurn(turn);
     }
-    // Detect a new reveal arriving via forward play. Engine state-spreads
-    // preserve the lastRevealedCards reference across non-reveal actions,
-    // so a key change ALWAYS means a new reveal action just fired (or undo
-    // rewrote the ref). The actionCount-advanced gate filters undo: undo
-    // decrements actionCount, so the reveal doesn't re-enter history.
-    const refChanged = currentRevealCardsKey !== prevRevealKey.current;
+
     const advanced = session.actionCount > prevRevealActionCount.current;
-    const rc = session.gameState?.lastRevealedCards;
-    if (refChanged && advanced && rc && currentRevealCardsKey !== null) {
+    let pushedAny = false;
+
+    // New deck reveal? key change + forward advance.
+    const deckKeyChanged = currentDeckRevealKey !== prevDeckRevealKey.current;
+    if (deckKeyChanged && advanced && lastRevealedCards && currentDeckRevealKey !== null) {
+      const srcInst = session.gameState?.cards[lastRevealedCards.sourceInstanceId];
+      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
       const newEntry: RevealEntry = {
-        sequenceId: rc.sequenceId,
-        instanceIds: rc.instanceIds,
-        sourceInstanceId: rc.sourceInstanceId,
-        playerId: rc.playerId,
+        kind: "deck",
+        sequenceId: lastRevealedCards.sequenceId,
+        sourceInstanceId: lastRevealedCards.sourceInstanceId,
+        sourceLabel: srcDef?.fullName ?? "Card",
+        instanceIds: lastRevealedCards.instanceIds,
         birthActionCount: session.actionCount,
       };
       setRevealHistory(prev => {
-        // Idempotent: dedupe by sequenceId in case useEffect re-runs.
-        if (prev.some(e => e.sequenceId === newEntry.sequenceId)) return prev;
+        if (prev.some(e => e.kind === "deck" && e.sequenceId === newEntry.sequenceId)) return prev;
         return [...prev, newEntry];
       });
-      // Auto-open the combined modal so the user sees the new reveal content.
+      pushedAny = true;
+    }
+
+    // New hand reveal? ref change + forward advance.
+    const handRefChanged = lastRevealedHand !== prevHandRevealRef.current;
+    if (handRefChanged && advanced && lastRevealedHand) {
+      const isMine = lastRevealedHand.playerId === myId;
+      const newEntry: RevealEntry = {
+        kind: "hand",
+        playerId: lastRevealedHand.playerId,
+        sourceLabel: isMine ? "Your hand" : "Opponent's hand",
+        instanceIds: lastRevealedHand.cardIds,
+        birthActionCount: session.actionCount,
+      };
+      setRevealHistory(prev => {
+        // Hand reveals have no sequenceId — dedupe by birthActionCount + ref-
+        // changed signal (re-detection of the same ref produces an identical
+        // birthActionCount, which we'd already have).
+        if (prev.some(e => e.kind === "hand" && e.birthActionCount === newEntry.birthActionCount)) return prev;
+        return [...prev, newEntry];
+      });
+      pushedAny = true;
+    }
+
+    if (pushedAny) {
+      // Auto-open the combined modal whenever a new reveal arrives.
       setRevealHistoryModalOpen(true);
     }
-    // Undo rewind — drop entries born after the current actionCount, since
-    // the engine state for those reveals has been rolled back. No-op when
-    // actionCount only advances forward.
+
+    // Undo rewind — drop entries born past the current actionCount.
     setRevealHistory(prev => {
       const filtered = prev.filter(e => e.birthActionCount <= session.actionCount);
       return filtered.length === prev.length ? prev : filtered;
     });
-    prevRevealKey.current = currentRevealCardsKey;
-    prevRevealActionCount.current = session.actionCount;
-  }, [currentRevealCardsKey, session.actionCount, session.gameState?.turnNumber, session.gameState?.lastRevealedCards, revealHistoryTurn]);
 
-  /** Combined reveal data for the single per-turn modal — sums all
-   *  cardIds across history entries. Modal title shows the source when
-   *  there's only one event; switches to "Revealed this turn" with a
-   *  count when multiple events accumulated. */
+    prevDeckRevealKey.current = currentDeckRevealKey;
+    prevHandRevealRef.current = lastRevealedHand;
+    prevRevealActionCount.current = session.actionCount;
+  }, [currentDeckRevealKey, lastRevealedCards, lastRevealedHand, session.actionCount, session.gameState?.turnNumber, session.gameState?.cards, definitions, myId, revealHistoryTurn]);
+
+  /** Combined view data for the unified reveal modal. Built from the
+   *  per-turn history; renders as sections via ZoneViewModal's optional
+   *  `sections` prop. */
   const combinedRevealCardIds = revealHistory.flatMap(e => e.instanceIds);
+  const combinedRevealSections = revealHistory.map(e => ({
+    title: e.kind === "deck"
+      ? `Revealed by ${e.sourceLabel}`
+      : e.sourceLabel,
+    cardIds: e.instanceIds,
+  }));
   const combinedRevealTitle = (() => {
     if (revealHistory.length === 0) return "";
     if (revealHistory.length === 1) {
       const entry = revealHistory[0]!;
-      const srcInst = session.gameState?.cards[entry.sourceInstanceId];
-      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-      return `Revealed by ${srcDef?.fullName ?? "Card"}`;
+      return entry.kind === "deck" ? `Revealed by ${entry.sourceLabel}` : entry.sourceLabel;
     }
     return `Revealed this turn (${revealHistory.length} events, ${combinedRevealCardIds.length} cards)`;
   })();
-
-  const revealHandSameTurn =
-    currentRevealedHand != null
-    && currentRevealedHand.cardIds.length > 0
-    && revealHandTurnAnchor != null
-    && session.gameState?.turnNumber === revealHandTurnAnchor;
-  const showRevealHandModal = revealHandSameTurn && !revealHandCollapsedToPill;
-  const showRevealHandPill = revealHandSameTurn && revealHandCollapsedToPill;
 
   const p1Parse = useMemo(() => parseDecklist(p1DeckText, definitions), [p1DeckText, definitions]);
   const p2Parse = useMemo(() => parseDecklist(p2DeckText, definitions), [p2DeckText, definitions]);
@@ -844,9 +844,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     () => session.gameState ? getGameModifiers(session.gameState, definitions) : null,
     [session.gameState, definitions]
   );
-
-// Derived early — needed by hooks that must live above the early return
-  const myId = multiplayerGame?.myPlayerId ?? "player1";
 
   // Reset sandbox: clear session + start fresh
   const handleResetBoard = useCallback(() => {
@@ -2533,30 +2530,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         );
       })()}
 
-      {/* ======================= Revealed Hand Viewer (auto-triggered by reveal_hand effect) ======================= */}
-      {/* Closing the modal collapses to the RevealPill (bottom-right) rather
-          than dismissing outright — user can re-open during the same turn. */}
-      {showRevealHandModal && gameState?.lastRevealedHand && (
-        <ZoneViewModal
-          title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} Revealed Hand`}
-          cardIds={gameState.lastRevealedHand.cardIds}
-          gameState={gameState}
-          definitions={definitions}
-          onClose={() => setRevealHandCollapsedToPill(true)}
-        />
-      )}
-
-      {/* ======================= Revealed Cards Viewer =======================
-          Single per-turn combined modal — shows ALL revealed cards from
-          all reveal events this turn in one grid. Owner badges (You/Opp)
-          appear when cards span multiple owners (Let's Get Dangerous:
-          target "both"). Title adapts: single-event reveals show the
-          source ("Revealed by Vision of the Future"); multi-event reveals
-          summarise ("Revealed this turn (3 events, 7 cards)"). */}
+      {/* ======================= Unified Reveal Modal =======================
+          Per-turn combined modal showing ALL reveals (deck + hand) as
+          sections. Auto-opens on each new reveal arrival. Title adapts
+          to single-event vs multi-event. Owner badges appear per card
+          when a section's reveals span multiple owners (Let's Get
+          Dangerous: target "both"). */}
       {revealHistoryModalOpen && combinedRevealCardIds.length > 0 && (
         <ZoneViewModal
           title={combinedRevealTitle}
           cardIds={combinedRevealCardIds}
+          sections={revealHistory.length > 1 ? combinedRevealSections : undefined}
           gameState={gameState}
           definitions={definitions}
           onClose={() => setRevealHistoryModalOpen(false)}
@@ -2565,31 +2549,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       )}
 
       {/* ======================= Status Pill Stack =======================
-          Bottom-right floating stack, independent of the mid-screen
-          "View Choice" pill (bottom-center). Contains at most three chips:
-          - Active Effects (when active)
-          - Reveal Hand (when a hand reveal has been collapsed to pill)
-          - Reveal Cards (singleton — combined per-turn count of revealed
-            cards across all reveal events; tap opens the unified modal)
-          All chips clear at next turn boundary; Active Effects is live
-          state. Single combined reveal pill keeps the stack minimal even
-          when many reveals fire in one turn. */}
-      {(showRevealHandPill || revealHistory.length > 0 || activeEffects.length > 0) && (
+          Bottom-right floating stack. Two chips at most:
+          - Active Effects (live state — gameModifiers-derived)
+          - Combined Reveal (singleton — count of all revealed cards
+            this turn, across deck and hand reveals; tap opens the
+            sectioned modal)
+          Both clear at next turn boundary. */}
+      {(revealHistory.length > 0 || activeEffects.length > 0) && (
         <div
           className="fixed right-4 z-40 flex flex-col items-end gap-2 pointer-events-none"
           style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
         >
           {activeEffects.length > 0 && (
             <ActiveEffectsPill count={activeEffects.length} onClick={() => setShowEffects(true)} />
-          )}
-          {showRevealHandPill && gameState?.lastRevealedHand && (
-            <RevealPill
-              title={`${gameState.lastRevealedHand.playerId === myId ? "Your" : "Opponent's"} hand`}
-              cardIds={gameState.lastRevealedHand.cardIds}
-              gameState={gameState}
-              definitions={definitions}
-              onClick={() => setRevealHandCollapsedToPill(false)}
-            />
           )}
           {revealHistory.length > 0 && (
             <RevealPill
@@ -2825,12 +2797,12 @@ function DroppableQuestDivider({
         <span className="text-green-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
           {myLore}
         </span>
-        <span className="text-gray-600 text-[10px] leading-none">♦</span>
+        <Glyph name="lore" size={10} className="text-green-400" ariaLabel="lore" />
         <span className="text-gray-700 text-[9px] leading-none">–</span>
         <span className="text-red-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
           {opponentLore}
         </span>
-        <span className="text-gray-600 text-[10px] leading-none">♦</span>
+        <Glyph name="lore" size={10} className="text-red-400" ariaLabel="lore" />
       </div>
 
       <div className={`flex-1 rounded-full transition-all ${lineHeight} ${lineBase}`} />
