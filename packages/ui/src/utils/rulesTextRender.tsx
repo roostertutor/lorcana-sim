@@ -3,14 +3,20 @@
 // and emit ReactNodes that interleave text with <Glyph> components.
 //
 // Tokens recognized (counts across sets 1-12):
-//   {I} — ink cost          (686 cards) → ink glyph
-//   {S} — strength            (614)     → strength glyph
-//   {E} — exert               (388)     → exert glyph
-//   {L} — lore                (164)     → lore glyph
-//   {W} — willpower            (36)     → willpower glyph
-//   {C} — inkable indicator    (4)      → inkable glyph
+//   {I}  — ink cost          (686 cards) → ink glyph
+//   {S}  — strength            (614)     → strength glyph
+//   {E}  — exert               (388)     → exert glyph
+//   {L}  — lore                (164)     → lore glyph
+//   {W}  — willpower            (36)     → willpower glyph
+//   {C}  — inkable indicator    (4)      → inkable glyph
 //                                          (e.g. Hidden Inkcaster: "count
 //                                          as having {C}")
+//   {IW} — inkable indicator    (4)      → inkable glyph (alias for {C})
+//                                          Ravensburger inconsistency
+//                                          across imports — set 4 uses
+//                                          {C}, set 8 / P1 use {IW} for
+//                                          the same glyph. Both render
+//                                          to the inkable glyph here.
 //
 // Tokens NOT recognized (deliberately):
 //   <Keyword>      — keyword names like <Singer>, <Rush>, <Shift>. Separate
@@ -30,11 +36,12 @@ const TOKEN_TO_GLYPH: Record<string, GlyphName> = {
   "{L}": "lore",
   "{W}": "willpower",
   "{C}": "inkable",
+  "{IW}": "inkable",
 };
 
-/** Match any of the recognized inline glyph tokens. Order doesn't matter
- *  inside a character class. */
-const TOKEN_PATTERN = /\{[ISELWC]\}/g;
+/** Match the recognized inline glyph tokens. Includes the multi-char
+ *  `{IW}` alias alongside the single-letter `{[ISELWC]}` set. */
+const TOKEN_PATTERN = /\{(?:IW|[ISELWC])\}/g;
 
 /** Split a rulesText string into ReactNodes, swapping recognized {X} tokens
  *  for inline <Glyph> components. Plain text spans, unknown tokens, and
