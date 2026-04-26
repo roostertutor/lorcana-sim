@@ -26,94 +26,23 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## Engine agent: shifted character should keep target's play-array slot (visual continuity)
+## ~~Engine agent: shifted character should keep target's play-array slot (visual continuity)~~ ✅ DONE 2026-04-26
 
-User-reported 2026-04-26: when a character is shifted (Floodborn /
-Storyborn shift), the new shifter renders at the rightmost slot of the
-play zone instead of staying in the position the target occupied.
-Visually feels like a "new object" that jumped to the end, when the
-player's mental model is "same character lineage, evolved in place."
+Shipped the recommended post-hoc splice. `applyPlayCard()` shift branch
+now captures the target's `play[]` index BEFORE `zoneTransition`, then
+after the existing moves splices the new shifter into that slot:
 
-### Why this happens
-
-In `applyPlayCard()` shift branch (`reducer.ts:781-840`):
-
-1. The new shifter has its own fresh `instanceId` (it's the card from
-   hand, not the target on the board).
-2. `zoneTransition(newShifter, "play")` routes through `moveCard()` with
-   default `position: "bottom"` → appended to the end of the play-zone
-   array.
-3. The target is then moved out of `"play"` into `"under"` → removed
-   from the play array.
-
-Net effect on `gameState.zones[playerId].play`:
 ```
 Before: [A, B, target, D, E]
-After:  [A, B, D, E, newShifter]   ← target removed, newShifter appended
+After:  [A, B, newShifter, D, E]   ← previously [A, B, D, E, newShifter]
 ```
 
-UI iterates this array in order, so the new shifter renders rightmost.
-
-### Why UI can't fix it cleanly
-
-Once the target is moved to `"under"`, its previous play-array index is
-lost. The UI would need to either:
-- Track positions across render snapshots (breaks on undo / replay /
-  HMR / multiplayer state refetch)
-- Reconstruct order from the cardsUnder chain (only works for chained
-  shifts, not first-time-shift-onto-base)
-
-Engine-side fix is the only place that has the array index at the right
-moment.
-
-### Proposed fix
-
-Capture the target's play-array index BEFORE the shift moves anything,
-then splice the new shifter in at that index instead of appending.
-Surgical option (recommended):
-
-```ts
-// At the top of the shift branch (reducer.ts:~781), before zoneTransition:
-const targetIdx = state.zones[playerId].play.indexOf(shiftTargetInstanceId);
-
-// ... existing zoneTransition + target-to-under logic ...
-
-// After both moves, splice newShifter into targetIdx
-if (targetIdx >= 0) {
-  const cur = state.zones[playerId].play;
-  const reordered = cur.filter(id => id !== instanceId);
-  reordered.splice(targetIdx, 0, instanceId);
-  state = {
-    ...state,
-    zones: {
-      ...state.zones,
-      [playerId]: { ...state.zones[playerId], play: reordered },
-    },
-  };
-}
-```
-
-Cleaner long-term API would be `position?: "top" | "bottom" | number` on
-`TransitionContext` threaded into `moveCard`, but that's only worth it
-if a second case (transform effects? location-host swaps?) wants the
-same behavior. Start with the post-hoc splice — single-call-site
-change, no API surface.
-
-### Tests
-
-Add to a shift-related test file:
-- Inject 3 characters in player1's play: A (index 0), B-base (index 1),
-  C (index 2). Inject the shift card (Storyborn) for B in hand.
-- After PLAY_CARD with shiftTargetInstanceId = B-base:
-  - `state.zones.player1.play` should be `[A, newShifter, C]`
-  - newShifter is at index 1 (where B-base was), NOT index 2 (appended)
-  - B-base is in `state.cards[B-base].zone === "under"`
-
-### Why this matters
-
-It's polish but the user noticed it on their own without prompting,
-which suggests it's noticeable enough to bother others. Sandbox +
-multiplayer both affected. Small fix, high readability win.
+Single-call-site change (no `TransitionContext` API surface added).
+Regression: `reducer.test.ts > §8 Keywords > Shift: new shifter takes
+the target's play-array slot (visual continuity)` — 3 chars in play
+ordered `[L, base, R]`, after PLAY_CARD with shiftTargetInstanceId=base
+asserts `play === [L, shifter, R]` and base.zone === "under".
+UI inherits automatically.
 
 ---
 

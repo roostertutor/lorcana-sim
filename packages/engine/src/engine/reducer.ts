@@ -784,6 +784,13 @@ function applyPlayCard(
     // (not in discard). The previous version inherits the new character's cardsUnder pile too —
     // a Floodborn shifted onto another Floodborn carries its under-stack with it.
     const inheritedUnder = shiftTarget.cardsUnder;
+    // Capture the target's play-array slot BEFORE any moves so the new shifter
+    // can keep visual continuity in the same column. Without this, the new
+    // shifter renders rightmost (zoneTransition default appends to end) and
+    // the target's old slot is filled by whatever was to its right — feels
+    // like a brand-new card jumped to the end instead of "same character
+    // lineage, evolved in place." User-reported polish item, 2026-04-26.
+    const shiftSlotIdx = state.zones[playerId].play.indexOf(shiftTargetInstanceId);
     // Shifted card enters play — fires enters_play, card_played
     state = zoneTransition(state, instanceId, "play", definitions, events, {
       reason: "played", triggeringPlayerId: playerId,
@@ -845,6 +852,22 @@ function applyPlayCard(
         },
       },
     };
+    // Splice the new shifter into the target's old slot. After zoneTransition
+    // appended it to the end and the prior block removed the target, the play
+    // array currently looks like [...others, newShifter]. Lift newShifter out
+    // and re-insert at the captured index so visual continuity is preserved.
+    if (shiftSlotIdx >= 0) {
+      const cur = state.zones[playerId].play;
+      const reordered = cur.filter(id => id !== instanceId);
+      reordered.splice(shiftSlotIdx, 0, instanceId);
+      state = {
+        ...state,
+        zones: {
+          ...state.zones,
+          [playerId]: { ...state.zones[playerId], play: reordered },
+        },
+      };
+    }
     state = appendLog(state, {
       turn: state.turnNumber,
       playerId,

@@ -3162,6 +3162,36 @@ describe("§8 Keywords", () => {
     expect(getInstance(result.newState, shiftId).cardsUnder).toContain(baseId);
   });
 
+  it("Shift: new shifter takes the target's play-array slot (visual continuity)", () => {
+    // User-reported polish, 2026-04-26: shifted character was rendering at
+    // the rightmost slot because zoneTransition appends to the end and the
+    // base then leaves play, collapsing its old slot. Fix splices the new
+    // shifter into the base's old index so visual continuity reads as
+    // "same character lineage, evolved in place" not "new card jumped to end".
+    let state = startGame();
+    let leftId: string, baseId: string, rightId: string, shiftId: string;
+    // Inject 3 characters in player1's play, ordered Left → Base → Right.
+    ({ state, instanceId: leftId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "hades-lord-of-the-underworld", "play", { isDrying: false }));
+    ({ state, instanceId: rightId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    expect(state.zones.player1.play).toEqual([leftId, baseId, rightId]);
+
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "hades-king-of-olympus", "hand"));
+    state = giveInk(state, "player1", 6);
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Shifter should occupy the base's old slot (index 1), not the end.
+    expect(r.newState.zones.player1.play).toEqual([leftId, shiftId, rightId]);
+    expect(getInstance(r.newState, baseId).zone).toBe("under");
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
