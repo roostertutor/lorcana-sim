@@ -24,6 +24,25 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Play-zone overflow affordances (scroll discoverability)
+
+**Considered**: Three optional UX enhancements when the player's play zone has more cards than fit in available height (stress-tested at 18 cards portrait / 24 cards landscape on iPhone 13 — 2 full rows + a third trimmed row, scrolling works fine but the trim isn't visually signaled):
+
+1. **Edge fade at the bottom** — `mask-image: linear-gradient(...)` on the play area so trimmed rows fade to transparent instead of hard-cropping. Visual hint that there's content below.
+2. **Scroll indicator badge** — when overflowed, render a small `↓ N more` chip at the bottom-right of the play area. Tappable to scroll to bottom.
+3. **Snap-scroll to row boundaries** — `scroll-snap-type: y mandatory` on the play area, `scroll-snap-align: start` on each card row. Avoids parking mid-row mid-scroll.
+
+**Why parked (2026-04-26)**: Stress-test thresholds (18+ portrait / 24+ landscape) are well past typical play. Cards stay full-size and the parent's `overflow-y-auto` engages cleanly — it's working as designed, just lacks visual polish at the trim boundary. User confirmed scrolling functions correctly; this is purely affordance.
+
+**Trigger to reconsider**:
+- A user reports they didn't realize they could scroll the play area, OR
+- Card-density meta makes 15+ board states common in mid-tier games (currently rare), OR
+- Tournament / streaming context where the trim makes plays unreadable to viewers (creator-tool wedge).
+
+**Scope if built**: ~30 min for #1 alone (single CSS rule), ~1-2 hrs for #2 (new component + scroll-position state). #3 is a few lines of CSS but feels less natural for free-flow card rows. Most likely future shape: just #1, the cheapest signal-add.
+
+---
+
 ### Bottom nav on mobile
 
 **Considered**: Move the tab nav (`Decks`, `Multiplayer`) from the top chrome to a bottom-fixed bar on mobile, leaving only logo + avatar at the top. Standard pattern in Twitter/X, Discord, Instagram, Reddit, Spotify mobile apps. Frees the top chrome entirely; matches "less chrome, more game" framing in `STRATEGY.md`.
