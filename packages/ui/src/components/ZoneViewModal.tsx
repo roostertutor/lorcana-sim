@@ -50,7 +50,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
               No cards in discard
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5">
               {cardIds.map((id) => {
                 const instance = gameState.cards[id];
                 const def = instance ? definitions[instance.definitionId] : undefined;
