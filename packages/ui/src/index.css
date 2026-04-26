@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================================
+ * Z-INDEX LADDER — game board chrome
+ *
+ * The game board uses a sparse 4-tier z hierarchy. New floating UI MUST pick
+ * an existing tier; do NOT mint intermediate values without a reason.
+ *
+ *   z-10   — In-flow card hover lift (`game-card:hover scale-105`).
+ *            Stays inside the play area; never above floating chrome.
+ *   z-40   — Persistent edge-anchored UI: BoardMenu kebab + connection
+ *            dot (top-right), bottom-right floating pill stack
+ *            (RevealPill, ActiveEffectsPill).
+ *   z-50   — Modal-tier overlays:
+ *              - ModalFrame (CardInspectModal, ZoneViewModal,
+ *                Active Effects modal)
+ *              - PendingChoiceModal (peek-style backdrop)
+ *              - Game Over modal (non-dismissable)
+ *              - TopToast (InfoToast, ModeToast row)
+ *              - View Choice restore pill
+ *              - BoardMenu panel (open state)
+ *
+ * Within the same tier, DOM order decides visual stacking — later children
+ * render on top. BoardMenu auto-hides itself when any drawer/modal opens
+ * (via the `hidden` prop) to avoid same-tier collisions at the top-right
+ * corner.
+ *
+ * Tiers 20 and 30 are intentionally reserved for future use (e.g. an
+ * always-on side panel that should sit above hover lift but below pills).
+ * ============================================================================= */
+
 @layer base {
   body {
     @apply bg-gray-950 text-gray-100 antialiased;
