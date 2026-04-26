@@ -82,6 +82,7 @@ interface RavCard {
   quest_value: number | null;
   move_cost: number | null;
   rarity: string;                   // COMMON | UNCOMMON | RARE | SUPER | LEGENDARY | ENCHANTED | SPECIAL
+  special_rarity_id?: string;       // PROMO | CHALLENGE | D23 | D100 — only present when rarity == SPECIAL
   rules_text: string;               // with \Name\ markers around stylized ability names
   flavor_text: string;
   thumbnail_url: string;
@@ -135,7 +136,10 @@ interface CardDefinitionOut {
   flavorText?: string;
   setId: string;
   number: number;
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
+  rarity:
+    | "common" | "uncommon" | "rare" | "super_rare"
+    | "legendary" | "enchanted" | "iconic" | "epic"
+    | "promo" | "challenge" | "D23" | "D100";
   imageUrl?: string;
   foilImageUrl?: string;
   actionEffects?: object[];
@@ -222,7 +226,44 @@ function mapInkColors(colors: string[]): SingleInkColor[] | null {
   return mapped.length > 0 ? mapped : null;
 }
 
-function mapRarity(r: string): CardDefinitionOut["rarity"] {
+// Ravensburger's top-level rarity is the standard one (COMMON … ENCHANTED).
+// SPECIAL is an umbrella for "non-standard printings" with a `special_rarity_id`
+// sub-discriminator (PROMO / CHALLENGE / D23 / D100). We flatten both into a
+// single rarity value so each card has one canonical rarity, matching the
+// Lorcana app's distinct rarity badges. Acronyms (D23/D100) keep their case
+// since that's how they're referenced everywhere (sprite filenames, set ids,
+// player conversation); word-style values are lowercased to match our other
+// type-union conventions ("super_rare", "common").
+let _warnedSpecialRarities = new Set<string>();
+function mapRarity(r: string, specialRarityId?: string): CardDefinitionOut["rarity"] {
+  const top = r.toLowerCase();
+  if (top === "special") {
+    if (!specialRarityId) {
+      // Untagged SPECIAL — shouldn't happen with current Ravensburger data
+      // (every SPECIAL ships with special_rarity_id) but defensive: default
+      // to promo as the most generic special bucket. Logs once per run.
+      if (!_warnedSpecialRarities.has("(missing)")) {
+        console.warn(`  ⚠ Card with rarity SPECIAL but no special_rarity_id — defaulting to "promo".`);
+        _warnedSpecialRarities.add("(missing)");
+      }
+      return "promo";
+    }
+    const subMap: Record<string, CardDefinitionOut["rarity"]> = {
+      promo: "promo",
+      challenge: "challenge",
+      d23: "D23",
+      d100: "D100",
+    };
+    const mapped = subMap[specialRarityId.toLowerCase()];
+    if (!mapped) {
+      if (!_warnedSpecialRarities.has(specialRarityId)) {
+        console.warn(`  ⚠ Unknown special_rarity_id "${specialRarityId}" — defaulting to "promo". Add to mapRarity in import-cards-rav.ts.`);
+        _warnedSpecialRarities.add(specialRarityId);
+      }
+      return "promo";
+    }
+    return mapped;
+  }
   const map: Record<string, CardDefinitionOut["rarity"]> = {
     common: "common",
     uncommon: "uncommon",
@@ -231,12 +272,11 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
     super_rare: "super_rare",
     legendary: "legendary",
     enchanted: "enchanted",
-    special: "special",
     iconic: "iconic",
     epic: "epic",
-    promo: "common",
+    promo: "promo",
   };
-  return map[r.toLowerCase()] ?? "common";
+  return map[top] ?? "common";
 }
 
 // ── Foil type normalization ────────────────────────────────────────────
@@ -548,7 +588,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
     abilities,
     setId: id.setId,
     number: id.number,
-    rarity: mapRarity(c.rarity),
+    rarity: mapRarity(c.rarity, c.special_rarity_id),
     _source: "ravensburger",
     _ravensburgerId: c.culture_invariant_id,
   };

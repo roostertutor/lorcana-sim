@@ -137,7 +137,10 @@ interface CardDefinitionOut {
   flavorText?: string;
   setId: string;
   number: number;
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
+  rarity:
+    | "common" | "uncommon" | "rare" | "super_rare"
+    | "legendary" | "enchanted" | "iconic" | "epic"
+    | "promo" | "challenge" | "D23" | "D100";
   imageUrl?: string;
   foilImageUrl?: string;
   actionEffects?: object[];
@@ -203,10 +206,16 @@ function mapRarity(r: string): CardDefinitionOut["rarity"] {
     super_rare: "super_rare",
     legendary: "legendary",
     enchanted: "enchanted",
-    special: "special",
     iconic: "iconic",
     epic: "epic",
-    promo: "common",
+    promo: "promo",
+    // Lorcast doesn't carry sub-classification for SPECIAL like Ravensburger
+    // does (no special_rarity_id equivalent), so unknown SPECIAL upstream
+    // values fall through to "promo" — the most generic special bucket.
+    // No Lorcast-sourced card hits this today (all special cards in our
+    // database came from Ravensburger), but defensive for future Lorcast
+    // coverage of D23/DIS/CP exclusives.
+    special: "promo",
   };
   return map[r.toLowerCase()] ?? "common";
 }

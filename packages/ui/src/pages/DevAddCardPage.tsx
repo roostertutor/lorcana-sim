@@ -29,9 +29,12 @@ type Rarity =
   | "super_rare"
   | "legendary"
   | "enchanted"
-  | "special"
   | "iconic"
-  | "epic";
+  | "epic"
+  | "promo"
+  | "challenge"
+  | "D23"
+  | "D100";
 
 const INK_COLORS: InkColor[] = ["amber", "amethyst", "emerald", "ruby", "sapphire", "steel"];
 const CARD_TYPES: CardType[] = ["character", "action", "item", "location"];
@@ -42,9 +45,12 @@ const RARITIES: Rarity[] = [
   "super_rare",
   "legendary",
   "enchanted",
-  "special",
   "iconic",
   "epic",
+  "promo",
+  "challenge",
+  "D23",
+  "D100",
 ];
 
 interface AddCardResponse {

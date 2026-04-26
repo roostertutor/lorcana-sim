@@ -3103,8 +3103,20 @@ export interface CardDefinition {
   setId: string;
   /** Collector number within set */
   number: number;
-  /** Rarity */
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
+  /** Rarity. Promo/challenge/D23/D100 are the 4 sub-classifications
+   *  Ravensburger emits via `special_rarity_id` for what's nominally a
+   *  "SPECIAL" rarity at the API's top level — flattened here into the union
+   *  so each card has a single canonical rarity field (matches the Lorcana
+   *  app's distinct rarity badges 1:1). Pure metadata — does not affect deck
+   *  legality, costs, or any gameplay rule.
+   *  - "promo"     → P1/P2/P3 numbered promo set cards (~78)
+   *  - "challenge" → C1/C2 convention/challenge promos (~60)
+   *  - "D23"       → D23 Expo exclusives (~17)
+   *  - "D100"      → Disney 100 anniversary cards (~6) */
+  rarity:
+    | "common" | "uncommon" | "rare" | "super_rare"
+    | "legendary" | "enchanted" | "iconic" | "epic"
+    | "promo" | "challenge" | "D23" | "D100";
   /** Card art URL from Ravensburger API. Optional — not all sets imported with images. */
   imageUrl?: string;
   /** Foil-treatment image URL for THIS specific printing (same art with foil

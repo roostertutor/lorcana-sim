@@ -74,7 +74,13 @@ const RARITIES: Array<{ key: Rarity; label: string }> = [
   { key: "enchanted", label: "Enchanted" },
   { key: "iconic", label: "Iconic" },
   { key: "epic", label: "Epic" },
-  { key: "special", label: "Special" },
+  // Sub-rarities (formerly grouped as "Special"). Split per Ravensburger's
+  // special_rarity_id discriminator so users can filter D100/D23/promo/
+  // challenge separately.
+  { key: "promo", label: "Promo" },
+  { key: "challenge", label: "Challenge" },
+  { key: "D23", label: "D23 Expo" },
+  { key: "D100", label: "Disney 100" },
 ];
 
 interface Props {

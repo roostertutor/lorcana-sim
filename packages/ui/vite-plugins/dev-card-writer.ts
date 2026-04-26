@@ -52,7 +52,10 @@ interface CardPost {
   flavorText?: string;
   setId: string;
   number: number;
-  rarity: "common" | "uncommon" | "rare" | "super_rare" | "legendary" | "enchanted" | "special" | "iconic" | "epic";
+  rarity:
+    | "common" | "uncommon" | "rare" | "super_rare"
+    | "legendary" | "enchanted" | "iconic" | "epic"
+    | "promo" | "challenge" | "D23" | "D100";
   imageUrl?: string;
   foilImageUrl?: string;
   actionEffects?: unknown[];
@@ -64,7 +67,8 @@ const VALID_INK_COLORS = new Set(["amber", "amethyst", "emerald", "ruby", "sapph
 const VALID_CARD_TYPES = new Set(["character", "action", "item", "location"]);
 const VALID_RARITIES = new Set([
   "common", "uncommon", "rare", "super_rare", "legendary",
-  "enchanted", "special", "iconic", "epic",
+  "enchanted", "iconic", "epic",
+  "promo", "challenge", "D23", "D100",
 ]);
 
 function slugify(name: string, subtitle?: string): string {
