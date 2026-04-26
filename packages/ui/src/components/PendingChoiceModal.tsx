@@ -302,7 +302,7 @@ export default function PendingChoiceModal({
             </div>
           )}
           {!isOpponentMay && pendingChoice.validTargets && (
-            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
               {(pendingChoice.validTargets ?? []).map((id: string) => {
                 const isSel = multiSelectTargets[0] === id;
                 return (
@@ -446,7 +446,7 @@ export default function PendingChoiceModal({
           {/* Picker grid — every valid target is shown; clicking adds to or
               removes from the order queue. Placed cards display their slot
               number via the "ordered" CardThumb badge. */}
-          <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
             {ids.map((id) => {
               const posIndex = multiSelectTargets.indexOf(id);
               const isOrdered = posIndex !== -1;
@@ -474,21 +474,25 @@ export default function PendingChoiceModal({
               <span>← Drawn last</span>
               <span>Drawn first →</span>
             </div>
-            <div className="flex gap-1 items-stretch">
+            {/* Preview strip uses the same grid layout as the picker above
+                 so source-cards and destination-slots match in size — flex
+                 with flex-1 children stretched the slots to 1/N of the
+                 modal width regardless of N, which made 3-card reveals
+                 render slots much bigger than the picker source cards. */}
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
               {Array.from({ length: total }, (_, i) => {
                 const cardId = multiSelectTargets[i];
                 return cardId ? (
-                  <div key={i} className="flex-1 min-w-0">
-                    <CardThumb
-                      id={cardId}
-                      selection={{ kind: "ordered", index: i + 1 }}
-                      onClick={() => onMultiSelectChange((prev) => prev.filter((t) => t !== cardId))}
-                    />
-                  </div>
+                  <CardThumb
+                    key={i}
+                    id={cardId}
+                    selection={{ kind: "ordered", index: i + 1 }}
+                    onClick={() => onMultiSelectChange((prev) => prev.filter((t) => t !== cardId))}
+                  />
                 ) : (
                   <div
                     key={i}
-                    className="flex-1 aspect-[5/7] rounded border-2 border-dashed border-gray-700/50 flex items-center justify-center text-gray-700 text-xs font-mono min-w-0"
+                    className="aspect-[5/7] rounded border-2 border-dashed border-gray-700/50 flex items-center justify-center text-gray-700 text-xs font-mono"
                   >
                     {i + 1}
                   </div>
@@ -561,7 +565,7 @@ export default function PendingChoiceModal({
             </div>
           </div>
           {displayIds.length > 0 && (
-            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
               {displayIds.map((id) => {
                 const selectable = validSet.has(id);
                 const selected = multiSelectTargets.includes(id);
@@ -963,7 +967,7 @@ export default function PendingChoiceModal({
             {mineIds.length > 0 && (
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-green-500 font-bold mb-1">Your characters</div>
-                <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
                   {mineIds.map(renderCard)}
                 </div>
               </div>
@@ -971,14 +975,14 @@ export default function PendingChoiceModal({
             {oppIds.length > 0 && (
               <div>
                 <div className="text-[10px] uppercase tracking-wider text-red-500 font-bold mb-1">Opponent's characters</div>
-                <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
                   {oppIds.map(renderCard)}
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5 pb-1">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
             {displayCards.map(renderCard)}
           </div>
         )}
@@ -1025,13 +1029,12 @@ export default function PendingChoiceModal({
       />
 
       {/* Panel — bottom sheet on mobile, centered card on sm+.
-          Widened to max-w-2xl on sm+ so the mulligan grid (grid-cols-7 on sm+)
-          and the landscape-phone 7-col target-picker grids fit without
-          horizontal overflow. Step up to max-w-3xl at lg+ because GameCard's
-          lg:w-[120px] size makes each scaled thumb 94px wide (120 × 0.78) —
-          at max-w-2xl the 7-col grid gives only 85px per column, clipping the
-          cards on desktop. Landscape-phone stays at 2xl (uses the 72px-wide
-          landscape override, plenty of room). */}
+          Widened to max-w-2xl on sm+ so all 7-col target-picker grids
+          (mulligan + every choose_target / choose_order / reveal-style
+          modal) fit without horizontal overflow. Step up to max-w-3xl at
+          lg+ because GameCard's lg:w-[120px] size makes each scaled thumb
+          94px wide (120 × 0.78) — at max-w-2xl the 7-col grid gives only
+          85px per column, clipping the cards on desktop. */}
       <div className="relative z-10 w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
                       max-h-[82vh] overflow-y-auto
                       bg-gray-950 border border-gray-700
