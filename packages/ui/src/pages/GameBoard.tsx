@@ -2988,7 +2988,16 @@ function DroppableCardTarget({
   // the isTarget prop (tracks 90°-rotated cards correctly). The action label
   // ("Challenge" / "Sing" / etc.) rides on the DragOverlay. All we do here
   // is dim non-target cards during drag, so invalid targets recede visually.
-  const dim = activeId && !isValidTarget ? "brightness-50" : "";
+  //
+  // We use `opacity` rather than `filter: brightness()` deliberately:
+  // mobile browsers (notably iOS WebKit) clip filtered ancestors' contents
+  // to the ancestor's layout box for compositing performance — so a
+  // brightness filter on this wrapper would cut the GameCard's rotated
+  // visual off at 52px (the pre-rotation box width), exactly the
+  // "clipped to ready width" symptom users see during drag with exerted
+  // chars on the board. Opacity creates a stacking context but doesn't
+  // trigger the filter-side clipping path.
+  const dim = activeId && !isValidTarget ? "opacity-50" : "";
   return (
     <div ref={setNodeRef} className={`relative transition-all duration-150 ${dim}`}>
       {children}
