@@ -1644,34 +1644,48 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // explicit fixed sizes via Tailwind utilities (which beat the
     // media-query reset to auto in the .play-cell-compress class).
     const stackSizing = "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
+    // Stagger as primary count signal — render N-1 shadow layers (one per
+    // non-front card), each offset 3px further than the previous. With
+    // Lorcana's 4-of-a-card deck cap, the realistic max stack count is 4
+    // for most cards, so 3 shadows is enough to show the full count
+    // visually. Past 4 (rare, would need a non-standard mechanic), cap at
+    // 3 shadows + restore the small "+N" overflow badge so we don't lose
+    // precision.
+    const visibleShadowLayers = Math.min(count - 1, 3);
+    const overflowCount = count > 4 ? count : 0;
     return (
       <div key={`stack-${frontId}`} className={`relative ${stackSizing}`}>
-        {/* Shadows are colored rectangles matching wrapper bounds, shifted
-            up-right via transform so they peek out from behind the front
-            card. Two layers max regardless of stack size; the count badge
-            handles exact-precision signaling. */}
-        {count >= 3 && (
-          <div
-            className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] bg-gray-800 border-2 border-gray-600/50 pointer-events-none"
-            style={{ transform: "translate(4px, -4px)" }}
-          />
-        )}
-        {count >= 2 && (
-          <div
-            className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] bg-gray-800 border-2 border-gray-500/50 pointer-events-none"
-            style={{ transform: "translate(2px, -2px)" }}
-          />
-        )}
+        {/* Shadow layers — N-1 of them, stacked diagonally up-right. Outer
+            layers are dimmer to suggest depth recession. */}
+        {Array.from({ length: visibleShadowLayers }, (_, i) => {
+          const offset = (visibleShadowLayers - i) * 3; // furthest layer = largest offset
+          // Brightness: outer (largest offset) dimmest, inner (smallest offset) brightest
+          const opacity = 0.45 + (i / Math.max(1, visibleShadowLayers - 1)) * 0.3;
+          return (
+            <div
+              key={i}
+              className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] bg-gray-800 border-2 border-gray-500/60 pointer-events-none"
+              style={{
+                transform: `translate(${offset}px, ${-offset}px)`,
+                opacity,
+              }}
+            />
+          );
+        })}
         {/* Front card via renderCardWithActions directly (skip the inner
             cell wrapper renderPlayCell adds — this OUTER stack wrapper
             is already the cell). w-full h-full inside fills it. */}
         <div className="relative w-full h-full">
           {renderCardWithActions(frontId, "play", isOpponent)}
         </div>
-        {/* Count badge — overlapping top-right corner of the front card */}
-        <span className="absolute -top-1 -right-1 z-20 text-[10px] font-black bg-amber-500 text-amber-950 rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-md border border-amber-300/60 pointer-events-none">
-          ×{count}
-        </span>
+        {/* Overflow badge — only when count > 4 (stagger can't show the
+            exact count past 3 shadow layers). Suppressed for the common
+            1-4 case so the visual stays clean. */}
+        {overflowCount > 0 && (
+          <span className="absolute -top-1 -right-1 z-20 text-[10px] font-black bg-amber-500 text-amber-950 rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-md border border-amber-300/60 pointer-events-none">
+            ×{overflowCount}
+          </span>
+        )}
       </div>
     );
   }
