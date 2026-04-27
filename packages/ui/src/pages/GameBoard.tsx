@@ -1590,29 +1590,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // Helper: render card + its action buttons, wrapped in DnD primitives
   // Render a single in-play card cell.
   //
-  // Two shapes, picked by needsRotatedSlot (exerted character/item or
-  // any location):
+  // Both ready and rotated cells use `play-cell-compress` on portrait so
+  // they share the row's compression — exerted characters/items/locations
+  // shrink alongside ready chars when the row is crowded.
   //
-  //   READY: `play-cell-compress` — 52×73 vertical, width clamps 36–52
-  //     based on row's --card-count for compression. Card inside fills
-  //     via w-full h-full at the cell's natural 5:7 shape.
+  //   READY: cell is 52×73 vertical (clamp 36–52). Card inside fills via
+  //     w-full h-full at the cell's natural 5:7 shape.
   //
-  //   ROTATED: square cell (73×73 / 146×146 / 168×168 / 63×63) holding
-  //     a natural-shape inner wrapper (52×73 / 104×146 / 120×168 / 45×63).
-  //     The card fills the inner wrapper at its natural 5:7 shape, then
-  //     rotates 90° via GameCard's own transform — the 73×52 rotated
-  //     visual fits inside the square cell exactly with `flex items-center
-  //     justify-center` on the cell. Cell height matches READY's 73 so
-  //     the row's `items-end` keeps cells bottom-aligned, while the
-  //     rotated visual sits at the cell's vertical middle (10.5px gap
-  //     above and below). Square cells contain the rotated visual fully,
-  //     so adjacent rotated cells don't overlap each other.
+  //   ROTATED (portrait): same 52×73 cell, but with a `play-rotated-inner`
+  //     wrapper sized so the rotated visual fits cell width exactly —
+  //     inner height = cell width (cell_height × 5/7), aspect 5/7. The
+  //     rotated visual is "half-height" relative to a ready card (cell
+  //     width × cell width × 5/7), centered vertically in the cell —
+  //     analogous to a physical TCG card tapped flat. No horizontal
+  //     overflow, so adjacent rotated cells don't overlap their neighbors.
   //
-  // Why not put the natural 5:7 shape on the cell wrapper directly:
-  // `w-full h-full` GameCard would adopt the cell's outer dimensions, so
-  // a 73×52 rotated cell would reshape the card from 5:7 to 7:5
-  // (squishing the image, clipping borders post-rotation). The inner
-  // wrapper bypasses this by giving the card an explicit 5:7 box to fill.
+  //   ROTATED (sm+/landscape-phone): explicit square cells with
+  //     natural-shape inner. At those breakpoints adaptivePlay's
+  //     fixed-pixel widths preserve the larger desktop visuals.
   function renderPlayCell(id: string, isOpponent: boolean) {
     const exerted = gameState!.cards[id]?.isExerted ?? false;
     const isLocation = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
@@ -1624,9 +1619,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </div>
       );
     }
-    // Rotated branch — square outer cell + natural 5:7 inner wrapper.
-    const rotatedOuter = "shrink-0 w-[73px] h-[73px] sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center";
-    const rotatedInner = "w-[52px] h-[73px] sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
+    // Rotated branch.
+    //   Portrait: cell = play-cell-compress (matches ready), inner =
+    //     play-rotated-inner (height = cell_width via 5/7 trick).
+    //   sm+/landscape-phone: cell = explicit square, inner = explicit
+    //     vertical 5:7 (Tailwind utilities override the CSS class
+    //     resets).
+    const rotatedOuter =
+      "play-cell-compress shrink-0 sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center";
+    const rotatedInner =
+      "play-rotated-inner sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     return (
       <div key={id} className={rotatedOuter}>
         <div className={rotatedInner}>
@@ -1674,16 +1676,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // exerted; locations always rotate (CRD 5.5.4).
     const shouldRotate = (isFrontExerted && !isLocation) || isLocation;
     // Stack uses the same shape pattern as renderPlayCell:
-    //   READY: play-cell-compress vertical 5:7 outer, inner = same.
-    //   ROTATED: square outer (so rotated visual fits without
-    //     overlapping neighbors) holding a natural-shape 5:7 inner.
-    //     Shadows + front card both live inside the inner wrapper so
-    //     they share the natural card shape and can rotate as a unit.
+    //   READY: play-cell-compress (compresses with row).
+    //   ROTATED (portrait): play-cell-compress + play-rotated-inner
+    //     (inner sized so rotated visual fits cell width — same as a
+    //     ready cell's footprint). Shadows + front card live inside
+    //     the inner so they share the natural 5:7 shape and rotate
+    //     as a unit.
+    //   ROTATED (sm+/landscape-phone): explicit square outer + 5:7
+    //     inner (preserves the larger desktop visuals).
     const stackOuter = shouldRotate
-      ? "shrink-0 w-[73px] h-[73px] sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center"
+      ? "play-cell-compress shrink-0 sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center"
       : "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     const stackInner = shouldRotate
-      ? "relative w-[52px] h-[73px] sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]"
+      ? "play-rotated-inner relative sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]"
       : "relative w-full h-full";
     // Ink-theme border so layers look identical to the front card. Lookup
     // mirrors INK_THEME in GameCard.tsx — kept inline here so we don't
@@ -1834,19 +1839,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             Wandering chars NEVER stack (per-instance state matters too
             much — boost stacks, drying, damage, timed effects). Items
             CAN stack when state is identical (same defId + state).
-            PROTOTYPE (compression): both rows are flex-wrap with a
-            `--card-count` CSS variable set to the row's item count.
-            Each cell uses `play-cell-compress` which clamps width
-            between 36-52px based on container width and count. When
-            the row would overflow even at 36px floor, flex-wrap wraps
-            to a new row. */}
+            Both rows are flex-wrap with a `--card-count` CSS variable
+            set to the COMBINED count (wandering + item-stacks). Each
+            cell uses `play-cell-compress` which clamps width between
+            36-52px based on container width and count. Sharing the
+            count means items shrink alongside chars when the play area
+            is crowded — without it, an items row with just 1-2 items
+            stays at max width while chars compress, looking
+            asymmetrically big. */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
           {/* Wandering chars: centered on portrait (matches MTGA / Hearthstone
               convention), left-anchored on md+ where wandering occupies the
               left half of the side-by-side row. */}
           <div
             className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-start"
-            style={{ "--card-count": wandering.length || 1 } as React.CSSProperties}
+            style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
           >
             {wandering.map(id => renderPlayCell(id, isOpponent))}
           </div>
@@ -1856,7 +1863,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           {otherStacks.length > 0 && (
             <div
               className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-end"
-              style={{ "--card-count": otherStacks.length || 1 } as React.CSSProperties}
+              style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
             >
               {otherStacks.map(ids =>
                 ids.length > 1
@@ -1980,8 +1987,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // sits inside this padded inner wrapper). Strip px-0.5 in play so the
     // front card fills the cell flush with the shadow layers.
     const padX = isHandCard ? "px-0.5" : "";
+    // Locations are drop targets only — they don't relocate themselves.
+    // Allowing them as drag sources used to render the DragOverlay ghost
+    // for an always-rotated card with no valid drop, leaving a confusing
+    // visual. Exerted characters DO drag-source (move-to-location is a
+    // valid action even after the char's been exerted earlier in the
+    // turn), so don't block those.
+    const isCardLocation = !isHandCard && definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
+    const dragEnabled = isDraggableEnabled(isOpponent) && !isCardLocation;
     return (
-      <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
+      <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={dragEnabled}>
         <div
           className={`snap-start shrink-0 flex flex-col items-center gap-1 ${padX}`}
           style={handStyle}
@@ -2465,7 +2480,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       <DragOverlay>
         {dnd.activeId && gameState ? (
           <div className="pointer-events-none relative">
-            <div className="opacity-80 scale-110 rotate-3">
+            {/* Ghost wrapper has explicit hand-card width across breakpoints —
+                without it, dragging from `play` zone would render the GameCard
+                with adaptivePlay's `w-full h-full`, which collapses to 0×0 in
+                an unsized DragOverlay container. skipRotation keeps the ghost
+                vertical even when the source is exerted (move-to-location
+                drag) so the visual matches its container shape. */}
+            <div className="opacity-80 scale-110 rotate-3 w-[88px] aspect-[5/7] sm:w-[104px] lg:w-[120px] landscape-phone:w-[72px]">
               <GameCard
                 instanceId={dnd.activeId}
                 gameState={gameState}
@@ -2474,6 +2495,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 isSelected={false}
                 onClick={() => {}}
                 zone={dnd.activeZone ?? "hand"}
+                skipRotation
               />
             </div>
             {dragActionLabel && (

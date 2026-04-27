@@ -129,4 +129,33 @@
       width: auto;
     }
   }
+
+  /* Inner wrapper for a rotated card inside a `play-cell-compress` cell.
+     The rotated visual's width = inner card's height. To make the
+     rotated visual fit the cell width exactly (no horizontal overflow,
+     no neighbor overlap), the inner card height must equal the cell
+     width — i.e. cell_height × 5/7 (since cell aspect is 5/7).
+     With aspect-ratio 5/7 on the inner, width derives = inner_height
+     × 5/7 = cell_width × 5/7. The card lays sideways in the middle
+     vertical band of the cell, like a physical TCG card tapped flat.
+
+     sm+/landscape-phone reset to auto so explicit fixed-pixel inner
+     sizes (104×146 / 120×168 / 45×63) take over from Tailwind utility
+     classes. */
+  .play-rotated-inner {
+    height: calc(100% * 5 / 7);
+    aspect-ratio: 5 / 7;
+  }
+  @media (min-width: 640px) {
+    .play-rotated-inner {
+      height: auto;
+      aspect-ratio: auto;
+    }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    .play-rotated-inner {
+      height: auto;
+      aspect-ratio: auto;
+    }
+  }
 }
