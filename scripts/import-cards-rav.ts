@@ -38,6 +38,7 @@ import {
   normalizeDoubleQuotes,
   stripTrailingWhitespace,
   normalizeKeywordLine,
+  stripStraySeparators,
 } from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -391,6 +392,12 @@ function canonicalizeStoryName(raw: string): string {
 
 function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs: AbilityStub[] } {
   if (!rawRulesText) return { rulesText: "", stubs: [] };
+  // Scrub stray `%` section separators FIRST — Ravensburger's API encoding
+  // sprinkles them before `\n`, before `\\name\\` markers, and before flavor
+  // dashes. They corrupt downstream parsing (the backslash split below would
+  // eat ") %" into a "name" segment) and they're never semantic percentages
+  // (only "100%" passes the digit guard, which is in flavor text only).
+  rawRulesText = stripStraySeparators(rawRulesText);
   const stubs: AbilityStub[] = [];
 
   // Pre-extract keyword reminder lines (e.g. "<Bodyguard> (This character...)")
@@ -600,7 +607,7 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
   if (shiftCost !== undefined) out.shiftCost = shiftCost;
   if (c.move_cost !== null) out.moveCost = c.move_cost;
   if (cleanRulesText) out.rulesText = cleanRulesText;
-  if (c.flavor_text) out.flavorText = c.flavor_text;
+  if (c.flavor_text) out.flavorText = stripStraySeparators(c.flavor_text);
   if (regular?.detail_image_url) out.imageUrl = regular.detail_image_url;
   if (foiled?.detail_image_url) out.foilImageUrl = foiled.detail_image_url;
 

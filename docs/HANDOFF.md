@@ -63,59 +63,6 @@ UI inherits automatically.
 
 ---
 
-## Engine agent: scrub stray `%` separators from card JSON `rulesText` / `flavorText`
-
-Discovered 2026-04-27 — UI was rendering `%` characters straight into
-`CardInspectModal`. They're a Ravensburger API encoding artifact: section /
-paragraph separators that the importer should have converted to `\n` (or
-stripped). 107 occurrences across the card-set JSONs, examples:
-
-```
-"rulesText": "...your hand. %\nSEAT OF POWER..."
-"rulesText": "...named Belle.) %\\Enhanced Healing\\ When..."
-"flavorText": "...questions!" %—Judy Hopps"
-```
-
-Pattern: `%` always appears as a junk separator before a `\n`, before a
-`\\name\\` ability marker, or before flavor-text attribution dashes. Never
-as a semantic percentage in any card.
-
-**Quick fix already in place (UI side, 2026-04-27)**:
-`packages/ui/src/utils/rulesTextRender.tsx` strips `%` and collapses
-horizontal whitespace before tokenizing. `CardInspectModal.tsx` does the
-same inline for flavor text. So the user no longer sees them in-game —
-this HANDOFF is to remove the artifact at source so other consumers
-(`pnpm decompile-cards`, future text exports, abilityTextRender, raw-text
-audits) don't have to repeat the dance.
-
-**Recommended approach**:
-1. Strip `%` (and any leading horizontal whitespace before it) from
-   `rulesText`, `flavorText`, and per-ability `rulesText` / `raw` fields
-   in both importers — `scripts/import-cards-rav.ts` and
-   `scripts/import-cards-lorcast.ts`. Apply during the field-normalization
-   pass so re-imports stay clean.
-2. One-shot scrub of the existing JSONs (sets 2, 3, P1, C2, P3 confirmed
-   to contain `%`; safer to grep all sets and apply uniformly).
-3. After the data is clean, the UI's defensive strip in
-   `rulesTextRender.tsx` and `CardInspectModal.tsx` becomes redundant —
-   remove the regex calls + comment trail to avoid orphaned cleanup
-   logic. Leave a brief `git log`-discoverable comment so future-you
-   knows why those passes existed.
-
-**Verification**:
-- `grep -rn '%' packages/engine/src/cards/card-set-*.json` should return
-  zero hits in `rulesText` / `flavorText` after the scrub.
-- `pnpm decompile-cards` output should not show stray `%` in rendered
-  ability text.
-- Re-running `pnpm import-cards` without `--cache` should not re-introduce
-  them.
-
-**Out of scope**: `\\name\\` markers (different artifact — section name
-delimiters in some entries; a separate cleanup pass once we decide
-whether to render them as styled headers or strip).
-
----
-
 ## UI agent: Sing Together gating misses static-granted Singer (Mickey Amber Champion)
 
 Discovered 2026-04-25 while fixing a user-reported bug ("Mickey Mouse

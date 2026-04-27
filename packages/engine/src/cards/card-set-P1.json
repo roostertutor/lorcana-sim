@@ -1669,15 +1669,15 @@
     "willpower": 6,
     "lore": 2,
     "moveCost": 1,
-    "rulesText": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand. %\nSEAT OF POWER Characters named Ursula get +1 {L} while here.",
+    "rulesText": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand.\nSEAT OF POWER Characters named Ursula get +1 {L} while here.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/35_adc777e002d92bf953458dd05e4a47a5eec688b1.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/35_28e0ed830f65fc29e65801c3c22ed15bb247c4f7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SLIPPERY HALLS",
-        "rulesText": "Whenever a character is banished in a challenge while here, you may return them to your hand. %",
-        "raw": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand. %"
+        "rulesText": "Whenever a character is banished in a challenge while here, you may return them to your hand.",
+        "raw": "SLIPPERY HALLS Whenever a character is banished in a challenge while here, you may return them to your hand."
       },
       {
         "storyName": "SEAT OF POWER",
@@ -1733,7 +1733,7 @@
     "rarity": "promo",
     "_source": "ravensburger",
     "_ravensburgerId": 952,
-    "rulesText": "FRESH INK When you play this item, draw a card. %\nUNEXPECTED TREASURE All cards in your hand count as having {C}.",
+    "rulesText": "FRESH INK When you play this item, draw a card.\nUNEXPECTED TREASURE All cards in your hand count as having {C}.",
     "flavorText": "“It looks like it’s been here forever.”\n—Flounder",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/36_ae193728bbcdcf6b8bb36a07fc312ec1aa947083.jpg",
     "foilType": "silver",
@@ -1741,8 +1741,8 @@
     "_namedAbilityStubs": [
       {
         "storyName": "FRESH INK",
-        "rulesText": "When you play this item, draw a card. %",
-        "raw": "FRESH INK When you play this item, draw a card. %"
+        "rulesText": "When you play this item, draw a card.",
+        "raw": "FRESH INK When you play this item, draw a card."
       },
       {
         "storyName": "UNEXPECTED TREASURE",
@@ -1891,7 +1891,7 @@
     "willpower": 7,
     "lore": 3,
     "shiftCost": 5,
-    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Ursula.) %\\Now I am the Ruler!\\ Whenever this character quests, exert chosen character. %\\You’ll Listen to Me!\\ Other characters can’t exert to sing songs.",
+    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Ursula.)\\Now I am the Ruler!\\ Whenever this character quests, exert chosen character.\\You’ll Listen to Me!\\ Other characters can’t exert to sing songs.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/38_d4c1872d4be701b074bf36b812b6a7d913cd0744.jpg",
     "foilType": "lava",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/38_0ce0fd7bb7c9c9d77680c00bdea36ddf05fafb60.jpg",
@@ -1991,7 +1991,7 @@
     "strength": 5,
     "willpower": 5,
     "lore": 2,
-    "rulesText": "<Shift: Discard 2 cards> (You may discard 2 cards to play this on top of one of your characters named Flotsam or Jetsam.) %(This character counts as being named both Flotsam and Jetsam.)",
+    "rulesText": "<Shift: Discard 2 cards> (You may discard 2 cards to play this on top of one of your characters named Flotsam or Jetsam.)(This character counts as being named both Flotsam and Jetsam.)",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/40_453a4b21074eb029138e74e81d7a5ebc036707c7.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/40_d88af0d4584e1934a27497bf49e6ae79081264cb.jpg",

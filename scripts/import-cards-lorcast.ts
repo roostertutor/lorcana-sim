@@ -38,7 +38,7 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { normalizeRulesText } from "./lib/normalize-rules-text.js";
+import { normalizeRulesText, stripStraySeparators } from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -338,7 +338,7 @@ function mapCard(c: LorcastCard): CardDefinitionOut | null {
     const normalized = normalizeRulesText(c.text);
     if (normalized) out.rulesText = normalized;
   }
-  if (c.flavor_text) out.flavorText = c.flavor_text;
+  if (c.flavor_text) out.flavorText = stripStraySeparators(c.flavor_text);
   if (c.image_uris?.digital?.normal) out.imageUrl = c.image_uris.digital.normal;
   if (namedStubs.length > 0) out._namedAbilityStubs = namedStubs;
 

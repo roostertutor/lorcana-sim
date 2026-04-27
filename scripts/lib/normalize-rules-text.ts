@@ -104,12 +104,47 @@ export function stripTrailingWhitespace(text: string): string {
 }
 
 /**
+ * Strip stray `%` section separators from Ravensburger's API encoding.
+ * They appear before `\n` line breaks, before `\\name\\` ability markers,
+ * before flavor-text attribution dashes, and as paragraph junctions —
+ * always as junk separators, never as semantic percentages.
+ *
+ * The single semantic `%` in our data is "Battery at 100%." (Baymax flavor),
+ * so the digit-prefix guard preserves it. Cleanup removes the `%` plus any
+ * surrounding horizontal whitespace, then collapses double spaces and
+ * trims leading/trailing whitespace on each line. `\n` line breaks are
+ * preserved (rulesText uses them to separate ability blocks; the UI
+ * renders via `whitespace-pre-line`).
+ *
+ * Scope: rulesText, flavorText, and per-ability-stub rulesText / raw fields.
+ */
+export function stripStraySeparators(text: string): string {
+  if (!text) return text;
+  // Strip `%` (and any leading horizontal whitespace) UNLESS it's preceded
+  // by a digit — `100%` is the one semantic case. Lookbehind handles the
+  // case where horizontal whitespace separates the digit and the `%`.
+  let out = text.replace(/(?<!\d)[ \t]*%/g, "");
+  // Collapse internal double spaces created by the strip.
+  out = out.replace(/[ \t]{2,}/g, " ");
+  // Drop trailing horizontal whitespace before each newline.
+  out = out.replace(/[ \t]+\n/g, "\n");
+  // Trim leading/trailing horizontal whitespace overall.
+  out = out.replace(/^[ \t]+|[ \t]+$/g, "");
+  return out;
+}
+
+/**
  * Full pipeline — apply all normalizations to a complete rulesText string.
  * Line-level keyword wrapping happens per-line; the rest are global.
+ *
+ * Stray-separator scrub runs FIRST so the resulting `%`-free text is what
+ * the line-splitter / keyword-wrapper see (otherwise `") %\\Name\\"` would
+ * parse weird).
  */
 export function normalizeRulesText(rawRulesText: string): string {
   if (!rawRulesText) return rawRulesText;
-  const lines = rawRulesText
+  const scrubbed = stripStraySeparators(rawRulesText);
+  const lines = scrubbed
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)

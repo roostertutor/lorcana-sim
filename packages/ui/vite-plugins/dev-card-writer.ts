@@ -25,7 +25,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 // and scripts/import-cards-lorcast.ts, so manually-entered cards match the
 // same rulesText conventions (`<Keyword>` wrapping, curly apostrophes,
 // en-dash stat modifiers, etc.) as API-imported cards.
-import { normalizeRulesText } from "../../../scripts/lib/normalize-rules-text.js";
+import { normalizeRulesText, stripStraySeparators } from "../../../scripts/lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "..", "..", "engine", "src", "cards");
@@ -152,7 +152,7 @@ async function handleAddCard(req: IncomingMessage, res: ServerResponse): Promise
     // Flavor text only needs apostrophe + double-quote fidelity; don't apply
     // keyword wrapping since it's prose, not rules. Using the apostrophe and
     // dash helpers would risk false-positives; just normalize quotes.
-    card.flavorText = card.flavorText.replace(/'/g, "\u2019");
+    card.flavorText = stripStraySeparators(card.flavorText.replace(/'/g, "\u2019"));
   }
 
   const path = join(CARDS_DIR, `card-set-${card.setId}.json`);
