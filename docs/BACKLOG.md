@@ -63,6 +63,40 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ---
 
+### Cards-under peek-out stack (replace count-only badge)
+
+**Considered**: Replacing the bottom-left count-only badge on characters with cards under them with a visible peek-out stack — bottom-right ↘ stagger (vs the existing item duplicate stack which goes top-right ↗). Each peek layer would render the actual card under, with face-up layers showing real art (shifted-from card) and face-down layers showing card backs (boost / Bob Cratchit moves). Same pattern as the existing item-stack render in `GameBoard.tsx::renderItemStack`, just sourced from `instance.cardsUnder` and using each layer's own `isFaceDown` flag (already tracked by the engine, see `types/index.ts:3384`).
+
+**What was discussed in detail**:
+- **Direction**: bottom-right ↘ for cards-under, distinct from items' top-right ↗. Different stagger directions signal different semantics: top-right reads as "extra duplicates of this item," bottom-right reads as "physically tucked under this character."
+- **Toggle scope**: started as "single toggle for cards-under stack" → user pushed for two toggles (shift / boost) parallel to `itemStackingEnabled` → walking through the Bob-Cratchit-on-shifted-character mixed case revealed that splitting toggles by `isFaceDown` is an engineering accident, not a meaningful UX axis. Settled on collapsing back to one toggle (`cardsUnderStackVisual`) but parked before implementing.
+- **Information value**: stack visual conveys *count + face-up/face-down composition + identity of face-up shifted-from cards* in the same pixels as today's count-only badge. Strict signal upgrade, not just IRL fidelity.
+- **Tap target problem**: 3px stagger peek edges are non-tappable on mobile (Apple/WCAG ~44px minimum). Three resolutions on the table:
+  - Keep the bottom-left badge alongside the stack (redundant info but stable tap target).
+  - Drop the badge entirely; tap card → inspect modal → new "View N cards under" button (turns the existing static text at `CardInspectModal.tsx:219-220` into a button). Single tap target, +1 tap to reach the under-viewer.
+  - Bigger stagger (~10–12px) to make peeks tappable directly — eats too much visible space; under-cards would compete with the top character.
+- **Mobile portrait squeeze**: at 36–52px-wide compressed cells, peeks are ~3–4px visible. Readable but small. Acceptable as default-on if the badge fallback is the explicit opt-out.
+
+**Why parked (2026-04-27)**: User wasn't sure about the tradeoffs after walking through the mixed-toggle ambiguity (splitting visualization by face-up/face-down is awkward when both originate from a single physical pile under one character). Wanted to live with the current count-only badge longer before committing to the visual rework + the tap-target migration into `CardInspectModal`.
+
+**Trigger to reconsider**:
+- A user reports they misjudged board state because the count badge collapsed face-up shift identity into a number ("I thought you shifted onto the 4-cost, not the 6-cost"), OR
+- Meta makes shifted characters with mid-game cards-under count ≥ 2 routine enough that quick-scan composition info matters, OR
+- `CardInspectModal` gets a dedicated polish pass (tap-target migration would ride along), OR
+- Player explicitly asks for visual peek behavior again after using the badge for a while.
+
+**Scope if built**: ~2–3 hrs.
+- 1 new GuiSettings key (`cardsUnderStackVisual`, default on) + SettingsModal toggle row.
+- New `renderCardsUnderStack` helper or extend `renderItemStack` to accept per-layer image source + face-up/face-down marker.
+- GameCard's bottom-left count-badge becomes conditional: hide when stack visible.
+- CardInspectModal: convert the "N cards under" static text into a button that opens the cards-under viewer (existing `cardsUnderViewerId` flow in GameBoard).
+- Decision needed at implementation time: drop the badge entirely (Option B from the discussion) vs keep it alongside the stack (Option A). Option B is cleaner but adds 1 tap to reach the under-viewer.
+- Mobile-portrait sanity test at 36px-wide compressed cells before shipping default-on.
+
+**Out of scope of this entry**: peek visualization for *any* other layered cards (e.g. attached items / equipped — Lorcana doesn't have these as separate from cards-under, so currently moot).
+
+---
+
 ### Auto-hide top chrome on scroll
 
 **Considered**: Hide the consolidated top bar (53px) when the user scrolls down, restore on scroll-up. Same pattern Safari uses for its own URL bar. Saves the full chrome height while in flow.
