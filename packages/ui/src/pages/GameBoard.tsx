@@ -1646,11 +1646,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     const stackSizing = "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     // Stagger as primary count signal — render N-1 background layers (one
     // per non-front card), each offset 3px further. Background layers
-    // show the actual card image (so the pile reads as "multiple of THIS
-    // card") and inherit the front instance's exerted state (so an
-    // exerted-Scepter pile rotates as a unit, not just the front card).
-    // Up to 3 layers visible (+ overflow badge past 4) since Lorcana's
-    // 4-of-a-card deck cap is the realistic ceiling.
+    // show the actual card image (full opacity, full ink-theme border)
+    // so they look truly identical to the front card — like a literal
+    // pile of the same card. Stacks inherit the front instance's
+    // exerted state so an exerted-Scepter pile rotates as a unit.
     const visibleShadowLayers = Math.min(count - 1, 3);
     const overflowCount = count > 4 ? count : 0;
     const frontInst = gameState!.cards[frontId];
@@ -1659,28 +1658,39 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     const isFrontExerted = frontInst?.isExerted ?? false;
     const isLocation = frontDef?.cardType === "location";
     // Rotation matches GameCard's logic: items + characters rotate when
-    // exerted; locations always rotate (CRD 5.5.4). Same rule applies
-    // identically to all stack layers so they rotate as a unit.
-    const shouldRotate = (isFrontExerted && !isLocation) || (isLocation && true);
+    // exerted; locations always rotate (CRD 5.5.4).
+    const shouldRotate = (isFrontExerted && !isLocation) || isLocation;
+    // Ink-theme border so layers look identical to the front card. Lookup
+    // mirrors INK_THEME in GameCard.tsx — kept inline here so we don't
+    // pull the GameCard internals across the boundary just for one var.
+    const inkBorder = (() => {
+      switch (frontDef?.inkColors?.[0]) {
+        case "amber":    return "border-amber-500/70";
+        case "amethyst": return "border-purple-500/70";
+        case "emerald":  return "border-emerald-500/70";
+        case "ruby":     return "border-red-500/70";
+        case "sapphire": return "border-blue-500/70";
+        case "steel":    return "border-gray-400/70";
+        default:         return "border-gray-400/70";
+      }
+    })();
     return (
       <div key={`stack-${frontId}`} className={`relative ${stackSizing}`}>
         {/* Background layers — N-1 of them, each rendering the actual card
-            image, offset diagonally up-right. Outer layers are dimmer to
-            suggest depth recession. State (exerted/location rotation) is
-            mirrored from the front instance so the whole pile reads as
-            uniformly state-matched (which is the invariant — they all
-            share state, that's why they stacked). */}
+            image with the same border styling as the front. Layers look
+            visually IDENTICAL to the front, just offset — like a literal
+            pile of the same card. State (exerted rotation) mirrored from
+            the front so the whole pile rotates uniformly. */}
         {Array.from({ length: visibleShadowLayers }, (_, i) => {
           const offset = (visibleShadowLayers - i) * 3;
-          const opacity = 0.55 + (i / Math.max(1, visibleShadowLayers - 1)) * 0.3;
           const transform = shouldRotate
             ? `translate(${offset}px, ${-offset}px) rotate(90deg)`
             : `translate(${offset}px, ${-offset}px)`;
           return (
             <div
               key={i}
-              className="absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] overflow-hidden border-2 border-gray-700/80 pointer-events-none"
-              style={{ transform, opacity }}
+              className={`absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] overflow-hidden border-2 ${inkBorder} pointer-events-none`}
+              style={{ transform }}
             >
               {cardImage && (
                 <img
