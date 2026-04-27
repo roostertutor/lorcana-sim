@@ -1588,30 +1588,30 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons, wrapped in DnD primitives
-  // Render a single in-play card cell with the exerted-rotation sizing kludge
+  // Render a single in-play card cell.
+  //
+  // PORTRAIT: every cell — ready, exerted, location — uses the same
+  // vertical 52×73 `play-cell-compress` shape. With adaptivePlay set to
+  // `w-full h-full`, the GameCard inside fills the cell at its natural 5:7
+  // ratio. Exerted/location cards rotate 90° via GameCard's own transform
+  // (rotation is around the card's center) — the rotated visual is
+  // 73×52 and overflows the 52-wide cell by ~10.5px on each side, into
+  // the row's gap-1. This matches how the item-stack renders rotated
+  // cards (also play-cell-compress) and yields a vertically-centered
+  // rotated visual within the row instead of a bottom-anchored shorter
+  // cell. Compression (clamp 36–52px) applies uniformly to all cells.
+  //
+  // SM+ / LANDSCAPE-PHONE: keep the explicit rotated footprint
+  // (146×104 / 168×120 / 63×45). At those breakpoints adaptivePlay
+  // switches to fixed pixel sizes that don't get reshaped by the cell,
+  // so a rotated cell can safely be a horizontal slot without breaking
+  // the card's 5:7 outer.
   function renderPlayCell(id: string, isOpponent: boolean) {
     const exerted = gameState!.cards[id]?.isExerted ?? false;
     const isLocation = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
-    // Locations are always rotated 90° in play, same as exerted characters —
-    // reserve their rotated footprint so the visual overhang doesn't get
-    // clipped by parent edges (e.g. when a location is the only card in play).
     const needsRotatedSlot = exerted || isLocation;
-    // Landscape-phone uses explicit 63×45 (landscape-oriented for the
-    // rotate-90'd card inside) to match the 45×63 ready-card parity. 63×45
-    // is 5:7 rotated. Explicit pixel sizing bypasses the h-full resolution
-    // bug — no ancestor in this branch has an explicit height, so h-full
-    // resolved to auto and max-h never triggered.
-    //
-    // PROTOTYPE (compression): non-rotated portrait cells use the
-    // `play-cell-compress` CSS class (defined in index.css). Its width
-    // clamps between 36px and 52px based on the parent row's
-    // `--card-count` CSS variable, set on the row container below.
-    // flex-wrap kicks in naturally when the floor is hit and total
-    // width exceeds the container. sm+/landscape-phone reset the
-    // class to auto width via media queries — explicit card sizes
-    // take over at those breakpoints.
     const cellClasses = needsRotatedSlot
-      ? "shrink-0 w-[73px] h-[52px] sm:w-[146px] sm:h-[104px] lg:w-[168px] lg:h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center overflow-hidden"
+      ? "play-cell-compress shrink-0 sm:!w-[146px] sm:!h-[104px] lg:!w-[168px] lg:!h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center"
       : "play-cell-compress";
     return (
       <div key={id} className={cellClasses}>
