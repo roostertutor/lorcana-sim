@@ -1891,7 +1891,7 @@
     "willpower": 7,
     "lore": 3,
     "shiftCost": 5,
-    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Ursula.)\\Now I am the Ruler!\\ Whenever this character quests, exert chosen character.\\You’ll Listen to Me!\\ Other characters can’t exert to sing songs.",
+    "rulesText": "<Shift> 5 (You may pay 5 {I} to play this on top of one of your characters named Ursula.)\nNOW I AM THE RULER! Whenever this character quests, exert chosen character.\nYOU’LL LISTEN TO ME! Other characters can’t exert to sing songs.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/38_d4c1872d4be701b074bf36b812b6a7d913cd0744.jpg",
     "foilType": "lava",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo1/38_0ce0fd7bb7c9c9d77680c00bdea36ddf05fafb60.jpg",

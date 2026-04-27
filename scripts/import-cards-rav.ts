@@ -39,6 +39,7 @@ import {
   stripTrailingWhitespace,
   normalizeKeywordLine,
   stripStraySeparators,
+  stripAbilityNameMarkers,
 } from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -473,6 +474,14 @@ function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs
   //   (5) Wrap inline keyword refs — Rav wraps `<Challenger> +1` but leaves
   //       `gain Rush` unwrapped; we pick the uniform rule (always wrap outside
   //       reminder parens) so the GUI keyword highlighter can match every token.
+  // Defense-in-depth: rewrite any surviving `\Name\` markers into the
+  // `\nNAME ` golden shape BEFORE the rest of the line-level normalizations.
+  // Triggers when Ravensburger returns a single-line rulesText that the
+  // keyword-line filter swallowed whole (43 set-4/P1/P3 cards as of
+  // 2026-04-27). No-op when the structured extraction path already cleaned
+  // the markers. Runs before normalizeApostrophes so the canonicalized
+  // story-name apostrophes get their curly treatment along with everything else.
+  cleaned = stripAbilityNameMarkers(cleaned);
   cleaned = cleaned.split("\n").map(normalizeKeywordLine).join("\n");
   cleaned = normalizeApostrophes(cleaned);
   cleaned = normalizeDashes(cleaned);

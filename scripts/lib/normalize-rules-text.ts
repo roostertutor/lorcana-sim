@@ -134,16 +134,91 @@ export function stripStraySeparators(text: string): string {
 }
 
 /**
+ * Convert Ravensburger's `\Name\` inline ability-section markers into the
+ * golden line-break shape used everywhere else in our card JSON.
+ *
+ * Ravensburger's API uses paired `\NAME\` delimiters around ability names
+ * inside a card's top-level `rules_text` (e.g. "<Evasive> (...)\Circle Far
+ * and Wide\ During each opponent's turn..."). Properly-formatted Ravensburger
+ * cards separate the keyword reminder block and the named ability with `\n`,
+ * which the importer's `extractNamedAbilities` consumes — splitting on `\`,
+ * rebuilding `cleanRulesText` as `<Keyword> (...)\nSTORYNAME body` (matches
+ * the golden shape — uppercase name + line break, no surviving backslashes).
+ *
+ * BUT when Ravensburger returns a single-line rulesText (no `\n` between
+ * keyword reminder and named-ability sections, e.g. "<Shift>...)\Name\ body"),
+ * the importer's keyword-line filter swallows the entire string into
+ * `keywordLines` and the `\Name\` markers survive into stored rulesText.
+ * 43 cards across set 4 / P1 / P3 carry this artifact as of 2026-04-27.
+ *
+ * This helper rewrites paired markers into the golden shape:
+ *   "...)\\Saving the Miracle\\ Whenever..."
+ *     → "...)\nSAVING THE MIRACLE Whenever..."
+ * matching the format `extractNamedAbilities` produces for properly-formatted
+ * input. Use as both:
+ *   (a) a terminal scrub on already-imported card JSONs (one-shot cleanup)
+ *   (b) defense-in-depth on `cleanRulesText` after `extractNamedAbilities`
+ *       runs, in case Ravensburger returns single-line concatenated text.
+ *
+ * Name canonicalization mirrors `canonicalizeStoryName` from import-cards-rav:
+ *   - Uppercased
+ *   - Curly apostrophe (U+2019) → ASCII (the line-level apostrophe normalizer
+ *     re-curlies after this runs)
+ *   - Bracket / ellipsis collapsing not needed here (no occurrences in the
+ *     43 affected cards) — kept narrow to avoid over-fitting.
+ *
+ * Edge cases handled:
+ *   - Apostrophes in names (`\You'll Listen to Me!\`) — `.+?` is Unicode-safe.
+ *   - Trailing space inside closing marker (`\You Just Have to See It \`).
+ *   - Multiple paired markers on one line (Ladies First / Leave It to Me).
+ *
+ * No-op when no markers are present, so it's safe to run unconditionally.
+ */
+export function stripAbilityNameMarkers(text: string): string {
+  if (!text) return text;
+  // Match paired `\Name\` (single backslash each side; JS regex one backslash
+  // is `\\`). Lazy capture so multiple paired markers on one line each match
+  // independently. Leading horizontal whitespace before the opening `\` is
+  // consumed; trailing whitespace after the closing `\` collapses to a single
+  // space (the body text typically starts with a space).
+  let out = text.replace(/[ \t]*\\(.+?)\\[ \t]*/g, (_match, name: string) => {
+    const canonical = (name as string)
+      .toUpperCase()
+      .replace(/’/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    // `\n` precedes the canonical name so it lands on its own line, matching
+    // `<Keyword>...\nSTORYNAME body` golden shape from extractNamedAbilities.
+    return `\n${canonical} `;
+  });
+  // Collapse double spaces created at boundaries.
+  out = out.replace(/[ \t]{2,}/g, " ");
+  // Drop horizontal whitespace before each newline.
+  out = out.replace(/[ \t]+\n/g, "\n");
+  // Drop horizontal whitespace after each newline (introduced if the body
+  // started with a space).
+  out = out.replace(/\n[ \t]+/g, "\n");
+  // Trim leading/trailing whitespace overall (also catches any leading `\n`
+  // injected when the marker was the very first thing in the text).
+  out = out.replace(/^\s+|\s+$/g, "");
+  return out;
+}
+
+/**
  * Full pipeline — apply all normalizations to a complete rulesText string.
  * Line-level keyword wrapping happens per-line; the rest are global.
  *
- * Stray-separator scrub runs FIRST so the resulting `%`-free text is what
- * the line-splitter / keyword-wrapper see (otherwise `") %\\Name\\"` would
- * parse weird).
+ * Order matters:
+ *   (1) Stray-separator scrub FIRST — so `") %\\Name\\"` doesn't confuse
+ *       the marker rewrite below.
+ *   (2) Ability-name marker rewrite SECOND — converts `\Name\ body` into
+ *       `\nNAME body` so the line-splitter sees the right shape.
+ *   (3) Per-line keyword wrap, then global normalizations.
  */
 export function normalizeRulesText(rawRulesText: string): string {
   if (!rawRulesText) return rawRulesText;
-  const scrubbed = stripStraySeparators(rawRulesText);
+  let scrubbed = stripStraySeparators(rawRulesText);
+  scrubbed = stripAbilityNameMarkers(scrubbed);
   const lines = scrubbed
     .split("\n")
     .map((l) => l.trim())

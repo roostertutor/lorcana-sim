@@ -3003,7 +3003,7 @@
     "willpower": 4,
     "lore": 2,
     "shiftCost": 3,
-    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Belle.)\\Enhanced Healing\\ When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
+    "rulesText": "<Shift> 3 (You may pay 3 {I} to play this on top of one of your characters named Belle.)\nENHANCED HEALING When you play this character, move up to 3 damage counters from chosen character to chosen opposing character.",
     "flavorText": "The mixed ink had changed more than just the rose.",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/promo3/41_f8ff787532a72898c1b75f24acc5b431ae68da59.jpg",
     "foilType": "freeform_2",
