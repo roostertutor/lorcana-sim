@@ -1948,10 +1948,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       if (inspectModalOpen) setInspectModalOpen(false);
     }
 
+    // The wrapper's px-0.5 exists ONLY for hand cards — the fan effect uses
+    // negative margin-left to overlap, and the 2px side padding keeps borders
+    // from kissing on the lift transform. In play, px-0.5 is dead weight that
+    // would shrink the card 4px narrower than its containing cell — visible
+    // as a "shadow bigger than front" mismatch in the item-stack render
+    // (shadow layers are absolute-inset on the cell wrapper, front card
+    // sits inside this padded inner wrapper). Strip px-0.5 in play so the
+    // front card fills the cell flush with the shadow layers.
+    const padX = isHandCard ? "px-0.5" : "";
     return (
       <DraggableCard key={id} instanceId={id} zone={zone} isEnabled={isDraggableEnabled(isOpponent)}>
         <div
-          className="snap-start shrink-0 flex flex-col items-center gap-1 px-0.5"
+          className={`snap-start shrink-0 flex flex-col items-center gap-1 ${padX}`}
           style={handStyle}
           onClick={(e) => {
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
