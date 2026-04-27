@@ -1588,26 +1588,23 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const choiceLabels = getLabelMap(choiceTargetIds); // id → "Name (N)" or "Name"
 
   // Helper: render card + its action buttons, wrapped in DnD primitives
-  // Render a single in-play card cell.
+  // Render a single in-play card cell. Two shapes, both compressing
+  // in lockstep via the row's --card-count:
   //
-  // Both ready and rotated cells use `play-cell-compress` on portrait so
-  // they share the row's compression — exerted characters/items/locations
-  // shrink alongside ready chars when the row is crowded.
+  //   READY: `play-cell-compress` — vertical 5:7, width clamps 36–52
+  //     (52×73 max). Card fills via w-full h-full.
   //
-  //   READY: cell is 52×73 vertical (clamp 36–52). Card inside fills via
-  //     w-full h-full at the cell's natural 5:7 shape.
+  //   ROTATED (exerted/location): `play-cell-compress-rotated` —
+  //     square cell, width clamps 50–73 (which is ready_width × 7/5,
+  //     so they compress together). Inner is `play-rotated-inner`
+  //     (h-full + aspect 5/7) — vertical 5:7 filling cell vertically.
+  //     Card inside fills inner via w-full h-full, then rotates 90°
+  //     to produce a horizontal visual that fits cell width exactly,
+  //     centered with vertical padding. Same area as a ready visual,
+  //     just rotated, like a physical TCG card laid sideways.
   //
-  //   ROTATED (portrait): same 52×73 cell, but with a `play-rotated-inner`
-  //     wrapper sized so the rotated visual fits cell width exactly —
-  //     inner height = cell width (cell_height × 5/7), aspect 5/7. The
-  //     rotated visual is "half-height" relative to a ready card (cell
-  //     width × cell width × 5/7), centered vertically in the cell —
-  //     analogous to a physical TCG card tapped flat. No horizontal
-  //     overflow, so adjacent rotated cells don't overlap their neighbors.
-  //
-  //   ROTATED (sm+/landscape-phone): explicit square cells with
-  //     natural-shape inner. At those breakpoints adaptivePlay's
-  //     fixed-pixel widths preserve the larger desktop visuals.
+  //   sm+/landscape-phone keep explicit pixel sizes for both cell
+  //   types (the CSS clamp resets at those breakpoints).
   function renderPlayCell(id: string, isOpponent: boolean) {
     const exerted = gameState!.cards[id]?.isExerted ?? false;
     const isLocation = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
@@ -1619,16 +1616,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </div>
       );
     }
-    // Rotated branch — cell matches READY cell dimensions at every
-    // breakpoint (so a row of mixed cells reads as uniform). Inner
-    // is play-rotated-inner which sizes the card so its rotated
-    // visual fits cell width with a small horizontal breathing margin
-    // (avoids state-ring + hover-scale clipping at cell edges during
-    // drag). Visual ends up ~half the height of a ready card, like a
-    // physical TCG card tapped flat.
     const rotatedOuter =
-      "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px] flex items-center justify-center";
-    const rotatedInner = "play-rotated-inner";
+      "play-cell-compress-rotated shrink-0 sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center";
+    const rotatedInner =
+      "play-rotated-inner sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     return (
       <div key={id} className={rotatedOuter}>
         <div className={rotatedInner}>
@@ -1675,18 +1666,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // Rotation matches GameCard's logic: items + characters rotate when
     // exerted; locations always rotate (CRD 5.5.4).
     const shouldRotate = (isFrontExerted && !isLocation) || isLocation;
-    // Stack uses the same shape pattern as renderPlayCell — at every
-    // breakpoint, rotated cells have the same outer footprint as ready
-    // cells, with inner = play-rotated-inner (so the rotated visual
-    // fits cell width exactly, with a small breathing margin). Shadows
-    // + front card both live inside the inner so they share the natural
-    // 5:7 shape and rotate as a unit.
-    const stackSize = "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
+    // Stack uses the same shape pattern as renderPlayCell:
+    //   READY: play-cell-compress vertical 5:7.
+    //   ROTATED: play-cell-compress-rotated square (compresses with
+    //     row via --card-count), with play-rotated-inner (vertical
+    //     5:7 filling cell vertically). Shadows + front card live
+    //     inside the inner so they share the natural shape and
+    //     rotate as a unit. Same physical card area as ready,
+    //     rotated.
     const stackOuter = shouldRotate
-      ? `${stackSize} flex items-center justify-center`
-      : stackSize;
+      ? "play-cell-compress-rotated shrink-0 sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center"
+      : "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     const stackInner = shouldRotate
-      ? "play-rotated-inner relative"
+      ? "play-rotated-inner relative sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]"
       : "relative w-full h-full";
     // Ink-theme border so layers look identical to the front card. Lookup
     // mirrors INK_THEME in GameCard.tsx — kept inline here so we don't

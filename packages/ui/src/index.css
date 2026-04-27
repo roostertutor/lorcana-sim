@@ -130,22 +130,48 @@
     }
   }
 
-  /* Inner wrapper for a rotated card inside a `play-cell-compress` cell.
-     The rotated visual's width = inner card's height. To make the
-     rotated visual fit the cell width with a tiny breathing margin
-     (so state-ring outset + hover:scale-105 don't extend past cell
-     edges and get clipped during drag), inner height = cell_width − 4px
-     ≈ cell_height × 5/7 − 4px. The −4px gives 2px clearance on each
-     side. With aspect-ratio 5/7 on the inner, width derives =
-     inner_height × 5/7. The card lays sideways in the middle vertical
-     band of the cell, like a physical TCG card tapped flat.
+  /* Square cell wrapper for a rotated card (exerted character/item or
+     location). Mirrors `play-cell-compress` for ready cells but scales
+     based on the ready cell width × 7/5 — i.e. same physical card,
+     rotated, so the cell needs to be wider to contain the rotated
+     visual. With the same `--card-count` driving both clamps, ready
+     and rotated cells compress in lockstep so a row of 5 ready + 2
+     rotated wraps cleanly when crowded.
 
-     Applies at all breakpoints — landscape-phone matches portrait
-     for visual consistency. sm+/lg cell sizes are set explicitly via
-     Tailwind utilities on the cell wrapper (matching ready-cell
-     dimensions); the formula resolves against those. */
+     Math: ready_width = clamp(36, target, 52). rotated_width =
+     ready_width × 7/5 = clamp(50.4, target × 7/5, 72.8). Cell is
+     square (aspect 1) so the rotated visual (which is 7:5 horizontal,
+     i.e. width = ready_height) fits within. */
+  .play-cell-compress-rotated {
+    aspect-ratio: 1;
+    width: clamp(
+      50px,
+      calc(((100% - (var(--card-count, 1) - 1) * 4px) / var(--card-count, 1)) * 7 / 5),
+      73px
+    );
+  }
+  @media (min-width: 640px) {
+    .play-cell-compress-rotated {
+      aspect-ratio: auto;
+      width: auto;
+    }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    .play-cell-compress-rotated {
+      aspect-ratio: auto;
+      width: auto;
+    }
+  }
+
+  /* Inner wrapper for a rotated card inside a square cell. Vertical
+     5:7 filling cell vertically (h-full, aspect 5/7 derives width).
+     The card inside this inner uses w-full h-full to take the natural
+     5:7 vertical shape, and then rotates 90° via GameCard's transform
+     — the rotated visual ends up cell-width wide × inner-width tall,
+     centered in the square cell with vertical padding above/below.
+     Same area as a ready card visual, just rotated. */
   .play-rotated-inner {
-    height: calc(100% * 5 / 7 - 4px);
+    height: 100%;
     aspect-ratio: 5 / 7;
   }
 }
