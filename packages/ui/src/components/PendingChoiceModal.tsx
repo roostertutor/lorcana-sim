@@ -203,6 +203,38 @@ export default function PendingChoiceModal({
     );
   }
 
+  /**
+   * StickyFooter — pins a modal's action buttons to the bottom of the
+   * panel's visible scroll viewport so the user never has to scroll down
+   * past a long card grid to find Confirm/Skip/Reset/etc.
+   *
+   * Layout math:
+   *   - Panel has p-5 with pb-[max(env(safe-area-inset-bottom,0px),20px)].
+   *   - `-mx-5 px-5` lets this footer span the panel's full width
+   *     (cancels p-5's horizontal portion, then re-adds the inner gutter).
+   *   - `-mb-[…safe-area…]` cancels the panel's variable bottom padding so
+   *     the sticky footer reaches the panel's actual bottom edge; that
+   *     padding is re-added INSIDE the footer so the action button sits
+   *     above the iPhone home indicator on PWA standalone.
+   *   - bg-gray-950 + border-t-gray-800 give the footer an opaque,
+   *     visually-separated surface as the grid scrolls behind it.
+   *   - z-10 keeps the footer above any sibling overlays in the same
+   *     stacking context.
+   */
+  function StickyFooter({ children }: { children: React.ReactNode }) {
+    return (
+      <div
+        className="sticky bottom-0 z-10
+                   -mx-5 px-5 mt-4 pt-3
+                   pb-[max(env(safe-area-inset-bottom,0px),20px)]
+                   -mb-[max(env(safe-area-inset-bottom,0px),20px)]
+                   bg-gray-950 border-t border-gray-800"
+      >
+        {children}
+      </div>
+    );
+  }
+
   function renderContent() {
     // CRD 2.1.3.2 / 2.2.1 — play-draw election. Handled BEFORE the generic
     // opponent-perspective block because choose_play_order has no validTargets,
@@ -253,25 +285,27 @@ export default function PendingChoiceModal({
             <div className="text-amber-300 text-sm font-bold mb-1">{headline}</div>
             <div className="text-gray-400 text-xs">{subtitle}</div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              className="flex flex-col items-center gap-1 px-4 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20 active:scale-[0.98]"
-              onClick={() => onResolveChoice("first")}
-            >
-              <span className="text-base">Go First</span>
-              <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the play</span>
-            </button>
-            <button
-              className="flex flex-col items-center gap-1 px-4 py-4 bg-sky-700 hover:bg-sky-600 text-white rounded-lg font-bold transition-colors shadow-lg shadow-sky-700/20 active:scale-[0.98]"
-              onClick={() => onResolveChoice("second")}
-            >
-              <span className="text-base">Go Second</span>
-              <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the draw · draw turn 1</span>
-            </button>
-          </div>
           <div className="text-[10px] text-gray-500 text-center">
             Going first skips turn-1 draw. Going second draws normally.
           </div>
+          <StickyFooter>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                className="flex flex-col items-center gap-1 px-4 py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20 active:scale-[0.98]"
+                onClick={() => onResolveChoice("first")}
+              >
+                <span className="text-base">Go First</span>
+                <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the play</span>
+              </button>
+              <button
+                className="flex flex-col items-center gap-1 px-4 py-4 bg-sky-700 hover:bg-sky-600 text-white rounded-lg font-bold transition-colors shadow-lg shadow-sky-700/20 active:scale-[0.98]"
+                onClick={() => onResolveChoice("second")}
+              >
+                <span className="text-base">Go Second</span>
+                <span className="text-[10px] font-normal opacity-80 uppercase tracking-wider">On the draw · draw turn 1</span>
+              </button>
+            </div>
+          </StickyFooter>
         </div>
       );
     }
@@ -293,22 +327,6 @@ export default function PendingChoiceModal({
           {contextHints.length > 0 && (
             <div className="text-[10px] text-gray-500">{contextHints.join(" · ")}</div>
           )}
-          {isOpponentMay && (
-            <div className="flex gap-2">
-              <button
-                className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
-                onClick={() => onResolveChoice("accept")}
-              >
-                Accept (as opponent)
-              </button>
-              <button
-                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
-                onClick={() => onResolveChoice("decline")}
-              >
-                Decline (as opponent)
-              </button>
-            </div>
-          )}
           {!isOpponentMay && pendingChoice.validTargets && (
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 pb-1">
               {(pendingChoice.validTargets ?? []).map((id: string) => {
@@ -324,14 +342,34 @@ export default function PendingChoiceModal({
               })}
             </div>
           )}
+          {isOpponentMay && (
+            <StickyFooter>
+              <div className="flex gap-2">
+                <button
+                  className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
+                  onClick={() => onResolveChoice("accept")}
+                >
+                  Accept (as opponent)
+                </button>
+                <button
+                  className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+                  onClick={() => onResolveChoice("decline")}
+                >
+                  Decline (as opponent)
+                </button>
+              </div>
+            </StickyFooter>
+          )}
           {!isOpponentMay && (
-            <button
-              className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-              disabled={!multiSelectTargets[0]}
-              onClick={() => multiSelectTargets[0] && onResolveChoice([multiSelectTargets[0]])}
-            >
-              Confirm (as opponent)
-            </button>
+            <StickyFooter>
+              <button
+                className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+                disabled={!multiSelectTargets[0]}
+                onClick={() => multiSelectTargets[0] && onResolveChoice([multiSelectTargets[0]])}
+              >
+                Confirm (as opponent)
+              </button>
+            </StickyFooter>
           )}
         </div>
       );
@@ -361,12 +399,14 @@ export default function PendingChoiceModal({
               +
             </button>
           </div>
-          <button
-            className="w-full px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors"
-            onClick={() => onResolveChoice(chooseAmountValue)}
-          >
-            Confirm ({chooseAmountValue})
-          </button>
+          <StickyFooter>
+            <button
+              className="w-full px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors"
+              onClick={() => onResolveChoice(chooseAmountValue)}
+            >
+              Confirm ({chooseAmountValue})
+            </button>
+          </StickyFooter>
         </div>
       );
     }
@@ -415,14 +455,16 @@ export default function PendingChoiceModal({
               );
             })}
           </div>
-          <button
-            className="px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
-            onClick={() => onResolveChoice(multiSelectTargets)}
-          >
-            {multiSelectTargets.length > 0
-              ? `Put back ${multiSelectTargets.length}, draw ${multiSelectTargets.length}`
-              : "Keep All"}
-          </button>
+          <StickyFooter>
+            <button
+              className="px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition-colors"
+              onClick={() => onResolveChoice(multiSelectTargets)}
+            >
+              {multiSelectTargets.length > 0
+                ? `Put back ${multiSelectTargets.length}, draw ${multiSelectTargets.length}`
+                : "Keep All"}
+            </button>
+          </StickyFooter>
         </div>
       );
     }
@@ -475,23 +517,25 @@ export default function PendingChoiceModal({
           {/* Confirm + Reset. Reset only renders when there's something to
               clear (placedCount > 0), so the row collapses to a single
               full-width Confirm in the initial empty state. */}
-          <div className="flex gap-2">
-            <button
-              className="flex-1 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-              disabled={placedCount !== total}
-              onClick={() => onResolveChoice(multiSelectTargets)}
-            >
-              Confirm order ({placedCount}/{total})
-            </button>
-            {placedCount > 0 && (
+          <StickyFooter>
+            <div className="flex gap-2">
               <button
-                className="px-3 py-2 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 rounded-lg font-medium transition-colors border border-gray-700"
-                onClick={() => onMultiSelectChange([])}
+                className="flex-1 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+                disabled={placedCount !== total}
+                onClick={() => onResolveChoice(multiSelectTargets)}
               >
-                Reset
+                Confirm order ({placedCount}/{total})
               </button>
-            )}
-          </div>
+              {placedCount > 0 && (
+                <button
+                  className="px-3 py-2 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 rounded-lg font-medium transition-colors border border-gray-700"
+                  onClick={() => onMultiSelectChange([])}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </StickyFooter>
         </div>
       );
     }
@@ -561,25 +605,27 @@ export default function PendingChoiceModal({
               })}
             </div>
           )}
-          <div className="flex gap-2">
-            {!noValidTargets && (
-              <button
-                className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-                disabled={multiSelectTargets.length !== requiredCount}
-                onClick={() => onResolveChoice(multiSelectTargets)}
-              >
-                Confirm ({multiSelectTargets.length}/{requiredCount})
-              </button>
-            )}
-            {noValidTargets && (
-              <button
-                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors"
-                onClick={() => onResolveChoice([])}
-              >
-                Skip
-              </button>
-            )}
-          </div>
+          <StickyFooter>
+            <div className="flex gap-2">
+              {!noValidTargets && (
+                <button
+                  className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+                  disabled={multiSelectTargets.length !== requiredCount}
+                  onClick={() => onResolveChoice(multiSelectTargets)}
+                >
+                  Confirm ({multiSelectTargets.length}/{requiredCount})
+                </button>
+              )}
+              {noValidTargets && (
+                <button
+                  className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium transition-colors"
+                  onClick={() => onResolveChoice([])}
+                >
+                  Skip
+                </button>
+              )}
+            </div>
+          </StickyFooter>
         </div>
       );
     }
@@ -613,20 +659,22 @@ export default function PendingChoiceModal({
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
-              onClick={() => onResolveChoice("accept")}
-            >
-              Use ability
-            </button>
-            <button
-              className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
-              onClick={() => onResolveChoice("decline")}
-            >
-              Skip
-            </button>
-          </div>
+          <StickyFooter>
+            <div className="flex gap-2">
+              <button
+                className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
+                onClick={() => onResolveChoice("accept")}
+              >
+                Use ability
+              </button>
+              <button
+                className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+                onClick={() => onResolveChoice("decline")}
+              >
+                Skip
+              </button>
+            </div>
+          </StickyFooter>
         </div>
       );
     }
@@ -957,35 +1005,37 @@ export default function PendingChoiceModal({
             {displayCards.map(renderCard)}
           </div>
         )}
-        <div className="flex gap-2 items-center">
-          {hasValidTargets && (
-            <button
-              className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
-              disabled={
-                aggregateViolated
-                  ? true
-                  : isMultiTarget
-                  // "up to N" — either mandatory (≥1 required) or optional:
-                  // cap already enforced on selection; just need ≥1 for Confirm.
-                  // Explicit 0-submit (skip) lives on a separate path when
-                  // optional is true and no selection exists.
-                  ? multiSelectTargets.length === 0
-                  : !multiSelectTargets[0]
-              }
-              onClick={() => onResolveChoice(multiSelectTargets)}
-            >
-              {isMultiTarget ? `Confirm (${multiSelectTargets.length}/${targetCount})` : "Confirm"}
-            </button>
-          )}
-          {pendingChoice.optional && (
-            <button
-              className="px-3 py-2 text-xs bg-red-800/80 hover:bg-red-700 text-gray-200 rounded-lg border border-red-700 transition-colors"
-              onClick={() => onResolveChoice([])}
-            >
-              {hasValidTargets ? "Skip" : "OK"}
-            </button>
-          )}
-        </div>
+        <StickyFooter>
+          <div className="flex gap-2 items-center">
+            {hasValidTargets && (
+              <button
+                className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+                disabled={
+                  aggregateViolated
+                    ? true
+                    : isMultiTarget
+                    // "up to N" — either mandatory (≥1 required) or optional:
+                    // cap already enforced on selection; just need ≥1 for Confirm.
+                    // Explicit 0-submit (skip) lives on a separate path when
+                    // optional is true and no selection exists.
+                    ? multiSelectTargets.length === 0
+                    : !multiSelectTargets[0]
+                }
+                onClick={() => onResolveChoice(multiSelectTargets)}
+              >
+                {isMultiTarget ? `Confirm (${multiSelectTargets.length}/${targetCount})` : "Confirm"}
+              </button>
+            )}
+            {pendingChoice.optional && (
+              <button
+                className="px-3 py-2 text-xs bg-red-800/80 hover:bg-red-700 text-gray-200 rounded-lg border border-red-700 transition-colors"
+                onClick={() => onResolveChoice([])}
+              >
+                {hasValidTargets ? "Skip" : "OK"}
+              </button>
+            )}
+          </div>
+        </StickyFooter>
       </div>
     );
   }
