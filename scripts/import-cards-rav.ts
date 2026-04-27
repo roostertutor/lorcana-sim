@@ -40,6 +40,7 @@ import {
   normalizeKeywordLine,
   stripStraySeparators,
   stripAbilityNameMarkers,
+  splitConcatenatedKeywordReminders,
 } from "./lib/normalize-rules-text.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -399,6 +400,11 @@ function extractNamedAbilities(rawRulesText: string): { rulesText: string; stubs
   // eat ") %" into a "name" segment) and they're never semantic percentages
   // (only "100%" passes the digit guard, which is in flavor text only).
   rawRulesText = stripStraySeparators(rawRulesText);
+  // Split `)<Keyword>` concatenated keyword reminders before the keyword-line
+  // filter below routes whole lines into `keywordLines`. Without this, two
+  // fused keyword reminders (e.g. `<Shift>...named Diablo.)<Evasive>(Only...)`)
+  // survive as a single line and render glued together in the UI.
+  rawRulesText = splitConcatenatedKeywordReminders(rawRulesText);
   const stubs: AbilityStub[] = [];
 
   // Pre-extract keyword reminder lines (e.g. "<Bodyguard> (This character...)")

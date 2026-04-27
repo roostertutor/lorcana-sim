@@ -134,6 +134,33 @@ export function stripStraySeparators(text: string): string {
 }
 
 /**
+ * Split concatenated keyword reminders that share a line with no separator.
+ *
+ * Ravensburger occasionally emits two keyword reminder blocks fused together,
+ * with the closing paren of one reminder bumping directly into the opening
+ * `<` of the next keyword (e.g. `<Shift>...named Diablo.)<Evasive> (Only...)`).
+ * The golden shape puts each keyword reminder on its own line — the line
+ * filter in `extractNamedAbilities` (and downstream rendering in the UI) both
+ * key off line breaks for keyword routing.
+ *
+ * Transformation: `)<` → `)\n<`. Lorcana rules text never legitimately uses
+ * `<` after a closing paren outside the `<Keyword>` markup convention, so a
+ * blanket substitution is safe (audit: 9 hits across set-4 as of 2026-04-27,
+ * all of the form `)<Evasive>` / `)<Reckless>` / `)<Resist>` / `)<Bodyguard>`).
+ *
+ * Runs BEFORE `stripAbilityNameMarkers` in `normalizeRulesText` because the
+ * marker strip is structurally line-aware and we want the reminders separated
+ * before any other line-level processing kicks in. Conceptually paired with
+ * `stripStraySeparators` — both are structural separator scrubs.
+ *
+ * No-op when no concatenation is present, so safe to run unconditionally.
+ */
+export function splitConcatenatedKeywordReminders(text: string): string {
+  if (!text) return text;
+  return text.replace(/\)</g, ")\n<");
+}
+
+/**
  * Convert Ravensburger's `\Name\` inline ability-section markers into the
  * golden line-break shape used everywhere else in our card JSON.
  *
@@ -211,13 +238,17 @@ export function stripAbilityNameMarkers(text: string): string {
  * Order matters:
  *   (1) Stray-separator scrub FIRST — so `") %\\Name\\"` doesn't confuse
  *       the marker rewrite below.
- *   (2) Ability-name marker rewrite SECOND — converts `\Name\ body` into
+ *   (2) Concatenated-keyword-reminder split SECOND — turns `)<Keyword>` into
+ *       `)\n<Keyword>` so the line-splitter sees one keyword reminder per line
+ *       before anything else processes the string.
+ *   (3) Ability-name marker rewrite THIRD — converts `\Name\ body` into
  *       `\nNAME body` so the line-splitter sees the right shape.
- *   (3) Per-line keyword wrap, then global normalizations.
+ *   (4) Per-line keyword wrap, then global normalizations.
  */
 export function normalizeRulesText(rawRulesText: string): string {
   if (!rawRulesText) return rawRulesText;
   let scrubbed = stripStraySeparators(rawRulesText);
+  scrubbed = splitConcatenatedKeywordReminders(scrubbed);
   scrubbed = stripAbilityNameMarkers(scrubbed);
   const lines = scrubbed
     .split("\n")
