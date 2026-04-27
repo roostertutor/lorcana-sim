@@ -51,6 +51,16 @@ const TOKEN_PATTERN = /\{(?:IW|[ISELWC])\}/g;
  *               size for good visual rhythm (16 for 14px text, 14 for 12px).
  */
 export function renderRulesText(text: string, size = 14): React.ReactNode[] {
+  // Strip stray "%" section separators leaking from Ravensburger's API
+  // encoding (107 occurrences across sets 2-3 + others). They appear
+  // before \n paragraph breaks, before \\name\\ ability markers, and
+  // before flavor attributions — always as junk separators, never as
+  // semantic percentages. Only collapse HORIZONTAL whitespace runs
+  // (spaces/tabs) so we preserve \n line breaks for the modal's
+  // `whitespace-pre-line` styling.
+  // TODO(engine HANDOFF): scrub at the importer / source JSON level so
+  // decompile-cards and other consumers don't have to repeat this.
+  text = text.replace(/%/g, "").replace(/[ \t]+/g, " ").trim();
   const nodes: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;

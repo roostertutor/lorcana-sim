@@ -230,10 +230,12 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
               </div>
             )}
 
-            {/* Flavor text */}
+            {/* Flavor text — strip the same Ravensburger "%" section
+                separators as renderRulesText does (commonly appears as
+                `…questions!" %—Judy Hopps`). */}
             {def.flavorText && (
               <div className="text-gray-600 text-[10px] italic">
-                {def.flavorText}
+                {def.flavorText.replace(/%/g, "").replace(/[ \t]+/g, " ").trim()}
               </div>
             )}
 
