@@ -1,0 +1,21 @@
+<!--
+  Empty (outlined) hexagon glyph for the {I} ink-cost token in rulesText.
+  Lorcana's printed top-left card cost uses a SOLID hexagon; ability ink
+  costs in the body text use this OUTLINED hexagon instead.
+
+  Renders white-on-transparent so the Glyph component's CSS mask-image
+  + `bg-current` trick applies the surrounding text color to the outline
+  while keeping the interior transparent.
+
+  Outline traced as a filled shape (outer hexagon - inner hexagon) with
+  fill-rule="evenodd" — gives a crisper edge than `stroke` at small sizes,
+  and avoids the per-corner miter artifacts that strokes show when
+  scaled down to 14-16px in the rulesText.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <path
+    fill="white"
+    fill-rule="evenodd"
+    d="M 12 1.5 L 22 7.25 L 22 16.75 L 12 22.5 L 2 16.75 L 2 7.25 Z M 12 4.4 L 4.5 8.7 L 4.5 15.3 L 12 19.6 L 19.5 15.3 L 19.5 8.7 Z"
+  />
+</svg>

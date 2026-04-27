@@ -43,8 +43,25 @@ interface Props {
   ariaLabel?: string;
 }
 
+// Per-glyph file extension. Most live as PNGs sliced from Lorcana's
+// font_sprites texture, but `ink` is an authored SVG (outlined hexagon
+// — see /icons/glyphs/ink.svg) because the empty-shape rendering at
+// 14-16px is crisper as vector than as a downscaled raster mask.
+const GLYPH_EXT: Record<GlyphName, "png" | "svg"> = {
+  strength: "png",
+  willpower: "png",
+  lore: "png",
+  exert: "png",
+  ink: "svg",
+  inkable: "png",
+  uninkable: "png",
+  "move-cost": "png",
+  favorite: "png",
+  "owned-filled": "png",
+};
+
 export default function Glyph({ name, size = 16, className = "", ariaLabel }: Props) {
-  const url = `/icons/glyphs/${name}.png`;
+  const url = `/icons/glyphs/${name}.${GLYPH_EXT[name]}`;
   return (
     <span
       role="img"
