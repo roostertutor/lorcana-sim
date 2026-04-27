@@ -1836,13 +1836,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             count means items shrink alongside chars when the play area
             is crowded — without it, an items row with just 1-2 items
             stays at max width while chars compress, looking
-            asymmetrically big. */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-1 md:gap-2">
+            asymmetrically big.
+
+            Bottom-anchor (md:items-end) on portrait/tablet/desktop
+            matches the standard card-game convention (player's cards
+            near the player's edge). Landscape-PHONE flips to top-anchor
+            (landscape-phone:items-start) — vertical space is tight
+            enough that chars usually wrap to multiple lines, and
+            top-anchor matches the scroll-down convention: first line
+            stays at top, overflow goes downward, scroll reveals more. */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end landscape-phone:!items-start gap-1 md:gap-2">
           {/* Wandering chars: centered on portrait (matches MTGA / Hearthstone
               convention), left-anchored on md+ where wandering occupies the
               left half of the side-by-side row. */}
           <div
-            className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-start"
+            className="flex flex-wrap gap-1 md:gap-2 items-end content-end landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-start"
             style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
           >
             {wandering.map(id => renderPlayCell(id, isOpponent))}
@@ -1852,7 +1860,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               row opposite the wandering chars. */}
           {otherStacks.length > 0 && (
             <div
-              className="flex flex-wrap gap-1 md:gap-2 items-end content-end justify-center md:justify-end"
+              className="flex flex-wrap gap-1 md:gap-2 items-end content-end landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-end"
               style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
             >
               {otherStacks.map(ids =>
