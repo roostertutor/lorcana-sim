@@ -30,11 +30,18 @@ export interface GuiSettings {
    *  first, then characters/items) — useful for players who prefer reading
    *  the board with a single consistent orientation. */
   mirrorOpponentPlayZone: boolean;
+  /** When true, the OPPONENT's cards are flipped 180° visually so their
+   *  artwork faces them — like a real tabletop where cards point toward
+   *  whoever owns them. Composes with each card's own rotation (e.g.
+   *  exerted/location 90°): an opp's exerted card displays at 270°. When
+   *  false, opp cards render upright from the viewing player's perspective. */
+  flipOpponentCards: boolean;
 }
 
 const DEFAULTS: GuiSettings = {
   itemStackingEnabled: true,
   mirrorOpponentPlayZone: true,
+  flipOpponentCards: true,
 };
 
 function loadFromStorage(): GuiSettings {

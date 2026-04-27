@@ -1701,11 +1701,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               image with the same border styling as the front. Layers look
               visually IDENTICAL to the front, just offset — like a literal
               pile of the same card. State (exerted rotation) mirrored from
-              the front so the whole pile rotates uniformly. */}
+              the front so the whole pile rotates uniformly. When the
+              `flipOpponentCards` GUI setting is on, opp shadows pick up an
+              extra 180° so the artwork matches the front card's flipped
+              orientation. */}
           {Array.from({ length: visibleShadowLayers }, (_, i) => {
             const offset = (visibleShadowLayers - i) * 3;
-            const transform = shouldRotate
-              ? `translate(${offset}px, ${-offset}px) rotate(90deg)`
+            const flipDeg = isOpponent && guiSettings.flipOpponentCards ? 180 : 0;
+            const stateDeg = shouldRotate ? 90 : 0;
+            const totalDeg = flipDeg + stateDeg;
+            const transform = totalDeg !== 0
+              ? `translate(${offset}px, ${-offset}px) rotate(${totalDeg}deg)`
               : `translate(${offset}px, ${-offset}px)`;
             return (
               <div
@@ -2032,20 +2038,29 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         >
           <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
             <div className="relative">
-              <GameCard
-                instanceId={id}
-                gameState={gameState}
-                definitions={definitions}
-                gameModifiers={gameModifiers}
-                isSelected={isSingTogetherSelected}
-                isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget || (isSingTogetherTarget && !isSingTogetherSelected)}
-                isAttacker={isAttacker}
-                onClick={handleClick}
-                zone={zone}
-                faceDown={faceDown}
-                onCardsUnderClick={(cid) => setCardsUnderViewerId(cid)}
-                isPlayable={zone === "hand" && !isOpponent && isYourTurn ? playableHandIds.has(id) : undefined}
-              />
+              {/* Opp-flip wrapper: rotate-180 around GameCard ONLY when the
+                  flipOpponentCards setting is on (and this card belongs to
+                  the opponent). Composes with GameCard's own rotate-90 for
+                  exerted/locations to produce the natural 270° "tapped from
+                  the other side" visual. The wrapper does NOT enclose the
+                  disambig badge — that stays unrotated so the label is
+                  always readable from the viewing player's perspective. */}
+              <div className={isOpponent && guiSettings.flipOpponentCards ? "rotate-180" : ""}>
+                <GameCard
+                  instanceId={id}
+                  gameState={gameState}
+                  definitions={definitions}
+                  gameModifiers={gameModifiers}
+                  isSelected={isSingTogetherSelected}
+                  isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget || (isSingTogetherTarget && !isSingTogetherSelected)}
+                  isAttacker={isAttacker}
+                  onClick={handleClick}
+                  zone={zone}
+                  faceDown={faceDown}
+                  onCardsUnderClick={(cid) => setCardsUnderViewerId(cid)}
+                  isPlayable={zone === "hand" && !isOpponent && isYourTurn ? playableHandIds.has(id) : undefined}
+                />
+              </div>
               {disambigBadge && (
                 <span className="absolute top-1 right-1 text-[10px] font-black bg-white/90 text-gray-900 px-1.5 py-0.5 rounded shadow pointer-events-none">
                   {disambigBadge}

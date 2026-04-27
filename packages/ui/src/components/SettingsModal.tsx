@@ -54,6 +54,12 @@ export default function SettingsModal({ settings, onUpdate, onClose }: Props) {
             value={settings.mirrorOpponentPlayZone}
             onChange={(v) => onUpdate("mirrorOpponentPlayZone", v)}
           />
+          <ToggleRow
+            label="Flip opponent's cards upside-down"
+            description="Rotate the opponent's cards 180° so their artwork faces them — like a real tabletop where cards point toward whoever owns them. Disable to render opp cards upright from your perspective."
+            value={settings.flipOpponentCards}
+            onChange={(v) => onUpdate("flipOpponentCards", v)}
+          />
         </div>
       </div>
     </ModalFrame>
