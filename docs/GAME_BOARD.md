@@ -591,3 +591,99 @@ Desktop unlocks features that are impractical on touch screens.
 4. **Log visibility**: Should the game log be always-on at md+, or keep it behind a tab
    to save sidebar space for analysis? The analysis panel is more useful during a game;
    the log is more useful for reviewing after.
+
+---
+
+## GUI Settings (in-game preferences)
+
+Settings the player can toggle without a code change. Lives in the kebab
+menu → "Settings". Persisted to `localStorage` under the versioned key
+`lorcana-gui-settings-v1`.
+
+### Architecture
+
+Three files compose the system:
+
+- **`hooks/useGuiSettings.ts`** — single hook returning `[settings, update]`.
+  Hydrates from localStorage on mount, writes through on each update. The
+  storage key is versioned (`-v1` suffix) so a future schema change can
+  bump the version and cleanly reject stale shapes — defaults reapply.
+
+- **`components/SettingsModal.tsx`** — bottom-sheet on mobile, centered
+  on `sm+`. Renders one `<ToggleRow>` per setting (label + description +
+  toggle). Reuses `ModalFrame` for backdrop / safe-area handling.
+
+- **`components/BoardMenu.tsx`** — gains the "Settings" menu item via the
+  `onOpenSettings` prop, rendered between Sandbox tools and Resign.
+
+### Adding a new setting
+
+Three small edits:
+
+**1. Extend the `GuiSettings` interface + defaults** (`useGuiSettings.ts`):
+
+```ts
+export interface GuiSettings {
+  itemStackingEnabled: boolean;
+  // NEW:
+  cardCompressionEnabled: boolean;
+}
+
+const DEFAULTS: GuiSettings = {
+  itemStackingEnabled: true,
+  // NEW:
+  cardCompressionEnabled: true,
+};
+```
+
+**2. Add a `<ToggleRow>` to `SettingsModal.tsx`**:
+
+```tsx
+<ToggleRow
+  label="Card row compression"
+  description="In portrait mode, rows of 7-9 characters squish to fit on
+    one line before wrapping. Disable for fixed-size cards that wrap
+    immediately at 7+."
+  value={settings.cardCompressionEnabled}
+  onChange={(v) => onUpdate("cardCompressionEnabled", v)}
+/>
+```
+
+**3. Read the setting wherever it gates behavior** (`GameBoard.tsx` or
+the relevant component):
+
+```tsx
+const [guiSettings] = useGuiSettings();
+// ...
+const cellClasses = guiSettings.cardCompressionEnabled
+  ? "play-cell-compress"
+  : "w-[52px] aspect-[5/7]";  // explicit fixed sizing
+```
+
+Each new setting is ~10 lines across the three files.
+
+### Conventions for settings
+
+- **Default to ON** for prototype features the user is opting in to.
+  Defaulting OFF means most users won't see the prototype, defeating
+  the point of shipping it. Power users find Settings; casual users
+  benefit from the new behavior automatically.
+- **Description text matters.** Each toggle's `description` should answer
+  "what does this do AND what's the difference if I flip it?" Don't ship
+  a setting whose label is its only explanation.
+- **One key per toggle.** Don't pack multiple booleans into a single
+  setting key. The `update<K>(key, value)` signature is intentionally
+  scoped to one key per call so callers stay explicit.
+- **Bump the storage key version when removing settings.** Adding a
+  setting is backward-compatible (default fills the gap). Removing or
+  renaming requires a key bump (`-v1` → `-v2`) so localStorage cache
+  for the old shape gets dropped instead of mis-merging.
+
+### Future: server-side persistence
+
+Currently per-device only. When the user account UI grows a real
+"preferences" surface, this hook should mirror to the server (POST on
+each update, hydrate from server on session start, fall back to
+localStorage when offline). The single-key updater shape was chosen
+specifically with that future API in mind — each call is a discrete
+PATCH-able event.
