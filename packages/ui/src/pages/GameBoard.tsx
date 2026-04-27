@@ -1807,17 +1807,33 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         otherStacks.push([id]);
       }
     }
+    // Mirror flag: the opponent's play zone gets flipped vertically so
+    // locations sit closest to the play divider (like a tabletop where
+    // each player faces the other). Driven by the `mirrorOpponentPlayZone`
+    // GUI setting — when off, both zones use the same top-down order
+    // (locations on top, chars/items below). Player's own zone is never
+    // mirrored.
+    const mirror = isOpponent && guiSettings.mirrorOpponentPlayZone;
+    // flex-col-reverse swaps the locations row and wandering+items row
+    // visually without changing source order. With items-* alignment
+    // also flipped on the wandering+items wrappers, the cards inside
+    // each row anchor "outward" (away from the divider) so the player's
+    // and opponent's chars/items both sit at the far edge of their
+    // respective play zones.
+    const colDir = mirror ? "flex-col-reverse" : "flex-col";
+    const rowAnchor = mirror ? "md:items-start" : "md:items-end";
+    const itemAnchor = mirror ? "items-start content-start" : "items-end content-end";
     return (
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 md:gap-2 pb-1 md:px-1">
+      <div className={`flex-1 min-h-0 overflow-y-auto flex ${colDir} gap-1 md:gap-2 pb-1 md:px-1`}>
         {/* Locations row — each with its hosted characters bordered together.
             Centered horizontally — locations are usually 1-2 in play; centered
             looks more composed than left-anchored against the play area edge. */}
         {locationIds.length > 0 && (
-          <div className="flex flex-wrap gap-2 items-end content-end justify-center">
+          <div className={`flex flex-wrap gap-2 ${itemAnchor} justify-center`}>
             {locationIds.map(locId => {
               const hosted = byLocation.get(locId) ?? [];
               return (
-                <div key={locId} className="flex items-end gap-1 md:gap-2 p-1 md:p-1.5 rounded-lg border border-cyan-700/50 bg-cyan-950/20">
+                <div key={locId} className={`flex ${mirror ? "items-start" : "items-end"} gap-1 md:gap-2 p-1 md:p-1.5 rounded-lg border border-cyan-700/50 bg-cyan-950/20`}>
                   {renderPlayCell(locId, isOpponent)}
                   {hosted.map(cid => renderPlayCell(cid, isOpponent))}
                 </div>
@@ -1838,19 +1854,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             stays at max width while chars compress, looking
             asymmetrically big.
 
-            Bottom-anchor (md:items-end) on portrait/tablet/desktop
-            matches the standard card-game convention (player's cards
-            near the player's edge). Landscape-PHONE flips to top-anchor
-            (landscape-phone:items-start) — vertical space is tight
-            enough that chars usually wrap to multiple lines, and
-            top-anchor matches the scroll-down convention: first line
-            stays at top, overflow goes downward, scroll reveals more. */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-end landscape-phone:!items-start gap-1 md:gap-2">
+            Anchor: md:items-end (player) / md:items-start (opponent
+            mirrored) on portrait/tablet/desktop. Landscape-PHONE always
+            uses items-start (vertical space too tight to anchor from
+            the bottom). */}
+        <div className={`flex flex-col md:flex-row md:justify-between ${rowAnchor} landscape-phone:!items-start gap-1 md:gap-2`}>
           {/* Wandering chars: centered on portrait (matches MTGA / Hearthstone
               convention), left-anchored on md+ where wandering occupies the
               left half of the side-by-side row. */}
           <div
-            className="flex flex-wrap gap-1 md:gap-2 items-end content-end landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-start"
+            className={`flex flex-wrap gap-1 md:gap-2 ${itemAnchor} landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-start`}
             style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
           >
             {wandering.map(id => renderPlayCell(id, isOpponent))}
@@ -1860,7 +1873,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               row opposite the wandering chars. */}
           {otherStacks.length > 0 && (
             <div
-              className="flex flex-wrap gap-1 md:gap-2 items-end content-end landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-end"
+              className={`flex flex-wrap gap-1 md:gap-2 ${itemAnchor} landscape-phone:!items-start landscape-phone:!content-start justify-center md:justify-end`}
               style={{ "--card-count": (wandering.length + otherStacks.length) || 1 } as React.CSSProperties}
             >
               {otherStacks.map(ids =>

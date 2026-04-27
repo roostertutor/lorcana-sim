@@ -23,10 +23,18 @@ export interface GuiSettings {
   /** When true, identical-state items in play render as a single staggered
    *  pile (4 Pawpsicles → one slot). When false, each item is its own slot. */
   itemStackingEnabled: boolean;
+  /** When true, the OPPONENT's play zone is vertically mirrored — locations
+   *  near the play divider, characters/items at the back. Matches the
+   *  tabletop metaphor where each player's "front row" faces the divider.
+   *  When false, both play zones use the same top-down order (locations
+   *  first, then characters/items) — useful for players who prefer reading
+   *  the board with a single consistent orientation. */
+  mirrorOpponentPlayZone: boolean;
 }
 
 const DEFAULTS: GuiSettings = {
   itemStackingEnabled: true,
+  mirrorOpponentPlayZone: true,
 };
 
 function loadFromStorage(): GuiSettings {

@@ -48,6 +48,12 @@ export default function SettingsModal({ settings, onUpdate, onClose }: Props) {
             value={settings.itemStackingEnabled}
             onChange={(v) => onUpdate("itemStackingEnabled", v)}
           />
+          <ToggleRow
+            label="Mirror opponent's play zone"
+            description="Show the opponent's locations next to the play divider and their items at the far edge — like a tabletop where each player faces the other. Disable to keep both play zones in the same top-down order."
+            value={settings.mirrorOpponentPlayZone}
+            onChange={(v) => onUpdate("mirrorOpponentPlayZone", v)}
+          />
         </div>
       </div>
     </ModalFrame>
