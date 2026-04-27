@@ -2329,7 +2329,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       <div className={`fixed inset-0 z-40 md:hidden landscape-phone:!block transition-opacity duration-200 ${showAnalysis ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAnalysis(false)} />
         <div
-          className={`absolute top-0 right-0 bottom-0 w-[280px] max-w-[85vw] flex flex-col
+          className={`absolute top-0 right-0 bottom-0 w-[320px] max-w-[85vw] flex flex-col
                       bg-gray-950 border-l border-gray-800 shadow-2xl
                       transition-transform duration-200 ${showAnalysis ? "translate-x-0" : "translate-x-full"}`}
           style={{
