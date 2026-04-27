@@ -36,12 +36,18 @@ export interface GuiSettings {
    *  exerted/location 90°): an opp's exerted card displays at 270°. When
    *  false, opp cards render upright from the viewing player's perspective. */
   flipOpponentCards: boolean;
+  /** Card preview style in choice/picker modals (choose_may, choose_trigger).
+   *  "art" shows the card image; "text" renders structured rules text via
+   *  CardTextRender — useful for readability when the player can't quickly
+   *  scan card art (e.g. accessibility, low contrast, or unfamiliar set). */
+  cardDisplayMode: "art" | "text";
 }
 
 const DEFAULTS: GuiSettings = {
   itemStackingEnabled: true,
   mirrorOpponentPlayZone: true,
   flipOpponentCards: true,
+  cardDisplayMode: "art",
 };
 
 function loadFromStorage(): GuiSettings {

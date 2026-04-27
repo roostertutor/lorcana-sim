@@ -2614,6 +2614,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             session.resolveChoice(choice);
             setMultiSelectTargets([]);
           }}
+          cardDisplayMode={guiSettings.cardDisplayMode}
         />
       )}
 

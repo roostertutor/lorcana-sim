@@ -60,9 +60,64 @@ export default function SettingsModal({ settings, onUpdate, onClose }: Props) {
             value={settings.flipOpponentCards}
             onChange={(v) => onUpdate("flipOpponentCards", v)}
           />
+          <SegmentRow
+            label="Card preview style"
+            description="How cards render in choice / picker modals (e.g. choosing which triggered ability to resolve, or whether to use a may ability). Art shows the printed card image; Text shows structured rules text."
+            value={settings.cardDisplayMode}
+            options={[
+              { value: "art", label: "Art" },
+              { value: "text", label: "Text" },
+            ]}
+            onChange={(v) => onUpdate("cardDisplayMode", v)}
+          />
         </div>
       </div>
     </ModalFrame>
+  );
+}
+
+/** Segmented picker for 2+ value choices (e.g. art|text). Same row layout
+ *  as ToggleRow so the form reads visually consistent — label + description
+ *  on the left, control on the right. Use ToggleRow for booleans. */
+function SegmentRow<T extends string>({
+  label,
+  description,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="flex items-start gap-3 py-3">
+      <div className="flex-1 min-w-0">
+        <div className="text-sm text-gray-200 font-medium">{label}</div>
+        <div className="text-[11px] text-gray-500 mt-0.5 leading-snug">
+          {description}
+        </div>
+      </div>
+      <div className="shrink-0 flex items-center text-[11px] rounded-full border border-gray-700 bg-gray-900 overflow-hidden self-center">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            aria-pressed={value === opt.value}
+            className={`px-2.5 py-1 transition-colors ${
+              value === opt.value
+                ? "bg-amber-600 text-white"
+                : "text-gray-400 hover:text-gray-200 hover:bg-gray-800"
+            }`}
+            onClick={() => onChange(opt.value)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

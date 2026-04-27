@@ -7,20 +7,6 @@ import GameCard from "./GameCard.js";
 import CardTextRender from "./CardTextRender.js";
 import AbilityTextRender from "./AbilityTextRender.js";
 
-// A/B toggle: structured text rendering vs. card art. Persisted across sessions.
-const CARD_DISPLAY_KEY = "card-display-mode";
-function useCardDisplayMode(): [("art" | "text"), (m: "art" | "text") => void] {
-  const [mode, setMode] = React.useState<"art" | "text">(() => {
-    if (typeof window === "undefined") return "art";
-    return (localStorage.getItem(CARD_DISPLAY_KEY) as "art" | "text") ?? "art";
-  });
-  const update = React.useCallback((m: "art" | "text") => {
-    setMode(m);
-    if (typeof window !== "undefined") localStorage.setItem(CARD_DISPLAY_KEY, m);
-  }, []);
-  return [mode, update];
-}
-
 interface Props {
   pendingChoice: PendingChoice;
   myId: PlayerID;
@@ -30,6 +16,11 @@ interface Props {
   onMultiSelectChange: React.Dispatch<React.SetStateAction<string[]>>;
   onHide: () => void;
   onResolveChoice: (choice: string | string[] | number) => void;
+  /** Card preview style — "art" shows card image, "text" shows structured
+   *  rules text. Used in choose_may + choose_trigger. Comes from
+   *  GuiSettings via SettingsModal so the player toggles it once and it
+   *  persists across modals + sessions. */
+  cardDisplayMode: "art" | "text";
 }
 
 export default function PendingChoiceModal({
@@ -41,12 +32,14 @@ export default function PendingChoiceModal({
   onMultiSelectChange,
   onHide,
   onResolveChoice,
+  cardDisplayMode,
 }: Props) {
   // State for choose_amount picker (must be top-level per rules of hooks)
   const [chooseAmountValue, setChooseAmountValue] = React.useState(0);
   const chooseAmountMax = (pendingChoice as any).max ?? 0;
-  // A/B toggle for card display style in choose_may + choose_trigger.
-  const [displayMode, setDisplayMode] = useCardDisplayMode();
+  // Local alias matches the previous variable name so existing branches
+  // don't need rewrites. Source of truth is now the GUI setting (prop).
+  const displayMode = cardDisplayMode;
   React.useEffect(() => {
     if (pendingChoice.type === "choose_amount") {
       setChooseAmountValue((pendingChoice as any).max ?? 0);
@@ -1072,27 +1065,11 @@ export default function PendingChoiceModal({
                       rounded-t-2xl sm:rounded-2xl
                       pt-5 px-5
                       shadow-2xl">
-        {/* Panel header row: A/B toggle + hide button */}
-        <div className="flex items-center justify-between mb-3 gap-2">
-          <div /> {/* spacer */}
-          {/* A/B toggle: art vs structured text rendering. Only visible on surfaces
-              that render card previews (choose_may + choose_trigger). */}
-          {(pendingChoice.type === "choose_may" || pendingChoice.type === "choose_trigger") && (
-            <div className="flex items-center text-[10px] rounded-full border border-gray-700 bg-gray-900 overflow-hidden">
-              <button
-                onClick={() => setDisplayMode("art")}
-                className={`px-2 py-1 transition-colors ${displayMode === "art" ? "bg-indigo-600 text-white" : "text-gray-500 hover:text-gray-300"}`}
-              >
-                Art
-              </button>
-              <button
-                onClick={() => setDisplayMode("text")}
-                className={`px-2 py-1 transition-colors ${displayMode === "text" ? "bg-indigo-600 text-white" : "text-gray-500 hover:text-gray-300"}`}
-              >
-                Text
-              </button>
-            </div>
-          )}
+        {/* Panel header row: hide button. The Art/Text card preview toggle
+            moved to Settings → "Card preview style" (2026-04-27) so the
+            choice persists across modals and across sessions, and so the
+            modal header stays uncluttered when many cards are on screen. */}
+        <div className="flex items-center justify-end mb-3 gap-2">
           <button
             className="flex items-center gap-1 px-2.5 py-1 text-[10px] text-gray-500 hover:text-gray-300 bg-gray-800/60 hover:bg-gray-700/60 rounded-full border border-gray-700 transition-colors"
             onClick={onHide}
