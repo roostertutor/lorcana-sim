@@ -1857,8 +1857,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             Anchor: md:items-end (player) / md:items-start (opponent
             mirrored) on portrait/tablet/desktop. Landscape-PHONE always
             uses items-start (vertical space too tight to anchor from
-            the bottom). */}
-        <div className={`flex flex-col md:flex-row md:justify-between ${rowAnchor} landscape-phone:!items-start gap-1 md:gap-2`}>
+            the bottom).
+
+            On mobile portrait this wrapper is `flex-col`. When mirroring
+            the opponent, also flip the inner direction to flex-col-reverse
+            so opp's ITEMS render above CHARS (back row → top of opp
+            zone, far from divider). md+ overrides to flex-row so on
+            tablet/desktop/landscape-phone the chars-left / items-right
+            layout stays the same — horizontal mirror isn't part of the
+            convention. */}
+        <div className={`flex ${mirror ? "flex-col-reverse" : "flex-col"} md:flex-row md:justify-between ${rowAnchor} landscape-phone:!items-start gap-1 md:gap-2`}>
           {/* Wandering chars: centered on portrait (matches MTGA / Hearthstone
               convention), left-anchored on md+ where wandering occupies the
               left half of the side-by-side row. */}
