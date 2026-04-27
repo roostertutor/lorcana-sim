@@ -208,14 +208,16 @@ export default function PendingChoiceModal({
    * panel's visible scroll viewport so the user never has to scroll down
    * past a long card grid to find Confirm/Skip/Reset/etc.
    *
-   * Layout math:
-   *   - Panel has p-5 with pb-[max(env(safe-area-inset-bottom,0px),20px)].
+   * Layout math (panel uses `pt-5 px-5` with NO pb):
+   *   - `sticky bottom: 0` aligns the footer's bottom with the panel's
+   *     content-box bottom = panel's actual bottom edge (no panel pb to
+   *     leave a gap above).
    *   - `-mx-5 px-5` lets this footer span the panel's full width
-   *     (cancels p-5's horizontal portion, then re-adds the inner gutter).
-   *   - `-mb-[…safe-area…]` cancels the panel's variable bottom padding so
-   *     the sticky footer reaches the panel's actual bottom edge; that
-   *     padding is re-added INSIDE the footer so the action button sits
-   *     above the iPhone home indicator on PWA standalone.
+   *     (cancels the panel's px-5, then re-adds the inner gutter).
+   *   - `pb-[max(env(safe-area-inset-bottom,0px),20px)]` is INSIDE the
+   *     footer so the action button sits above the iPhone home indicator
+   *     on PWA standalone, without leaving a transparent gap below the
+   *     sticky surface.
    *   - bg-gray-950 + border-t-gray-800 give the footer an opaque,
    *     visually-separated surface as the grid scrolls behind it.
    *   - z-10 keeps the footer above any sibling overlays in the same
@@ -227,7 +229,6 @@ export default function PendingChoiceModal({
         className="sticky bottom-0 z-10
                    -mx-5 px-5 mt-4 pt-3
                    pb-[max(env(safe-area-inset-bottom,0px),20px)]
-                   -mb-[max(env(safe-area-inset-bottom,0px),20px)]
                    bg-gray-950 border-t border-gray-800"
       >
         {children}
@@ -261,7 +262,7 @@ export default function PendingChoiceModal({
         // perspective contexts don't fall through to the generic opponent
         // fallback.
         return (
-          <div className="space-y-3">
+          <div className="space-y-3 pb-[max(env(safe-area-inset-bottom,0px),20px)]">
             <div className="text-orange-300 text-sm font-bold">Opponent is choosing play order…</div>
             <div className="text-gray-300 text-sm">
               {isBo3Continuation
@@ -683,7 +684,7 @@ export default function PendingChoiceModal({
     if (pendingChoice.type === "choose_trigger") {
       const indices = pendingChoice.validTargets ?? [];
       return (
-        <div className="space-y-3">
+        <div className="space-y-3 pb-[max(env(safe-area-inset-bottom,0px),20px)]">
           <div>
             <div className="text-yellow-300 text-sm font-bold mb-0.5">Triggered Abilities</div>
             <div className="text-gray-400 text-xs">{pendingChoice.prompt}</div>
@@ -796,7 +797,7 @@ export default function PendingChoiceModal({
         ? `${abilityStoryName} — ${srcDef?.fullName ?? "Choose one"}`
         : (srcDef?.fullName ?? "Choose one");
       return (
-        <div className="space-y-3">
+        <div className="space-y-3 pb-[max(env(safe-area-inset-bottom,0px),20px)]">
           <div>
             <div className="text-yellow-300 text-sm font-bold">{headerLine}</div>
             <div className="text-gray-500 text-[10px] uppercase tracking-wider mt-0.5">Choose one</div>
@@ -1055,12 +1056,21 @@ export default function PendingChoiceModal({
           modal) fit without horizontal overflow. Step up to max-w-3xl at
           lg+ because GameCard's lg:w-[120px] size makes each scaled thumb
           94px wide (120 × 0.78) — at max-w-2xl the 7-col grid gives only
-          85px per column, clipping the cards on desktop. */}
+          85px per column, clipping the cards on desktop.
+
+          Padding is `pt-5 px-5` only — NO panel-level pb. Bottom padding
+          (incl. iPhone home-indicator safe-area) lives INSIDE the
+          sticky-footer wrapper for branches that have one, so the
+          sticky element's `bottom: 0` aligns with the panel's actual
+          bottom edge instead of leaving a gap above the panel's
+          pb-safe (which sticky positioning doesn't reach). Branches
+          WITHOUT a sticky footer (choose_trigger, choose_option,
+          opponent-waiting) add the pb directly to their content root. */}
       <div className="relative z-10 w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
                       max-h-[82vh] overflow-y-auto
                       bg-gray-950 border border-gray-700
                       rounded-t-2xl sm:rounded-2xl
-                      p-5 pb-[max(env(safe-area-inset-bottom,0px),20px)]
+                      pt-5 px-5
                       shadow-2xl">
         {/* Panel header row: A/B toggle + hide button */}
         <div className="flex items-center justify-between mb-3 gap-2">
