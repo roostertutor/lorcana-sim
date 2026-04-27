@@ -1590,32 +1590,48 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // Helper: render card + its action buttons, wrapped in DnD primitives
   // Render a single in-play card cell.
   //
-  // PORTRAIT: every cell — ready, exerted, location — uses the same
-  // vertical 52×73 `play-cell-compress` shape. With adaptivePlay set to
-  // `w-full h-full`, the GameCard inside fills the cell at its natural 5:7
-  // ratio. Exerted/location cards rotate 90° via GameCard's own transform
-  // (rotation is around the card's center) — the rotated visual is
-  // 73×52 and overflows the 52-wide cell by ~10.5px on each side, into
-  // the row's gap-1. This matches how the item-stack renders rotated
-  // cards (also play-cell-compress) and yields a vertically-centered
-  // rotated visual within the row instead of a bottom-anchored shorter
-  // cell. Compression (clamp 36–52px) applies uniformly to all cells.
+  // Two shapes, picked by needsRotatedSlot (exerted character/item or
+  // any location):
   //
-  // SM+ / LANDSCAPE-PHONE: keep the explicit rotated footprint
-  // (146×104 / 168×120 / 63×45). At those breakpoints adaptivePlay
-  // switches to fixed pixel sizes that don't get reshaped by the cell,
-  // so a rotated cell can safely be a horizontal slot without breaking
-  // the card's 5:7 outer.
+  //   READY: `play-cell-compress` — 52×73 vertical, width clamps 36–52
+  //     based on row's --card-count for compression. Card inside fills
+  //     via w-full h-full at the cell's natural 5:7 shape.
+  //
+  //   ROTATED: square cell (73×73 / 146×146 / 168×168 / 63×63) holding
+  //     a natural-shape inner wrapper (52×73 / 104×146 / 120×168 / 45×63).
+  //     The card fills the inner wrapper at its natural 5:7 shape, then
+  //     rotates 90° via GameCard's own transform — the 73×52 rotated
+  //     visual fits inside the square cell exactly with `flex items-center
+  //     justify-center` on the cell. Cell height matches READY's 73 so
+  //     the row's `items-end` keeps cells bottom-aligned, while the
+  //     rotated visual sits at the cell's vertical middle (10.5px gap
+  //     above and below). Square cells contain the rotated visual fully,
+  //     so adjacent rotated cells don't overlap each other.
+  //
+  // Why not put the natural 5:7 shape on the cell wrapper directly:
+  // `w-full h-full` GameCard would adopt the cell's outer dimensions, so
+  // a 73×52 rotated cell would reshape the card from 5:7 to 7:5
+  // (squishing the image, clipping borders post-rotation). The inner
+  // wrapper bypasses this by giving the card an explicit 5:7 box to fill.
   function renderPlayCell(id: string, isOpponent: boolean) {
     const exerted = gameState!.cards[id]?.isExerted ?? false;
     const isLocation = definitions[gameState!.cards[id]?.definitionId ?? ""]?.cardType === "location";
     const needsRotatedSlot = exerted || isLocation;
-    const cellClasses = needsRotatedSlot
-      ? "play-cell-compress shrink-0 sm:!w-[146px] sm:!h-[104px] lg:!w-[168px] lg:!h-[120px] landscape-phone:!w-[63px] landscape-phone:!h-[45px] flex items-center justify-center"
-      : "play-cell-compress";
+    if (!needsRotatedSlot) {
+      return (
+        <div key={id} className="play-cell-compress">
+          {renderCardWithActions(id, "play", isOpponent)}
+        </div>
+      );
+    }
+    // Rotated branch — square outer cell + natural 5:7 inner wrapper.
+    const rotatedOuter = "shrink-0 w-[73px] h-[73px] sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center";
+    const rotatedInner = "w-[52px] h-[73px] sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
     return (
-      <div key={id} className={cellClasses}>
-        {renderCardWithActions(id, "play", isOpponent)}
+      <div key={id} className={rotatedOuter}>
+        <div className={rotatedInner}>
+          {renderCardWithActions(id, "play", isOpponent)}
+        </div>
       </div>
     );
   }
@@ -1647,13 +1663,6 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // shadow + badge children position correctly. sm+/landscape get
     // explicit fixed sizes via Tailwind utilities (which beat the
     // media-query reset to auto in the .play-cell-compress class).
-    const stackSizing = "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
-    // Stagger as primary count signal — render N-1 background layers (one
-    // per non-front card), each offset 3px further. Background layers
-    // show the actual card image (full opacity, full ink-theme border)
-    // so they look truly identical to the front card — like a literal
-    // pile of the same card. Stacks inherit the front instance's
-    // exerted state so an exerted-Scepter pile rotates as a unit.
     const visibleShadowLayers = Math.min(count - 1, 3);
     const overflowCount = count > 4 ? count : 0;
     const frontInst = gameState!.cards[frontId];
@@ -1664,6 +1673,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // Rotation matches GameCard's logic: items + characters rotate when
     // exerted; locations always rotate (CRD 5.5.4).
     const shouldRotate = (isFrontExerted && !isLocation) || isLocation;
+    // Stack uses the same shape pattern as renderPlayCell:
+    //   READY: play-cell-compress vertical 5:7 outer, inner = same.
+    //   ROTATED: square outer (so rotated visual fits without
+    //     overlapping neighbors) holding a natural-shape 5:7 inner.
+    //     Shadows + front card both live inside the inner wrapper so
+    //     they share the natural card shape and can rotate as a unit.
+    const stackOuter = shouldRotate
+      ? "shrink-0 w-[73px] h-[73px] sm:!w-[146px] sm:!h-[146px] lg:!w-[168px] lg:!h-[168px] landscape-phone:!w-[63px] landscape-phone:!h-[63px] flex items-center justify-center"
+      : "play-cell-compress shrink-0 sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]";
+    const stackInner = shouldRotate
+      ? "relative w-[52px] h-[73px] sm:!w-[104px] sm:!h-[146px] lg:!w-[120px] lg:!h-[168px] landscape-phone:!w-[45px] landscape-phone:!h-[63px]"
+      : "relative w-full h-full";
     // Ink-theme border so layers look identical to the front card. Lookup
     // mirrors INK_THEME in GameCard.tsx — kept inline here so we don't
     // pull the GameCard internals across the boundary just for one var.
@@ -1679,39 +1700,41 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       }
     })();
     return (
-      <div key={`stack-${frontId}`} className={`relative ${stackSizing}`}>
-        {/* Background layers — N-1 of them, each rendering the actual card
-            image with the same border styling as the front. Layers look
-            visually IDENTICAL to the front, just offset — like a literal
-            pile of the same card. State (exerted rotation) mirrored from
-            the front so the whole pile rotates uniformly. */}
-        {Array.from({ length: visibleShadowLayers }, (_, i) => {
-          const offset = (visibleShadowLayers - i) * 3;
-          const transform = shouldRotate
-            ? `translate(${offset}px, ${-offset}px) rotate(90deg)`
-            : `translate(${offset}px, ${-offset}px)`;
-          return (
-            <div
-              key={i}
-              className={`absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] overflow-hidden border-2 ${inkBorder} pointer-events-none`}
-              style={{ transform }}
-            >
-              {cardImage && (
-                <img
-                  {...cardImage}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              )}
-            </div>
-          );
-        })}
-        {/* Front card via renderCardWithActions directly (skip the inner
-            cell wrapper renderPlayCell adds — this OUTER stack wrapper
-            is already the cell). w-full h-full inside fills it. */}
-        <div className="relative w-full h-full">
-          {renderCardWithActions(frontId, "play", isOpponent)}
+      <div key={`stack-${frontId}`} className={`relative ${stackOuter}`}>
+        <div className={stackInner}>
+          {/* Background layers — N-1 of them, each rendering the actual card
+              image with the same border styling as the front. Layers look
+              visually IDENTICAL to the front, just offset — like a literal
+              pile of the same card. State (exerted rotation) mirrored from
+              the front so the whole pile rotates uniformly. */}
+          {Array.from({ length: visibleShadowLayers }, (_, i) => {
+            const offset = (visibleShadowLayers - i) * 3;
+            const transform = shouldRotate
+              ? `translate(${offset}px, ${-offset}px) rotate(90deg)`
+              : `translate(${offset}px, ${-offset}px)`;
+            return (
+              <div
+                key={i}
+                className={`absolute inset-0 rounded-[2px] sm:rounded-[5px] lg:rounded-[6px] overflow-hidden border-2 ${inkBorder} pointer-events-none`}
+                style={{ transform }}
+              >
+                {cardImage && (
+                  <img
+                    {...cardImage}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                )}
+              </div>
+            );
+          })}
+          {/* Front card. w-full h-full fills the natural-shape inner so
+              GameCard's w-full h-full keeps its 5:7 outer regardless of
+              whether the outer stack cell is square (rotated) or vertical. */}
+          <div className="relative w-full h-full">
+            {renderCardWithActions(frontId, "play", isOpponent)}
+          </div>
         </div>
         {/* Overflow badge — only when count > 4 (stagger can't show
             the exact count past 3 background layers). Suppressed for
