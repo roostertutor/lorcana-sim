@@ -9,6 +9,8 @@ interface Props {
   onOpenLog: () => void;
   /** Show the "Sandbox tools" item (sandbox mode only) */
   onOpenSandbox?: () => void;
+  /** Show the "Settings" item (GUI preferences modal) */
+  onOpenSettings?: () => void;
   /** Show the "Resign" item (multiplayer in-game only) */
   onResign?: () => void;
   /** Show the "Back to lobby" / "Concede" item */
@@ -37,6 +39,7 @@ export default function BoardMenu({
   connectionStatus,
   onOpenLog,
   onOpenSandbox,
+  onOpenSettings,
   onResign,
   onBackOrConcede,
   backLabel = "back",
@@ -57,6 +60,9 @@ export default function BoardMenu({
   items.push({ icon: "document-text", label: "Game Log", onClick: () => { onOpenLog(); close(); } });
   if (sandboxMode && onOpenSandbox) {
     items.push({ icon: "wrench", label: "Sandbox tools", onClick: () => { onOpenSandbox(); close(); } });
+  }
+  if (onOpenSettings) {
+    items.push({ icon: "cog-6-tooth", label: "Settings", onClick: () => { onOpenSettings(); close(); } });
   }
   if (!isGameOver && onResign) {
     items.push({ icon: "x-mark", label: "Resign", onClick: () => { onResign(); close(); }, danger: true });

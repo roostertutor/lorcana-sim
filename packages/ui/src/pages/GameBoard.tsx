@@ -41,6 +41,8 @@ import InfoToast from "../components/InfoToast.js";
 import ModeToast from "../components/ModeToast.js";
 import ModalFrame from "../components/ModalFrame.js";
 import Glyph from "../components/Glyph.js";
+import SettingsModal from "../components/SettingsModal.js";
+import { useGuiSettings } from "../hooks/useGuiSettings.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -625,6 +627,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showEffects, setShowEffects] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [guiSettings, setGuiSetting] = useGuiSettings();
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
@@ -1759,20 +1763,30 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     // identical-state Pawpsicles render as one staggered pile instead of
     // 4 separate slots. Mixed-state items (3 ready + 1 exerted) split
     // into 2 stacks. Insertion order preserved per stack so the stable
-    // first-id is the front card.
+    // first-id is the front card. Gated by guiSettings.itemStackingEnabled
+    // — when off, each item renders as its own slot (1-element stacks).
     const otherStacks: string[][] = [];
-    const stackByKey = new Map<string, string[]>();
-    for (const id of otherIds) {
-      const inst = gameState!.cards[id];
-      if (!inst) continue;
-      const key = itemStackKey(inst);
-      const existing = stackByKey.get(key);
-      if (existing) {
-        existing.push(id);
-      } else {
-        const newStack = [id];
-        stackByKey.set(key, newStack);
-        otherStacks.push(newStack);
+    if (guiSettings.itemStackingEnabled) {
+      const stackByKey = new Map<string, string[]>();
+      for (const id of otherIds) {
+        const inst = gameState!.cards[id];
+        if (!inst) continue;
+        const key = itemStackKey(inst);
+        const existing = stackByKey.get(key);
+        if (existing) {
+          existing.push(id);
+        } else {
+          const newStack = [id];
+          stackByKey.set(key, newStack);
+          otherStacks.push(newStack);
+        }
+      }
+    } else {
+      // Stacking disabled — each item is its own 1-element "stack" so the
+      // render path stays uniform (always otherStacks.map; size === 1
+      // falls through to renderPlayCell, no stack visual).
+      for (const id of otherIds) {
+        otherStacks.push([id]);
       }
     }
     return (
@@ -2463,8 +2477,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           sandboxMode={!!sandboxMode}
           isGameOver={isGameOver}
           connectionStatus={session.connectionStatus ?? null}
-          hidden={showLog || showAnalysis || showEffects || isGameOver}
+          hidden={showLog || showAnalysis || showEffects || showSettings || isGameOver}
           onOpenLog={() => setShowLog(true)}
+          onOpenSettings={() => setShowSettings(true)}
           {...(sandboxMode ? { onOpenSandbox: () => setShowAnalysis(true) } : {})}
           {...(multiplayerGame && !isGameOver
             ? {
@@ -2484,6 +2499,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 backLabel: sandboxMode ? "back" : "concede",
               }
             : {})}
+        />
+      )}
+
+      {/* ======================= Settings Modal =======================
+          GUI preferences (in-game toggles). Opened from BoardMenu. */}
+      {showSettings && (
+        <SettingsModal
+          settings={guiSettings}
+          onUpdate={setGuiSetting}
+          onClose={() => setShowSettings(false)}
         />
       )}
 
