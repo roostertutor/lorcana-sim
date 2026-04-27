@@ -23,15 +23,16 @@ export type GlyphName =
   | "willpower"
   | "lore"
   | "exert"
-  | "ink"        // ink cost glyph (rendered for {I} in rulesText). Same shape
-                  // the Lorcana app reuses as its collection-empty indicator —
-                  // we use it for its primary semantic (ink cost / inkwell).
-  | "inkable"    // top-of-card inkable indicator (rendered for {C}). Distinct
-                  // from "ink" — see Hidden Inkcaster: "count as having {C}".
-  | "uninkable"
+  | "ink"        // ink cost glyph (rendered for {I} in rulesText). The
+                  // outlined hexagon used for ability ink costs in card
+                  // body text.
+  | "inkable"    // top-of-card inkable indicator (rendered for {C}/{IW}).
+                  // Distinct from "ink" — see Hidden Inkcaster:
+                  // "count as having {C}".
   | "move-cost"
-  | "favorite"
-  | "owned-filled";
+  | "favorite"       // outlined heart — "favorite this deck" toggle
+  | "owned-filled"   // solid heart — "deck is in your collection"
+  | "owned-unfilled"; // outlined hexagon-ring — "deck not in collection"
 
 interface Props {
   name: GlyphName;
