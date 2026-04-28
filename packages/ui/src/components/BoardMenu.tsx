@@ -65,7 +65,11 @@ export default function BoardMenu({
     items.push({ icon: "cog-6-tooth", label: "Settings", onClick: () => { onOpenSettings(); close(); } });
   }
   if (!isGameOver && onResign) {
-    items.push({ icon: "x-mark", label: "Resign", onClick: () => { onResign(); close(); }, danger: true });
+    // Label is "Concede" (was "Resign") — both terms mean the same thing
+    // gameplay-wise; "Concede" reads as more matter-of-fact / less
+    // intimidating in casual play. Triggers a server-recorded resignation;
+    // user sees the defeat modal next.
+    items.push({ icon: "x-mark", label: "Concede", onClick: () => { onResign(); close(); }, danger: true });
   }
   if (onBackOrConcede) {
     items.push({
