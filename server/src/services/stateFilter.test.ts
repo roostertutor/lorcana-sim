@@ -13,7 +13,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest"
-import type { GameState, GameLogEntry, ResolvedRef } from "@lorcana-sim/engine"
+import type { GameState, GameLogEntry, ResolvedRef, CardInstance } from "@lorcana-sim/engine"
 import { filterStateForPlayer } from "./stateFilter.js"
 
 /**
@@ -212,6 +212,32 @@ describe("filterStateForPlayer — actionLog redaction", () => {
     expect(forP2.actionLog[0]?.message).not.toContain("Brave Little Tailor")
     expect(forP2.actionLog[0]?.message).toContain("player1")
     expect(forP2.actionLog[0]?.message).toContain("inkwell")
+  })
+
+  it("redacts P2.25 inkwell-return logs (Ink Geyser/Mufasa identity hidden per CRD 4.1.4)", () => {
+    // Ink Geyser / Mufasa move cards from face-down inkwell to hidden hand.
+    // No public reveal moment, so the engine stamps privateTo. The opponent
+    // must see a generic redaction with NO card count (count would let the
+    // opponent partially infer hand contents).
+    const ret: GameLogEntry = {
+      timestamp: 1000,
+      turn: 1,
+      playerId: "player1",
+      message: "player1 returned 3 cards from their inkwell to their hand.",
+      type: "card_returned_from_inkwell",
+      privateTo: "player1",
+    }
+    const state = makeStateWithLog([ret])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+    const redacted = forP2.actionLog[0]?.message ?? ""
+
+    // No specific count leak.
+    expect(redacted).not.toContain("3")
+    // Player + zone phrasing preserved.
+    expect(redacted).toContain("player1")
+    expect(redacted).toContain("inkwell")
+    expect(redacted).toContain("hand")
   })
 
   it("redacts P1.11 private hand-peek logs (look_at_hand reveals opponent's hand to looker only)", () => {
@@ -458,5 +484,155 @@ describe("filterStateForPlayer — ResolvedRef end-to-end leak scenario", () => 
     const serialized = JSON.stringify(forP2)
     expect(serialized).not.toContain("Belle")
     expect(serialized).not.toContain("Hidden Depths")
+  })
+})
+
+// =============================================================================
+// P2.25 (2026-04-28) — Inkwell zone redaction.
+//
+// CRD 4.1.4: cards in the inkwell are face-down. The opponent can see the
+// COUNT and which cards are EXERTED, but NOT the identity. Pre-fix,
+// stateFilter sent opponent's inkwell card identities verbatim — anyone with
+// a network proxy could read the opponent's inkwell. Post-fix, opponent's
+// inkwell CardInstance entries get `definitionId = "hidden"` while keeping
+// `isExerted` and any other publicly-visible mechanical state.
+//
+// Asymmetry vs hand/deck: hand+deck use the full `hiddenStub` (everything
+// reset to defaults), inkwell uses a partial spread that preserves
+// `isExerted`. Different stub shapes by design — see stateFilter.ts.
+// =============================================================================
+
+/** Build a CardInstance fixture with the fields the filter touches. */
+function makeInkwellCard(overrides: Partial<CardInstance> = {}): CardInstance {
+  return {
+    instanceId: overrides.instanceId ?? "ink-1",
+    definitionId: overrides.definitionId ?? "mickey-001",
+    ownerId: overrides.ownerId ?? "player2",
+    zone: "inkwell",
+    isExerted: overrides.isExerted ?? false,
+    damage: 0,
+    isDrying: false,
+    grantedKeywords: [],
+    timedEffects: [],
+    cardsUnder: [],
+    rememberedTargetIds: [],
+    ...overrides,
+  } as CardInstance
+}
+
+function makeStateWithInkwell(
+  ownerId: "player1" | "player2",
+  cards: CardInstance[],
+): GameState {
+  const cardsMap: Record<string, CardInstance> = {}
+  for (const c of cards) cardsMap[c.instanceId] = c
+  const otherId = ownerId === "player1" ? "player2" : "player1"
+  return {
+    cards: cardsMap,
+    zones: {
+      [ownerId]: { hand: [], deck: [], play: [], inkwell: cards.map((c) => c.instanceId), discard: [] },
+      [otherId]: { hand: [], deck: [], play: [], inkwell: [], discard: [] },
+    },
+    actionLog: [],
+  } as unknown as GameState
+}
+
+describe("filterStateForPlayer — inkwell zone redaction (CRD 4.1.4)", () => {
+  it("hides opponent inkwell card identities (definitionId becomes 'hidden')", () => {
+    // Pre-fix: P2 could read P1's inkwell card names verbatim. Post-fix:
+    // identity stripped to "hidden" but the entry still exists so the UI
+    // can render face-down placeholders.
+    const card = makeInkwellCard({
+      instanceId: "secret-card",
+      definitionId: "mickey-mouse-true-friend",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwell("player1", [card])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    expect(forP2.cards["secret-card"]).toBeDefined()
+    expect(forP2.cards["secret-card"]!.definitionId).toBe("hidden")
+    // The instance still exists — UI needs the entry to render the slot.
+    expect(forP2.cards["secret-card"]!.zone).toBe("inkwell")
+    expect(forP2.cards["secret-card"]!.ownerId).toBe("player1")
+  })
+
+  it("preserves isExerted on opponent inkwell cards (publicly visible per CRD 4.1.4)", () => {
+    // The opponent must see which inkwell cards are tapped vs ready —
+    // critical for reading available ink. Test both states survive
+    // filtering in a single inkwell.
+    const ready = makeInkwellCard({
+      instanceId: "ink-ready",
+      definitionId: "mickey-mouse-true-friend",
+      ownerId: "player1",
+      isExerted: false,
+    })
+    const exerted = makeInkwellCard({
+      instanceId: "ink-tapped",
+      definitionId: "elsa-snow-queen",
+      ownerId: "player1",
+      isExerted: true,
+    })
+    const state = makeStateWithInkwell("player1", [ready, exerted])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    // Identity hidden for both.
+    expect(forP2.cards["ink-ready"]!.definitionId).toBe("hidden")
+    expect(forP2.cards["ink-tapped"]!.definitionId).toBe("hidden")
+    // isExerted preserved on both (this is the load-bearing assertion —
+    // the UI relies on it to render tapped/ready visuals).
+    expect(forP2.cards["ink-ready"]!.isExerted).toBe(false)
+    expect(forP2.cards["ink-tapped"]!.isExerted).toBe(true)
+  })
+
+  it("preserves the inkwell zone array (count is publicly visible)", () => {
+    // The zone-array length is the inkwell COUNT — opponent must see it.
+    const cards = [
+      makeInkwellCard({ instanceId: "a", ownerId: "player1" }),
+      makeInkwellCard({ instanceId: "b", ownerId: "player1" }),
+      makeInkwellCard({ instanceId: "c", ownerId: "player1" }),
+    ]
+    const state = makeStateWithInkwell("player1", cards)
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    expect(forP2.zones.player1.inkwell).toHaveLength(3)
+    expect(forP2.zones.player1.inkwell).toEqual(["a", "b", "c"])
+  })
+
+  it("does not redact the viewer's OWN inkwell — identities preserved", () => {
+    // P1 must see their own inkwell card identities (planning, alt-cost
+    // shift picker, etc. all read inkwell card names). Only the OPPONENT's
+    // inkwell gets the redaction.
+    const card = makeInkwellCard({
+      instanceId: "my-ink",
+      definitionId: "mickey-mouse-true-friend",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwell("player1", [card])
+
+    const forP1 = filterStateForPlayer(state, "player1")
+
+    expect(forP1.cards["my-ink"]!.definitionId).toBe("mickey-mouse-true-friend")
+  })
+
+  it("does not leak the hidden card name through any field of the filtered state", () => {
+    // Defense in depth: serialize the full filtered state and ensure the
+    // card's definitionId never appears anywhere. If a future field gets
+    // added that copies the definitionId (e.g. a denormalized name cache),
+    // this catches the leak before it ships.
+    const card = makeInkwellCard({
+      instanceId: "leak-check",
+      definitionId: "belle-hidden-depths",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwell("player1", [card])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+    const serialized = JSON.stringify(forP2)
+
+    expect(serialized).not.toContain("belle-hidden-depths")
   })
 })

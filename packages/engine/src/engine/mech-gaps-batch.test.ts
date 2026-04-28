@@ -126,6 +126,66 @@ describe("Mechanic gaps batch — mass-inkwell", () => {
     expect(getZone(state, "player1", "inkwell").length).toBe(3);
     expect(getZone(state, "player2", "inkwell").length).toBe(3);
   });
+
+  // P2.25 (2026-04-28): inkwell→hand returns must produce log entries so
+  // players can reconstruct what happened. CRD 4.1.4: identity is hidden
+  // (face-down inkwell → hidden hand), so privateTo each affected player.
+  it("Ink Geyser logs a card_returned_from_inkwell entry per affected player with privateTo (P2.25)", () => {
+    let state = startGame();
+    state = fillInkwell(state, "player1", 6); // returns 3 → hand
+    state = fillInkwell(state, "player2", 5); // returns 2 → hand
+    let geyserId: string;
+    ({ state, instanceId: geyserId } = injectCard(state, "player1", "ink-geyser", "hand"));
+    const baseLogLen = state.actionLog.length;
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: geyserId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const returnEntries = newEntries.filter((e) => e.type === "card_returned_from_inkwell");
+    // Both players had >3 ink, so both produce a return log line.
+    expect(returnEntries).toHaveLength(2);
+
+    const p1Entry = returnEntries.find((e) => e.playerId === "player1")!;
+    const p2Entry = returnEntries.find((e) => e.playerId === "player2")!;
+    expect(p1Entry).toBeDefined();
+    expect(p2Entry).toBeDefined();
+
+    // Per CRD 4.1.4 — privateTo each affected player so opponent's filtered
+    // view sees a generic redaction, not the count.
+    expect(p1Entry.privateTo).toBe("player1");
+    expect(p2Entry.privateTo).toBe("player2");
+
+    // Engine writes the count in the message body — the server's redactor
+    // strips it for the non-audience viewer (asserted in stateFilter.test).
+    expect(p1Entry.message).toContain("3");
+    expect(p2Entry.message).toContain("2");
+    // No specific card identity should leak via the message — `fillInkwell`
+    // uses Minnie Mouse, but the engine's log line just says "X cards".
+    expect(p1Entry.message).not.toContain("Minnie");
+    expect(p2Entry.message).not.toContain("Minnie");
+  });
+
+  it("Mufasa (mass_inkwell return_random_to_hand) logs return with privateTo (P2.25)", () => {
+    // Mufasa - Ruler of Pride Rock returns 2 random ink to hand on enter.
+    let state = startGame();
+    state = fillInkwell(state, "player1", 8);
+    let mufasaId: string;
+    ({ state, instanceId: mufasaId } = injectCard(state, "player1", "mufasa-ruler-of-pride-rock", "hand"));
+    const baseLogLen = state.actionLog.length;
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mufasaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const returnEntry = newEntries.find((e) => e.type === "card_returned_from_inkwell");
+    expect(returnEntry).toBeDefined();
+    expect(returnEntry!.playerId).toBe("player1");
+    expect(returnEntry!.privateTo).toBe("player1");
+    expect(returnEntry!.message).toContain("2"); // 2 cards returned
+  });
 });
 
 describe("Mechanic gaps batch — grant-floating-trigger-to-target", () => {

@@ -1104,16 +1104,22 @@ function applyPlayInk(
   state = appendLog(state, {
     turn: state.turnNumber,
     playerId,
-    // CRD 4.1.4: inkwell cards are face-down. Count + timing are public,
-    // but the card identity that just went in is hidden. The card was in
-    // hand (hidden zone) at the moment this log line is written. Server
-    // redacts message text for non-authorized viewers — see
-    // GameLogEntry.privateTo JSDoc. (Note: the broader inkwell-zone
-    // visibility leak via stateFilter is a separate concern handled
-    // server-side.)
+    // CRD 4.2.1.1: when a player inks via the standard PLAY_INK action, the
+    // card is REVEALED at the moment of inking, then placed face-down. The
+    // opponent saw the identity at the moment it crossed into the inkwell,
+    // so the log line is PUBLIC (no privateTo stamp). The opponent's view
+    // of the inkwell zone afterward is still face-down per CRD 4.1.4 —
+    // that's enforced server-side by `filterStateForPlayer` redacting the
+    // inkwell zone's CardInstance identities (definitionId="hidden") while
+    // preserving public mechanical state (isExerted). See
+    // server/src/services/stateFilter.ts and docs/STREAMS.md.
+    //
+    // Effect-driven inks (Mickey Mouse - Detective top-of-deck, Fishbone
+    // Quill, Gramma Tala self-ink, Perdita "all") DO NOT reveal — the card
+    // never crosses into a public reveal moment, so those code paths still
+    // stamp privateTo (see this file's `case "put_into_inkwell"`).
     message: `${playerId} added ${def.fullName} to their inkwell.`,
     type: "card_put_into_inkwell",
-    privateTo: playerId,
   });
   // CRD 6.2: card_put_into_inkwell triggered abilities (Chicha Dedicated Mother). Queue
   // after the inkPlaysThisTurn counter has been bumped so condition checks see
@@ -4862,29 +4868,58 @@ export function applyEffect(
         } else if (effect.mode === "return_random_to_hand") {
           const n = Math.min(effect.amount ?? 0, inkwellIds.length);
           const pool = [...inkwellIds];
+          let returned = 0;
           for (let i = 0; i < n && pool.length > 0; i++) {
             const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             pool.splice(idx, 1);
             state = moveCard(state, id, pid, "hand");
+            returned++;
           }
           // Recount availableInk based on remaining unexerted inkwell cards.
           const remaining = getZone(state, pid, "inkwell")
             .filter((id) => !state.cards[id]?.isExerted).length;
           state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: remaining } } };
+          // P2.25 — log inkwell→hand return. CRD 4.1.4: inkwell cards are
+          // face-down, hand is hidden, so the move never passes through a
+          // public reveal moment. Stamp privateTo the affected player so
+          // the opponent's filtered view sees a count-only redaction (the
+          // catch-all in stateFilter.redactPrivateMessage strips the count
+          // too — that's intentional, the priority is identity privacy).
+          if (returned > 0) {
+            state = appendLog(state, {
+              turn: state.turnNumber,
+              playerId: pid,
+              message: `${pid} returned ${returned} card${returned === 1 ? "" : "s"} from their inkwell to their hand.`,
+              type: "card_returned_from_inkwell",
+              privateTo: pid,
+            });
+          }
         } else if (effect.mode === "return_random_until") {
           const target = effect.untilCount ?? 0;
           // Re-read inkwell because earlier sequential effects may have changed it.
           let pool = getZone(state, pid, "inkwell").slice();
+          let returned = 0;
           while (pool.length > target) {
             const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             pool.splice(idx, 1);
             state = moveCard(state, id, pid, "hand");
+            returned++;
           }
           const remaining = getZone(state, pid, "inkwell")
             .filter((id) => !state.cards[id]?.isExerted).length;
           state = { ...state, players: { ...state.players, [pid]: { ...state.players[pid], availableInk: remaining } } };
+          // P2.25 — see comment in `return_random_to_hand` branch above.
+          if (returned > 0) {
+            state = appendLog(state, {
+              turn: state.turnNumber,
+              playerId: pid,
+              message: `${pid} returned ${returned} card${returned === 1 ? "" : "s"} from their inkwell to their hand.`,
+              type: "card_returned_from_inkwell",
+              privateTo: pid,
+            });
+          }
         }
       }
       return state;

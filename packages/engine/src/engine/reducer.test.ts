@@ -306,7 +306,13 @@ describe("ActionLog privacy (privateTo stamping)", () => {
     expect(lastDraw.privateTo).toBe("player2");
   });
 
-  it("inking a card stamps privateTo (face-down inkwell card identity is hidden, CRD 4.1.4)", () => {
+  it("standard PLAY_INK log is PUBLIC and names the inked card (CRD 4.2.1.1)", () => {
+    // P2.25 (2026-04-28): CRD 4.2.1.1 — when a player inks a card via the
+    // standard PLAY_INK action, the card is REVEALED at the moment of
+    // inking. So the opponent saw what got inked at that moment; the log
+    // line must NOT carry privateTo. (The inkwell zone afterward is still
+    // face-down per CRD 4.1.4 — that's enforced server-side via
+    // stateFilter, not via log redaction.)
     let state = startGame();
     let instanceId: string;
     ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
@@ -318,7 +324,10 @@ describe("ActionLog privacy (privateTo stamping)", () => {
       (e) => e.type === "card_put_into_inkwell" && e.playerId === "player1"
     );
     expect(inkEntry).toBeDefined();
-    expect(inkEntry!.privateTo).toBe("player1");
+    // The PUBLIC log line: privateTo undefined, message names the card.
+    expect(inkEntry!.privateTo).toBeUndefined();
+    const def = CARD_DEFINITIONS["minnie-mouse-beloved-princess"]!;
+    expect(inkEntry!.message).toContain(def.fullName);
   });
 
   it("public log entries (plays, quests) leave privateTo undefined", () => {

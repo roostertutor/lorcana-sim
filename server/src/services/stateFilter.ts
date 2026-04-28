@@ -5,6 +5,11 @@
  * this filter removes information the player shouldn't see:
  *   - Opponent's hand: keep card count, replace card data with stubs
  *   - Opponent's deck: keep card count, replace card data with stubs
+ *   - Opponent's inkwell: keep count + per-card `isExerted` (publicly visible
+ *     per CRD 4.1.4 — opponent sees which inkwell cards are tapped vs ready),
+ *     but replace `definitionId` with "hidden" so the card's identity is
+ *     concealed. Different stub shape than hand/deck where everything is
+ *     hidden — see the inkwell loop below.
  *   - Face-down cards under opponent's cards: replace with stubs
  *   - Action-log entries marked with `privateTo` for the opponent: redact `message`
  *     so card names that crossed hidden zones (draws, opening hand) don't leak
@@ -12,7 +17,8 @@
  *     marked with `privateTo` for the opponent: drop the snapshot entirely so
  *     the typed `name` / `fullName` fields can't leak a tutored card's identity
  *
- * Public zones (play, inkwell, discard) are sent in full.
+ * Public zones (play, discard) are sent in full. Inkwell is partially public
+ * (count + isExerted) and partially hidden (identity) per CRD 4.1.4.
  */
 
 import type { GameState, GameLogEntry, PlayerID, CardInstance, ResolvedRef, ZoneName } from "@lorcana-sim/engine"
@@ -75,11 +81,25 @@ function redactPrivateMessage(entry: GameLogEntry): string {
       // here later, this branch picks it up automatically.
       return `${entry.playerId} mulliganed cards. (cards hidden)`
     case "card_put_into_inkwell":
-      // Standard PLAY_INK log AND P1.11's effect-driven inkwell logs (Gramma
-      // Tala self-ink, Fishbone Quill chosen-hand, Perdita "all", deck-source
-      // ramps). CRD 4.1.4: inkwell is face-down. Opponent sees player +
-      // timing only.
+      // P2.25 — this branch now ONLY fires for effect-driven inkwell logs
+      // (Gramma Tala self-ink, Fishbone Quill chosen-hand, Perdita "all",
+      // Mickey Mouse - Detective top-of-deck, Sudden Scare deck-source).
+      // Those paths stamp privateTo because the card never crosses a
+      // public reveal moment — it goes hand/deck/play → face-down inkwell.
+      // The standard PLAY_INK log is now PUBLIC (CRD 4.2.1.1 reveals at
+      // the moment of inking) and never reaches this redactor. See
+      // reducer.ts applyPlayInk + put_into_inkwell handlers for the
+      // engine-side stamping convention.
       return `${entry.playerId} added a card to their inkwell.`
+    case "card_returned_from_inkwell":
+      // P2.25 — Ink Geyser / Mufasa-style inkwell→hand returns. Identity
+      // is hidden per CRD 4.1.4 (face-down inkwell → hidden hand, no
+      // public reveal moment), so the message names cards. Strip the
+      // count too — keeping it would let an opponent trivially count the
+      // cards they CAN'T see being added to the hand. The hand-size
+      // delta is already visible in the filtered state's hand-zone count,
+      // so no information is actually lost by the strip.
+      return `${entry.playerId} returned cards from their inkwell to their hand.`
     case "hand_revealed":
       // P1.11 — look_at_hand peeks the looker stamps privateTo on. Public
       // reveal_hand (Copper Hound Pup) doesn't stamp privateTo, so this
@@ -116,7 +136,8 @@ export function filterStateForPlayer(state: GameState, playerId: PlayerID): Game
     for (const id of revealedHand.cardIds) revealedSet.add(id)
   }
 
-  // Hidden zones: opponent's hand and deck
+  // Hidden zones: opponent's hand and deck — full stub (no per-card public
+  // state survives, the cards are conceptually back-of-card-only).
   const hiddenZones: ZoneName[] = ["hand", "deck"]
   for (const zoneName of hiddenZones) {
     const instanceIds = state.zones[opponentId]?.[zoneName] ?? []
@@ -124,6 +145,24 @@ export function filterStateForPlayer(state: GameState, playerId: PlayerID): Game
       if (revealedSet.has(id)) continue
       filteredCards[id] = hiddenStub(id, zoneName, opponentId)
     }
+  }
+
+  // Inkwell: card identity hidden per CRD 4.1.4, but per-card mechanical
+  // state (isExerted) is publicly visible — opponent must be able to see
+  // which inkwell cards are ready vs tapped to read board state. Different
+  // stub shape than hand/deck above: spread the original CardInstance and
+  // overwrite ONLY the identifying fields. This preserves `isExerted`,
+  // `instanceId`, `ownerId`, `zone`, plus any future public-mechanical
+  // state added to CardInstance — only `definitionId` becomes "hidden".
+  // (CRD 4.2.1.1 reveals at the moment of inking, but that's a one-shot
+  // log-line event handled by `card_put_into_inkwell` — once placed, the
+  // zone is face-down to the opponent again.)
+  const inkwellIds = state.zones[opponentId]?.inkwell ?? []
+  for (const id of inkwellIds) {
+    if (revealedSet.has(id)) continue
+    const original = state.cards[id]
+    if (!original) continue
+    filteredCards[id] = { ...original, definitionId: "hidden" }
   }
 
   // Face-down cards under opponent's cards

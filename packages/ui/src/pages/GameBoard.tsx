@@ -326,17 +326,19 @@ function getActiveEffects(
       // can't be resolved.
       const label = src ? src.text : "Active effect";
       const source = src ? `${who}: ${src.name}` : who;
-      effects.push({
+      // GlobalTimedEffect.controllingPlayerId IS the caster (per CRD
+      // mapping in types/index.ts). Owner-anchored durations don't apply
+      // to global effects (they're not card-targeted), so ownerPlayerId
+      // is undefined.
+      const duration = formatDurationLabel(ge.expiresAt, ge.controllingPlayerId, myId);
+      const entry: ActiveEffect = {
         label: label.trim(),
         source,
         color: "text-orange-400",
-        sourceName: src?.name,
-        // GlobalTimedEffect.controllingPlayerId IS the caster (per CRD
-        // mapping in types/index.ts). Owner-anchored durations don't apply
-        // to global effects (they're not card-targeted), so ownerPlayerId
-        // is undefined.
-        duration: formatDurationLabel(ge.expiresAt, ge.controllingPlayerId, myId),
-      });
+      };
+      if (src?.name) entry.sourceName = src.name;
+      if (duration) entry.duration = duration;
+      effects.push(entry);
     }
   }
 

@@ -4019,7 +4019,13 @@ export type GameLogEntryType =
   | "card_discarded"
   | "damage_dealt"
   | "damage_moved"
-  | "hand_revealed";
+  | "hand_revealed"
+  // P2.25 (2026-04-28) — Ink Geyser / Mufasa-style inkwell→hand returns
+  // were silently mutating both hand AND inkwell without any log line.
+  // Identity is hidden (CRD 4.1.4: inkwell cards face-down → return goes
+  // face-down → face-down with no public reveal moment), so the entry is
+  // privateTo the affected player; opponent sees a count-only redaction.
+  | "card_returned_from_inkwell";
 
 /**
  * P1.13 (2026-04-28) — structured cause for `card_banished` log entries so
