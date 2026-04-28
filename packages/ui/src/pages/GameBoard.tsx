@@ -2703,14 +2703,17 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             className="relative bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* X-close → dismiss to peek at log/board. Same affordance as
-                CardInspectModal / ZoneViewModal close buttons. */}
+            {/* Peek pill → hide modal so player can review log/board/cards.
+                Matches PendingChoiceModal's Peek idiom (eye icon + label +
+                pill styling) for vocabulary consistency across modals that
+                can be hidden to review the board. */}
             <button
-              className="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors z-10"
+              className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 text-[10px] text-gray-500 hover:text-gray-300 bg-gray-800/60 hover:bg-gray-700/60 rounded-full border border-gray-700 transition-colors z-10"
               onClick={() => setGameOverModalDismissed(true)}
-              aria-label="Dismiss"
+              title="Hide modal to review the board"
             >
-              <Icon name="x-mark" className="w-5 h-5" />
+              <Icon name="eye" className="w-3 h-3" />
+              Peek
             </button>
             <div className="text-4xl font-black text-amber-400 tracking-tight">
               {winner === myId ? "Victory!" : winner ? "Defeat" : "Draw"}

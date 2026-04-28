@@ -31,7 +31,9 @@ const PLACEMENT_CLASS: Record<Placement, string> = {
  *
  * NOT used by:
  * - PendingChoiceModal (backdrop click = peek/hide, not close)
- * - Game Over modal (intentionally non-dismissable)
+ * - Game Over modal (backdrop click + Peek pill both hide the modal so
+ *   the player can review log/board/cards post-game; reopen via top
+ *   pill or BoardMenu)
  */
 export default function ModalFrame({
   onClose,
