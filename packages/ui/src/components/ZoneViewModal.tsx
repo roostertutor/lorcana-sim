@@ -123,8 +123,13 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
         {/* Body — sectioned (with per-source headers) or flat grid */}
         <div className="overflow-y-auto p-4">
           {cardIds.length === 0 ? (
+            // Zone-agnostic empty state — header above already names the
+            // surface (Your Discard / Opponent's Hand / Cards Under X /
+            // Revealed by Y), so the body doesn't repeat it. Previously
+            // hardcoded "No cards in discard" which read wrong for the
+            // deck/reveal/cards-under reuse paths.
             <div className="flex items-center justify-center h-24 text-gray-600 text-sm italic">
-              No cards in discard
+              No cards
             </div>
           ) : sections != null ? (
             <div className="space-y-4">
