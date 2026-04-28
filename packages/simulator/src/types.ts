@@ -141,8 +141,10 @@ export interface GameResult {
 // STORED RESULTS — for saving/loading simulation results without actionLog
 // -----------------------------------------------------------------------------
 
-/** GameResult with actionLog and actions stripped — used for storage */
-export type StoredGameResult = Omit<GameResult, "actionLog" | "actions">;
+/** GameResult with actionLog stripped — used for storage. `actions[]` is
+ *  preserved (canonical replay record per docs/STREAMS.md). actionLog is the
+ *  paraphrased prose projection and is regeneratable by replaying actions. */
+export type StoredGameResult = Omit<GameResult, "actionLog">;
 
 export interface StoredResultSet {
   metadata: {

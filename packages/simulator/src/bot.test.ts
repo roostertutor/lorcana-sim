@@ -19,9 +19,10 @@ import { GreedyBot } from "./bots/GreedyBot.js";
 import { RandomBot } from "./bots/RandomBot.js";
 import { resolveChoiceIntelligently } from "./bots/choiceResolver.js";
 import { shouldMulligan, performMulligan, DEFAULT_MULLIGAN } from "./mulligan.js";
-import { runGame } from "./runGame.js";
+import { runGame, deriveMulliganed } from "./runGame.js";
 import { RLPolicy } from "./rl/policy.js";
 import type { SimGameConfig } from "./types.js";
+import type { GameAction } from "@lorcana-sim/engine";
 
 // ---------------------------------------------------------------------------
 // HELPERS
@@ -670,5 +671,98 @@ describe("Layer 5b — Personality & simulation", () => {
     // Player1 starts at 19 lore and should win quickly
     expect(result.winner).toBe("player1");
     expect(result.winReason).toBe("lore_threshold");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// MULLIGAN DERIVATION (P1.7 regression)
+// Pins the contract that `mulliganed` is derived from `actions[]` (canonical
+// structured data), not from log prose substring matches. See docs/STREAMS.md.
+// ---------------------------------------------------------------------------
+
+describe("deriveMulliganed (from actions[])", () => {
+  it("player1 mulligans (non-empty array), player2 keeps (empty array)", () => {
+    const actions: GameAction[] = [
+      // First RESOLVE_CHOICE is choose_play_order (string), not a mulligan.
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      // Then mulligans (arrays), in starting-player-first order.
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: ["card-1", "card-2"] },
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] },
+      // In-game noise after.
+      { type: "PLAY_INK", playerId: "player1", instanceId: "x" },
+      { type: "PASS_TURN", playerId: "player1" },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: true, player2: false });
+  });
+
+  it("both players keep (empty arrays)", () => {
+    const actions: GameAction[] = [
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] },
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: false, player2: false });
+  });
+
+  it("both players mulligan", () => {
+    const actions: GameAction[] = [
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: ["a"] },
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: ["b", "c", "d"] },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: true, player2: true });
+  });
+
+  it("no mulligan actions at all (e.g. startingState bypass) → both false", () => {
+    const actions: GameAction[] = [
+      { type: "PLAY_INK", playerId: "player1", instanceId: "x" },
+      { type: "PASS_TURN", playerId: "player1" },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: false, player2: false });
+  });
+
+  it("ignores non-RESOLVE_CHOICE actions and string-shaped RESOLVE_CHOICE", () => {
+    // Only the first ARRAY-shaped RESOLVE_CHOICE per player counts; play-order
+    // (string "first") and trigger choices (string indices) must not interfere.
+    const actions: GameAction[] = [
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: "second" },
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: ["x"] },
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: true, player2: false });
+  });
+
+  it("ignores subsequent in-game array choices (only FIRST array per player)", () => {
+    // After the mulligan, in-game choose_target / choose_cards prompts also
+    // resolve as array-shaped RESOLVE_CHOICE. They must NOT clobber the
+    // mulligan result — only the first array per player is the mulligan.
+    const actions: GameAction[] = [
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, // kept hand
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: ["mull"] }, // mulled
+      { type: "PASS_TURN", playerId: "player1" },
+      // Later in the game player1 resolves an array-shaped target choice.
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: ["target-id"] },
+      // And another for player2.
+      { type: "RESOLVE_CHOICE", playerId: "player2", choice: [] },
+    ];
+    expect(deriveMulliganed(actions)).toEqual({ player1: false, player2: true });
+  });
+
+  it("end-to-end: result.mulliganed is consistent with result.actions[]", () => {
+    // Run a real game and assert the derived field matches what we'd compute
+    // from the canonical action stream. Catches future drift if the derivation
+    // diverges from the action stream.
+    const result = runGame({
+      player1Deck: TEST_DECK,
+      player2Deck: TEST_DECK,
+      player1Strategy: GreedyBot,
+      player2Strategy: GreedyBot,
+      definitions: defs,
+      maxTurns: 50,
+      seed: 42,
+    });
+    expect(result.mulliganed).toEqual(deriveMulliganed(result.actions));
   });
 });

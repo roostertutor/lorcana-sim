@@ -1,7 +1,10 @@
 // =============================================================================
 // RESULT STORAGE
 // Save/load simulation results as JSON files.
-// Strips actionLog to keep files manageable (~5-10MB for 5000 games).
+// Strips actionLog (paraphrased English prose, regeneratable by replaying
+// `actions[]`) to keep files manageable. `actions[]` itself IS preserved —
+// it's the canonical replay record (~5KB/game) and dropping it would make
+// past sim files unreplayable. See `docs/STREAMS.md` for the full contract.
 // Stopgap — proper indexed storage (SQLite) deferred until we know what
 // longitudinal questions we want to ask.
 //
@@ -65,6 +68,9 @@ export async function loadResults(filePath: string): Promise<StoredResultSet> {
 }
 
 function stripActionLog(result: GameResult): StoredGameResult {
-  const { actionLog: _, actions: _a, ...rest } = result;
+  // Strip ONLY actionLog — `actions[]` is canonical replay data and must be
+  // preserved (see docs/STREAMS.md). actionLog is regeneratable by replaying
+  // actions through the engine.
+  const { actionLog: _, ...rest } = result;
   return rest;
 }

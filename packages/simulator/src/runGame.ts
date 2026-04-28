@@ -253,10 +253,44 @@ export function runGame(config: SimGameConfig): GameResult {
       player2: config.player2Strategy.name,
     },
     botType: config.player1Strategy.type,
-    // Derive from action log: a player mulliganed if they had a mulligan log entry with "card(s)"
-    mulliganed: {
-      player1: state.actionLog.some(e => e.type === "mulligan" && e.playerId === "player1" && e.message.includes("mulliganed")),
-      player2: state.actionLog.some(e => e.type === "mulligan" && e.playerId === "player2" && e.message.includes("mulliganed")),
-    },
+    mulliganed: deriveMulliganed(actions),
   };
+}
+
+// -----------------------------------------------------------------------------
+// MULLIGAN DERIVATION
+// -----------------------------------------------------------------------------
+
+/**
+ * Derive `mulliganed: Record<PlayerID, boolean>` from the canonical action
+ * stream rather than parsing log prose. See docs/STREAMS.md — the actionLog
+ * is paraphrased English and treating it as structured data was a known
+ * coupling bug (P1.7 in the 2026-04-28 audit).
+ *
+ * The mulligan response is the FIRST `RESOLVE_CHOICE` per player whose `choice`
+ * is an array (`choose_mulligan` is the only pendingChoice that surfaces before
+ * any in-game choice and uses the array-of-instanceIds shape; `choose_play_order`
+ * comes earlier but uses a plain string `"first"`/`"second"`). An empty array
+ * means the player kept their hand → `false`. A non-empty array means they put
+ * cards back → `true`.
+ *
+ * Edge cases:
+ *  - `startingState` injection bypasses createGame and the mulligan flow
+ *    entirely; no `RESOLVE_CHOICE` with array shape will appear → both `false`.
+ *  - Games that end before the second mulligan (shouldn't happen, but defensive)
+ *    leave the unresolved player at `false`.
+ */
+export function deriveMulliganed(actions: GameAction[]): Record<PlayerID, boolean> {
+  const result: Record<PlayerID, boolean> = { player1: false, player2: false };
+  const seen: Record<PlayerID, boolean> = { player1: false, player2: false };
+  for (const action of actions) {
+    if (action.type !== "RESOLVE_CHOICE") continue;
+    if (!Array.isArray(action.choice)) continue;
+    const pid = action.playerId;
+    if (seen[pid]) continue;
+    seen[pid] = true;
+    result[pid] = action.choice.length > 0;
+    if (seen.player1 && seen.player2) break;
+  }
+  return result;
 }
