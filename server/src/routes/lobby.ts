@@ -69,11 +69,14 @@ lobby.post("/create", requireAuth, async (c) => {
     })
   } catch (err) {
     const e = err as Error & { issues?: unknown }
-    if (e.message === "ILLEGAL_DECK") {
+    if (e.message === "ILLEGAL_DECK" || e.message === "ILLEGAL_DECK_P1" || e.message === "ILLEGAL_DECK_P2") {
       return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
     }
     if (e.message?.startsWith("Unknown rotation")) {
       return c.json({ error: e.message }, 400)
+    }
+    if (e.message?.startsWith("QUEUED_ELSEWHERE")) {
+      return c.json({ error: e.message.replace(/^QUEUED_ELSEWHERE: ?/, "") }, 409)
     }
     return c.json({ error: String(err) }, 500)
   }
@@ -94,8 +97,11 @@ lobby.post("/join", requireAuth, async (c) => {
     return c.json({ lobbyId: result.lobbyId, gameId: result.gameId, myPlayerId: result.guestSide })
   } catch (err) {
     const e = err as Error & { issues?: unknown }
-    if (e.message === "ILLEGAL_DECK") {
+    if (e.message === "ILLEGAL_DECK" || e.message === "ILLEGAL_DECK_P1" || e.message === "ILLEGAL_DECK_P2") {
       return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
+    }
+    if (e.message?.startsWith("QUEUED_ELSEWHERE")) {
+      return c.json({ error: e.message.replace(/^QUEUED_ELSEWHERE: ?/, "") }, 409)
     }
     const msg = String(err)
     if (msg.includes("not found")) return c.json({ error: msg }, 404)

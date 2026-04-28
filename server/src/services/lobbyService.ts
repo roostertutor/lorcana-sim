@@ -67,6 +67,18 @@ async function checkForActiveGame(userId: string): Promise<string | null> {
   return null
 }
 
+/** Concurrency invariant — a user cannot host a lobby while in a matchmaking
+ *  queue. Queue side enforces the mirror in matchmakingService.joinQueue.
+ *  See docs/HANDOFF.md → "Concurrency invariant" for the full rationale. */
+async function checkForQueueEntry(userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("matchmaking_queue")
+    .select("id")
+    .eq("user_id", userId)
+    .limit(1)
+  return Boolean(data && data.length > 0)
+}
+
 /** Spectator policy governs who can watch an active game from this lobby.
  *  Phase 1 stores the chosen value; Phase 7 consumes it in stateFilter. */
 export type SpectatorPolicy = "off" | "invite_only" | "friends" | "public"
@@ -91,6 +103,13 @@ export async function createLobby(
   const activeGameId = await checkForActiveGame(hostId)
   if (activeGameId) {
     throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
+  }
+
+  // Concurrency invariant — block lobby create when the user is queued.
+  // Tagged with QUEUED_ELSEWHERE so the route layer surfaces a 409 (matches
+  // the matchmaking-side mirror that rejects queue join during a waiting lobby).
+  if (await checkForQueueEntry(hostId)) {
+    throw new Error("QUEUED_ELSEWHERE: cancel your matchmaking queue entry before creating a lobby")
   }
 
   // Clean up any abandoned waiting lobbies for this user
@@ -142,6 +161,9 @@ export async function joinLobby(
   if (activeGameId) {
     throw new Error(`You already have an active game (${activeGameId}). Finish or resign it first.`)
   }
+  if (await checkForQueueEntry(guestId)) {
+    throw new Error("QUEUED_ELSEWHERE: cancel your matchmaking queue entry before joining a lobby")
+  }
 
   const { data: lobby, error: findError } = await supabase
     .from("lobbies")
@@ -188,7 +210,16 @@ export async function joinLobby(
   const p1Deck = hostGoesFirst ? hostDeck : guestDeck
   const p2Deck = hostGoesFirst ? guestDeck : hostDeck
 
-  const game = await createNewGame(lobby.id, p1Id, p2Id, p1Deck, p2Deck)
+  // Pass the lobby's format so createNewGame runs the authoritative
+  // server-side legality check before inserting the games row. Defensive —
+  // both decks were validated at create/join time, but this is the last
+  // line of defense against any race where a deck was edited or the
+  // rotation registry shifted between checks.
+  const game = await createNewGame(lobby.id, p1Id, p2Id, p1Deck, p2Deck, 1, {
+    matchSource: "private",
+    ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
+    format: lobbyFormat,
+  })
 
   // Look up which side the guest got (randomized)
   const { data: gameRow } = await supabase
@@ -426,13 +457,24 @@ export async function rematchLobby(
     throw new Error(`Failed to create rematch lobby: ${newErr?.message ?? "unknown error"}`)
   }
 
-  // Spawn the first game of the rematch, loser in player1 slot.
+  // Spawn the first game of the rematch, loser in player1 slot. Pass the
+  // lobby format so createNewGame runs the authoritative legality check.
+  const rematchFormat: GameFormat = {
+    family: prev.game_format as GameFormatFamily,
+    rotation: prev.game_rotation as RotationId,
+  }
   const game = await createNewGame(
     newLobby.id as string,
     loserId,
     opponentId,
     loserDeck,
     opponentDeck,
+    1,
+    {
+      matchSource: "private",
+      ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
+      format: rematchFormat,
+    },
   )
 
   const myPlayerId: "player1" | "player2" = loserId === userId ? "player1" : "player2"

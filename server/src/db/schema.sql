@@ -407,3 +407,78 @@ ALTER TABLE game_actions ADD COLUMN IF NOT EXISTS legal_action_count INTEGER;
 --     AND action->>'type' NOT IN ('RESOLVE_CHOICE')
 --     AND created_at > '2026-04-25'
 --   ORDER BY created_at DESC LIMIT 100;
+
+-- ── Matchmaking ship (2026-04-27) ──────────────────────────────────────────
+-- Casual + ranked matchmaking queues replace the previous Phase 3 sketch.
+-- Three game types now share the games table, distinguished by match_source:
+--   'private'    — host-code lobby OR public-browse lobby (always unranked,
+--                  per anti-collusion: friends can't farm ELO via private games)
+--   'queue'      — created by matchmaking pair-success (casual=unranked,
+--                  ranked=ranked iff rotation.ranked=true)
+--   'tournament' — reserved for the future tournament queue
+--
+-- See docs/HANDOFF.md → "Server agent: casual + ranked matchmaking queues"
+-- for the full spec.
+
+-- Decks lose format_rotation — rotation is now chosen per-game (private host
+-- pick, queue request param), not per-deck. Decks carry only format_family.
+-- decks.created_at remains the historical "when was this built" stamp;
+-- legality drift is detected at lobby/queue join time against the live rotation.
+ALTER TABLE decks DROP COLUMN IF EXISTS format_rotation;
+
+-- Game-creation source + ranked flag. Default 'private'/false matches the
+-- pre-Phase-3 behavior retroactively (we never went live with ELO, so no
+-- historical ranked games exist — all existing rows are correctly unranked).
+ALTER TABLE games
+  ADD COLUMN IF NOT EXISTS match_source TEXT NOT NULL DEFAULT 'private'
+    CHECK (match_source IN ('private', 'queue', 'tournament')),
+  ADD COLUMN IF NOT EXISTS ranked BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Matchmaking queue. UNIQUE(user_id) is the hard concurrency guard — at most
+-- one queue entry per user. Combined with the lobby-side check, a user can
+-- never simultaneously occupy a waiting lobby AND a queue slot.
+CREATE TABLE IF NOT EXISTS matchmaking_queue (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  format_family TEXT NOT NULL,
+  format_rotation TEXT NOT NULL,
+  match_format TEXT NOT NULL,            -- 'bo1' | 'bo3'
+  queue_kind TEXT NOT NULL CHECK (queue_kind IN ('casual', 'ranked')),
+  decklist JSONB NOT NULL,               -- DeckEntry[] — pulled into the games row on pair
+  card_metadata JSONB,
+  elo INTEGER,                           -- snapshotted at queue-join (ranked band-widening)
+  joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Pairing-query index. Covers both casual FIFO and ranked band-widening:
+-- casual filters on the leading 4 columns + queue_kind + sorts by joined_at;
+-- ranked filters on the same prefix + queue_kind + uses elo for the band check
+-- (and joined_at as a tiebreaker / staleness driver).
+CREATE INDEX IF NOT EXISTS idx_matchmaking_queue_lookup
+  ON matchmaking_queue (format_family, format_rotation, match_format, queue_kind, joined_at);
+
+ALTER TABLE matchmaking_queue ENABLE ROW LEVEL SECURITY;
+
+-- Users see only their own queue entry; service role bypasses RLS for
+-- pairing reads. INSERT/DELETE happens through the API (service role) but
+-- we keep an owner-INSERT policy for completeness and so a future
+-- direct-from-client flow could work.
+DROP POLICY IF EXISTS "Queue entry owner-only" ON matchmaking_queue;
+CREATE POLICY "Queue entry owner-only"
+  ON matchmaking_queue FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Realtime on the queue table — clients subscribe to their own user_id
+-- entry and observe DELETE (pair-success) as a fallback signal that
+-- pairing happened. Primary signal is the per-user broadcast channel
+-- `matchmaking:user:<userId>` carrying a `pair_found` event with the
+-- gameId payload. Belt-and-suspenders.
+ALTER TABLE matchmaking_queue REPLICA IDENTITY FULL;
+
+-- Optional pair-success column — reserved for a future variant of the
+-- pairing flow that UPDATEs before DELETE so the OLD row in the DELETE
+-- Realtime event carries the gameId. Currently unused; the broadcast
+-- channel is the primary client signal. The status endpoint surfaces it
+-- so it's safe to add and the field shape stays stable.
+ALTER TABLE matchmaking_queue ADD COLUMN IF NOT EXISTS paired_game_id UUID;

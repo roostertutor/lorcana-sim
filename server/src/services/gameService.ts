@@ -6,10 +6,12 @@ import {
   INFINITY_ROTATIONS,
   createGame,
   getAllLegalActions,
+  isLegalFor,
   type GameConfig,
   type GameAction,
   type GameState,
   type DeckEntry,
+  type GameFormat,
   type GameFormatFamily,
   type RotationId,
 } from "@lorcana-sim/engine"
@@ -29,25 +31,65 @@ function updatedElo(rating: number, expected: number, actual: number): number {
   return Math.round(rating + ELO_K * (actual - expected))
 }
 
+/** Match-source taxonomy on the games row. Drives ranked-eligibility +
+ *  analytics filters (e.g. "show me only queue games" in history). */
+export type MatchSource = "private" | "queue" | "tournament"
+
+export interface CreateGameOptions {
+  /** Where the game came from. Default 'private' (host-code or browse lobby). */
+  matchSource?: MatchSource
+  /** Whether ELO updates are eligible at match-end. Caller resolves this
+   *  using both queueKind AND rotation.ranked — `gameService` doesn't
+   *  re-derive it. Default false (matches schema default). */
+  ranked?: boolean
+  /** Optional explicit format. If provided, both decks are validated against
+   *  it via the engine's `isLegalFor` BEFORE the games row is inserted —
+   *  authoritative gate against any client-side stale-deck race. Lobby
+   *  callers also pre-validate; queue callers pre-validate AND defensively
+   *  re-check inside `tryPairEntry`. Throws ILLEGAL_DECK_P{1,2} on rejection. */
+  format?: GameFormat
+}
+
 /**
  * Create a game row with the given slot assignment. Callers own the slot
  * decision — do NOT add randomization here:
  *   - Game 1 (from lobbyService.joinLobby): coin-flip winner → player1 slot.
  *   - Bo3 games 2/3 (from handleMatchProgress): previous-game loser → player1
  *     slot (CRD 2.1.3.2 play-draw rule).
+ *   - Queue (from matchmakingService.tryPairEntry): coin-flip; lobbyId=null.
  *
  * Engine's `chooserPlayerId` defaults to "player1" — whoever lands in slot 1
  * is prompted via the `choose_play_order` pendingChoice as the first
  * interaction in the game. Passed explicitly here for clarity.
  */
 export async function createNewGame(
-  lobbyId: string,
+  lobbyId: string | null,
   p1Id: string,
   p2Id: string,
   p1Deck: DeckEntry[],
   p2Deck: DeckEntry[],
   gameNumber = 1,
+  options: CreateGameOptions = {},
 ) {
+  // Mandatory legality check at game creation. Even though lobby/queue paths
+  // pre-validate, this is the authoritative server-side gate — last line
+  // of defense against a stale-deck race or a buggy client. Throws a tagged
+  // error the route layer surfaces as a 400 with the issue list.
+  if (options.format) {
+    const r1 = isLegalFor(p1Deck, definitions, options.format)
+    if (!r1.ok) {
+      const err = new Error("ILLEGAL_DECK_P1") as Error & { issues?: unknown }
+      err.issues = r1.issues
+      throw err
+    }
+    const r2 = isLegalFor(p2Deck, definitions, options.format)
+    if (!r2.ok) {
+      const err = new Error("ILLEGAL_DECK_P2") as Error & { issues?: unknown }
+      err.issues = r2.issues
+      throw err
+    }
+  }
+
   const config: GameConfig = {
     player1Deck: p1Deck,
     player2Deck: p2Deck,
@@ -69,6 +111,13 @@ export async function createNewGame(
   const p1EloAtStart = (p1Profile?.elo as number | undefined) ?? 1200
   const p2EloAtStart = (p2Profile?.elo as number | undefined) ?? 1200
 
+  const matchSource: MatchSource = options.matchSource ?? "private"
+  // Anti-collusion: private lobbies are unconditionally unranked, regardless
+  // of rotation. Two friends can no longer farm ELO via host-code lobbies.
+  // Queue-spawned games respect the caller's `ranked` flag (which already
+  // ANDs queueKind=='ranked' with rotation.ranked=true at the call site).
+  const ranked = matchSource === "private" ? false : (options.ranked ?? false)
+
   const { data, error } = await supabase
     .from("games")
     .insert({
@@ -81,6 +130,8 @@ export async function createNewGame(
       game_number: gameNumber,
       p1_elo_at_start: p1EloAtStart,
       p2_elo_at_start: p2EloAtStart,
+      match_source: matchSource,
+      ranked,
       // Engine version stamp — enables training pipelines to filter actions
       // to the engine that can correctly replay them. See
       // packages/engine/src/version.ts for the bump policy.
@@ -204,11 +255,13 @@ export async function processAction(
     turn_number: state.turnNumber,
   })
 
-  // Handle match completion (Bo1 or Bo3)
+  // Handle match completion (Bo1 or Bo3). lobby_id is null for
+  // queue-spawned games — handleMatchProgress takes that path with a
+  // single ELO update + no follow-up game.
   let nextGameId: string | undefined
   if (isFinished && newState.winner) {
     const lobbyResult = await handleMatchProgress(
-      game.lobby_id as string,
+      (game.lobby_id as string | null) ?? null,
       game.player1_id as string,
       game.player2_id as string,
       newState.winner,
@@ -308,7 +361,28 @@ async function updateElo(
   player2Id: string,
   winner: "player1" | "player2",
   eloKey: EloKey = FALLBACK_ELO_KEY,
+  gameRanked: boolean = false,
 ): Promise<EloUpdateResult | null> {
+  // Unranked match: still bump games_played for activity tracking, but skip
+  // the ELO math entirely. Private lobbies are always ranked=false (anti-
+  // collusion); casual queue games are always ranked=false; ranked queue
+  // games are ranked iff the rotation has ranked=true at game-create time.
+  // The flag is read directly off `games.ranked` — no need to re-derive
+  // from the rotation registry here, since it's already authoritative.
+  if (!gameRanked) {
+    const [{ data: p1g }, { data: p2g }] = await Promise.all([
+      supabase.from("profiles").select("games_played").eq("id", player1Id).single(),
+      supabase.from("profiles").select("games_played").eq("id", player2Id).single(),
+    ])
+    if (p1g && p2g) {
+      await Promise.all([
+        supabase.from("profiles").update({ games_played: (p1g.games_played as number) + 1 }).eq("id", player1Id),
+        supabase.from("profiles").update({ games_played: (p2g.games_played as number) + 1 }).eq("id", player2Id),
+      ])
+    }
+    return null
+  }
+
   const [{ data: p1 }, { data: p2 }] = await Promise.all([
     supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player1Id).single(),
     supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player2Id).single(),
@@ -382,19 +456,31 @@ export async function resignGame(gameId: string, userId: string) {
   const updatedState = { ...(game.state as Record<string, unknown>), isGameOver: true, winner }
 
   // Land the resignation's ELO change in the correct per-rotation bucket by
-  // reading format+rotation from the parent lobby. Falls back to defaults if
-  // the lobby row is missing (shouldn't happen but keeps the update safe).
-  const { data: lobby } = await supabase
-    .from("lobbies")
-    .select("*")
-    .eq("id", game.lobby_id as string)
-    .single()
+  // reading format+rotation from the parent lobby (queue-spawned games have
+  // no parent lobby — fall back to game.match_source for routing). Falls
+  // back to defaults if the lobby row is missing.
+  const { data: lobby } = game.lobby_id
+    ? await supabase.from("lobbies").select("*").eq("id", game.lobby_id as string).single()
+    : { data: null }
   const eloKey = getEloKey(
     (lobby?.format as string) ?? "bo1",
     (lobby?.game_format as string) ?? "infinity",
     (lobby?.game_rotation as string) ?? "s11",
   )
-  const eloUpdate = await updateElo(game.player1_id as string, game.player2_id as string, winner, eloKey)
+  // Queue-spawned games carry their rotation/format on the games row directly
+  // (no parent lobby). For now, queue games inherit the FALLBACK_ELO_KEY
+  // bucket on resignation — the eloKey on resign for queue games is a known
+  // gap; the natural-finish path through handleMatchProgress reads from
+  // games.ranked directly. Resign on queue games today is unranked-only
+  // (casual queue) by structure, so the bucket choice is moot for ELO math.
+  const gameRanked = (game.ranked as boolean | undefined) ?? false
+  const eloUpdate = await updateElo(
+    game.player1_id as string,
+    game.player2_id as string,
+    winner,
+    eloKey,
+    gameRanked,
+  )
 
   // Save a replay for the resignation — same shape as natural game-end,
   // keyed on game_id (unique) so double-resigns don't insert twice.
@@ -481,13 +567,29 @@ async function saveReplayForGame(
  * Bo3: update score, create next game if match not decided, update ELO when match ends.
  */
 async function handleMatchProgress(
-  lobbyId: string,
+  lobbyId: string | null,
   player1Id: string,
   player2Id: string,
   winner: "player1" | "player2",
   finalState: GameState,
   gameId: string,
 ): Promise<{ nextGameId?: string; p1Wins?: number; p2Wins?: number; eloUpdate?: EloUpdateResult | null }> {
+  // Read the ranked flag off the game row — authoritative for ELO eligibility.
+  const { data: gameRow } = await supabase
+    .from("games")
+    .select("ranked, match_source")
+    .eq("id", gameId)
+    .single()
+  const gameRanked = (gameRow?.ranked as boolean | undefined) ?? false
+
+  // Queue-spawned games have no parent lobby (lobbyId=null). They're
+  // currently always Bo1 — no rematch sequence — so the match-progress
+  // path collapses to a single ELO update + no follow-up game.
+  if (!lobbyId) {
+    const eloUpdate = await updateElo(player1Id, player2Id, winner, FALLBACK_ELO_KEY, gameRanked)
+    return { eloUpdate }
+  }
+
   const { data: lobby } = await supabase
     .from("lobbies")
     .select("*")
@@ -496,7 +598,7 @@ async function handleMatchProgress(
 
   if (!lobby) {
     // Fallback: no lobby found, just update ELO
-    const eloUpdate = await updateElo(player1Id, player2Id, winner)
+    const eloUpdate = await updateElo(player1Id, player2Id, winner, FALLBACK_ELO_KEY, gameRanked)
     return { eloUpdate }
   }
 
@@ -523,7 +625,11 @@ async function handleMatchProgress(
     const gameFormat = (lobby.game_format as string) ?? "infinity"
     const gameRotation = (lobby.game_rotation as string) ?? "s11"
     const eloKey = getEloKey(format, gameFormat, gameRotation)
-    const eloUpdate = await updateElo(player1Id, player2Id, matchWinner, eloKey)
+    // Private lobbies are unconditionally unranked (anti-collusion); the
+    // games.ranked flag was set to false on game-create regardless of
+    // rotation. Queue games never reach this branch (lobbyId=null path
+    // handles them). Read gameRanked from the games row to be safe.
+    const eloUpdate = await updateElo(player1Id, player2Id, matchWinner, eloKey, gameRanked)
     await supabase
       .from("lobbies")
       .update({ status: "finished", updated_at: new Date() })
@@ -549,6 +655,15 @@ async function handleMatchProgress(
   const loserDeck = loserIsHost ? hostDeck : guestDeck
   const opponentDeck = loserIsHost ? guestDeck : hostDeck
 
+  // Format stamp for the Bo3 next-game's mandatory legality check. Read
+  // from the lobby row (decks were already validated at create/join time
+  // against this same format, so the check is essentially a tautology
+  // here — but cheap, and cheap defense-in-depth is worth it).
+  const lobbyFormat: GameFormat = {
+    family: (lobby.game_format as GameFormatFamily) ?? "infinity",
+    rotation: (lobby.game_rotation as RotationId) ?? "s11",
+  }
+
   const nextGame = await createNewGame(
     lobbyId,
     loserId,
@@ -556,6 +671,11 @@ async function handleMatchProgress(
     loserDeck,
     opponentDeck,
     gameNumber,
+    {
+      matchSource: "private",
+      ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
+      format: lobbyFormat,
+    },
   )
 
   return { nextGameId: nextGame.id, p1Wins, p2Wins }
