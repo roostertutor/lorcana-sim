@@ -355,7 +355,19 @@ export async function cancelMatchmaking(): Promise<{ ok: boolean; removed: boole
 
 /** Subscribe to the per-user matchmaking-results channel for pair-found
  *  events. Server broadcasts `pair_found` with payload { gameId, opponentId }
- *  when the user is paired into a game. Returns an unsubscribe function.
+ *  when the user is paired into a game.
+ *
+ *  Returns an `async` unsubscribe function so callers can `await` the actual
+ *  channel removal before doing follow-up work that creates a new channel
+ *  (e.g., the game-channel subscription in `useGameSession`). Without that
+ *  await, Supabase Realtime can reject the new channel's subscribe with
+ *  CHANNEL_ERROR — symptom: red connection dot on the gameboard for the
+ *  newly-paired client until refresh.
+ *
+ *  Use cases:
+ *    - Pair-found handler: `await unsubscribe()` then navigate. (Critical.)
+ *    - useEffect cleanup: `void unsubscribe()` is fine. Component unmount
+ *      isn't followed by an immediate channel creation in the same paint.
  *
  *  Channel: `matchmaking:user:<userId>` (Supabase Realtime broadcast).
  *  This is the PRIMARY signal — DELETE on the matchmaking_queue row works
@@ -364,7 +376,7 @@ export async function cancelMatchmaking(): Promise<{ ok: boolean; removed: boole
 export function subscribeMatchmakingPairFound(
   userId: string,
   onPair: (payload: { gameId: string; opponentId: string }) => void,
-): () => void {
+): () => Promise<void> {
   const channel = supabase.channel(`matchmaking:user:${userId}`)
   channel.on("broadcast", { event: "pair_found" }, (msg) => {
     const payload = msg.payload as { gameId?: string; opponentId?: string } | undefined
@@ -373,7 +385,7 @@ export function subscribeMatchmakingPairFound(
     }
   })
   channel.subscribe()
-  return () => {
-    void supabase.removeChannel(channel)
+  return async () => {
+    await supabase.removeChannel(channel)
   }
 }

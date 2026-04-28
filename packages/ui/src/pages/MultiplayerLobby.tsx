@@ -80,7 +80,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [queueStatus, setQueueStatus] = useState<MatchmakingStatus | null>(null);
   const [queueElapsedSec, setQueueElapsedSec] = useState(0);
   const [queueJoinError, setQueueJoinError] = useState<MatchmakingError | null>(null);
-  const queueChannelRef = useRef<(() => void) | null>(null);
+  const queueChannelRef = useRef<(() => Promise<void>) | null>(null);
 
   // User's explicit rotation override. Null = use the family's live rotation
   // (default). Set when the user picks a non-default rotation from the
@@ -360,24 +360,41 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         // to localStorage and both treat themselves as player1 in the
         // game (chooser-only modals show on both, etc.) — bug fixed
         // 2026-04-27.
+        //
+        // We ALSO await the matchmaking channel's removal before navigating.
+        // Without that, useGameSession's `game:<gameId>` channel subscribe
+        // races with this channel's in-flight cleanup and Supabase Realtime
+        // rejects the new subscribe with CHANNEL_ERROR — visible to the
+        // user as a red connection dot on the gameboard until refresh.
         setQueueStatus(null);
-        void getGameInfo(gameId).then((info) => {
+        void (async () => {
+          // Tear down the matchmaking channel cleanly + wait for actual
+          // removal before letting the next page subscribe to its game
+          // channel.
+          const cleanup = queueChannelRef.current;
+          queueChannelRef.current = null;
+          if (cleanup) await cleanup();
+
+          const info = await getGameInfo(gameId);
           if (info && info.status === "active") {
             onGameStart(gameId, info.playerSide);
           } else {
-            // Defensive fallback — if getGameInfo fails, App.tsx's own
-            // fallback fires when localStorage gameId mismatches. Pass
-            // a placeholder gameId+player1 so navigation proceeds; the
-            // remount fetches the real side.
+            // Defensive fallback — App.tsx's own fallback fires when
+            // localStorage gameId mismatches. Pass placeholder so
+            // navigation proceeds; remount fetches the real side.
             onGameStart(gameId, "player1");
           }
-        });
+        })();
       });
     });
     return () => {
       cancelled = true;
       if (queueChannelRef.current) {
-        queueChannelRef.current();
+        // Cleanup branch is fire-and-forget — useEffect cleanup is sync,
+        // and component unmount isn't followed by an immediate channel
+        // creation in the same paint. The await above (in the broadcast
+        // handler) is the case we care about.
+        void queueChannelRef.current();
         queueChannelRef.current = null;
       }
     };
