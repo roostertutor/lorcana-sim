@@ -39,6 +39,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from 
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { normalizeRulesText, stripStraySeparators } from "./lib/normalize-rules-text.js";
+import { isR2Shape, readR2PublicBaseUrlFromEnv } from "./lib/image-sync.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -366,6 +367,11 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
   const outPath = setJsonPath(setCode);
   if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0 };
 
+  // R2 base URL — used to detect R2-shaped imageUrls so we can preserve
+  // them across re-imports instead of clobbering with the upstream Lorcast
+  // URL. See matching logic in import-cards-rav.ts.
+  const r2Base = readR2PublicBaseUrlFromEnv();
+
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
   // (id, number) composite — same-slug-different-number is a legitimate
   // variant pattern (e.g. Pegasus at #1 and #5 in C2 reprints). See the
@@ -459,6 +465,19 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): {
     if (prev.actionEffects && prev.actionEffects.length > 0) {
       card.actionEffects = prev.actionEffects;
       preserved++;
+    }
+
+    // Preserve R2-shaped `imageUrl` across re-imports. mapCard() unconditionally
+    // rewrites `imageUrl` to the fresh upstream URL; without this step, that
+    // clobbers the R2 URL that sync-images-* installed. See matching block in
+    // import-cards-rav.ts for the full rationale (bug surfaced 2026-04-28).
+    const newImageUrl = card.imageUrl;
+    const prevSourceImageUrl = (prev as Record<string, unknown>)._sourceImageUrl;
+    const prevR2ImageUrl = isR2Shape(prev.imageUrl, r2Base) ? prev.imageUrl : undefined;
+    const upstreamImageUnchanged =
+      newImageUrl !== undefined && prevSourceImageUrl === newImageUrl;
+    if (prevR2ImageUrl && upstreamImageUnchanged) {
+      card.imageUrl = prevR2ImageUrl;
     }
 
     const passthroughFields = [

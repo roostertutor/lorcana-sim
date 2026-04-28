@@ -71,6 +71,35 @@ export interface R2Config {
   publicBaseUrl: string;
 }
 
+/** Returns true if `url` looks like an R2 public URL produced by this pipeline:
+ *  starts with the configured R2 public base AND ends with a known size suffix
+ *  (`_small.jpg` / `_normal.jpg` / `_large.jpg`).
+ *
+ *  STRICT by design — a previous looser check (`url.includes("/setN/N_")`)
+ *  also matched upstream Ravensburger URLs since those contain `/set1/1_` too,
+ *  causing post-import skips that left 2/3 of the catalog pointing at
+ *  Ravensburger CDN after a "restore" sync. Both `sync-images-rav` and
+ *  `import-cards-rav` rely on this helper to decide "should I preserve the
+ *  existing R2 imageUrl?" — they MUST agree on what counts as R2-shaped.
+ *
+ *  `r2Base` is the R2 public base URL with no trailing slash. Pass `null`
+ *  when R2 creds aren't configured (caller should treat that as "no URL is
+ *  R2-shaped" and fall through to the upstream URL).
+ */
+export function isR2Shape(url: string | undefined, r2Base: string | null): boolean {
+  if (!url || !r2Base) return false;
+  return url.startsWith(r2Base + "/") && /_(small|normal|large)\.jpg$/.test(url);
+}
+
+/** Read just the R2 public base URL from .env, without requiring full R2
+ *  credentials. The importer needs this to detect R2-shaped imageUrls but
+ *  doesn't actually need to upload — so it can fall back to "no R2 config
+ *  installed" gracefully without forcing users to fill all R2_* vars. */
+export function readR2PublicBaseUrlFromEnv(): string | null {
+  const raw = process.env.R2_PUBLIC_BASE_URL;
+  return raw ? raw.replace(/\/$/, "") : null;
+}
+
 /** Read R2 config from .env. Returns null when any key is missing — callers
  *  fall back to dry-run automatically. Normalizes R2_ACCOUNT_ID defensively
  *  so users can paste either the bare hex ID or the full endpoint URL from
@@ -266,17 +295,12 @@ export async function syncSingleCard(
   // check would wrongly skip cards whose imageUrl had just been reset to
   // upstream, leaving 2/3 of the catalog pointing at Ravensburger CDN after
   // the "restore" sync. Fix: require imageUrl to start with the configured
-  // R2 public base and end with a known size suffix.
+  // R2 public base and end with a known size suffix. See isR2Shape.
   const r2Base = ctx.r2 ? ctx.r2.config.publicBaseUrl.replace(/\/$/, "") : null;
-  const isR2Shaped =
-    r2Base != null &&
-    !!card.imageUrl &&
-    card.imageUrl.startsWith(r2Base + "/") &&
-    /_(small|normal|large)\.jpg$/.test(card.imageUrl);
   if (
     card._imageSource === ctx.tier &&
     card._sourceImageUrl === sourceUpstreamUrl &&
-    isR2Shaped
+    isR2Shape(card.imageUrl, r2Base)
   ) {
     return { status: "skipped_already_synced" };
   }

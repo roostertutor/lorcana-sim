@@ -42,6 +42,7 @@ import {
   stripAbilityNameMarkers,
   splitConcatenatedKeywordReminders,
 } from "./lib/normalize-rules-text.js";
+import { isR2Shape, readR2PublicBaseUrlFromEnv } from "./lib/image-sync.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -684,6 +685,14 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   const outPath = setJsonPath(setCode);
   if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0, lockedUpgradesAvailable: [] };
 
+  // R2 base URL is needed to detect whether `prev.imageUrl` is R2-shaped (a
+  // sync-images-rav-produced URL we want to preserve across re-imports) or
+  // upstream-shaped (a previous importer's leftover that we should overwrite
+  // with the fresh upstream URL). When R2 isn't configured, every URL counts
+  // as not-R2-shaped and the importer falls back to its old behavior:
+  // imageUrl always tracks the latest upstream URL.
+  const r2Base = readR2PublicBaseUrlFromEnv();
+
   const existing: CardDefinitionOut[] = JSON.parse(readFileSync(outPath, "utf-8"));
   // Primary index: (id, number) composite. Same-slug-different-number is a
   // legitimate variant pattern (C2 reprints like Pegasus at #1 and #5 share
@@ -799,6 +808,31 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       preserved++;
     }
 
+    // 3b. Preserve R2-shaped `imageUrl` across re-imports.
+    //
+    // mapCard() above unconditionally rewrites `imageUrl` to the fresh
+    // Ravensburger CDN URL on every re-import. Without this step, that
+    // clobbers the R2 URL that sync-images-rav had previously installed,
+    // forcing every routine re-import + sync to re-fetch and re-upload
+    // ~2700 cards even when no upstream art rotated. (Bug surfaced
+    // 2026-04-28 after the set-12 import erased R2 URLs across the
+    // whole catalog.) Preserve the prior R2 URL when:
+    //   - prev.imageUrl looks R2-shaped (sync-images-rav installed it), AND
+    //   - prev._sourceImageUrl matches the fresh Rav URL we just stamped
+    //     (upstream art has not rotated — same content, no re-sync needed).
+    // When upstream rotates (different URL), we DO want to fall back to the
+    // fresh Rav URL so the next sync-images-rav run picks up the new art.
+    // First-time imports (no _sourceImageUrl yet) always get the Rav URL
+    // installed as today.
+    const newImageUrl = card.imageUrl;
+    const prevSourceImageUrl = (prev as Record<string, unknown>)._sourceImageUrl;
+    const prevR2ImageUrl = isR2Shape(prev.imageUrl, r2Base) ? prev.imageUrl : undefined;
+    const upstreamImageUnchanged =
+      newImageUrl !== undefined && prevSourceImageUrl === newImageUrl;
+    if (prevR2ImageUrl && upstreamImageUnchanged) {
+      card.imageUrl = prevR2ImageUrl;
+    }
+
     // 4. Preserve scalar fields the importer may not populate
     const passthroughFields = [
       "alternateNames", "playRestrictions", "altPlayCost",
@@ -806,11 +840,11 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
       "moveCost", "singTogetherCost",
       "foilImageUrl",
       // Image-sync fields — carried over so sync-images-rav's idempotency
-      // check survives re-imports. The importer DOES overwrite `imageUrl`
-      // (with the current Rav URL), but we preserve the source markers so
-      // sync-images-rav can compare the fresh Rav URL against the stored
-      // `_sourceImageUrl` and only re-sync when Ravensburger rotates
-      // content. See docs/HANDOFF.md → self-host card images on R2.
+      // check survives re-imports. As of 2026-04-28 the importer also
+      // preserves R2-shaped `imageUrl` itself when the upstream URL hasn't
+      // rotated (see step 3b above). The source markers below survive
+      // either way so sync-images-rav can detect first-time syncs vs
+      // already-synced-from-this-upstream-URL.
       "_imageSource", "_sourceImageUrl", "_imageSourceLock",
       // Ravensburger stable numeric id — the importer DOES set this on
       // Ravensburger-sourced cards, but carrying it through the merge
