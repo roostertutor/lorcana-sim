@@ -192,6 +192,50 @@ describe("filterStateForPlayer — actionLog redaction", () => {
     expect(entry.type).toBe("card_drawn")
   })
 
+  it("redacts P1.11 private inkwell logs (effect-driven ink reveals card identity to inker only)", () => {
+    // Effect-driven ink (Gramma Tala MAUI'S OBSESSION, Fishbone Quill, Perdita)
+    // names the card moved into the face-down inkwell. Server must redact
+    // the message body for the non-inking viewer per CRD 4.1.4.
+    const privateInk: GameLogEntry = {
+      timestamp: 1000,
+      turn: 1,
+      playerId: "player1",
+      message: "player1 put Mickey Mouse - Brave Little Tailor into their inkwell.",
+      type: "card_put_into_inkwell",
+      privateTo: "player1",
+    }
+    const state = makeStateWithLog([privateInk])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    expect(forP2.actionLog[0]?.message).not.toContain("Mickey Mouse")
+    expect(forP2.actionLog[0]?.message).not.toContain("Brave Little Tailor")
+    expect(forP2.actionLog[0]?.message).toContain("player1")
+    expect(forP2.actionLog[0]?.message).toContain("inkwell")
+  })
+
+  it("redacts P1.11 private hand-peek logs (look_at_hand reveals opponent's hand to looker only)", () => {
+    // look_at_hand (Dolores Madrigal NO SECRETS) lets the controller see the
+    // target's hand; the message names every card. The non-looker must see
+    // only that the peek occurred, not the cards.
+    const peek: GameLogEntry = {
+      timestamp: 1000,
+      turn: 3,
+      playerId: "player1",
+      message: "player1 looked at player2's hand: [Mickey Mouse, Elsa - Snow Queen, Hades].",
+      type: "hand_revealed",
+      privateTo: "player1",
+    }
+    const state = makeStateWithLog([peek])
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    for (const name of ["Mickey Mouse", "Elsa", "Snow Queen", "Hades"]) {
+      expect(forP2.actionLog[0]?.message).not.toContain(name)
+    }
+    expect(forP2.actionLog[0]?.message).toContain("player1")
+  })
+
   it("filters a mixed log correctly per-viewer (sanity end-to-end)", () => {
     // Realistic mid-game log shape: P1 draws privately, then plays publicly,
     // then P2 draws privately. Verify each viewer sees exactly what they should.

@@ -74,6 +74,18 @@ function redactPrivateMessage(entry: GameLogEntry): string {
       // were in the hidden hand at the time). If engine stamps privateTo
       // here later, this branch picks it up automatically.
       return `${entry.playerId} mulliganed cards. (cards hidden)`
+    case "card_put_into_inkwell":
+      // Standard PLAY_INK log AND P1.11's effect-driven inkwell logs (Gramma
+      // Tala self-ink, Fishbone Quill chosen-hand, Perdita "all", deck-source
+      // ramps). CRD 4.1.4: inkwell is face-down. Opponent sees player +
+      // timing only.
+      return `${entry.playerId} added a card to their inkwell.`
+    case "hand_revealed":
+      // P1.11 — look_at_hand peeks the looker stamps privateTo on. Public
+      // reveal_hand (Copper Hound Pup) doesn't stamp privateTo, so this
+      // branch only fires for private peeks. Opponent sees that the peek
+      // happened but not what was revealed.
+      return `${entry.playerId} looked at a hand.`
     default:
       // Catch-all for any future GameLogEntryType that gets privateTo-stamped.
       // Keep player + type-shape; drop the message body.

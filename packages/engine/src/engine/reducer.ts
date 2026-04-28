@@ -26,6 +26,7 @@ import type {
   PlayerFilter,
   PlayerMetric,
   RestrictedAction,
+  BanishCause,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
@@ -2334,9 +2335,13 @@ function applyResolveChoice(
     // their hand-state identity. Used by self_replacement (state-based, no
     // target) for Kakamora Pirate Chief: "if a Pirate card was discarded...".
     const discardedRefs: ResolvedRef[] = [];
+    const discardedNames: string[] = [];
     for (const cardId of choice) {
       const ref = makeResolvedRef(state, definitions, cardId);
       if (ref) discardedRefs.push(ref);
+      // P1.11 — capture name BEFORE moveCard for the log line.
+      const dn = definitions[state.cards[cardId]?.definitionId ?? ""]?.fullName;
+      if (dn) discardedNames.push(dn);
     }
     state = { ...state, lastDiscarded: discardedRefs };
     for (const cardId of choice) {
@@ -2355,6 +2360,13 @@ function applyResolveChoice(
     state = { ...state, lastEffectResult: discardCount };
     if (discardCount > 0 && discardingPlayerId) {
       state = queueTriggersByEvent(state, "cards_discarded", discardingPlayerId, definitions, {});
+      // P1.11 — log the chosen-discard. Discard pile is public so no privateTo.
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: discardingPlayerId,
+        message: `${discardingPlayerId} discarded ${discardedNames.join(", ")}.`,
+        type: "card_discarded",
+      });
     }
     state = resumePendingEffectQueue(state, definitions, events);
     state = cleanupPendingAction(state, playerId);
@@ -3057,6 +3069,28 @@ export function applyEffect(
         sourceInstanceId,
         ...(privateTo ? { privateTo } : {}),
       } as GameEvent);
+      // P1.11 — surface the peek/reveal in the log so the watching player
+      // can see WHY their hand was looked at, and the looker can refer back
+      // to what they saw. For look_at_hand the message contains card names
+      // (private to the looker — server's filterStateForPlayer redacts).
+      // For reveal_hand the message is fully public. Empty hand → still log
+      // the action to surface that the peek occurred.
+      const cardNames = handCardIds
+        .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "?")
+        .join(", ");
+      const handDesc = handCardIds.length === 0
+        ? "(empty hand)"
+        : `[${cardNames}]`;
+      const logMessage = effect.type === "look_at_hand"
+        ? `${controllingPlayerId} looked at ${targetPlayer}'s hand: ${handDesc}.`
+        : `${targetPlayer}'s hand revealed: ${handDesc}.`;
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: controllingPlayerId,
+        message: logMessage,
+        type: "hand_revealed",
+        ...(privateTo ? { privateTo } : {}),
+      });
       return { ...state, lastRevealedHand: { playerId: targetPlayer, cardIds: handCardIds, sourceInstanceId, ...(privateTo ? { privateTo } : {}) } };
     }
 
@@ -3072,8 +3106,8 @@ export function applyEffect(
       const signedAmount = effect.type === "lose_lore" ? -rawAmount : rawAmount;
       // "Each player gains N lore" — apply to both (I2I). CRD: target { type: "both" }.
       if (effect.target.type === "both") {
-        state = gainLore(state, controllingPlayerId, signedAmount, events, definitions);
-        state = gainLore(state, getOpponent(controllingPlayerId), signedAmount, events, definitions);
+        state = gainLoreWithLog(state, controllingPlayerId, signedAmount, events, definitions);
+        state = gainLoreWithLog(state, getOpponent(controllingPlayerId), signedAmount, events, definitions);
         return state;
       }
       const targetPlayer =
@@ -3083,7 +3117,7 @@ export function applyEffect(
             ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
             : controllingPlayerId;
       const loreBefore = state.players[targetPlayer].lore;
-      state = gainLore(state, targetPlayer, signedAmount, events, definitions);
+      state = gainLoreWithLog(state, targetPlayer, signedAmount, events, definitions);
       const loreAfter = state.players[targetPlayer].lore;
       state = { ...state, lastEffectResult: Math.abs(loreBefore - loreAfter) };
       return state;
@@ -5240,6 +5274,12 @@ export function applyEffect(
         // "all" = discard entire hand (or entire filtered subset), no choice
         if (effect.amount === "all") {
           const discardCount = hand.length;
+          // P1.11 — capture names BEFORE moveCard so we log what was actually
+          // discarded (post-move the cards are still in state but we'd have
+          // to hop through state.cards to get the def, which is fine but the
+          // pre-move snapshot reads cleaner).
+          const discardedNames = hand
+            .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "?");
           for (const cardId of [...hand]) {
             state = moveCard(state, cardId, pid, "discard");
           }
@@ -5251,6 +5291,13 @@ export function applyEffect(
           if (discardCount > 0) {
             state = { ...state, lastEffectResult: discardCount };
             state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+            // P1.11 — log names. Discard pile is public so no privateTo.
+            state = appendLog(state, {
+              turn: state.turnNumber,
+              playerId: pid,
+              message: `${pid} discarded ${discardedNames.join(", ")}.`,
+              type: "card_discarded",
+            });
           }
           continue;
         }
@@ -5287,11 +5334,13 @@ export function applyEffect(
         // (Bruno reveal, Lady Tremaine, Basil etc.). No pending choice — engine resolves.
         if (effect.chooser === "random") {
           const picked: string[] = [];
+          const pickedNames: string[] = [];
           const pool = [...hand];
           for (let i = 0; i < discardCount && pool.length > 0; i++) {
             const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             picked.push(id);
+            pickedNames.push(definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "?");
             pool.splice(idx, 1);
             state = moveCard(state, id, pid, "discard");
           }
@@ -5310,6 +5359,15 @@ export function applyEffect(
           }
           if (picked.length > 0) {
             state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+            // P1.11 — log randomly-discarded names. Public (cards now in
+            // discard pile). Note "randomly" so a watching player understands
+            // they didn't choose this — it was Bruno-style coin flip.
+            state = appendLog(state, {
+              turn: state.turnNumber,
+              playerId: pid,
+              message: `${pid} randomly discarded ${pickedNames.join(", ")}.`,
+              type: "card_discarded",
+            });
           }
           continue;
         }
@@ -5345,6 +5403,7 @@ export function applyEffect(
         const deck = getZone(state, sourcePlayer, "deck");
         if (deck.length === 0) return state;
         const topCardId = deck[0]!;
+        const topName = definitions[state.cards[topCardId]?.definitionId ?? ""]?.fullName ?? "a card";
         state = zoneTransition(state, topCardId, "inkwell", definitions, events, { reason: "inked" });
         if (effect.enterExerted) {
           state = updateInstance(state, topCardId, { isExerted: true });
@@ -5354,12 +5413,25 @@ export function applyEffect(
         // CRD 6.2: "whenever a card is put into your inkwell" fires on effect-driven
         // inkwell placement (Oswald watching Fishbone Quill), not just normal INK_CARD.
         state = queueTriggersByEvent(state, "card_put_into_inkwell", sourcePlayer, definitions, {});
+        // P1.11 — log effect-driven ink. Match the standard INK_CARD pattern
+        // at reducer.ts:1037 — privateTo the inking player (CRD 4.1.4 keeps
+        // inkwell face-down). Server's filterStateForPlayer redacts message
+        // for non-authorized viewers; opponent sees count + timing only.
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: sourcePlayer,
+          message: `${sourcePlayer} added ${topName} to their inkwell from the top of their deck.`,
+          type: "card_put_into_inkwell",
+          privateTo: sourcePlayer,
+        });
         return state;
       }
 
       if (effect.target.type === "this") {
         // Self → inkwell (gramma-tala)
         const inkingPlayer = getInstance(state, sourceInstanceId).ownerId;
+        const inst = getInstance(state, sourceInstanceId);
+        const sourceName = definitions[inst.definitionId]?.fullName ?? "a card";
         state = zoneTransition(state, sourceInstanceId, "inkwell", definitions, events, { reason: "inked" });
         if (effect.enterExerted) {
           state = updateInstance(state, sourceInstanceId, { isExerted: true });
@@ -5367,6 +5439,16 @@ export function applyEffect(
           state = addInkFromEffect(state, controllingPlayerId);
         }
         state = queueTriggersByEvent(state, "card_put_into_inkwell", inkingPlayer, definitions, {});
+        // P1.11 — log self-ink (Gramma Tala MAUI'S OBSESSION style). Source
+        // was in play so identity was public; we still privateTo to match
+        // the standard INK_CARD log shape for redaction-pipeline consistency.
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: inkingPlayer,
+          message: `${inkingPlayer} put ${sourceName} into their inkwell.`,
+          type: "card_put_into_inkwell",
+          privateTo: inkingPlayer,
+        });
         return state;
       }
 
@@ -5390,12 +5472,18 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         const receivingPlayers = new Set<PlayerID>();
+        // P1.11 — track per-player inked names so we can log a single line
+        // per receiving player after the iteration. Captures NAME pre-move
+        // (instance is still in source zone with its real definitionId).
+        const inkedByPlayer: Record<PlayerID, string[]> = { player1: [], player2: [] };
         state = resolveTargetAndApply(state, effect, {
           prompt: "Put into inkwell", // unused — "all" skips pendingChoice
           perInstance: (s, id, ev) => {
             const inst = s.cards[id];
             if (!inst) return s;
             receivingPlayers.add(inst.ownerId);
+            const cardName = definitions[inst.definitionId]?.fullName;
+            if (cardName) inkedByPlayer[inst.ownerId].push(cardName);
             s = zoneTransition(s, id, "inkwell", definitions, ev, { reason: "inked" });
             if (effect.enterExerted) s = updateInstance(s, id, { isExerted: true });
             return s;
@@ -5405,6 +5493,20 @@ export function applyEffect(
         // card watchers (Oswald, Chicha Dedicated Mother) pick it up.
         for (const pid of receivingPlayers) {
           state = queueTriggersByEvent(state, "card_put_into_inkwell", pid, definitions, {});
+          // P1.11 — log per receiving player. privateTo each owner so cross-
+          // player "all" effects (Perdita Determined Mother is self-only;
+          // future "each player puts a card from their hand into their
+          // inkwell" cards would be cross-player) redact correctly.
+          const names = inkedByPlayer[pid];
+          if (names.length > 0) {
+            state = appendLog(state, {
+              turn: state.turnNumber,
+              playerId: pid,
+              message: `${pid} put ${names.join(", ")} into their inkwell.`,
+              type: "card_put_into_inkwell",
+              privateTo: pid,
+            });
+          }
         }
         return state;
       }
@@ -6740,6 +6842,45 @@ function gainLore(
   };
 }
 
+/**
+ * P1.11 — gainLore + log line for effect-driven lore changes. Distinct from
+ * applyQuest's path which writes its own "X's <char> quested for N lore." log
+ * line; calling this from a quest path would double-log. Effect handlers that
+ * route through `case "gain_lore"` / `case "lose_lore"` use this wrapper so
+ * the player can see WHY their lore moved (Be Prepared's bardic loss, Show
+ * Me More! gains, Lose 1 Lore costs, etc.). Lore is always public — no
+ * privateTo stamping. We log the actual delta (post-prevention, post-clamp)
+ * so the message reflects what actually happened, not what the effect tried.
+ */
+function gainLoreWithLog(
+  state: GameState,
+  playerId: PlayerID,
+  amount: number,
+  events: GameEvent[],
+  definitions?: Record<string, CardDefinition>
+): GameState {
+  const before = state.players[playerId].lore;
+  state = gainLore(state, playerId, amount, events, definitions);
+  const delta = state.players[playerId].lore - before;
+  if (delta > 0) {
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} gained ${delta} lore.`,
+      type: "lore_gained",
+    });
+  } else if (delta < 0) {
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: `${playerId} lost ${-delta} lore.`,
+      type: "lore_lost",
+    });
+  }
+  // delta === 0 (prevented by Peter Pan / Koda, or clamped at 0) — log nothing.
+  return state;
+}
+
 // -----------------------------------------------------------------------------
 // ZONE TRANSITIONS — unified card movement with automatic trigger firing
 // Every card move in the game should go through here (except initial setup).
@@ -6757,6 +6898,13 @@ interface TransitionContext {
   triggeringPlayerId?: PlayerID | undefined;
   /** Suppress triggers (e.g. action cleanup, shift base removal) */
   silent?: boolean | undefined;
+  /** P1.13 — cause for banish log discriminator. Only meaningful when
+   *  `reason === "banished"`. Set by callers (banishCard wrapper threads it
+   *  in, or the call site passes it directly). When unset on a banish,
+   *  zoneTransition falls back to inferring `challenge` (if fromChallenge)
+   *  or `banish_effect` (the conservative default — direct effects are the
+   *  most common non-challenge banish path). */
+  banishCause?: BanishCause | undefined;
 }
 
 function zoneTransition(
@@ -6994,11 +7142,17 @@ function zoneTransition(
     if (ctx.reason === "banished") {
       events.push({ type: "card_banished", instanceId });
       if (def) {
+        // P1.13 — structured `cause` discriminator. Default to "banish_effect"
+        // for any banish that didn't come through banishCard (callers that
+        // call zoneTransition directly with reason="banished" — none today,
+        // but kept defensively). banishCard always populates banishCause.
+        const cause: BanishCause = ctx.banishCause ?? "banish_effect";
         state = appendLog(state, {
           turn: state.turnNumber,
           playerId: instance.ownerId,
           message: `${def.fullName} was banished.`,
           type: "card_banished",
+          cause,
         });
       }
     }
@@ -7163,7 +7317,13 @@ function banishCard(
   instanceId: string,
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
-  challengeCtx?: { challengeOpponentId: string }
+  challengeCtx?: { challengeOpponentId: string },
+  // P1.13 — explicit cause from the caller. When unset, we infer from
+  // challenge context (active challenge or callerCtx → "challenge"; else
+  // "banish_effect"). The lethal-damage GSC path (runGameStateCheck) is the
+  // only caller that should pass "damage" — every other banishCard call site
+  // is a direct effect/cost/EOT cleanup, which is "banish_effect".
+  cause?: BanishCause,
 ): GameState {
   // CRD 4.6.7: if the banished card is one of the two challengers of the still
   // active challenge AND the caller didn't supply explicit challengeCtx, infer
@@ -7178,10 +7338,22 @@ function banishCard(
     if (instanceId === attackerId) effectiveCtx = { challengeOpponentId: defenderId };
     else if (instanceId === defenderId) effectiveCtx = { challengeOpponentId: attackerId };
   }
+  // Cause defaults to "banish_effect" — every banishCard call that ISN'T the
+  // GSC-damage path is invoked from an effect, cost, or end-of-turn cleanup
+  // handler. The GSC path passes cause="damage" (or "challenge" when its
+  // challengeCtx points at one of the active challengers) explicitly. We do
+  // NOT promote `effectiveCtx` to cause="challenge" here: that would mislabel
+  // effect-driven banishes that happen DURING a challenge (Cheshire Cat's
+  // LOSE SOMETHING? banishing Marshmallow from the bag) — the cause is the
+  // EFFECT, not the challenge damage exchange. fromChallenge / challengeOpp
+  // remain inferred for trigger semantics (banished_in_challenge fires
+  // either way), but the log cause stays "banish_effect" for those.
+  const resolvedCause: BanishCause = cause ?? "banish_effect";
   return zoneTransition(state, instanceId, "discard", definitions, events, {
     reason: "banished",
     fromChallenge: !!effectiveCtx,
     challengeOpponentId: effectiveCtx?.challengeOpponentId,
+    banishCause: resolvedCause,
   });
 }
 
@@ -7320,6 +7492,17 @@ function dealDamageToCard(
       const newDamage = protector.damage + amount;
       state = updateInstance(state, redirectTo, { damage: newDamage });
       events.push({ type: "damage_dealt", instanceId: redirectTo, amount });
+      // P1.11 — damage redirect log so players see WHY Beast took damage
+      // intended for another character. Suppressed during challenge to
+      // avoid duplicating the challenge narrative.
+      if (amount > 0 && !inChallenge) {
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: protector.ownerId,
+          message: `${amount} damage redirected to ${protectorDef.fullName}.`,
+          type: "damage_dealt",
+        });
+      }
       // CRD 1.8.1.4: Banish check handled by runGameStateCheck after action resolves
       return state;
     }
@@ -7356,6 +7539,24 @@ function dealDamageToCard(
   // Fire damage_dealt_to trigger after damage is applied — skipped for "put damage counter".
   if (actualDamage > 0 && !asPutDamage) {
     state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId });
+  }
+
+  // P1.11 — log effect-driven damage so players can reconstruct why a card
+  // has damage. Suppressed when inChallenge (the challenge log line + the
+  // resulting banish entries already narrate the exchange). Logs the actual
+  // damage applied (post-Resist), and notes "put" semantics for Queen of
+  // Hearts and similar effects so the player understands why Resist didn't
+  // reduce it. Public — damage on board is visible. playerId on the entry
+  // is the damaged card's owner (consistent with the banish-log shape) so
+  // log-grouping by player surfaces the right side of the board.
+  if (actualDamage > 0 && !inChallenge) {
+    const verb = asPutDamage ? "put" : "dealt";
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId: instance.ownerId,
+      message: `${verb} ${actualDamage} damage to ${def.fullName}.`,
+      type: "damage_dealt",
+    });
   }
 
   // CRD 1.8.1.4: Banish check moved to runGameStateCheck — called after every
@@ -7396,7 +7597,7 @@ function applyEffectToTarget(
         ? getOpponent(controllingPlayerId)
         : controllingPlayerId;
       const loreBef = state.players[tgtPlayer].lore;
-      state = gainLore(state, tgtPlayer, signedAmt, events, definitions);
+      state = gainLoreWithLog(state, tgtPlayer, signedAmt, events, definitions);
       const loreAft = state.players[tgtPlayer].lore;
       state = { ...state, lastEffectResult: Math.abs(loreBef - loreAft) };
       return state;
@@ -7762,6 +7963,11 @@ function applyEffectToTarget(
     }
     case "put_into_inkwell": {
       const inst = getInstance(state, targetInstanceId);
+      // P1.11 — capture name BEFORE the zoneTransition so the log line shows
+      // what the card was called when it left its source zone (post-move,
+      // the instance is in the inkwell where its identity is hidden again).
+      const targetName = definitions[inst.definitionId]?.fullName ?? "a card";
+      const inkOwner = inst.ownerId;
       state = zoneTransition(state, targetInstanceId, "inkwell", definitions, events, { reason: "inked" });
       if (effect.enterExerted) {
         state = updateInstance(state, targetInstanceId, { isExerted: true });
@@ -7771,6 +7977,16 @@ function applyEffectToTarget(
       // CRD 6.2: "whenever a card is put into your inkwell" fires for chosen-target
       // inkwell placement (Oswald watching Fishbone Quill's chosen-hand-card path).
       state = queueTriggersByEvent(state, "card_put_into_inkwell", inst.ownerId, definitions, {});
+      // P1.11 — log the chosen-target ink (Fishbone Quill: "put a card from
+      // your hand into your inkwell"). privateTo to the inking player to
+      // match the standard INK_CARD shape (CRD 4.1.4 inkwell is face-down).
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: inkOwner,
+        message: `${inkOwner} put ${targetName} into their inkwell.`,
+        type: "card_put_into_inkwell",
+        privateTo: inkOwner,
+      });
       return state;
     }
     case "self_replacement": {
@@ -7951,6 +8167,19 @@ function applyEffectToTarget(
         state = { ...state, lastEffectResult: totalMoved };
         const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: totalMoved });
         if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
+        // P1.11 — single aggregate log for the all-damaged drain. Per-source
+        // lines would be noisy (Everybody's Got a Weakness can drain N chars
+        // at once); the totalMoved + destination name carries the signal.
+        if (totalMoved > 0) {
+          const dstDef = definitions[dst0.definitionId];
+          const dstName = dstDef?.fullName ?? targetInstanceId;
+          state = appendLog(state, {
+            turn: state.turnNumber,
+            playerId: controllingPlayerId,
+            message: `${totalMoved} damage moved to ${dstName}.`,
+            type: "damage_moved",
+          });
+        }
         return state;
       }
       // Stage 2 path: source already resolved → targetInstanceId is the destination
@@ -7999,6 +8228,18 @@ function applyEffectToTarget(
           // "Move" removes damage from source — fire damage_removed_from.
           state = markRemovedDamageThisTurn(state, controllingPlayerId);
           state = queueTrigger(state, "damage_removed_from", src.instanceId, definitions, {});
+          // P1.11 — log the source → destination move so players can trace
+          // damage that suddenly vanished from one card and appeared on another.
+          const srcDef2 = definitions[src.definitionId];
+          const dstDef2 = definitions[dst.definitionId];
+          const srcName2 = srcDef2?.fullName ?? src.instanceId;
+          const dstName2 = dstDef2?.fullName ?? targetInstanceId;
+          state = appendLog(state, {
+            turn: state.turnNumber,
+            playerId: controllingPlayerId,
+            message: `${moveAmt} damage moved from ${srcName2} to ${dstName2}.`,
+            type: "damage_moved",
+          });
         }
         // Record actually-moved count on lastResolvedTarget for follow-up effects.
         const deltaRef = makeResolvedRef(state, definitions, targetInstanceId, { delta: moveAmt });
@@ -8023,6 +8264,17 @@ function applyEffectToTarget(
           // style moves.
           state = markRemovedDamageThisTurn(state, controllingPlayerId);
           state = queueTrigger(state, "damage_removed_from", targetInstanceId, definitions, {});
+          // P1.11 — log the move from source → ability source (Luisa-style
+          // SHOULDER THE BURDEN). targetInstanceId is the chosen source;
+          // sourceInstanceId is the destination (the ability holder).
+          const srcDefThis = definitions[src.definitionId];
+          const dstDefThis = definitions[dst.definitionId];
+          state = appendLog(state, {
+            turn: state.turnNumber,
+            playerId: controllingPlayerId,
+            message: `${moveAmt} damage moved from ${srcDefThis?.fullName ?? targetInstanceId} to ${dstDefThis?.fullName ?? sourceInstanceId}.`,
+            type: "damage_moved",
+          });
         }
         const deltaRef = makeResolvedRef(state, definitions, sourceInstanceId, { delta: moveAmt });
         if (deltaRef) state = { ...state, lastResolvedTarget: deltaRef };
@@ -8611,8 +8863,15 @@ function runGameStateCheck(
         const challengeOpponentId = isChallengeBanish
           ? (id === challengeCtx!.attackerId ? challengeCtx!.defenderId : challengeCtx!.attackerId)
           : undefined;
+        // P1.13 cause: in-challenge GSC banish → "challenge"; otherwise the
+        // banish came from accumulated damage (effect/item/location lethal),
+        // which is "damage". banishCard's own challenge-inference is only
+        // used when the caller passes neither — here we're explicit so the
+        // log line distinguishes the two GSC paths cleanly.
+        const gscCause: BanishCause = isChallengeBanish ? "challenge" : "damage";
         state = banishCard(state, id, definitions, events,
-          challengeOpponentId ? { challengeOpponentId } : undefined);
+          challengeOpponentId ? { challengeOpponentId } : undefined,
+          gscCause);
         changed = true;
       }
     }

@@ -4583,3 +4583,248 @@ describe("§Engine — GameEvent stream plumbing & cascade attribution", () => {
     expect(triggerDamage.length).toBeGreaterThan(0);   // 5-damage AOE from is_banished
   });
 });
+
+// =============================================================================
+// P1.11 — log lines for silent effect-driven mutations (2026-04-28 audit).
+// Effect handlers that mutated state without writing to actionLog meant
+// players couldn't tell why hand/lore/damage/board changed between turns.
+// One test per added log type. See docs/STREAMS.md for the contract.
+// =============================================================================
+
+describe("P1.11 — effect-driven mutation log lines", () => {
+  it("gain_lore writes a `lore_gained` log entry with the actual delta", () => {
+    let state = startGame();
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "gain_lore",
+      target: { type: "self" },
+      amount: 3,
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const loreEntry = newEntries.find((e) => e.type === "lore_gained");
+    expect(loreEntry).toBeDefined();
+    expect(loreEntry!.message).toContain("player1");
+    expect(loreEntry!.message).toContain("3 lore");
+    expect(loreEntry!.privateTo).toBeUndefined(); // public
+  });
+
+  it("lose_lore writes a `lore_lost` log entry", () => {
+    let state = startGame();
+    state = setLore(state, "player1", 5);
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "lose_lore",
+      target: { type: "self" },
+      amount: 2,
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const loreEntry = newEntries.find((e) => e.type === "lore_lost");
+    expect(loreEntry).toBeDefined();
+    expect(loreEntry!.message).toContain("2 lore");
+  });
+
+  it("deal_damage outside a challenge writes a `damage_dealt` log entry", () => {
+    let state = startGame();
+    let sourceId: string, targetId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "deal_damage",
+      target: { type: "all", filter: { ownerScope: "opponent", cardType: "character" } },
+      amount: 1,
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const dmg = newEntries.find((e) => e.type === "damage_dealt");
+    expect(dmg).toBeDefined();
+    // Public prose names the target so the watching player understands which
+    // of their characters took the damage.
+    expect(dmg!.message).toContain("Minnie Mouse");
+    expect(dmg!.privateTo).toBeUndefined();
+    void targetId;
+  });
+
+  it("discard_from_hand `all` writes a `card_discarded` log entry naming the cards", () => {
+    let state = startGame();
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    // Inject 2 known cards into P1's hand so we can assert on names.
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "discard_from_hand",
+      target: { type: "self" },
+      amount: "all",
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const disc = newEntries.find((e) => e.type === "card_discarded");
+    expect(disc).toBeDefined();
+    expect(disc!.message).toContain("Minnie Mouse");
+    expect(disc!.privateTo).toBeUndefined(); // discard pile is public
+  });
+
+  it("look_at_hand stamps privateTo on the looker (server redacts for opponent)", () => {
+    let state = startGame();
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    // Plant a known card in the opponent's hand so the message contains a
+    // recognizable name.
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "look_at_hand",
+      target: { type: "opponent" },
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const peek = newEntries.find((e) => e.type === "hand_revealed");
+    expect(peek).toBeDefined();
+    // Looker sees the names verbatim in the unfiltered engine state; server's
+    // filterStateForPlayer redacts for non-authorized viewers.
+    expect(peek!.message).toContain("Minnie Mouse");
+    expect(peek!.privateTo).toBe("player1");
+  });
+
+  it("reveal_hand (public) does NOT stamp privateTo", () => {
+    let state = startGame();
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "reveal_hand",
+      target: { type: "opponent" },
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const reveal = newEntries.find((e) => e.type === "hand_revealed");
+    expect(reveal).toBeDefined();
+    expect(reveal!.privateTo).toBeUndefined();
+  });
+
+  it("put_into_inkwell self-target writes a `card_put_into_inkwell` log entry with privateTo", () => {
+    let state = startGame();
+    let sourceId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "put_into_inkwell",
+      target: { type: "this" },
+      enterExerted: true,
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const ink = newEntries.find((e) => e.type === "card_put_into_inkwell");
+    expect(ink).toBeDefined();
+    // CRD 4.1.4: inkwell card identity is hidden — privateTo to inking player.
+    expect(ink!.privateTo).toBe("player1");
+  });
+});
+
+// =============================================================================
+// P1.13 — structured `cause` field on `card_banished` log entries.
+// Replays / simulator / UI consume the typed discriminator instead of regexing
+// the message. Four reachable cause values: challenge / damage / banish_effect /
+// (gsc_cleanup is reserved). One test per reachable variant.
+// =============================================================================
+
+describe("P1.13 — banish log entry `cause` discriminator", () => {
+  it("challenge banish stamps cause:'challenge' on both sides", () => {
+    // Mickey True Friend (3/3) challenges Mickey True Friend (3/3) — both
+    // die from lethal damage during the challenge step. GSC runs with
+    // challengeCtx, so both banish entries should carry cause:"challenge".
+    let state = startGame();
+    let attackerId: string, defenderId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: defenderId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+
+    const r = applyAction(state, {
+      type: "CHALLENGE",
+      playerId: "player1",
+      attackerInstanceId: attackerId,
+      defenderInstanceId: defenderId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    const banishes = r.newState.actionLog.filter((e) => e.type === "card_banished");
+    // Both attacker and defender died — two banish lines.
+    expect(banishes.length).toBe(2);
+    for (const b of banishes) {
+      expect(b.cause).toBe("challenge");
+    }
+  });
+
+  it("damage banish (lethal damage outside a challenge) stamps cause:'damage'", () => {
+    // Source character deals lethal damage via deal_damage effect to a Lilo
+    // Making a Wish (1 willpower) — runGameStateCheck banishes it without
+    // challengeCtx, so cause:"damage".
+    let state = startGame();
+    let sourceId: string, targetId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: targetId } = injectCard(state, "player2", "lilo-making-a-wish", "play"));
+
+    // Apply deal_damage as an action-style effect, then a separate runGameStateCheck-
+    // triggering action. Easiest: wrap in applyAction so the post-action GSC fires.
+    // Instead, directly call applyEffect with an "all" target including the lilo,
+    // then trigger GSC by passing turn (which calls runGameStateCheck).
+    state = applyEffect(state, {
+      type: "deal_damage",
+      target: { type: "all", filter: { ownerScope: "opponent", cardType: "character" } },
+      amount: 5, // lilo has 1 wp; lethal
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    // Damage was applied but GSC hasn't run yet (applyEffect alone doesn't
+    // re-run GSC). Trigger via an action that does — PASS_TURN flows through
+    // applyAction → runGameStateCheck.
+    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    const banishes = r.newState.actionLog.filter((e) => e.type === "card_banished");
+    expect(banishes.length).toBeGreaterThanOrEqual(1);
+    // The Lilo banish should carry cause:"damage" (lethal damage outside a
+    // challenge). Find by name to disambiguate from any other banishes.
+    const liloBanish = banishes.find((b) => b.message.includes("Lilo"));
+    expect(liloBanish).toBeDefined();
+    expect(liloBanish!.cause).toBe("damage");
+    void targetId;
+  });
+
+  it("banish-effect (effect-driven banish_chosen / banish target) stamps cause:'banish_effect'", () => {
+    // Direct banish via "banish" effect with target:"all". The handler routes
+    // through banishCard with no explicit cause and no challengeCtx, defaulting
+    // to "banish_effect".
+    let state = startGame();
+    let sourceId: string, victimId: string;
+    ({ state, instanceId: sourceId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play"));
+
+    const baseLogLen = state.actionLog.length;
+    state = applyEffect(state, {
+      type: "banish",
+      target: { type: "all", filter: { ownerScope: "opponent", cardType: "character" } },
+    } as any, sourceId, "player1", CARD_DEFINITIONS, []);
+
+    const newEntries = state.actionLog.slice(baseLogLen);
+    const banish = newEntries.find((e) => e.type === "card_banished");
+    expect(banish).toBeDefined();
+    expect(banish!.cause).toBe("banish_effect");
+    // Verify the targeted card actually moved to discard.
+    expect(getInstance(state, victimId).zone).toBe("discard");
+  });
+});

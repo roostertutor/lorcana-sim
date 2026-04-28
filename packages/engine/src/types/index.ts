@@ -3974,6 +3974,12 @@ export interface GameLogEntry {
    * lore changes, ability triggers — anything visible to both players).
    */
   privateTo?: PlayerID;
+  /**
+   * P1.13 — structured cause discriminator for `card_banished` entries.
+   * Simulator/replay/UI consume this directly instead of regexing the message.
+   * Set ONLY when `type === "card_banished"`. See `BanishCause` JSDoc.
+   */
+  cause?: BanishCause;
 }
 
 export type GameLogEntryType =
@@ -3987,13 +3993,43 @@ export type GameLogEntryType =
   | "card_challenged"
   | "card_banished"
   | "lore_gained"
+  | "lore_lost"
   | "ability_triggered"
   | "ability_activated"
   | "effect_resolved"
   | "choice_made"
   | "mulligan"
   | "character_moved"
-  | "game_over";
+  | "game_over"
+  // Surfaced 2026-04-28 for P1.11 (effect-driven mutations were silently
+  // changing state without log lines — players couldn't reconstruct why
+  // hand/lore/damage/board changed). See docs/STREAMS.md.
+  | "card_discarded"
+  | "damage_dealt"
+  | "damage_moved"
+  | "hand_revealed";
+
+/**
+ * P1.13 (2026-04-28) — structured cause for `card_banished` log entries so
+ * simulator/replay/UI can disambiguate without prose-parsing the message
+ * (per docs/STREAMS.md — never derive structure from log strings).
+ *
+ * - `challenge`    — banish from challenge resolution (CRD 4.6 / 1.8.1.4 with
+ *                    challengeCtx threaded through `runGameStateCheck`).
+ * - `damage`       — banish from accumulated damage outside a challenge
+ *                    (CRD 1.8.1.4, e.g. character takes lethal damage from
+ *                    a `deal_damage` effect or an item's damage trigger).
+ * - `banish_effect` — banish from a card effect (Be Prepared, banish_chosen
+ *                    targets, banish_self costs, alt-shift banish costs,
+ *                    pendingEndOfTurnBanish from Gruesome and Grim / Madam Mim).
+ * - `gsc_cleanup`  — reserved for any non-damage GSC banish path we discover
+ *                    (currently unused; kept as a future-proof variant).
+ */
+export type BanishCause =
+  | "challenge"
+  | "damage"
+  | "banish_effect"
+  | "gsc_cleanup";
 
 // -----------------------------------------------------------------------------
 // ACTIONS — What a player can DO on their turn
