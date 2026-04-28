@@ -1306,3 +1306,115 @@ section only — public games section can ship without it.
 - **True MMR queue tuning** — Phase 3 ships the infrastructure; tuning
   band-widening curves, queue-depth display, region-based matching all
   live in a future phase once real usage data exists.
+
+---
+
+## Engine agent: `import-cards-rav` clobbers R2 image URLs on every re-import
+
+Surfaced 2026-04-28 by user during MP playtest CORS-error debugging. After commit `b8e19b2` (set 12 refresh from Ravensburger+Lorcast), 2,672 / 2,692 cards' `imageUrl` fields had been rewritten back to Ravensburger CDN URLs. R2 sync had to be re-run for every set to restore — and `sync-images-rav` currently re-downloads + re-uploads every image (no actual content-rotation occurred, just routine re-import) because its skip guard requires `imageUrl` to already be R2-shaped.
+
+### The clobber
+
+`scripts/import-cards-rav.ts:626`:
+
+```ts
+if (regular?.detail_image_url) out.imageUrl = regular.detail_image_url;
+```
+
+Always overwrites `imageUrl` with the fresh Ravensburger URL. The author was aware (comment at `import-cards-rav.ts:809-813` says "the importer DOES overwrite `imageUrl` ... we preserve the source markers so sync-images-rav can compare"), but the result is that `pnpm import-cards` is non-idempotent w.r.t. `imageUrl` — every routine re-import resets the entire catalog to Ravensburger CDN URLs, then `sync-images-rav` has to re-fetch + re-upload all ~2700 cards just to put the R2 pointer back.
+
+### The (also-suboptimal) sync-images-rav guard
+
+`scripts/lib/image-sync.ts:251-282` skip-guard requires three conditions all true:
+1. `_sourceImageUrl === current upstream URL` (Rav URL unchanged) — holds after re-import
+2. `_imageSource === ctx.tier` — holds
+3. `imageUrl` already R2-shaped — **fails after re-import** (it's been clobbered to Rav)
+
+So every routine re-import + sync triggers ~2700 fetches + ~8100 R2 PUTs (3 sizes per card). PUT is a no-op at content-hash key, but still a network round-trip per card. Totally avoidable.
+
+### Recommended fix (importer side, small)
+
+Make `pnpm import-cards` preserve the existing R2 `imageUrl` when the underlying upstream URL is unchanged:
+
+```ts
+// In scripts/import-cards-rav.ts around line 626 (and in the merge-passthrough
+// around line 836 for re-import-into-existing-card flow):
+if (regular?.detail_image_url) {
+  const newRavUrl = regular.detail_image_url;
+  // Read prev card's pre-import state — already in scope via the merge pass.
+  const prevR2 = isR2Shape(prev.imageUrl) ? prev.imageUrl : null;
+  const upstreamUnchanged = prev._sourceImageUrl === newRavUrl;
+  out.imageUrl = (prevR2 && upstreamUnchanged) ? prevR2 : newRavUrl;
+}
+
+// Helper — reuse the same R2-shape detector sync-images-rav uses
+// (image-sync.ts:271-275). Probably belongs in a shared lib so both scripts
+// agree on what "R2-shaped" means.
+```
+
+Net effect:
+- **Routine re-import (nothing rotated)** → `imageUrl` stays R2 → `sync-images-rav` is a no-op (or doesn't even need to be re-run).
+- **Upstream rotated** (Ravensburger updated card art) → `_sourceImageUrl !== newRavUrl` → `imageUrl` resets to fresh Rav URL → `sync-images-rav` correctly re-fetches just the rotated cards.
+- **First-time card** → `imageUrl` is Rav URL → `sync-images-rav` does first-time download.
+
+Same shape as how the importer already handles other "preserve user/downstream rewrites unless source rotated" passthroughs (see `_imageSource` / `_imageSourceLock` handling at `import-cards-rav.ts:803-835`).
+
+### Same fix needed for foil URLs
+
+The audit also showed all 2,426 `foilImageUrl` and 2,692 `foilMaskUrl` are still on Ravensburger — never even started to migrate. Out of scope for this entry (separate sync script — `sync-foil-masks` / similar — would be the right place). Just a note that it's a parallel structural gap; the importer-fix pattern above generalizes to those fields once the foil-side sync exists.
+
+### Tests
+
+- Re-running `pnpm import-cards` against a card with R2 `imageUrl` + matching `_sourceImageUrl` should leave `imageUrl` unchanged.
+- Re-running `pnpm import-cards` against a card with R2 `imageUrl` but a NEW upstream URL (rotation) should reset `imageUrl` to the new Rav URL (so subsequent sync-images-rav picks it up).
+- First-time import (no `_sourceImageUrl` field) populates `imageUrl` with the Rav URL as today.
+
+### Files
+
+- `scripts/import-cards-rav.ts` — the fix (~10 lines + a small shared helper).
+- `scripts/lib/image-sync.ts` — possible second home for the `isR2Shape` helper if it gets factored out (currently inlined per the comment at line 270-275).
+- Tests in `scripts/__tests__/` if there are any (haven't checked); otherwise a manual repro is fine for a CLI-side fix.
+
+### One-time unstick command for current state
+
+User can run `pnpm sync-images-rav` once now (without the importer fix) to re-populate R2 URLs across all sets. Slow (~30 min — 2700 fetches serial), one-time. After the importer fix lands, future re-imports are free.
+
+---
+
+## Engine agent: `Might Solve a Mystery` (set 10) — `maxToHand: 2` doesn't enforce per-type cap
+
+Surfaced 2026-04-28 by user. Set 10 song action, cost 4.
+
+**Oracle text** (from `card-set-10.json:` `id: "might-solve-a-mystery"`):
+
+> *"Look at the top 4 cards of your deck. You may reveal **up to 1 character card** and **up to 1 item card** and put them into your hand. Put the rest on the bottom of your deck in any order."*
+
+**Current wiring:**
+
+```json
+"actionEffects": [{
+  "type": "look_at_top",
+  "count": 4,
+  "action": "choose_from_top",
+  "maxToHand": 2,
+  "target": { "type": "self" },
+  "isMay": true,
+  "revealPicks": true
+}]
+```
+
+**Bug.** `maxToHand: 2` with no filter lets the player pick **any** 2 of the 4 cards into hand — including 2 characters or 2 items. Oracle requires **at most 1 of each type**.
+
+The current `look_at_top` / `choose_from_top` primitive doesn't have a per-type / per-filter cap shape. Likely needs either:
+- A new field like `maxByFilter: [{ filter: { cardType: ["character"] }, max: 1 }, { filter: { cardType: ["item"] }, max: 1 }]` to gate picks by type/filter while still drawing from the same revealed pool, OR
+- A sequential of two passes — first "may pick up to 1 character card from the look-at-top pool", then "may pick up to 1 item card from the (remaining) pool" — which would also need the second pass to inherit the first's "looked at" state instead of re-revealing.
+
+The first option is probably cleaner — single pendingChoice, player picks any subset of 0/1/2 cards subject to per-type bounds.
+
+**Audit for similar wording.** Likely other songs/cards use the same "up to 1 X and up to 1 Y" pattern — worth grepping `up to 1.*card.*up to 1` over rulesText in all sets. If the new primitive shape covers them, knock out a few in one ship.
+
+**Test added (not yet wired).** A test that fires Might Solve a Mystery, asserts the choice shape is "0/1 character + 0/1 item" not "any 2", and a negative case that picking 2 characters is rejected.
+
+**Files**: `packages/engine/src/cards/card-set-10.json` (entry id `might-solve-a-mystery`), engine effect handler for `look_at_top` / `choose_from_top` (in `packages/engine/src/engine/reducer.ts`), engine type defs for the action-effect shape if a new field gets added (in `packages/engine/src/types/index.ts`), and `set10.test.ts` for the regression test.
+
+**Audit verdict checks** (`pnpm card-status`, `pnpm decompile-cards`) — currently both clean per the recent ship; this bug is a primitive-coverage gap not flagged by the text-shape checks. Worth a thought on whether `decompile-cards` could catch "rulesText says 'up to 1 X and up to 1 Y' but JSON has unbounded `maxToHand`" for the next sweep.
