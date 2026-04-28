@@ -24,6 +24,34 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Item-stack default: unstack on desktop, stack on mobile
+
+**Considered**: Today `itemStackingEnabled` (GUI setting in `useGuiSettings.ts`) defaults `true` for all viewports. When on, identical items (same defId + same state — exert / damage / timed effects / cardsUnder count) collapse into a staggered shadow-layer pile via `renderItemStack` in `GameBoard.tsx`. Stagger is the primary count signal at 1-4; an `×N` overflow badge appears at 5+ (deliberate per commit `1784bef` — *"stagger as primary stack count signal — drop ×N badge for 1-4"*).
+
+Proposal: flip the default to `false` (unstack everything) at `lg+` breakpoint, where horizontal space accommodates ~8 items at `120px` per cell with room to spare. Keep stacking-on by default at `< lg` (mobile) where space is genuinely tight. User-facing toggle still respected; the change is purely defaults.
+
+**Why parked (2026-04-27)**: Discussed in chat — desktop stacking solves a problem desktop doesn't have (no space pressure), and individual items are higher information density than a stack-with-badge. But shipping it touches both `useGuiSettings.ts` (default flip — UI scope) and `GameBoard.tsx` (rendering branch — gameboard-specialist scope), so worth a deliberate decision rather than a drive-by.
+
+**Trigger to reconsider**:
+- A desktop user reports that item stacking feels wasteful or hides information they care about, OR
+- We do a P1 phone gameboard pass and the rendering scope expands to "rethink stacking heuristics across breakpoints" anyway, OR
+- A streamer / creator surfaces that stacks are unreadable in clip exports.
+
+**Expected scope**: ~30 min total.
+- `useGuiSettings.ts`: default = `window.matchMedia("(min-width: 1024px)").matches ? false : true`, with comment.
+- OR keep default as-is and gate the rendering: `guiSettings.itemStackingEnabled && !isLgViewport`. The rendering-side gate keeps user preference meaningful as an explicit override.
+- Either touches one file (settings) or two files (settings + GameBoard branch).
+
+**Decisions explicitly NOT to revisit** (chat 2026-04-27, captured here so future agents don't re-propose):
+
+- **Splitting items by exert state**: 3 ready Pawpsicles + 1 exerted = 2 stacks (current), NOT 1 unified stack. Exert state directly gates legal actions (you can't activate an exerted item), so collapsing them would lie about the player's actual decision space. The split is the right call. Different from cards-under (BACKLOG entry below) where face-up/face-down is NOT meaningfully interactive — that one correctly stays unsplit.
+
+- **Always-show count badge for 1-4 stacks**: tempting to make split lone-cards "look like part of a group" by always rendering `×1` / `×3` badges. Deliberately rejected by `1784bef` — stagger is the count signal at 1-4. Adding badges back would un-do that design and clutter the visual at the most common counts.
+
+- **Visually linking same-defId stacks across state-split** (e.g., bracket / tint connecting `×3 ready` and `×1 exerted` Pawpsicle stacks): rejected — the lone-state cell IS in a different state and tapping it does different things. Visually grouping would be misleading. Mental "I have 4 of these" is a player-side reasoning task, not a chrome responsibility.
+
+---
+
 ### Play-zone overflow affordances (scroll discoverability)
 
 **Considered**: Three optional UX enhancements when the player's play zone has more cards than fit in available height (stress-tested at 18 cards portrait / 24 cards landscape on iPhone 13 — 2 full rows + a third trimmed row, scrolling works fine but the trim isn't visually signaled):
