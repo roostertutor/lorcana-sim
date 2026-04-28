@@ -455,14 +455,19 @@ export default function DeckBuilderPage() {
             {/* Legality summary — only rendered when there are issues. Counts
                  the illegal entries so the user sees at-a-glance how many
                  rows need fixing; each illegal row also shows its own
-                 inline message via DeckBuilder's issueMessagesByDefinitionId. */}
+                 inline message via DeckBuilder's issueMessagesByDefinitionId.
+                 The format dropdown (in the deck-name row above) already
+                 lets users switch between Core and Infinity — Infinity's
+                 legalSets are a superset, so flipping to Infinity typically
+                 resolves Core-rotation illegalities. */}
             {!legality.ok && entries.length > 0 && (
               <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
-                <div className="font-bold">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span>⚠️</span>
                   {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in current rotation ({formatFamily === "core" ? "Core" : "Infinity"} {validationRotation})
                 </div>
                 <div className="text-red-400/80">
-                  Highlighted in red below. Change the format, or replace the cards.
+                  Highlighted in red below. Edit the deck, or change the format above.
                 </div>
               </div>
             )}
