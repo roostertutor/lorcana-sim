@@ -17,6 +17,7 @@ import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
 import FormatPicker from "../components/FormatPicker.js";
+import ModalFrame from "../components/ModalFrame.js";
 import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 
@@ -592,12 +593,9 @@ export default function DeckBuilderPage() {
       {/* Discard-changes modal — in-app alternative to window.confirm().
            Shown when user clicks the "← My Decks" link with unsaved work. */}
       {pendingNav && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => setPendingNav(null)}
-        >
+        <ModalFrame onClose={() => setPendingNav(null)}>
           <div
-            className="bg-gray-950 border border-gray-700 rounded-xl p-5 max-w-sm w-full space-y-4 shadow-2xl"
+            className="bg-gray-950 border border-gray-700 rounded-xl p-5 m-4 max-w-sm w-full space-y-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="space-y-1">
@@ -621,17 +619,14 @@ export default function DeckBuilderPage() {
               </button>
             </div>
           </div>
-        </div>
+        </ModalFrame>
       )}
 
       {/* Box art picker modal — grid of deck's own cards, click to set */}
       {boxPickerOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => setBoxPickerOpen(false)}
-        >
+        <ModalFrame onClose={() => setBoxPickerOpen(false)}>
           <div
-            className="bg-gray-950 border border-gray-700 rounded-xl p-4 max-w-2xl w-full max-h-[80vh] overflow-y-auto space-y-3"
+            className="bg-gray-950 border border-gray-700 rounded-xl p-4 m-4 max-w-2xl w-full max-h-[80vh] overflow-y-auto space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -702,7 +697,7 @@ export default function DeckBuilderPage() {
               })}
             </div>
           </div>
-        </div>
+        </ModalFrame>
       )}
     </div>
   );
