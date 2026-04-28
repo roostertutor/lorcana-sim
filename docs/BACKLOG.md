@@ -24,6 +24,34 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Unify `choose_order` direction across all cards (Hypnotic Deduction vs Vision of the Future)
+
+**Considered**: After the P0.2 fix in `99e3892` (2026-04-28), the `choose_order` modal helper text now reads `pendingChoice.position` from the engine and renders the appropriate first-tap → top-vs-bottom mapping. This means the helper differs by card:
+
+- Vision of the Future / Ariel Spectacular Singer / Under the Sea / `look_at_top` "rest to bottom" (`position: "bottom"`): "first tap → bottom of deck"
+- Hypnotic Deduction (`position: "top"`): "first tap → top of deck (next to draw)"
+
+Both behaviors match each card's natural framing, but a player learning the modal pattern on one card may carry the wrong mental model to the other.
+
+**Why parked (2026-04-28)**: Two ways to unify, both nontrivial and both invert one card's natural framing:
+
+- **"Always first tap = drawn first"** — Hypnotic unchanged (first tap is already the next-drawn card). Vision: would need engine to invert the `position: "bottom"` ordering; currently `ids[0]` lands at the deepest position via `reorderDeckTopToBottom(state, owner, ids, [])` at `reducer.ts:2511` and that contract is documented at `types/index.ts:3858`. Inverting requires either reordering `ids[]` in the reducer or reversing the choice array in the UI before submission. Tests + sandbox testers' models migrate.
+- **"Always first tap = bottommost"** — Vision unchanged. Hypnotic: first tap becomes the deepest of the placed-on-top block, making "what do I want next?" the LAST tap rather than the first. Mentally weird for Hypnotic's natural framing.
+
+Current "first tap = destination edge" convention is symmetric in mechanics across both cards even if the helper string differs.
+
+**Trigger to reconsider**:
+- Post-playtest feedback that the variable helper text confuses players on either card type, OR
+- A new card surfaces `position: "top"` and players hit it more often than Hypnotic Deduction (broadens the surface where the inconsistency shows up), OR
+- Engine work reorganizes `choose_order` semantics for unrelated reasons.
+
+**Expected scope**: ~1-2 hours total once a direction is chosen.
+- Engine reducer (`reducer.ts:2491-2511`) + type doc string (`types/index.ts:3858`) update.
+- Engine tests update for any card using the changed direction.
+- UI helper text simplification (single string instead of conditional).
+
+---
+
 ### Item-stack default: unstack on desktop, stack on mobile
 
 **Considered**: Today `itemStackingEnabled` (GUI setting in `useGuiSettings.ts`) defaults `true` for all viewports. When on, identical items (same defId + same state — exert / damage / timed effects / cardsUnder count) collapse into a staggered shadow-layer pile via `renderItemStack` in `GameBoard.tsx`. Stagger is the primary count signal at 1-4; an `×N` overflow badge appears at 5+ (deliberate per commit `1784bef` — *"stagger as primary stack count signal — drop ×N badge for 1-4"*).
