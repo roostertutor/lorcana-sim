@@ -440,6 +440,33 @@ Noted during a GUI session where the user asked whether Reset should keep deck h
 
 ---
 
+### Beyond the Horizon — "Choose any number of players" mechanic missing
+
+**Considered**: Set 8 #202 Beyond the Horizon (Sing Together 7 song) has rules text *"Choose any number of players. They discard their hands and draw 3 cards each."* The card-data implementation in `card-set-8.json:13834-13853` hardcodes both players via two `actionEffects` blocks (`target: { "type": "opponent" }` followed by `target: { "type": "self" }`), so the engine deterministically discards/draws for both regardless of what the controller wants. CRD lets the controller pick any subset (0, just self, just opp, or both); the wrong implementation forces both.
+
+**Why parked (2026-04-28)**: Discovered while reviewing P0.1 (which only handled `choose_player` — single-player picks). Beyond the Horizon needs **multi-pick** over players — a different mechanic the engine has no representation for. Building it requires:
+
+- A new `PendingChoice` variant (e.g. `choose_players_subset`) — multi-select over PlayerIDs.
+- A new `PlayerTarget` shape or effect-level marker (e.g. `target: { "type": "subset" }`) so the controller's pick gets fanned out per-target.
+- A UI branch in `PendingChoiceModal` (multi-select buttons / checkboxes; pattern doesn't currently exist for player targets).
+- Card data update for Beyond the Horizon to use the new mechanism.
+- Tests.
+
+Single-card scope today (grep confirmed: only Beyond the Horizon uses "Choose any number of players" wording across all 13 sets). Workaround (forced-both) doesn't crash the UI or the engine — it produces incorrect gameplay only when the player would have wanted to opt out of one side.
+
+**Trigger to reconsider**:
+- A future set adds another card with "Choose any number of players" or analogous multi-player-pick wording (broadens scope), OR
+- A Set 8 playtest surfaces consistent feedback that the forced-both behavior matters competitively (e.g., self-discard hurting the caster more than the disruption helps), OR
+- Engine adds multi-pick targeting infrastructure for unrelated reasons (then Beyond the Horizon piggybacks on it).
+
+**Expected scope**: ~1-2 days total.
+- Engine: new `PendingChoice` variant, new target shape, reducer wiring (~1 day).
+- UI: multi-select branch in `PendingChoiceModal` + the new compile-time exhaustiveness sentinel from `c34447f` will fail typecheck until the branch is added (~2 hrs — actually a benefit; the sentinel forces the UI work to land atomically).
+- Card data: re-wire Beyond the Horizon's `actionEffects` (~10 min).
+- Tests: regression test (~1 hr).
+
+---
+
 ### Engine deferred / low-priority queue (CRD edge cases + GameEvent extensions)
 
 Three small items engine-expert verified (2026-04-21) as legitimate gaps with no current card depending on them. Grouped here because each is small and the trigger is the same shape: a card or feature that actually exercises the gap.
