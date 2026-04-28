@@ -628,6 +628,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [showEffects, setShowEffects] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  // Game Over modal dismiss state — when true, modal is hidden and a small
+  // reopen pill renders top-center so the player can read the log/board/cards
+  // post-game (CRD-irrelevant, pure UX). Reset on session.reset() (Play Again
+  // path) so a fresh game shows the modal again. Modal still mounts on first
+  // game-over because this defaults to false.
+  const [gameOverModalDismissed, setGameOverModalDismissed] = useState(false);
   const [guiSettings, setGuiSetting] = useGuiSettings();
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
@@ -2573,7 +2579,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           sandboxMode={!!sandboxMode}
           isGameOver={isGameOver}
           connectionStatus={session.connectionStatus ?? null}
-          hidden={showLog || showAnalysis || showEffects || showSettings || isGameOver}
+          hidden={showLog || showAnalysis || showEffects || showSettings || (isGameOver && !gameOverModalDismissed)}
           onOpenLog={() => setShowLog(true)}
           onOpenSettings={() => setShowSettings(true)}
           {...(sandboxMode ? { onOpenSandbox: () => setShowAnalysis(true) } : {})}
@@ -2654,7 +2660,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     </div>
 
       {/* ======================= Game Over Modal ======================= */}
-      {isGameOver && !replayData && (() => {
+      {isGameOver && !replayData && !gameOverModalDismissed && (() => {
         // Bo3 match state (embedded by server on game-over)
         const matchNextGameId = (gameState as Record<string, unknown>)._matchNextGameId as string | null | undefined;
         const matchScore = (gameState as Record<string, unknown>)._matchScore as { p1: number; p2: number } | undefined;
@@ -2666,15 +2672,55 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         const oppLore = gameState.players[oppId]?.lore ?? 0;
         const turnCount = gameState.turnNumber;
 
+        // Win-condition subtitle from engine's wonBy field (lore / deckout /
+        // concede). Phrasing differs by perspective: e.g. "by deckout" reads
+        // as your loss when you ran out of cards; from the winner's POV
+        // we surface "opponent ran out of cards" instead. Concede follows
+        // the same pattern. wonBy is null on draws or if the engine didn't
+        // tag the cause — render nothing in that case.
+        const wonBy = gameState.wonBy;
+        const isWinner = winner === myId;
+        const isLoser = winner != null && winner !== myId;
+        let causeText: string | null = null;
+        if (wonBy === "lore") {
+          causeText = "by reaching the lore threshold";
+        } else if (wonBy === "deckout") {
+          causeText = isWinner ? "opponent ran out of cards" : "by deckout";
+        } else if (wonBy === "concede") {
+          causeText = isWinner ? "opponent conceded" : isLoser ? "you conceded" : "by concede";
+        }
+
         return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={(e) => {
+            // Backdrop click → dismiss (peek at log/board). Inner panel
+            // calls e.stopPropagation() so internal clicks don't bubble.
+            if (e.target === e.currentTarget) setGameOverModalDismissed(true);
+          }}
+        >
+          <div
+            className="relative bg-gray-950 border border-amber-500/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl mx-4 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* X-close → dismiss to peek at log/board. Same affordance as
+                CardInspectModal / ZoneViewModal close buttons. */}
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-300 transition-colors z-10"
+              onClick={() => setGameOverModalDismissed(true)}
+              aria-label="Dismiss"
+            >
+              <Icon name="x-mark" className="w-5 h-5" />
+            </button>
             <div className="text-4xl font-black text-amber-400 tracking-tight">
               {winner === myId ? "Victory!" : winner ? "Defeat" : "Draw"}
             </div>
             <div className="text-sm text-gray-400">
               {winner === myId ? "You won the game" : winner ? (multiplayerGame ? "Your opponent won" : "The bot won") : "The game ended in a draw"}
             </div>
+            {causeText && (
+              <div className="text-xs text-gray-500 -mt-2">{causeText}</div>
+            )}
             {/* Final game stats — lore totals + turn count */}
             <div className="flex items-center justify-center gap-6 py-2 border-y border-gray-800/60">
               <div className="text-center">
@@ -2720,6 +2766,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 const backToLobby = () => {
                   session.reset();
                   setReplayData(null);
+                  setGameOverModalDismissed(false);
                   onBack?.();
                 };
                 return (
@@ -2741,7 +2788,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                     {!multiplayerGame && (
                       <button
                         className={primaryStyle}
-                        onClick={() => { session.reset(); setReplayData(null); }}
+                        onClick={() => { session.reset(); setReplayData(null); setGameOverModalDismissed(false); }}
                       >
                         Play Again
                       </button>
@@ -2781,6 +2828,27 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </div>
         );
       })()}
+
+      {/* ======================= Game Over reopen pill =======================
+          Renders only when the Game Over modal has been dismissed (X-close or
+          backdrop click). Tap → re-open the modal so the player can hit Play
+          Again / Back to Lobby / Review / Download. Top-center, mirrors the
+          TopToast positioning so it clears the iPhone Dynamic Island. */}
+      {isGameOver && !replayData && gameOverModalDismissed && (
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+          style={{ top: "calc(1rem + env(safe-area-inset-top))" }}
+        >
+          <button
+            className="pointer-events-auto px-4 py-1.5 bg-gray-900/90 hover:bg-gray-800 active:scale-95 text-amber-300 text-xs font-bold rounded-full shadow-lg border border-amber-500/40 backdrop-blur-sm transition-all"
+            onClick={() => setGameOverModalDismissed(false)}
+            aria-label="Reopen game over"
+          >
+            {winner === myId ? "Victory" : winner ? "Defeat" : "Draw"}
+            <span className="ml-2 text-gray-500 font-normal">tap to reopen</span>
+          </button>
+        </div>
+      )}
 
       {/* ======================= Card action popover (fixed near card) =======================
           Buttons scale down on mobile to stay proportional to the smaller
