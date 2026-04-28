@@ -467,6 +467,26 @@ Single-card scope today (grep confirmed: only Beyond the Horizon uses "Choose an
 
 ---
 
+### Typed labels on `choose_option` PendingChoice
+
+**Considered**: P1.9 (commit `1171f77`, 2026-04-28) added a `"Option N"` fallback to `extractOptionTexts` in `PendingChoiceModal.tsx` for when its rulesText parser fails — but the underlying anti-pattern of deriving structured data from prose remains. The right long-term fix is engine-side: each `choose_option` Effect carries a typed `optionLabels: string[]` matching `options.length`, populated at card-import time from the structured ability JSON (or hand-authored where the rulesText parse is genuinely ambiguous). UI consumes `pendingChoice.optionLabels` directly; `extractOptionTexts` deletes.
+
+**Why parked (2026-04-28)**: Just shipped the UI fallback, which is sufficient for known cards today (no current card has been observed shipping malformed labels through the new heuristic). Engine-side typed labels require a card JSON migration sweep (every card with a `choose_option` effect needs labels written into its data) plus a reducer signature update plus a UI consumer swap. Same pattern as `BanishCause` shipped in `27689ae` — ~half-day total but no current pain point forcing it.
+
+**Trigger to reconsider**:
+- A new card ships with multi-option text the parser silently mangles (the heuristic falls back, but the labels become "Option 1" / "Option 2" — losing information; players have to read the underlying rulesText anyway), OR
+- Localization work begins (typed labels are translatable; parsed labels aren't), OR
+- Engine adds another structured-prompt-data primitive for unrelated reasons (typed labels piggyback on the migration).
+
+**Expected scope**: ~half-day total.
+- `Effect` type for `choose_option` gains `optionLabels?: string[]` (optional for backward compat).
+- Card JSON sweep — populate labels for every card using `choose_option`. Roughly 50-100 cards (estimate); auto-extractable for most via the existing parser as a one-time data migration.
+- Reducer surfaces the labels onto `pendingChoice.optionLabels` when constructing the choice.
+- UI `PendingChoiceModal` reads `pendingChoice.optionLabels` directly when present, falls through to `extractOptionTexts` (with its `Option N` fallback) when not.
+- Eventually delete `extractOptionTexts` once all cards carry labels.
+
+---
+
 ### Engine deferred / low-priority queue (CRD edge cases + GameEvent extensions)
 
 Three small items engine-expert verified (2026-04-21) as legitimate gaps with no current card depending on them. Grouped here because each is small and the trigger is the same shape: a card or feature that actually exercises the gap.
