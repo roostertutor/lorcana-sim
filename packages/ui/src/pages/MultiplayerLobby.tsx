@@ -504,44 +504,85 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
-        {/* Play Solo — opponent picker + button. Opponent picker only
-             rendered when there's at least one saved deck the bot could
-             play (excluding the user's currently-selected deck in saved
-             mode). Defaults to mirror, which preserves the historical
-             one-click behavior for users with a single deck. */}
-        <div className="space-y-1.5">
-          {opponentOptions.length > 0 && (
-            <label className="flex items-center gap-2 text-[11px] text-gray-500">
-              <span className="shrink-0">Bot plays:</span>
-              <select
-                className="flex-1 min-w-0 bg-gray-950 border border-gray-700 rounded-md
-                           px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none"
-                value={opponentDeckId ?? ""}
-                onChange={(e) => setOpponentDeckId(e.target.value || null)}
-              >
-                <option value="">Mirror (your deck)</option>
-                {opponentOptions.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
-              </select>
-            </label>
-          )}
-          <button
-            className="w-full py-2.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
-                       disabled:text-gray-600 text-gray-200 rounded-lg text-sm font-bold
-                       transition-colors active:scale-[0.98]"
-            onClick={() => onPlaySolo(deck, resolveOpponentDeck())}
-            disabled={!deckReady}
-          >
-            Play Solo (vs bot)
-          </button>
-        </div>
+        {/* ─ Quick Play ────────────────────────────────────────────────
+             Find Casual / Find Ranked queues + Solo vs Bot. Restructured
+             2026-04-27 from a flat "Solo button + multiplayer divider +
+             Host/Join cards" layout into Quick Play / Custom Game
+             sections. Find Casual + Find Ranked are stubs in this commit;
+             wiring to /matchmaking endpoints lands in follow-up commits.
+             ───────────────────────────────────────────────────────────── */}
+        <div className="space-y-2">
+          <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+            Quick Play
+          </div>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-gray-800" />
-          <span className="text-xs text-gray-600">or play multiplayer</span>
-          <div className="flex-1 h-px bg-gray-800" />
+          {/* Find Casual — primary CTA. Always visible; disabled when not
+               signed in or no deck ready. Stub onClick alerts; real wiring
+               in the next commit. */}
+          <button
+            className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
+                       disabled:text-gray-600 text-white rounded-lg text-sm font-bold
+                       transition-colors active:scale-[0.98]"
+            onClick={() => alert(
+              "Find Casual Match — wiring up in the next commit. Server endpoints are already live."
+            )}
+            disabled={!session || !deckReady}
+            title={!session ? "Sign in to play matchmaking" : undefined}
+          >
+            Find Casual Match
+          </button>
+
+          {/* Find Ranked — only visible when the deck's family has a live
+               ranked rotation. Pre-Set-12-launch: getLiveRotation returns
+               s11 for Core/Infinity, so button is shown. Post-launch:
+               returns s12. The "no live ranked rotation" case (mid-cut)
+               briefly hides the button — defensive. */}
+          {session && getLiveRotation(gameFormat.family) !== null && (
+            <button
+              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800
+                         disabled:text-gray-600 text-white rounded-lg text-sm font-bold
+                         transition-colors active:scale-[0.98]"
+              onClick={() => alert(
+                "Find Ranked Match — wiring up in the next commit. Server endpoints are already live."
+              )}
+              disabled={!deckReady}
+            >
+              Find Ranked Match
+            </button>
+          )}
+
+          {/* Play Solo — opponent picker + button. Opponent picker only
+               rendered when there's at least one saved deck the bot could
+               play (excluding the user's currently-selected deck in saved
+               mode). Defaults to mirror, which preserves the historical
+               one-click behavior for users with a single deck. */}
+          <div className="space-y-1.5 pt-0.5">
+            {opponentOptions.length > 0 && (
+              <label className="flex items-center gap-2 text-[11px] text-gray-500">
+                <span className="shrink-0">Bot plays:</span>
+                <select
+                  className="flex-1 min-w-0 bg-gray-950 border border-gray-700 rounded-md
+                             px-2 py-1 text-xs text-gray-200 focus:border-amber-500 focus:outline-none"
+                  value={opponentDeckId ?? ""}
+                  onChange={(e) => setOpponentDeckId(e.target.value || null)}
+                >
+                  <option value="">Mirror (your deck)</option>
+                  {opponentOptions.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+            <button
+              className="w-full py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800
+                         disabled:text-gray-600 text-gray-200 rounded-lg text-xs font-bold
+                         transition-colors active:scale-[0.98]"
+              onClick={() => onPlaySolo(deck, resolveOpponentDeck())}
+              disabled={!deckReady}
+            >
+              Play Solo (vs bot)
+            </button>
+          </div>
         </div>
 
         {/* Auth */}
@@ -656,6 +697,17 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
             {!isWaiting ? (
               <>
+              {/* ─ Custom Game ──────────────────────────────────────────────
+                   Host private lobby (with public-toggle option), join by
+                   code, browse public lobbies. Restructured 2026-04-27 from
+                   a flat "Host/Join cards" layout. Note: per the matchmaking
+                   ship's anti-collusion rule, all private lobbies are now
+                   unranked (server enforces ranked=false on insert);
+                   ranked play exists only via the Find Ranked queue above.
+                   ─────────────────────────────────────────────────────────── */}
+              <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-2">
+                Custom Game
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {/* Host */}
                 <div className="card p-4 space-y-3">
