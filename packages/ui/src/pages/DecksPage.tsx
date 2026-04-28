@@ -1,16 +1,19 @@
 // =============================================================================
 // DecksPage — list view at "/". Grid of saved deck tiles (signed-in) or a
-// paste-and-analyze pane (signed-out). Clicking a tile navigates to
-// /decks/:id where DeckBuilderPage handles editing.
+// sign-in prompt (signed-out). Clicking a tile navigates to /decks/:id where
+// DeckBuilderPage handles editing.
+//
+// The signed-out paste-and-analyze pane was removed 2026-04-28 (P1.8) — its
+// `SAMPLE_DECKLIST` was a hardcoded card-name drift hazard, and a non-user
+// who wants to test mechanics has the Sandbox tab one click away in the nav.
 // =============================================================================
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
-import CompositionView from "./CompositionView.js";
 import {
   resolveBoxCard,
   deckInkColors,
@@ -20,23 +23,6 @@ import {
   listOfferedRotationsForFamily,
 } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
-
-const SAMPLE_DECKLIST = `# Sample deck — The First Chapter (set 1)
-4 HeiHei - Boat Snack
-4 Stitch - New Dog
-4 Simba - Protective Cub
-4 Minnie Mouse - Beloved Princess
-4 Sebastian - Court Composer
-4 Mickey Mouse - True Friend
-4 Mr. Smee - Loyal First Mate
-4 Cinderella - Gentle and Kind
-4 Elsa - Queen Regent
-4 Pumbaa - Friendly Warthog
-4 Maximus - Palace Horse
-4 The Queen - Wicked and Vain
-4 Sven - Official Ice Deliverer
-4 Stitch - Abomination
-4 Mufasa - King of the Pride Lands`;
 
 export default function DecksPage() {
   const navigate = useNavigate();
@@ -69,15 +55,6 @@ export default function DecksPage() {
 
   useEffect(() => { loadDecks(); }, [loadDecks]);
 
-  // Signed-out paste state
-  const [pasteText, setPasteText] = useState("");
-  const { entries: pasteDeck, errors: pasteErrors } = useMemo(
-    () => parseDecklist(pasteText, CARD_DEFINITIONS),
-    [pasteText],
-  );
-  const pasteTotalCards = pasteDeck.reduce((s, e) => s + e.count, 0);
-  const pasteReady = pasteDeck.length > 0 && pasteErrors.length === 0;
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -95,50 +72,14 @@ export default function DecksPage() {
           Loading…
         </div>
       ) : !session ? (
-        /* ── Signed out: paste + analyze, prompt to sign in ── */
-        <div className="space-y-6">
-          <div className="card p-4 text-center space-y-2">
-            <p className="text-sm text-gray-400">Sign in to save decks across devices</p>
-            <p className="text-xs text-gray-600">
-              You can still paste a decklist below to analyze it
-            </p>
-          </div>
-
-          <div className="card space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="label">Paste Decklist</span>
-              <button
-                className="btn-ghost text-xs py-1 px-2"
-                onClick={() => setPasteText(SAMPLE_DECKLIST)}
-              >
-                Load sample
-              </button>
-            </div>
-            <textarea
-              className="w-full h-56 bg-gray-950 border border-gray-700 rounded-lg p-3 text-sm font-mono
-                         text-gray-200 focus:outline-none focus:border-amber-500 resize-none"
-              placeholder={"4 HeiHei - Boat Snack\n4 Stitch - New Dog\n4 Mickey Mouse - True Friend\n..."}
-              value={pasteText}
-              onChange={(e) => setPasteText(e.target.value)}
-              spellCheck={false}
-            />
-            {pasteErrors.length > 0 && (
-              <div className="bg-red-950/40 border border-red-800 rounded-lg p-3 space-y-1">
-                {pasteErrors.map((err, i) => (
-                  <p key={i} className="text-red-400 text-xs font-mono">{err}</p>
-                ))}
-              </div>
-            )}
-            {pasteReady && (
-              <p className="text-sm text-gray-400">
-                {pasteTotalCards} cards, {pasteDeck.length} unique
-              </p>
-            )}
-          </div>
-
-          {pasteReady && (
-            <CompositionView deck={pasteDeck} definitions={CARD_DEFINITIONS} />
-          )}
+        /* ── Signed out: sign-in prompt. Paste-and-analyze pane removed
+             2026-04-28 (P1.8) — non-users who want to test mechanics use
+             the Sandbox tab in the nav. ── */
+        <div className="card p-4 text-center space-y-2">
+          <p className="text-sm text-gray-400">Sign in to save decks across devices</p>
+          <p className="text-xs text-gray-600">
+            Or try the Sandbox in the nav above to play without an account.
+          </p>
         </div>
       ) : (
         /* ── Signed in: grid of deck tiles + "+ New Deck" tile ── */
