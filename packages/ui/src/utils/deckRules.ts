@@ -254,6 +254,61 @@ export function listFormatOptions(): FormatOption[] {
   return out;
 }
 
+/** Return the live ranked rotation for a family, if one exists. Live = the
+ *  rotation flagged `ranked: true` in the engine registry — i.e., the season
+ *  ELO ladders count toward. Used for:
+ *    1. Default rotation when validating a deck's legality in the deckbuilder
+ *       (decks no longer carry format_rotation; rotation is implicit at
+ *       validation time).
+ *    2. Default selection in lobby/queue rotation dropdowns where a "live"
+ *       option is preferred over staged test rotations.
+ *
+ *  Returns the highest-id ranked rotation if multiple are flagged true (rare;
+ *  typically only one rotation per family is ranked at any time). Returns
+ *  null if no rotations are ranked (could happen mid-rotation-cut where the
+ *  prior season retired and the new one hasn't flipped to ranked yet).
+ *
+ *  Pre-Set-12 launch: Core → "s11", Infinity → "s11".
+ *  Post-Set-12 launch: Core → "s12", Infinity → "s12". */
+export function getLiveRotation(family: GameFormatFamily): RotationId | null {
+  const registry = family === "core" ? CORE_ROTATIONS : INFINITY_ROTATIONS;
+  let best: RotationId | null = null;
+  for (const id of Object.keys(registry) as RotationId[]) {
+    const entry = registry[id];
+    if (!entry.ranked) continue;
+    // Prefer higher-id rotation when multiple ranked exist (rare). String
+    // compare works because rotation ids are "s11", "s12", ... — same length,
+    // lex order matches numeric order.
+    if (best === null || id > best) best = id;
+  }
+  return best;
+}
+
+/** All currently offered rotations for a family — convenient list for
+ *  dropdowns. Filters to entries where `offeredForNewDecks=true`, regardless
+ *  of `ranked` status. Used by host-private + casual-queue rotation pickers
+ *  (which accept staged rotations as opt-in). Ranked-queue picker uses a
+ *  stricter filter — see `listRankedRotations`. */
+export function listOfferedRotationsForFamily(
+  family: GameFormatFamily,
+): Array<{ rotation: RotationId; displayName: string; ranked: boolean }> {
+  return listOfferedRotations(family).map(({ id, entry }) => ({
+    rotation: id,
+    displayName: entry.displayName,
+    ranked: entry.ranked,
+  }));
+}
+
+/** Ranked rotations only — used by the Find Ranked queue dropdown. Excludes
+ *  staged test rotations (ranked=false) and retired rotations (offered=false). */
+export function listRankedRotations(
+  family: GameFormatFamily,
+): Array<{ rotation: RotationId; displayName: string }> {
+  return listOfferedRotations(family)
+    .filter(({ entry }) => entry.ranked)
+    .map(({ id, entry }) => ({ rotation: id, displayName: entry.displayName }));
+}
+
 /** Look up the human-readable name of a format even when its rotation is
  *  no longer offered for new decks — e.g. a deck stamped `s11` after Set
  *  13 release still shows "Set 11 Core" on its tile, even though you

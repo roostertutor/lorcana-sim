@@ -7,7 +7,7 @@ import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getPr
 import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
-import { formatDisplayName, FORMAT_FAMILY_ACCENT } from "../utils/deckRules.js";
+import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
@@ -142,8 +142,18 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const selectedDeck = selectedDeckId
     ? savedDecks.find((d) => d.id === selectedDeckId) ?? null
     : null;
+  // Decks no longer carry rotation (dropped 2026-04-27); resolve the
+  // rotation to validate against as the current live rotation per family.
+  // Falls back to the highest-id offered rotation if no live rotation
+  // exists. Full lobby restructure (per-game rotation picker, queue
+  // dropdowns) lands in a follow-up commit.
   const gameFormat: GameFormat = deckMode === "saved" && selectedDeck
-    ? { family: selectedDeck.format_family, rotation: selectedDeck.format_rotation }
+    ? {
+        family: selectedDeck.format_family,
+        rotation: getLiveRotation(selectedDeck.format_family)
+          ?? listOfferedRotationsForFamily(selectedDeck.format_family).at(-1)?.rotation
+          ?? "s12",
+      }
     : pasteFormat;
   const formatAccent = FORMAT_FAMILY_ACCENT[gameFormat.family];
 
@@ -403,8 +413,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
                   const count = parsed.entries.reduce((s, e) => s + e.count, 0);
                   const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
-                  const deckFormat = { family: d.format_family, rotation: d.format_rotation };
-                  const deckAccent = FORMAT_FAMILY_ACCENT[deckFormat.family];
+                  // Decks now carry only family — show the family chip; full
+                  // format display (with rotation) is lobby-side and uses the
+                  // current live rotation (resolved above).
+                  const deckAccent = FORMAT_FAMILY_ACCENT[d.format_family];
                   return (
                     <button
                       key={d.id}
@@ -420,7 +432,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                         <span
                           className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${deckAccent.badgeBg} ${deckAccent.text}`}
                         >
-                          {formatDisplayName(deckFormat)}
+                          {d.format_family === "core" ? "Core" : "Infinity"}
                         </span>
                         {isValid ? (
                           <span className="text-xs text-green-400 font-mono shrink-0">{count}</span>

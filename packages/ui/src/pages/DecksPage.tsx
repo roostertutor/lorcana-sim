@@ -15,8 +15,9 @@ import {
   resolveBoxCard,
   deckInkColors,
   hydrateVariants,
-  formatDisplayName,
   FORMAT_FAMILY_ACCENT,
+  getLiveRotation,
+  listOfferedRotationsForFamily,
 } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 
@@ -182,15 +183,20 @@ export default function DecksPage() {
                 const boxCard = resolveBoxCard(hydrated, d.box_card_id, CARD_DEFINITIONS);
                 const inks = deckInkColors(hydrated, CARD_DEFINITIONS);
                 // Format stamp — shown as a chip on the tile so users see at-a-
-                // glance what format this deck targets. Engine-thrown errors
-                // (stale rotation stamped on a rotation no longer in the
-                // registry) get surfaced as legality issues rather than a crash.
-                const format = { family: d.format_family, rotation: d.format_rotation };
-                const formatAccent = FORMAT_FAMILY_ACCENT[format.family];
-                const formatLabel = formatDisplayName(format);
+                // glance what format this deck targets. Decks no longer carry
+                // rotation (dropped 2026-04-27); rotation is resolved at
+                // validation time as the current live rotation per family.
+                // Legality drift (deck illegal in current live rotation) gets
+                // surfaced inline as the legality issue list.
+                const formatAccent = FORMAT_FAMILY_ACCENT[d.format_family];
+                const formatLabel = d.format_family === "core" ? "Core" : "Infinity";
+                const validationRotation = getLiveRotation(d.format_family)
+                  ?? listOfferedRotationsForFamily(d.format_family).at(-1)?.rotation
+                  ?? "s12";
+                const validationFormat = { family: d.format_family, rotation: validationRotation };
                 let legalityIssues: string[] = [];
                 try {
-                  const res = isLegalFor(hydrated, CARD_DEFINITIONS, format);
+                  const res = isLegalFor(hydrated, CARD_DEFINITIONS, validationFormat);
                   if (!res.ok) legalityIssues = res.issues.map((i) => i.message);
                 } catch (e) {
                   legalityIssues = [String(e)];

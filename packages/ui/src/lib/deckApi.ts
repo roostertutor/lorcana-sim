@@ -1,4 +1,4 @@
-import type { GameFormatFamily, RotationId } from "@lorcana-sim/engine"
+import type { GameFormatFamily } from "@lorcana-sim/engine"
 import { supabase } from "./supabase.js"
 
 /** Per-card enrichment for a single CardDefinition. Does not round-trip through
@@ -22,13 +22,13 @@ export interface SavedDeck {
   /** Per-card enrichment keyed by CardDefinition.id. Empty object = no
    *  per-card overrides (every card uses its default variant). */
   card_metadata: Record<string, CardMetadata>
-  /** Format stamp — which GameFormat this deck was built for. Server-side
-   *  schema defaults both to 's11' / 'core' so existing rows backfill
-   *  automatically on ADD COLUMN; new decks from the UI explicitly pick.
-   *  Users only see the DB value — they never edit rotation without going
-   *  through the builder's format picker. */
+  /** Format family the deck is built for. `format_rotation` was dropped
+   *  2026-04-27 — rotation is now chosen per-game (host pick at lobby
+   *  creation, queue request param at matchmaking join). The deck's
+   *  legality re-evaluates against whichever rotation is live (or selected)
+   *  at play time. See docs/HANDOFF.md → "Server agent: casual + ranked
+   *  matchmaking queues" for the rationale. */
   format_family: GameFormatFamily
-  format_rotation: RotationId
   created_at: string
   updated_at: string
 }
@@ -40,10 +40,12 @@ export interface DeckVersion {
   created_at: string
 }
 
+const DECK_SELECT = "id, name, decklist_text, box_card_id, card_metadata, format_family, created_at, updated_at"
+
 export async function listDecks(): Promise<SavedDeck[]> {
   const { data, error } = await supabase
     .from("decks")
-    .select("id, name, decklist_text, box_card_id, card_metadata, format_family, format_rotation, created_at, updated_at")
+    .select(DECK_SELECT)
     .order("updated_at", { ascending: false })
 
   if (error) throw new Error(error.message)
@@ -72,27 +74,26 @@ async function snapshotVersion(deckId: string, decklistText: string): Promise<vo
 export async function saveDeck(
   name: string,
   decklistText: string,
-  format?: { family: GameFormatFamily; rotation: RotationId },
+  family?: GameFormatFamily,
 ): Promise<SavedDeck> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
-  // When format is provided, stamp it on insert. Otherwise the DB DEFAULTs
-  // (core / s11) apply — matches the blanket-backfill policy for existing rows.
+  // When family is provided, stamp it on insert. Otherwise the DB DEFAULT
+  // ('core') applies — matches the blanket-backfill policy for existing rows.
   const payload: Record<string, unknown> = {
     user_id: user.id,
     name,
     decklist_text: decklistText,
   }
-  if (format) {
-    payload.format_family = format.family
-    payload.format_rotation = format.rotation
+  if (family) {
+    payload.format_family = family
   }
 
   const { data, error } = await supabase
     .from("decks")
     .upsert(payload, { onConflict: "user_id,name" })
-    .select("id, name, decklist_text, box_card_id, card_metadata, format_family, format_rotation, created_at, updated_at")
+    .select(DECK_SELECT)
     .single()
 
   if (error) throw new Error(error.message)
@@ -101,12 +102,12 @@ export async function saveDeck(
   return data as SavedDeck
 }
 
-export async function updateDeck(id: string, updates: { name?: string; decklist_text?: string; box_card_id?: string | null; card_metadata?: Record<string, CardMetadata>; format_family?: GameFormatFamily; format_rotation?: RotationId }): Promise<SavedDeck> {
+export async function updateDeck(id: string, updates: { name?: string; decklist_text?: string; box_card_id?: string | null; card_metadata?: Record<string, CardMetadata>; format_family?: GameFormatFamily }): Promise<SavedDeck> {
   const { data, error } = await supabase
     .from("decks")
     .update(updates)
     .eq("id", id)
-    .select("id, name, decklist_text, box_card_id, card_metadata, format_family, format_rotation, created_at, updated_at")
+    .select(DECK_SELECT)
     .single()
 
   if (error) throw new Error(error.message)

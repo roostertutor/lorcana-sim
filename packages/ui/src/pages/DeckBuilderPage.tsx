@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import type { MouseEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
-import type { DeckEntry, CardVariantType, GameFormat } from "@lorcana-sim/engine";
+import type { DeckEntry, CardVariantType, GameFormatFamily } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { listDecks, saveDeck, updateDeck, deleteDeck, listDeckVersions } from "../lib/deckApi.js";
 import type { SavedDeck, DeckVersion, CardMetadata } from "../lib/deckApi.js";
@@ -17,7 +17,7 @@ import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
 import FormatPicker from "../components/FormatPicker.js";
-import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, formatDisplayName } from "../utils/deckRules.js";
+import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 
 /** Build the card_metadata map for persistence from the current entries.
@@ -57,12 +57,15 @@ export default function DeckBuilderPage() {
   const [entries, setEntries] = useState<DeckEntry[]>([]);
   const [boxCardId, setBoxCardId] = useState<string | null>(null);
   const [boxPickerOpen, setBoxPickerOpen] = useState(false);
-  // Declared format — drives the CardPicker filter, autocomplete, and
-  // legality validation. New decks default to the pre-release Set-12 Core
-  // preview; loaded decks adopt their stored stamp. Flip the default to
-  // { family: "core", rotation: "s12" } on 2026-05-08 when Set 12 releases
-  // and the matching schema DEFAULT flips.
-  const [format, setFormat] = useState<GameFormat>({ family: "core", rotation: "s12" });
+  // Declared format family — drives the CardPicker filter, autocomplete,
+  // and legality validation. Decks no longer carry rotation (dropped
+  // 2026-04-27); rotation is resolved at validation time as the current
+  // live ranked rotation per family. So a Core deck built today validates
+  // against Core-s11 (live); after Set 12 launches 2026-05-08 it'll
+  // validate against Core-s12 with no user action — the deck's cards just
+  // re-evaluate against whichever rotation is live at the moment. New
+  // decks default to "core"; loaded decks adopt their stored family.
+  const [formatFamily, setFormatFamily] = useState<GameFormatFamily>("core");
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,11 +99,10 @@ export default function DeckBuilderPage() {
         setDeckName(found.name);
         setEntries(hydrated);
         setBoxCardId(found.box_card_id);
-        // Adopt the deck's stored format stamp. Engine validates at call
-        // time — if the stored rotation has since been removed from the
-        // registry, isLegalFor will throw and the user sees the issue in
-        // the legality panel below.
-        setFormat({ family: found.format_family, rotation: found.format_rotation });
+        // Adopt the deck's stored format family. Rotation is no longer
+        // stored on the deck (dropped 2026-04-27); legality re-evaluates
+        // dynamically against the current live rotation for this family.
+        setFormatFamily(found.format_family);
         loadVersions(found.id);
       } catch (e) {
         setError(String(e));
@@ -122,12 +124,28 @@ export default function DeckBuilderPage() {
     [entries],
   );
 
-  // Legality — recompute whenever entries or format change. Engine throws
+  // Resolve the rotation to validate against — current live ranked rotation
+  // for this family. Falls back to the highest-id offered rotation if no
+  // live rotation exists (only happens briefly mid-rotation-cut). Pre-Set-12
+  // launch this is "s11"; post-launch this is "s12". Re-resolves whenever
+  // family changes so deckbuilder validation tracks the engine registry
+  // automatically.
+  const validationRotation = useMemo(() => {
+    return getLiveRotation(formatFamily)
+      ?? listOfferedRotationsForFamily(formatFamily).at(-1)?.rotation
+      ?? "s12";
+  }, [formatFamily]);
+  const validationFormat = useMemo(
+    () => ({ family: formatFamily, rotation: validationRotation }),
+    [formatFamily, validationRotation],
+  );
+
+  // Legality — recompute whenever entries or family change. Engine throws
   // on unknown rotation (stale stamp after a registry removal); wrap so
   // the UI shows a clean error banner instead of crashing.
   const legality = useMemo(() => {
     try {
-      return isLegalFor(entries, CARD_DEFINITIONS, format);
+      return isLegalFor(entries, CARD_DEFINITIONS, validationFormat);
     } catch (e) {
       return {
         ok: false,
@@ -139,7 +157,7 @@ export default function DeckBuilderPage() {
         }],
       };
     }
-  }, [entries, format]);
+  }, [entries, validationFormat]);
 
   // Build definitionId → message map for DeckBuilder row highlighting.
   // One message per card (first issue wins; can't currently have two
@@ -167,8 +185,7 @@ export default function DeckBuilderPage() {
       || originalDeck.decklist_text !== currentText
       || originalDeck.box_card_id !== boxCardId
       || originalMetadataJson !== metadataJson
-      || originalDeck.format_family !== format.family
-      || originalDeck.format_rotation !== format.rotation
+      || originalDeck.format_family !== formatFamily
     : nameIsUserEdited
       || entries.length > 0
       || boxCardId !== null
@@ -228,15 +245,15 @@ export default function DeckBuilderPage() {
           decklist_text: decklistText,
           box_card_id: boxCardId,
           card_metadata: currentMetadata,
-          format_family: format.family,
-          format_rotation: format.rotation,
+          format_family: formatFamily,
         });
         setOriginalDeck(updated);
         loadVersions(updated.id);
       } else {
-        // saveDeck stamps the format on insert (falls through DB default
-        // for legacy callers not providing one).
-        const created = await saveDeck(deckName.trim(), decklistText, format);
+        // saveDeck stamps the family on insert (falls through DB default
+        // for legacy callers not providing one). Rotation is no longer
+        // stored on the deck — resolved per-game at play time.
+        const created = await saveDeck(deckName.trim(), decklistText, formatFamily);
         // saveDeck doesn't accept box_card_id / card_metadata on insert — apply
         // them via a follow-up update when the user set either pre-save.
         const hasExtras =
@@ -380,7 +397,7 @@ export default function DeckBuilderPage() {
               entries={entries}
               definitions={CARD_DEFINITIONS}
               onChange={setEntries}
-              format={format}
+              format={validationFormat}
             />
           </div>
         )}
@@ -429,7 +446,7 @@ export default function DeckBuilderPage() {
                       value={deckName}
                       onChange={(e) => setDeckName(e.target.value)}
                     />
-                    <FormatPicker value={format} onChange={setFormat} />
+                    <FormatPicker value={formatFamily} onChange={setFormatFamily} />
                   </div>
                 </div>
               );
@@ -442,7 +459,7 @@ export default function DeckBuilderPage() {
             {!legality.ok && entries.length > 0 && (
               <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
                 <div className="font-bold">
-                  {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in {formatDisplayName(format)}
+                  {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in current rotation ({formatFamily === "core" ? "Core" : "Infinity"} {validationRotation})
                 </div>
                 <div className="text-red-400/80">
                   Highlighted in red below. Change the format, or replace the cards.
@@ -460,7 +477,7 @@ export default function DeckBuilderPage() {
                 definitions={CARD_DEFINITIONS}
                 onChange={setEntries}
                 deckName={deckName}
-                format={format}
+                format={validationFormat}
                 issueMessagesByDefinitionId={issueMessagesByDefinitionId}
               />
             </div>

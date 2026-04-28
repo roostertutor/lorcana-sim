@@ -1,37 +1,44 @@
 // =============================================================================
-// FormatPicker — compact dropdown for the deck's declared GameFormat.
+// FormatPicker — compact dropdown for the deck's declared format family
+// (Core | Infinity). Decks no longer carry rotation (dropped 2026-04-27);
+// rotation is chosen per-game at host/queue time. So this picker is
+// family-only — single-axis pick.
 //
-// Populated from the engine's registry via listFormatOptions() so when a new
-// rotation lands (or one retires), the dropdown updates without any UI edit.
 // Matches the visual pattern of the group-by picker in DeckBuilder:
 //   button shows current selection → click opens a menu below → pick + close.
 //
 // Core = indigo accent, Infinity = orange accent — Hearthstone-style tiering;
 // both avoid the six Lorcana ink colors so format chips never visually collide
-// with ink indicators. Declared format drives the CardPicker / autocomplete
-// filters and legality validation upstream.
+// with ink indicators. Declared family drives the CardPicker / autocomplete
+// filters and legality validation upstream (validation rotation is resolved
+// from the family at validation time via getLiveRotation).
 // =============================================================================
 
 import { useState } from "react";
-import type { GameFormat } from "@lorcana-sim/engine";
-import { FORMAT_FAMILY_ACCENT, formatDisplayName, listFormatOptions } from "../utils/deckRules.js";
+import type { GameFormatFamily } from "@lorcana-sim/engine";
+import { FORMAT_FAMILY_ACCENT } from "../utils/deckRules.js";
 
 interface Props {
-  value: GameFormat;
-  onChange: (next: GameFormat) => void;
+  value: GameFormatFamily;
+  onChange: (next: GameFormatFamily) => void;
   /** When true, the picker renders as a read-only chip instead of a dropdown —
-   *  e.g. when the format is derived from a saved deck's stamp and the user
-   *  can only change it by going into the deckbuilder. */
+   *  e.g. when the family is fixed by an upstream context. */
   readOnly?: boolean;
   /** Label shown above the button (e.g. "Format"). Omit for no label. */
   label?: string;
 }
 
+const FAMILY_LABEL: Record<GameFormatFamily, string> = {
+  core: "Core",
+  infinity: "Infinity",
+};
+
+const FAMILY_OPTIONS: GameFormatFamily[] = ["core", "infinity"];
+
 export default function FormatPicker({ value, onChange, readOnly = false, label }: Props) {
   const [open, setOpen] = useState(false);
-  const options = listFormatOptions();
-  const accent = FORMAT_FAMILY_ACCENT[value.family];
-  const displayName = formatDisplayName(value);
+  const accent = FORMAT_FAMILY_ACCENT[value];
+  const displayName = FAMILY_LABEL[value];
 
   if (readOnly) {
     return (
@@ -43,7 +50,7 @@ export default function FormatPicker({ value, onChange, readOnly = false, label 
         )}
         <span
           className={`inline-flex items-center px-2 py-1 rounded-md text-[11px] font-bold ${accent.badgeBg} ${accent.text} ${accent.border} border`}
-          title={`Deck stamped as ${displayName}`}
+          title={`Deck format: ${displayName}`}
         >
           {displayName}
         </span>
@@ -80,14 +87,14 @@ export default function FormatPicker({ value, onChange, readOnly = false, label 
           {/* Click-outside backdrop */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute z-50 top-full left-0 mt-1 rounded-md border border-gray-700 bg-gray-950 shadow-xl overflow-hidden min-w-[140px]">
-            {options.map((opt) => {
-              const isCurrent = opt.family === value.family && opt.rotation === value.rotation;
-              const optAccent = FORMAT_FAMILY_ACCENT[opt.family];
+            {FAMILY_OPTIONS.map((family) => {
+              const isCurrent = family === value;
+              const optAccent = FORMAT_FAMILY_ACCENT[family];
               return (
                 <button
-                  key={`${opt.family}-${opt.rotation}`}
+                  key={family}
                   onClick={() => {
-                    onChange({ family: opt.family, rotation: opt.rotation });
+                    onChange(family);
                     setOpen(false);
                   }}
                   className={`w-full text-left px-2.5 py-1.5 text-[11px] font-medium transition-colors flex items-center gap-1.5 ${
@@ -96,8 +103,8 @@ export default function FormatPicker({ value, onChange, readOnly = false, label 
                       : `text-gray-300 hover:bg-gray-800`
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${opt.family === "core" ? "bg-indigo-400" : "bg-orange-400"}`} />
-                  {opt.displayName}
+                  <span className={`w-1.5 h-1.5 rounded-full ${family === "core" ? "bg-indigo-400" : "bg-orange-400"}`} />
+                  {FAMILY_LABEL[family]}
                 </button>
               );
             })}
