@@ -16,7 +16,9 @@ Five detailed audit files were produced; this document synthesizes them with cro
 6. [Topic D — Undo scope (incl. the Diablo question)](#topic-d--undo-scope)
 7. [Topic E — MP takebacks design](#topic-e--mp-takebacks-design)
 8. [Cross-cutting themes](#cross-cutting-themes)
-9. [Prioritized action list](#prioritized-action-list)
+9. [Where to start](#where-to-start)
+
+> **Working tracker for the 27 surfaced items + 6 open policy questions** lives at `docs/AUDIT_2026-04-28_action_items.md`. Status emoji per row, comments column, single source of truth as we work through items.
 
 ---
 
@@ -353,62 +355,7 @@ The two unhandled `PendingChoice` types (`choose_card_name`, `choose_player`) an
 
 ---
 
-## Prioritized action list
-
-Triaged by impact / effort. Each item links to source-file detail.
-
-### P0 — gameplay bugs (ship before next playtest)
-
-1. **Verify `choose_card_name` and `choose_player` PendingChoice types are unused by current cards** — if any card in sets 1-12 surfaces these, the UI has no input control and play hangs. If unused: still fix the UI (add explicit branches with a clear "type unsupported" fallback). _gameboard-specialist's audit, "Unhandled engine types"_.
-2. **Fix `choose_order` modal helper text** to read placement direction from the engine state (top vs bottom), not hardcode "first tap → bottom." _gameboard-specialist's audit_.
-3. **Fix `ZoneViewModal` empty state** to read the zone name from props instead of hardcoding "discard." _gameboard-specialist's audit_.
-4. **Add `game_over` log line for lore-threshold wins** at `reducer.ts:8617`. One line. _engine-expert's audit, Topic 1_.
-5. **Surface win condition on Game Over modal** (lore vs deckout vs concede). _gameboard-specialist's audit_.
-
-### P1 — drift / coupling fixes (compound over time)
-
-6. **Fix `storage.ts:67`** to strip only `actionLog` from saved sims, not `actions[]`. Past games become replayable. One-line fix. _engine-expert's audit, Topic 3_.
-7. **Fix `runGame.ts:258`** to derive mulligan state from `actions[]`, not log substring matching. _engine-expert + bot-trainer_.
-8. **Replace `SAMPLE_DECKLIST` with engine helper** `getSampleDeck(format)`. Eliminates the "Load sample" drift risk on DecksPage. _ui-specialist (me)_.
-9. **Audit `extractOptionTexts` rulesText parsing.** Parse failures should fall back to "Option N" labels rather than ship malformed text. _gameboard-specialist_.
-10. **Conditional copy on legality-drift tooltip** — drop "migrate to Infinity" when deck already on Infinity. _ui-specialist (me)_.
-
-### P1 — log information completeness
-
-11. **Add log lines for effect-driven discard / lore / damage / draw mutations** so the log is reconstructable. _engine-expert's audit, Topic 1_.
-12. **Use `ability.storyName` in activated-ability log** at `reducer.ts:1710`. _engine-expert's audit_.
-13. **Add structured `cause` field to banish log** so simulator/replay can disambiguate without prose parsing. _engine-expert's audit_.
-
-### P1 — modal prompt anonymity
-
-14. **Migrate every targeting prompt to the may-prompt pattern** — engine passes `def.fullName + ability.storyName + ability.rulesText` to all prompts. ~Half-day engine work; eliminates "indistinguishable simultaneous prompts." _gameboard-specialist's HIGH item_.
-
-### P2 — documentation
-
-15. **Create `docs/STREAMS.md`** documenting the three streams (`actionLog` / `actions[]` / `episodeHistory`) and their contracts. _bot-trainer + engine-expert_.
-16. **Add JSDoc on `GameLogEntry`** clarifying it's a derived projection (not source of truth). Prevents future couplings like `runGame.ts:258`. _bot-trainer_.
-17. **Add code comment on `useGameSession.ts:472`** documenting the implicit undo-granularity contract. _engine-expert's audit, Topic 2_.
-
-### P2 — consistency / polish
-
-18. **Unify Confirm / Skip / Decline button vocabulary** across modals. ~30 min. _gameboard-specialist_.
-19. **Consolidate hand-rolled modals through `ModalFrame`** (DeckBuilderPage discard-changes + box-art picker). _ui-specialist (me)_.
-20. **Add regression test for undo-after-may-trigger** invariant. _engine-expert_.
-21. **Audit `useActiveEffects` label builder** for paraphrase risk. _gameboard-specialist_.
-
-### P2 — MP takebacks (separate roadmap)
-
-22. **Tier 0 cancels (pre-commit)** — pure UI work, no server. Cheap; ship anytime. _server-specialist's Phase 1_.
-23. **Tier 1 neutral takebacks (INK_CARD, undeclared QUEST)** — ~1 day cross-package. Requires user policy decision: should `stateFilter.ts` redact inkwells per CRD 4.1.4? (Affects Tier classification of `PLAY_INK`.) _server-specialist's Phase 2 + open policy Q1_.
-24. **Tier 2 info-gain takebacks (private lobby only)** — ~2-3 days. Opponent consent flow, `takebacks` audit table. Big UI surface. _server-specialist's Phase 3_.
-
-### P3 — i18n readiness (future)
-
-- 100% English-literal codebase. Adding i18n infrastructure is a separate, larger project. ~3-5 hours for a string-key extraction sweep. Only worth it if localization is on the roadmap. _ui-specialist (me)_.
-
----
-
-## Where to start (subjective)
+## Where to start
 
 If you want to ship something today, the highest-value smallest-effort items are **P0.4** (`game_over` log), **P0.5** (Game Over win condition), **P1.6** (`storage.ts:67` fix), and **P1.10** (legality-drift tooltip copy). Each is < 30 min. Together they'd resolve four real gameplay/replay bugs.
 
