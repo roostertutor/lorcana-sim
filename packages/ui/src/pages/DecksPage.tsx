@@ -237,7 +237,7 @@ export default function DecksPage() {
                       {!isLegal && isValid && (
                         <span
                           className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-900/90 text-red-100 border border-red-700 shadow-sm pointer-events-auto inline-flex items-center gap-1"
-                          title={`${legalityIssues.length} card${legalityIssues.length === 1 ? "" : "s"} not legal in current rotation. Click to open this deck and edit, or migrate to Infinity.\n\n${legalityIssues.join("\n")}`}
+                          title={legalityIssues.join("\n")}
                         >
                           <span>⚠️</span>
                           {legalityIssues.length} illegal
