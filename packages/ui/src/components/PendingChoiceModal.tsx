@@ -530,12 +530,25 @@ export default function PendingChoiceModal({
       const ids = pendingChoice.validTargets ?? [];
       const total = ids.length;
       const placedCount = multiSelectTargets.length;
+      // Engine drives placement direction via `pendingChoice.position`:
+      //   "bottom" (default) — Vision of the Future, Ariel Spectacular
+      //     Singer, Under the Sea, look_at_top "rest to bottom".
+      //     First tap = bottommost.
+      //   "top" — Hypnotic Deduction "put 2 cards on the top of your deck
+      //     in any order" (engine `reducer.ts:2666`). First tap = topmost
+      //     / drawn first. Helper used to hardcode the bottom case, which
+      //     directly contradicted Hypnotic Deduction's own engine prompt.
+      const placeOnTop = pendingChoice.position === "top";
       return (
         <div className="space-y-3">
           <div>
             <div className="text-yellow-300 text-sm font-medium mb-0.5">{pendingChoice.prompt}</div>
             <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              Tap in order: first tap → <span className="text-gray-400">bottom of deck</span> · last tap → <span className="text-gray-400">top of deck</span> (next to draw).
+              {placeOnTop ? (
+                <>Tap in order: first tap → <span className="text-gray-400">top of deck</span> (next to draw) · last tap → <span className="text-gray-400">bottom of deck</span>.</>
+              ) : (
+                <>Tap in order: first tap → <span className="text-gray-400">bottom of deck</span> · last tap → <span className="text-gray-400">top of deck</span> (next to draw).</>
+              )}
             </div>
           </div>
 
