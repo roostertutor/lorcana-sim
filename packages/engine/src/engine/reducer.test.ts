@@ -4922,3 +4922,183 @@ describe("P1.13 — banish log entry `cause` discriminator", () => {
     expect(getInstance(state, victimId).zone).toBe("discard");
   });
 });
+
+// =============================================================================
+// P2.20 — Undo granularity invariant (UI ↔ engine coupling)
+//
+// Background: the UI's undo lives at `useGameSession.ts:472` and is replay-
+// based — each user click pops one entry from `actionHistoryRef` and replays
+// `applyAction` over the remaining entries from the initial state. The user-
+// facing semantic is implicitly "back to the last `pendingChoice`" because
+// the engine splits a multi-step play into multiple actions whenever a
+// pendingChoice surfaces: e.g. PLAY_CARD of a card with `isMay: true` lands
+// as two history entries (PLAY_CARD → may prompt; then RESOLVE_CHOICE accept
+// → effect resolves). One undo from the resolved state returns to the may
+// prompt; two undos return to pre-play.
+//
+// This is an UNDOCUMENTED COUPLING between card-data design and undo UX —
+// dropping `isMay` from any card collapses its undo to one click without
+// warning. These tests pin the invariant: if a future card-data change drops
+// `isMay`, the action history collapses to a single entry and `actions[0..-1]`
+// replay returns to pre-play instead of to the may prompt.
+//
+// See `docs/AUDIT_2026-04-28_action_items.md` P2.20 and
+// `docs/audit/2026-04-28_engine_log_undo_rl.md` Topic 2 for the full design.
+// =============================================================================
+
+describe("P2.20 — undo granularity invariant (may-trigger boundary)", () => {
+  // Helper mirroring the UI's `reconstructState` at useGameSession.ts:105 —
+  // replay actions[0..n) from the initial state. Skips actions that fail (the
+  // UI behaves the same: a failed action is dropped rather than aborting the
+  // replay).
+  function replayActions(initial: GameState, actions: import("../types/index.js").GameAction[]): GameState {
+    let s = initial;
+    for (const a of actions) {
+      const r = applyAction(s, a, CARD_DEFINITIONS);
+      if (r.success) s = r.newState;
+    }
+    return s;
+  }
+
+  it("isMay trigger splits PLAY_CARD into two action-history entries; undo (drop last action) returns to may prompt, not pre-play (Diablo - Maleficent's Spy)", () => {
+    // Diablo - Maleficent's Spy (set 4): SCOUT AHEAD — "When you play this
+    // character, you may look at each opponent's hand." The look_at_hand
+    // effect carries `isMay: true` (card-set-4.json:4496), so the trigger
+    // pauses at a choose_may pendingChoice before resolving the look.
+    let state = startGame();
+    let diabloId: string;
+    ({ state, instanceId: diabloId } = injectCard(state, "player1", "diablo-maleficents-spy", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    // Capture the pre-play snapshot so we can assert the replay lands at the
+    // may prompt (not at this state).
+    const initialSnapshot = state;
+    const actions: import("../types/index.js").GameAction[] = [];
+
+    // Action 1 — PLAY_CARD. Engine surfaces a choose_may pendingChoice.
+    const playAction = { type: "PLAY_CARD" as const, playerId: "player1" as const, instanceId: diabloId };
+    const playResult = applyAction(state, playAction, CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+    expect(playResult.newState.pendingChoice?.type).toBe("choose_may");
+    // Diablo is on the board immediately, even before the may resolves.
+    expect(getInstance(playResult.newState, diabloId).zone).toBe("play");
+    // The may has not fired yet — no hand has been peeked.
+    expect(playResult.newState.lastRevealedHand).toBeUndefined();
+    state = playResult.newState;
+    actions.push(playAction);
+
+    // Action 2 — RESOLVE_CHOICE accept. The look_at_hand fires inline.
+    const acceptAction = { type: "RESOLVE_CHOICE" as const, playerId: "player1" as const, choice: "accept" as const };
+    const acceptResult = applyAction(state, acceptAction, CARD_DEFINITIONS);
+    expect(acceptResult.success).toBe(true);
+    // Choice consumed.
+    expect(acceptResult.newState.pendingChoice).toBeNull();
+    // The look_at_hand resolved → lastRevealedHand stamped on state. This is
+    // the proxy we use to detect "the may effect actually fired."
+    expect(acceptResult.newState.lastRevealedHand).toBeDefined();
+    expect(acceptResult.newState.lastRevealedHand?.playerId).toBe("player2");
+    state = acceptResult.newState;
+    actions.push(acceptAction);
+
+    // Two action-history entries, exactly. This is the load-bearing
+    // assertion — if a future change drops `isMay` from Diablo, the play and
+    // the look collapse into a single PLAY_CARD action and this becomes 1.
+    expect(actions.length).toBe(2);
+
+    // Now simulate one undo click — replay actions[0..-1] from the initial
+    // snapshot. Mirrors useGameSession.ts:494 (`history.slice(0, -1)`).
+    const afterOneUndo = replayActions(initialSnapshot, actions.slice(0, -1));
+
+    // Invariant: one undo returns to the MAY PROMPT, not to pre-play.
+    //   - Diablo is still on the board (the play happened).
+    //   - The choose_may pendingChoice is restored.
+    //   - The look_at_hand effect has NOT resolved (lastRevealedHand cleared).
+    expect(getInstance(afterOneUndo, diabloId).zone).toBe("play");
+    expect(afterOneUndo.pendingChoice?.type).toBe("choose_may");
+    expect(afterOneUndo.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect(afterOneUndo.lastRevealedHand).toBeUndefined();
+
+    // And two undos returns all the way to pre-play — Diablo back in hand,
+    // no pendingChoice. Documents the second click of the implicit contract.
+    const afterTwoUndo = replayActions(initialSnapshot, actions.slice(0, -2));
+    expect(getInstance(afterTwoUndo, diabloId).zone).toBe("hand");
+    expect(afterTwoUndo.pendingChoice).toBeNull();
+    expect(afterTwoUndo.lastRevealedHand).toBeUndefined();
+  });
+
+  it("mandatory enters_play trigger (no isMay) does NOT split — PLAY_CARD is a single action-history entry, undo collapses to pre-play (The White Rose - Jewel of the Garden)", () => {
+    // The White Rose - Jewel of the Garden (set 6, cost 3): "When you play
+    // this character, gain 1 lore." Single mandatory enters_play effect with
+    // `target.type: "self"` and no `isMay` — the gain_lore resolves inline
+    // inside applyAction's trigger processing without surfacing a pendingChoice.
+    //
+    // This is the "other side" of the coupling pinned by the previous test:
+    // when isMay is absent, the trigger's effect collapses into the same
+    // GameAction as the play, so action-history granularity is coarser.
+    let state = startGame();
+    let roseId: string;
+    ({ state, instanceId: roseId } = injectCard(state, "player1", "the-white-rose-jewel-of-the-garden", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const initialSnapshot = state;
+    const loreBefore = state.players.player1.lore;
+    const actions: import("../types/index.js").GameAction[] = [];
+
+    // Single PLAY_CARD action — the gain_lore fires inline, no pendingChoice.
+    const playAction = { type: "PLAY_CARD" as const, playerId: "player1" as const, instanceId: roseId };
+    const playResult = applyAction(state, playAction, CARD_DEFINITIONS);
+    expect(playResult.success).toBe(true);
+    expect(playResult.newState.pendingChoice).toBeNull();
+    expect(getInstance(playResult.newState, roseId).zone).toBe("play");
+    expect(playResult.newState.players.player1.lore).toBe(loreBefore + 1);
+    actions.push(playAction);
+
+    // Single action-history entry — no may-prompt boundary.
+    expect(actions.length).toBe(1);
+
+    // Undo (drop the only action, replay nothing) → pre-play. There is no
+    // intermediate "card-on-board, trigger-paused" state to land at, so the
+    // user gets one-click rewind to the original hand.
+    const afterUndo = replayActions(initialSnapshot, actions.slice(0, -1));
+    expect(getInstance(afterUndo, roseId).zone).toBe("hand");
+    expect(afterUndo.pendingChoice).toBeNull();
+    expect(afterUndo.players.player1.lore).toBe(loreBefore);
+  });
+
+  it("isMay trigger with decline path also splits into two action-history entries; undo returns to may prompt (Diablo - Maleficent's Spy)", () => {
+    // Symmetric coverage: even when the player declines the may, the
+    // RESOLVE_CHOICE is still its own action and undo still rewinds to the
+    // may prompt. This documents that the split is at the pendingChoice
+    // boundary, not at the "did the effect fire" boundary.
+    let state = startGame();
+    let diabloId: string;
+    ({ state, instanceId: diabloId } = injectCard(state, "player1", "diablo-maleficents-spy", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const initialSnapshot = state;
+    const actions: import("../types/index.js").GameAction[] = [];
+
+    const playAction = { type: "PLAY_CARD" as const, playerId: "player1" as const, instanceId: diabloId };
+    const playResult = applyAction(state, playAction, CARD_DEFINITIONS);
+    expect(playResult.newState.pendingChoice?.type).toBe("choose_may");
+    state = playResult.newState;
+    actions.push(playAction);
+
+    const declineAction = { type: "RESOLVE_CHOICE" as const, playerId: "player1" as const, choice: "decline" as const };
+    const declineResult = applyAction(state, declineAction, CARD_DEFINITIONS);
+    expect(declineResult.success).toBe(true);
+    expect(declineResult.newState.pendingChoice).toBeNull();
+    // Decline path → look_at_hand never fires.
+    expect(declineResult.newState.lastRevealedHand).toBeUndefined();
+    actions.push(declineAction);
+
+    expect(actions.length).toBe(2);
+
+    // One undo → still at the may prompt (the choose_may has not yet been
+    // resolved on the replayed timeline). The user can switch to accept.
+    const afterOneUndo = replayActions(initialSnapshot, actions.slice(0, -1));
+    expect(getInstance(afterOneUndo, diabloId).zone).toBe("play");
+    expect(afterOneUndo.pendingChoice?.type).toBe("choose_may");
+    expect(afterOneUndo.lastRevealedHand).toBeUndefined();
+  });
+});
