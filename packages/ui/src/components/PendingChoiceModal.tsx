@@ -600,12 +600,11 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Multi-select (choose_cards, choose_discard)
-    const needsMultiSelect =
-      pendingChoice.type === "choose_cards" ||
-      pendingChoice.type === "choose_discard";
-
-    if (needsMultiSelect) {
+    // Multi-select (choose_cards, choose_discard). Inline the discriminator
+    // check so TS narrows pendingChoice.type properly for the exhaustiveness
+    // sentinel further down — extracting the union into an intermediate
+    // boolean (`needsMultiSelect`) doesn't propagate the narrowing.
+    if (pendingChoice.type === "choose_cards" || pendingChoice.type === "choose_discard") {
       const requiredCount = pendingChoice.count ?? 1;
       const validIds = pendingChoice.validTargets ?? [];
       const validSet = new Set(validIds);
@@ -806,7 +805,21 @@ export default function PendingChoiceModal({
     // Option picker — quote the source card's ability/action text and split
     // the options by bulleted list (Lorcana's standard "Choose one:\n• A\n• B"
     // format), falling back to " or " split, falling back to "Option N".
-    if (pendingChoice.type === "choose_option" && pendingChoice.options) {
+    //
+    // Note: `pendingChoice.options` is structurally optional on the union, but
+    // every choose_option emitted by the engine carries it. The early-return
+    // pattern (separate `type === "choose_option"` check from the options
+    // existence) lets TypeScript narrow `pendingChoice.type` cleanly for the
+    // exhaustiveness sentinel further down.
+    if (pendingChoice.type === "choose_option") {
+      if (!pendingChoice.options || pendingChoice.options.length === 0) {
+        return (
+          <div className="text-sm text-gray-300 pb-[max(env(safe-area-inset-bottom,0px),20px)]">
+            <div className="text-yellow-300 font-medium mb-2">{pendingChoice.prompt}</div>
+            <div className="text-xs text-gray-500">No options available.</div>
+          </div>
+        );
+      }
       const srcId = (pendingChoice as any).sourceInstanceId;
       const srcInst = srcId ? gameState.cards[srcId] : undefined;
       const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
@@ -882,7 +895,86 @@ export default function PendingChoiceModal({
       );
     }
 
-    // Single or multi-target (choose_target) / choose_from_revealed display
+    // CRD 6.1.x — "chosen player" effects (Second Star to the Right, Water Has
+    // Memory, Mad Hatter Eccentric Host, Copper Hound Pup, Bruno Madrigal
+    // Seeing the Future). Engine surfaces a choose_player whose validTargets
+    // is PlayerID[] (e.g. ["player1","player2"]). Single-target case is
+    // auto-resolved upstream in surfaceChoosePlayer, so by the time this
+    // branch renders there are always ≥2 options.
+    if (pendingChoice.type === "choose_player") {
+      const validPlayers = (pendingChoice.validTargets ?? []) as PlayerID[];
+      const labelFor = (pid: PlayerID): string => (pid === myId ? "You" : "Opponent");
+      // Self = neutral indigo, opponent = red — mirrors the per-side coloring
+      // used in choose_target's "Your characters" / "Opponent's characters"
+      // headers above so player-target picks read consistently.
+      const colorFor = (pid: PlayerID): string =>
+        pid === myId
+          ? "bg-indigo-700 hover:bg-indigo-600"
+          : "bg-red-800 hover:bg-red-700";
+      return (
+        <div className="space-y-3">
+          <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+          {contextHints.length > 0 && (
+            <div className="text-[10px] text-gray-500">{contextHints.join(" · ")}</div>
+          )}
+          <StickyFooter>
+            <div className="flex flex-col gap-2">
+              {validPlayers.map((pid) => (
+                <button
+                  key={pid}
+                  className={`px-4 py-3 text-sm text-white rounded-lg font-bold transition-colors shadow-lg ${colorFor(pid)} active:scale-[0.98]`}
+                  onClick={() => onResolveChoice(pid)}
+                >
+                  {labelFor(pid)}
+                </button>
+              ))}
+              {pendingChoice.optional && (
+                <button
+                  className="px-3 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+                  onClick={() => onResolveChoice([])}
+                >
+                  Decline
+                </button>
+              )}
+            </div>
+          </StickyFooter>
+        </div>
+      );
+    }
+
+    // CRD 6.1.x — "name a card" effects (The Sorcerer's Hat ABRACADABRA,
+    // Bruno Madrigal Undetected Uncle, Blast from Your Past, Merlin Clever
+    // Clairvoyant). Engine consumer at reducer.ts compares against
+    // CardDefinition.name (the bare name, e.g. "Mickey Mouse") — NOT
+    // fullName (which carries the subtitle). Naming "Mickey Mouse" is
+    // intended to match every Mickey Mouse version, which is the printed
+    // rules text. The autocomplete pool dedupes on `name` for that reason.
+    // The text input accepts ANY string — autocomplete is a hint, not a
+    // filter (CRD allows naming a card not currently legal).
+    if (pendingChoice.type === "choose_card_name") {
+      return (
+        <ChooseCardNameBranch
+          prompt={pendingChoice.prompt}
+          definitions={definitions}
+          optional={!!pendingChoice.optional}
+          onSubmit={(name) => onResolveChoice(name)}
+          onDecline={() => onResolveChoice([])}
+        />
+      );
+    }
+
+    // Single or multi-target (choose_target) / choose_from_revealed display.
+    //
+    // Compile-time guard: by this point every other PendingChoice.type variant
+    // must have been handled by an early-return branch above. If a new variant
+    // is added to the union in `types/index.ts` and no branch is added here,
+    // the assertion below will fail typecheck — preventing a silent fall-
+    // through to this generic targeting renderer (which would render an empty
+    // grid and hang the modal). See CLAUDE.md → "Engine→UI PendingChoice
+    // parity".
+    const _exhaustive: "choose_target" | "choose_from_revealed" = pendingChoice.type;
+    void _exhaustive;
+
     const displayCards = pendingChoice.revealedCards ?? pendingChoice.validTargets ?? [];
     const validSet = new Set(pendingChoice.validTargets ?? []);
     const hasValidTargets = validSet.size > 0;
@@ -1240,6 +1332,148 @@ export default function PendingChoiceModal({
           </button>
         </div>
         {renderContent()}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Subcomponent for the `choose_card_name` PendingChoice variant — text input
+ * with autocomplete sourced from the loaded card definitions. Lives outside
+ * the parent function so its hooks (input value, highlighted suggestion
+ * index) don't violate the rules of hooks when other branches early-return.
+ *
+ * Submit semantics: engine compares the typed string against
+ * `CardDefinition.name` (the bare name like "Mickey Mouse"), case-sensitive.
+ * Any string is accepted by the engine — naming a card not in the current
+ * pool is legal (CRD "name a card" wording), so the autocomplete is a
+ * suggestion list, not a filter.
+ */
+function ChooseCardNameBranch({
+  prompt,
+  definitions,
+  optional,
+  onSubmit,
+  onDecline,
+}: {
+  prompt: string;
+  definitions: Record<string, CardDefinition>;
+  optional: boolean;
+  onSubmit: (name: string) => void;
+  onDecline: () => void;
+}) {
+  const [input, setInput] = React.useState("");
+  const [highlight, setHighlight] = React.useState(0);
+
+  // Dedup on `name` (the field the engine compares). Many cards share a name
+  // across versions/reprints — e.g. dozens of "Mickey Mouse" entries collapse
+  // to one suggestion. Sort alphabetically for predictable ordering.
+  const allNames = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const def of Object.values(definitions)) {
+      if (def?.name) set.add(def.name);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [definitions]);
+
+  // Case-insensitive substring match on the typed query. Cap at 8 suggestions
+  // — more than that overflows the modal on mobile portrait and is rarely
+  // useful (the player can keep typing to narrow).
+  const suggestions = React.useMemo(() => {
+    const q = input.trim().toLowerCase();
+    if (!q) return [] as string[];
+    return allNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 8);
+  }, [allNames, input]);
+
+  // Reset highlight whenever the suggestion list changes so we don't index
+  // past the new shorter list.
+  React.useEffect(() => {
+    setHighlight(0);
+  }, [suggestions.length]);
+
+  const trimmed = input.trim();
+  const canSubmit = trimmed.length > 0;
+
+  const submit = (name: string) => {
+    if (!name.trim()) return;
+    onSubmit(name.trim());
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="text-yellow-300 text-sm font-medium">{prompt}</div>
+      <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+        Type any card name. Suggestions match the card pool, but you may name a card not shown.
+      </div>
+      <div>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              if (suggestions.length > 0 && highlight < suggestions.length) {
+                submit(suggestions[highlight]!);
+              } else if (canSubmit) {
+                submit(trimmed);
+              }
+            } else if (e.key === "ArrowDown") {
+              e.preventDefault();
+              setHighlight((h) => Math.min(h + 1, Math.max(suggestions.length - 1, 0)));
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              setHighlight((h) => Math.max(h - 1, 0));
+            }
+          }}
+          inputMode="text"
+          autoCapitalize="words"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="e.g. Mickey Mouse"
+          autoFocus
+          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 focus:border-amber-500 rounded-lg text-sm text-gray-100 placeholder-gray-600 outline-none transition-colors"
+        />
+        {suggestions.length > 0 && (
+          <div className="mt-1 flex flex-col bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+            {suggestions.map((s, i) => (
+              <button
+                key={s}
+                className={`px-3 py-1.5 text-left text-xs transition-colors ${
+                  i === highlight
+                    ? "bg-amber-700/40 text-amber-100"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+                onMouseEnter={() => setHighlight(i)}
+                onClick={() => submit(s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="sticky bottom-0 z-10 -mx-5 px-5 mt-4 pt-3
+                      pb-[max(env(safe-area-inset-bottom,0px),20px)]
+                      bg-gray-950 border-t border-gray-800">
+        <div className="flex gap-2">
+          <button
+            className="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+            disabled={!canSubmit}
+            onClick={() => submit(trimmed)}
+          >
+            Confirm
+          </button>
+          {optional && (
+            <button
+              className="px-3 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+              onClick={onDecline}
+            >
+              Decline
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
