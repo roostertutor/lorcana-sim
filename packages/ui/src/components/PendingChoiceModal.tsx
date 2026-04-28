@@ -396,7 +396,7 @@ export default function PendingChoiceModal({
                   className="px-4 py-2 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors"
                   onClick={() => onResolveChoice("accept")}
                 >
-                  Accept (as opponent)
+                  Confirm (as opponent)
                 </button>
                 <button
                   className="px-4 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
@@ -948,7 +948,7 @@ export default function PendingChoiceModal({
                   className="px-3 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
                   onClick={() => onResolveChoice([])}
                 >
-                  Decline
+                  Skip
                 </button>
               )}
             </div>
@@ -1289,7 +1289,7 @@ export default function PendingChoiceModal({
                 className="px-3 py-2 text-xs bg-red-800/80 hover:bg-red-700 text-gray-200 rounded-lg border border-red-700 transition-colors"
                 onClick={() => onResolveChoice([])}
               >
-                {hasValidTargets ? "Skip" : "OK"}
+                Skip
               </button>
             )}
           </div>
@@ -1485,7 +1485,7 @@ function ChooseCardNameBranch({
               className="px-3 py-2 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
               onClick={onDecline}
             >
-              Decline
+              Skip
             </button>
           )}
         </div>
