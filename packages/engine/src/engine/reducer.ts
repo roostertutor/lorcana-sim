@@ -66,6 +66,72 @@ export interface WinResult {
   reason: "lore_threshold" | "deck_exhausted" | "card_effect" | "max_turns_exceeded" | null;
 }
 
+/** P1.14 — provenance of the ability that produced an effect. Threaded
+ *  through `applyEffect` (and the recursive call sites) so every prompt
+ *  builder can cite the source card + ability without re-parsing.
+ *
+ *  - `storyName` — the ability's named heading ("BRAVE LITTLE TAILOR"). Absent
+ *    on actions (which have rulesText but no per-effect heading) and on
+ *    keyword-only abilities.
+ *  - `rulesText` — the ability's printed text. Absent on synthesized triggers
+ *    (Support, Challenger) which have no JSON rulesText.
+ *
+ *  Producers (trigger resolution, activated abilities) build this once at
+ *  the entry point; recursive `applyEffect` calls forward it unchanged so
+ *  prompts surfaced from nested `each_player` / `sequential` / etc. inherit
+ *  the source citation. Action cards (no parent ability) pass `undefined`;
+ *  the helper falls back to `def.fullName` + the verb only.
+ */
+export interface AbilitySource {
+  storyName?: string;
+  rulesText?: string;
+}
+
+/** P1.14 — build a card-source-citing prompt string for `pendingChoice.prompt`.
+ *
+ *  Format (mirrors the gold-standard `choose_may` builder at reducer.ts:6607):
+ *    `${def.fullName} — "${storyName}": ${rulesText}\n${verb}`
+ *
+ *  Falls back gracefully when ability metadata is missing:
+ *    no storyName, has rulesText: `${def.fullName}: ${rulesText}\n${verb}`
+ *    no storyName, no rulesText:  `${def.fullName}\n${verb}`  (action cards)
+ *    no def at all:               `${verb}`                   (defensive)
+ *
+ *  The `verb` is the action-specific question already at the prompt site
+ *  ("Choose a target to banish.", "Choose a card to discard.", etc.) — this
+ *  helper PREFIXES the source citation, never rewrites the verb.
+ *
+ *  When `abilitySource` is undefined (action cards, or no parent ability),
+ *  storyName and rulesText fall back to whatever the source's CardDefinition
+ *  exposes: actions have `def.rulesText` but no storyName.
+ */
+function buildPrompt(
+  state: GameState,
+  sourceInstanceId: string,
+  definitions: Record<string, CardDefinition>,
+  abilitySource: AbilitySource | undefined,
+  verb: string,
+): string {
+  const inst = state.cards[sourceInstanceId];
+  const def = inst ? definitions[inst.definitionId] : undefined;
+  if (!def) return verb;
+  const cardName = def.fullName;
+  // Action cards: no per-ability heading; whole-card rulesText is the citation.
+  const storyName = abilitySource?.storyName;
+  const rulesText = abilitySource?.rulesText
+    ?? (def.cardType === "action" ? def.rulesText : undefined);
+  if (storyName && rulesText) {
+    return `${cardName} — "${storyName}": ${rulesText}\n${verb}`;
+  }
+  if (storyName) {
+    return `${cardName} — "${storyName}"\n${verb}`;
+  }
+  if (rulesText) {
+    return `${cardName}: ${rulesText}\n${verb}`;
+  }
+  return `${cardName}\n${verb}`;
+}
+
 // -----------------------------------------------------------------------------
 // MAIN ENTRY POINT
 // -----------------------------------------------------------------------------
@@ -1695,13 +1761,23 @@ function applyActivateAbility(
     ? [...leadingCostEffects, ...ability.effects]
     : ability.effects;
 
+  // P1.14 — pass ability provenance so prompts surfaced from this activated
+  // ability cite the source card + ability storyName + rulesText.
+  const activateAbilitySource: AbilitySource = {
+    ...(ability.storyName !== undefined && { storyName: ability.storyName }),
+    ...(ability.rulesText !== undefined && { rulesText: ability.rulesText }),
+  };
+  const passActivateAbilitySource = (activateAbilitySource.storyName || activateAbilitySource.rulesText)
+    ? activateAbilitySource
+    : undefined;
+
   for (let i = 0; i < effectsToApply.length; i++) {
     const effect = effectsToApply[i]!;
-    state = applyEffect(state, effect, instanceId, playerId, definitions, events);
+    state = applyEffect(state, effect, instanceId, playerId, definitions, events, undefined, passActivateAbilitySource);
     if (state.pendingChoice) {
       const remaining = effectsToApply.slice(i + 1);
       if (remaining.length > 0) {
-        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId: instanceId, controllingPlayerId: playerId } };
+        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId: instanceId, controllingPlayerId: playerId, ...(passActivateAbilitySource ? { abilitySource: passActivateAbilitySource } : {}) } };
       }
       break;
     }
@@ -2468,13 +2544,14 @@ function applyResolveChoice(
     } else if (restPlacement === "bottom") {
       if (rest.length > 1 && state.interactive) {
         // Let human choose the order the rest go to the bottom
+        const restSourceId = pendingChoice.sourceInstanceId ?? "";
         state = { ...state, pendingChoice: null };
         return {
           ...state,
           pendingChoice: {
             type: "choose_order",
             choosingPlayerId: owner,
-            prompt: `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`,
+            prompt: buildPrompt(state, restSourceId, definitions, undefined, `Choose the order to place the remaining ${rest.length} cards on the bottom of your deck (first selected = bottommost).`),
             validTargets: rest,
           },
         };
@@ -2685,7 +2762,7 @@ function applyResolveChoice(
         pendingChoice: {
           type: "choose_order",
           choosingPlayerId: playerId,
-          prompt: `Choose the order to put ${choice.length} cards on top of your deck (first selected = topmost / drawn first).`,
+          prompt: buildPrompt(state, pendingChoice.sourceInstanceId ?? "", definitions, undefined, `Choose the order to put ${choice.length} cards on top of your deck (first selected = topmost / drawn first).`),
           validTargets: choice as string[],
           position: "top",
         },
@@ -2979,7 +3056,11 @@ export function applyEffect(
   controllingPlayerId: PlayerID,
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
-  triggeringCardInstanceId?: string
+  triggeringCardInstanceId?: string,
+  // P1.14 — optional ability provenance for citing source on prompts.
+  // Forwarded through every recursive applyEffect call so nested combinators
+  // (each_player, sequential, choose_option) inherit the source citation.
+  abilitySource?: AbilitySource,
 ): GameState {
   // CRD 6.1.7: per-effect optional gating condition. Cards like Marching Off
   // to Battle ("If a character was banished this turn, draw 2 cards") encode
@@ -3142,7 +3223,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId,
-            prompt: "Choose a target to deal damage to.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a target to deal damage to."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -3169,7 +3250,7 @@ export function applyEffect(
         promptForCount: (n) => `Choose up to ${n} targets to banish.`,
         perInstance: (s, id, ev) => banishCard(s, id, definitions, ev),
         skipIfNotInPlay: true,
-      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
     }
 
     case "return_to_hand": {
@@ -3181,7 +3262,7 @@ export function applyEffect(
         perInstance: (s, id, ev) => zoneTransition(s, id, "hand", definitions, ev, { reason: "returned" }),
         setLastResolvedTargetOnTriggering: true,
         skipIfNotInPlay: true,
-      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
     }
 
     case "remove_damage": {
@@ -3225,9 +3306,9 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: count > 1
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, count > 1
               ? `Choose up to ${count} characters to remove damage from.`
-              : "Choose a character to remove damage from.",
+              : "Choose a character to remove damage from."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: true, // "Remove up to N" — player can decline
@@ -3267,7 +3348,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a target.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a target."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3308,7 +3389,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to gain damage immunity.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to gain damage immunity."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3343,7 +3424,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character that can't be challenged.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character that can't be challenged."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3396,7 +3477,7 @@ export function applyEffect(
           state = shuffleDeck(state, "player2");
         }
         const childEffect: Effect = { ...effect, shuffleBefore: false, target: { type: "self" as const } };
-        state = applyEffect(state, childEffect, sourceInstanceId, "player1", definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, childEffect, sourceInstanceId, "player1", definitions, events, triggeringCardInstanceId, abilitySource);
         if (state.pendingChoice) {
           const existingQueue = state.pendingEffectQueue?.effects ?? [];
           state = {
@@ -3405,11 +3486,12 @@ export function applyEffect(
               effects: [childEffect, ...existingQueue],
               sourceInstanceId,
               controllingPlayerId: "player2",
+              ...(abilitySource ? { abilitySource } : {}),
             },
           };
           return state;
         }
-        state = applyEffect(state, childEffect, sourceInstanceId, "player2", definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, childEffect, sourceInstanceId, "player2", definitions, events, triggeringCardInstanceId, abilitySource);
         return state;
       }
       const targetPlayer = effect.target.type === "opponent" ? getOpponent(controllingPlayerId) : controllingPlayerId;
@@ -3441,15 +3523,14 @@ export function applyEffect(
         // "each opponent reveals... THEY may put it into their hand") this
         // correctly hands the may-prompt to the opponent.
         if (effect.matchIsMay) {
-          const sourceDef = definitions[state.cards[sourceInstanceId]?.definitionId ?? ""];
-          const cardName = sourceDef?.fullName ?? sourceInstanceId;
           const revealedName = topDef.fullName;
+          const verb = `Revealed ${revealedName}. ${effect.matchAction === "play_card" ? "Play it for free" : effect.matchAction === "to_hand" ? "Put it into your hand" : "Put it into inkwell exerted"}?`;
           state = {
             ...state,
             pendingChoice: {
               type: "choose_may",
               choosingPlayerId: targetPlayer,
-              prompt: `${cardName}: revealed ${revealedName}. ${effect.matchAction === "play_card" ? "Play it for free" : effect.matchAction === "to_hand" ? "Put it into your hand" : "Put it into inkwell exerted"}?`,
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, verb),
               optional: true,
               sourceInstanceId,
               _revealContinuation: {
@@ -3507,7 +3588,7 @@ export function applyEffect(
             if (!inst) return s;
             return moveCard(s, id, inst.ownerId, "deck", position);
           },
-        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
 
       // from: "hand" | "discard" — auto-pick eligible cards from the source zone
@@ -3529,18 +3610,19 @@ export function applyEffect(
       // of your deck in any order").
       if (effect.target && effect.target.type === "chosen" && pool.length > 0) {
         const pickCount = Math.min(amount, pool.length);
+        const verb = pickCount > 1
+          ? (position === "top"
+            ? `Choose ${pickCount} cards to put on top of your deck (in chosen order).`
+            : `Choose ${pickCount} cards to put on the bottom of your deck.`)
+          : (position === "top"
+            ? "Choose a card to put on top of its deck."
+            : "Choose a card to put on the bottom of its deck.");
         return {
           ...state,
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: pickCount > 1
-              ? (position === "top"
-                ? `Choose ${pickCount} cards to put on top of your deck (in chosen order).`
-                : `Choose ${pickCount} cards to put on the bottom of your deck.`)
-              : (position === "top"
-                ? "Choose a card to put on top of its deck."
-                : "Choose a card to put on the bottom of its deck."),
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, verb),
             validTargets: pool,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3579,7 +3661,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_order",
           choosingPlayerId: controllingPlayerId,
-          prompt: `Choose the order to place ${targets.length} cards on the bottom of their players' decks (first selected = bottommost).`,
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose the order to place ${targets.length} cards on the bottom of their players' decks (first selected = bottommost).`),
           validTargets: targets,
         },
       };
@@ -3650,7 +3732,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to move damage to.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to move damage to."),
             validTargets: validDestinations,
             pendingEffect: { ...effect, _resolvedSources: resolvedSources } as any,
             sourceInstanceId,
@@ -3668,7 +3750,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: "Choose a character to move damage from.",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to move damage from."),
           validTargets: validSources,
           pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           optional: effect.isMay ?? false,
@@ -3692,7 +3774,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a card to put the top card of your deck under.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card to put the top card of your deck under."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3757,7 +3839,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a card whose under-pile to drain.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card whose under-pile to drain."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3776,7 +3858,7 @@ export function applyEffect(
             pendingChoice: {
               type: "choose_target",
               choosingPlayerId: controllingPlayerId,
-              prompt: "Choose a card or location to move cards under.",
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card or location to move cards under."),
               validTargets,
               pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
               optional: effect.isMay ?? false,
@@ -3821,7 +3903,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: "Choose a card to put this character under.",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card to put this character under."),
           validTargets,
           pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           optional: effect.isMay ?? false,
@@ -3838,7 +3920,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_card_name",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Name a card",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Name a card."),
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
         };
@@ -3871,7 +3953,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a location to move your characters to.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a location to move your characters to."),
             validTargets: validLocations,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3898,7 +3980,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to move.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to move."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -3930,7 +4012,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a location to move to.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a location to move to."),
             validTargets: validLocations,
             // Stash the resolved character on a clone of the effect for stage 2.
             pendingEffect: { ...effect, _resolvedCharacter: makeResolvedRef(state, definitions, characterId) },
@@ -3984,7 +4066,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId,
-            prompt: count > 1 ? `Choose up to ${count} characters to exert.` : "Choose a character to exert.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, count > 1 ? `Choose up to ${count} characters to exert.` : "Choose a character to exert."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             followUpEffects: effect.followUpEffects,
@@ -4029,7 +4111,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: `Choose a character to grant ${effect.keyword}.`,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a character to grant ${effect.keyword}.`),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -4122,7 +4204,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to ready.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to ready."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -4207,7 +4289,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: `Choose a character that must quest if able.`,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a character that must quest if able.`),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -4244,7 +4326,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: `Choose a character that can't ${effect.action}.`,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a character that can't ${effect.action}.`),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -4264,7 +4346,7 @@ export function applyEffect(
       // Mad Hatter Eccentric Host: "chosen player's deck" — surface chooser
       // first, then re-apply with substituted self/opponent target.
       if (effect.target.type === "chosen") {
-        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events, abilitySource);
       }
       // Headless engine: bot auto-resolves look_at_top choices
       const targetPlayer = effect.target.type === "opponent"
@@ -4333,9 +4415,9 @@ export function applyEffect(
               pendingChoice: {
                 type: "choose_from_revealed",
                 choosingPlayerId: controllingPlayerId,
-                prompt: matchingCards.length === 0
+                prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, matchingCards.length === 0
                   ? `No matching cards found — continuing.`
-                  : `Choose 1 card to set as the selected target (or skip).`,
+                  : `Choose 1 card to set as the selected target (or skip).`),
                 validTargets: matchingCards,
                 revealedCards: topCards,
                 pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -4417,7 +4499,7 @@ export function applyEffect(
               pendingChoice: {
                 type: "choose_from_revealed",
                 choosingPlayerId: controllingPlayerId,
-                prompt: matchingCards.length === 0
+                prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, matchingCards.length === 0
                   ? `No matching cards found. All revealed cards go to the bottom of your deck.`
                   : (effect.pickDestination === "deck_top"
                       ? `Choose ${pickCount} card(s) to keep on top of your deck. The rest go to the bottom of your deck.`
@@ -4425,7 +4507,7 @@ export function applyEffect(
                         ? `Choose ${pickCount} card(s) to put into your inkwell facedown and exerted.`
                         : effect.pickDestination === "discard"
                           ? `Choose ${pickCount} card(s) to put into the discard. The rest stay on top of the deck.`
-                          : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`),
+                          : `Choose ${pickCount} card(s) to put into your hand. The rest go to the bottom of your deck.`)),
                 validTargets: matchingCards,
                 revealedCards: topCards,
                 pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -4684,7 +4766,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_may",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Put the top card of your deck into your discard?",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Put the top card of your deck into your discard?"),
             pendingEffect: acceptEffect,
             sourceInstanceId,
             triggeringCardInstanceId,
@@ -4737,7 +4819,7 @@ export function applyEffect(
         if (matchedCase) {
           for (let j = 0; j < matchedCase.effects.length; j++) {
             const sub = matchedCase.effects[j]!;
-            state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+            state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
             if (state.pendingChoice) {
               // Sub-effect created a pendingChoice (e.g. Jack-jack's location
               // case "banish chosen character"). Remaining sub-effects queue
@@ -4907,7 +4989,7 @@ export function applyEffect(
         // Queue the other iterations first (they run after current resolves).
         if (remainingIterations.length > 0) {
           const residual: EachPlayerEffect = { ...effect, _iterations: remainingIterations };
-          state = queueAfterCurrent(state, [residual], sourceInstanceId, controllingPlayerId);
+          state = queueAfterCurrent(state, [residual], sourceInstanceId, controllingPlayerId, abilitySource);
         }
         // Surface the may prompt to this iteration's own player. The accept
         // effect is a single-iteration each_player (isMay stripped) so accept
@@ -4922,7 +5004,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_may",
             choosingPlayerId: iterPlayer,
-            prompt: "Use this effect?",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Use this effect?"),
             pendingEffect: acceptEffect,
             acceptControllingPlayerId: iterPlayer,
             sourceInstanceId,
@@ -4935,7 +5017,7 @@ export function applyEffect(
       // Mandatory: apply sub-effects inline with iterPlayer as controller.
       for (let i = 0; i < effect.effects.length; i++) {
         const sub = effect.effects[i]!;
-        state = applyEffect(state, sub, sourceInstanceId, iterPlayer, definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, sub, sourceInstanceId, iterPlayer, definitions, events, triggeringCardInstanceId, abilitySource);
         if (state.pendingChoice) {
           // Queue (a) remaining subs for this player, (b) remaining iterations.
           const remainingSubs = effect.effects.slice(i + 1);
@@ -4955,7 +5037,7 @@ export function applyEffect(
             } as EachPlayerEffect);
           }
           if (entries.length > 0) {
-            state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId);
+            state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId, abilitySource);
           }
           return state;
         }
@@ -4967,7 +5049,7 @@ export function applyEffect(
       // purely off pendingChoice, not off pendingEffectQueue.
       if (remainingIterations.length > 0) {
         const next: EachPlayerEffect = { ...effect, _iterations: remainingIterations };
-        return applyEffect(state, next, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        return applyEffect(state, next, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
       return state;
     }
@@ -5007,7 +5089,7 @@ export function applyEffect(
         const tid = targetIds[i]!;
         for (let j = 0; j < effect.effects.length; j++) {
           const sub = effect.effects[j]!;
-          state = applyEffect(state, sub, tid, controllingPlayerId, definitions, events, tid);
+          state = applyEffect(state, sub, tid, controllingPlayerId, definitions, events, tid, abilitySource);
           if (state.pendingChoice) {
             // Queue remaining sub-effects for this target + remaining targets.
             const remainingSubs = effect.effects.slice(j + 1);
@@ -5030,7 +5112,7 @@ export function applyEffect(
               } as any);
             }
             if (entries.length > 0) {
-              state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId);
+              state = queueAfterCurrent(state, entries, sourceInstanceId, controllingPlayerId, abilitySource);
             }
             return state;
           }
@@ -5052,7 +5134,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: "Choose a character to remember.",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to remember."),
           validTargets,
           pendingEffect: effect,
           sourceInstanceId,
@@ -5081,7 +5163,7 @@ export function applyEffect(
       // This ensures the rule "unless their player pays N" applies the
       // debuff when they CAN'T pay, not just when they choose not to.
       if (!canPerformCostEffect(state, effect.acceptEffect, opposingPlayerId, triggeringCardInstanceId)) {
-        return applyEffect(state, effect.rejectEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        return applyEffect(state, effect.rejectEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
       // Surface a choose_may to the opposing player. accept fires the
       // cost effect against the opposing player; reject fires the controller's
@@ -5091,7 +5173,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_may",
           choosingPlayerId: opposingPlayerId,
-          prompt: "Pay to avoid the effect?",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Pay to avoid the effect?"),
           pendingEffect: effect.acceptEffect,
           rejectEffect: effect.rejectEffect,
           acceptControllingPlayerId: opposingPlayerId,
@@ -5148,7 +5230,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_may",
           choosingPlayerId: opponentId,
-          prompt: "YES!  or  NO!",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "YES!  or  NO!"),
           pendingEffect: effect.yesEffect,
           optional: true,
           sourceInstanceId,
@@ -5171,7 +5253,7 @@ export function applyEffect(
       // a player who can't perform the optional action is treated as having
       // declined.
       if (opponentHand.length === 0) {
-        return applyEffect(state, effect.rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        return applyEffect(state, effect.rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
       // When player2 (the opponent / choosing player) accepts the may, the
       // applyEffect call uses playerId=player2 as the controllingPlayer; "self"
@@ -5187,7 +5269,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_may",
           choosingPlayerId: opponentId,
-          prompt: "Discard a card?",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Discard a card?"),
           pendingEffect: discardEffect,
           optional: true,
           sourceInstanceId,
@@ -5312,7 +5394,7 @@ export function applyEffect(
             pendingChoice: {
               type: "choose_discard",
               choosingPlayerId: choosingPlayer,
-              prompt: `Choose any number of card(s) to discard.`,
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose any number of card(s) to discard.`),
               validTargets: hand,
               maxCount: hand.length,
               pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -5379,7 +5461,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_discard",
             choosingPlayerId: choosingPlayer,
-            prompt: `Choose ${discardCount} card(s) to discard.`,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose ${discardCount} card(s) to discard.`),
             validTargets: hand,
             count: discardCount,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -5468,7 +5550,7 @@ export function applyEffect(
         return resolveTargetAndApply(state, effect, {
           prompt: "Choose a card to put into inkwell.",
           perInstance: (s) => s, // unreachable for "chosen" — resolution goes through pendingChoice
-        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
       if (effect.target.type === "all") {
         const receivingPlayers = new Set<PlayerID>();
@@ -5488,7 +5570,7 @@ export function applyEffect(
             if (effect.enterExerted) s = updateInstance(s, id, { isExerted: true });
             return s;
           },
-        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
         // CRD 6.2: fire card_put_into_inkwell per receiving player so cross-
         // card watchers (Oswald, Chicha Dedicated Mother) pick it up.
         for (const pid of receivingPlayers) {
@@ -5545,7 +5627,7 @@ export function applyEffect(
         }
         const branch = matched ? effect.instead : effect.effect;
         for (const sub of branch) {
-          state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          state = applyEffect(state, sub, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
           if (state.pendingChoice) return state;
         }
         return state;
@@ -5558,7 +5640,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a target.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a target."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -5617,7 +5699,7 @@ export function applyEffect(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: effect.cost === "normal" ? "Choose a card to play." : "Choose a card to play for free.",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, effect.cost === "normal" ? "Choose a card to play." : "Choose a card to play for free."),
           validTargets: validCards,
           pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           optional: effect.isMay ?? false,
@@ -5645,7 +5727,7 @@ export function applyEffect(
         // Forced — apply the only feasible option directly
         const chosen = optionsToPresent[0]!;
         for (const subEffect of chosen) {
-          state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
           if (state.pendingChoice) return state;
         }
         return state;
@@ -5657,7 +5739,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_option",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose one:",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose one:"),
             options: optionsToPresent,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -5667,7 +5749,7 @@ export function applyEffect(
       const chosen = optionsToPresent[0];
       if (!chosen) return state;
       for (const subEffect of chosen) {
-        state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, subEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
         if (state.pendingChoice) return state;
       }
       return state;
@@ -5685,7 +5767,7 @@ export function applyEffect(
       state = { ...state, lastResolvedSource: undefined };
       // Apply cost effects [A]
       for (const costEffect of effect.costEffects) {
-        state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, costEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
         // If cost effect created a pending choice (e.g. choose_target for banish),
         // queue reward effects so they run after the choice resolves
         if (state.pendingChoice) {
@@ -5701,6 +5783,7 @@ export function applyEffect(
                 effects: combinedEffects,
                 sourceInstanceId,
                 controllingPlayerId,
+                ...(abilitySource ? { abilitySource } : {}),
               },
             };
           }
@@ -5709,7 +5792,7 @@ export function applyEffect(
       }
       // Apply reward effects [B]
       for (const rewardEffect of effect.rewardEffects) {
-        state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+        state = applyEffect(state, rewardEffect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
         // If reward effect created a pending choice, queue remaining rewards
         if (state.pendingChoice) {
           const remainingRewards = effect.rewardEffects.slice(
@@ -5726,6 +5809,7 @@ export function applyEffect(
                 effects: combinedEffects,
                 sourceInstanceId,
                 controllingPlayerId,
+                ...(abilitySource ? { abilitySource } : {}),
               },
             };
           }
@@ -5777,9 +5861,9 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: count > 1
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, count > 1
               ? `Choose up to ${count} cards to shuffle into their owner's deck.`
-              : "Choose a card to shuffle into its owner's deck.",
+              : "Choose a card to shuffle into its owner's deck."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
             optional: effect.isMay ?? false,
@@ -5817,7 +5901,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_from_revealed",
             choosingPlayerId: controllingPlayerId,
-            prompt: `Choose a card to take.`,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a card to take.`),
             validTargets: allMatches,
             revealedCards: allMatches,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
@@ -5903,7 +5987,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to grant challenge-ready",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to grant challenge-ready."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -5923,7 +6007,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to bump sing cost",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to bump sing cost."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -5966,7 +6050,7 @@ export function applyEffect(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a character to gain the triggered ability this turn.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to gain the triggered ability this turn."),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
           },
@@ -6600,13 +6684,18 @@ function processTriggerStack(
       // iteration's own player, so wrapping it here would double-prompt and
       // address the wrong player (source owner instead of iteration player).
       if ("isMay" in effect && effect.isMay && effect.type !== "each_player") {
-        const sourceDef = definitions[source.definitionId];
-        const cardName = sourceDef?.fullName ?? source.definitionId;
-        const abilityName = trigger.ability.storyName ? `"${trigger.ability.storyName}"` : "ability";
-        const rulesText = trigger.ability.rulesText ?? "";
-        const mayPrompt = rulesText
-          ? `${cardName} — ${abilityName}: ${rulesText}`
-          : `${cardName} — ${abilityName}: use this effect?`;
+        // P1.14 — gold-standard prompt builder (the original may-prompt that
+        // every other prompt site is migrating toward). Uses the same
+        // buildPrompt helper as the rest of the reducer for format parity:
+        // when ability has both storyName + rulesText, output is
+        // `Card — "STORY": text\nuse this effect?` ; otherwise falls back
+        // gracefully on either piece. The empty-rulesText fallback below
+        // mirrors the legacy "use this effect?" verb.
+        const triggerAbilitySource: AbilitySource = {
+          ...(trigger.ability.storyName !== undefined && { storyName: trigger.ability.storyName }),
+          ...(trigger.ability.rulesText !== undefined && { rulesText: trigger.ability.rulesText }),
+        };
+        const mayPrompt = buildPrompt(state, trigger.sourceInstanceId, definitions, triggerAbilitySource, "use this effect?");
         state = {
           ...state,
           pendingChoice: {
@@ -6626,12 +6715,19 @@ function processTriggerStack(
           trigger.ability.effects.indexOf(effect) + 1
         );
         if (remainingAfterMay.length > 0) {
+          // P1.14 — forward ability provenance so prompts surfaced when these
+          // queued effects resume cite the same source as the may-prompt did.
+          const queuedAbilitySource: AbilitySource = {
+            ...(trigger.ability.storyName !== undefined && { storyName: trigger.ability.storyName }),
+            ...(trigger.ability.rulesText !== undefined && { rulesText: trigger.ability.rulesText }),
+          };
           state = {
             ...state,
             pendingEffectQueue: {
               effects: remainingAfterMay,
               sourceInstanceId: trigger.sourceInstanceId,
               controllingPlayerId: source.ownerId,
+              ...((queuedAbilitySource.storyName || queuedAbilitySource.rulesText) ? { abilitySource: queuedAbilitySource } : {}),
             },
           };
         }
@@ -6645,6 +6741,16 @@ function processTriggerStack(
       const effectToApply = (effect.type === "gain_stats" && trigger.ability.storyName)
         ? { ...effect, _sourceStoryName: effect._sourceStoryName ?? trigger.ability.storyName }
         : effect;
+      // P1.14 — pass ability provenance through applyEffect so any prompt
+      // surfaced from this trigger's effects (chosen targets, may-prompts on
+      // each_player, etc.) cites the source card + ability.
+      const triggerAbilitySource: AbilitySource = {
+        ...(trigger.ability.storyName !== undefined && { storyName: trigger.ability.storyName }),
+        ...(trigger.ability.rulesText !== undefined && { rulesText: trigger.ability.rulesText }),
+      };
+      const passAbilitySource = (triggerAbilitySource.storyName || triggerAbilitySource.rulesText)
+        ? triggerAbilitySource
+        : undefined;
       state = applyEffect(
         state,
         effectToApply,
@@ -6652,7 +6758,8 @@ function processTriggerStack(
         source.ownerId,
         definitions,
         events,
-        trigger.context.triggeringCardInstanceId
+        trigger.context.triggeringCardInstanceId,
+        passAbilitySource,
       );
 
       // If the effect created a pending choice, queue remaining effects and pause
@@ -6667,6 +6774,7 @@ function processTriggerStack(
               effects: remainingEffects,
               sourceInstanceId: trigger.sourceInstanceId,
               controllingPlayerId: source.ownerId,
+              ...(passAbilitySource ? { abilitySource: passAbilitySource } : {}),
             },
           };
         }
@@ -6749,18 +6857,23 @@ function evaluatePlayerFilter(
 
 /** Prepend effects to pendingEffectQueue so they run AFTER the currently
  *  raised pendingChoice resolves. Preserves any existing queued entries by
- *  placing the new ones before them. */
+ *  placing the new ones before them.
+ *
+ *  P1.14 — `abilitySource` carries the producing ability's storyName +
+ *  rulesText so prompts surfaced when these queued effects resume cite the
+ *  same source as the original prompt did. */
 function queueAfterCurrent(
   state: GameState,
   newEffects: Effect[],
   sourceInstanceId: string,
-  controllingPlayerId: PlayerID
+  controllingPlayerId: PlayerID,
+  abilitySource?: AbilitySource,
 ): GameState {
   return {
     ...state,
     pendingEffectQueue: state.pendingEffectQueue
       ? { ...state.pendingEffectQueue, effects: [...newEffects, ...state.pendingEffectQueue.effects] }
-      : { effects: newEffects, sourceInstanceId, controllingPlayerId },
+      : { effects: newEffects, sourceInstanceId, controllingPlayerId, ...(abilitySource ? { abilitySource } : {}) },
   };
 }
 
@@ -6771,16 +6884,16 @@ function resumePendingEffectQueue(
 ): GameState {
   if (!state.pendingEffectQueue || state.pendingChoice) return state;
 
-  const { effects, sourceInstanceId, controllingPlayerId } = state.pendingEffectQueue;
+  const { effects, sourceInstanceId, controllingPlayerId, abilitySource } = state.pendingEffectQueue;
   state = { ...state, pendingEffectQueue: undefined };
 
   for (let i = 0; i < effects.length; i++) {
     const effect = effects[i]!;
-    state = applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events);
+    state = applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, undefined, abilitySource);
     if (state.pendingChoice) {
       const remaining = effects.slice(i + 1);
       if (remaining.length > 0) {
-        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId, controllingPlayerId } };
+        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId, controllingPlayerId, ...(abilitySource ? { abilitySource } : {}) } };
       }
       return state;
     }
@@ -7195,9 +7308,11 @@ function zoneTransition(
  *    skipping instances not in play (for cascading banishes / mass returns)
  */
 interface ResolveTargetAndApplyOptions {
-  /** Prompt text shown in the pendingChoice when target.type === "chosen". */
+  /** Verb portion of the prompt shown in the pendingChoice when target.type === "chosen".
+   *  P1.14 — `buildPrompt` PREFIXES the source-card citation; this is just
+   *  the action-specific verb ("Choose a target to banish."). */
   prompt: string;
-  /** Alternate prompt for target.count > 1 ("up to N" variants — Grab Your
+  /** Alternate verb for target.count > 1 ("up to N" variants — Grab Your
    *  Bow "Banish up to 2 chosen characters"). Omit for single-target cases. */
   promptForCount?: (count: number) => string;
   /** Per-target application: the actual move/banish/etc. Called for "this",
@@ -7227,6 +7342,7 @@ function resolveTargetAndApply(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
   triggeringCardInstanceId?: string,
+  abilitySource?: AbilitySource,
 ): GameState {
   const target = effect.target;
 
@@ -7250,9 +7366,10 @@ function resolveTargetAndApply(
     const resolvedCount = target.count === "any"
       ? validTargets.length
       : (target.count ?? 1);
-    const prompt = (typeof resolvedCount === "number" && resolvedCount > 1) && opts.promptForCount
+    const verb = (typeof resolvedCount === "number" && resolvedCount > 1) && opts.promptForCount
       ? opts.promptForCount(resolvedCount)
       : opts.prompt;
+    const prompt = buildPrompt(state, sourceInstanceId, definitions, abilitySource, verb);
     return {
       ...state,
       pendingChoice: {
@@ -7573,7 +7690,10 @@ function applyEffectToTarget(
   definitions: Record<string, CardDefinition>,
   events: GameEvent[],
   sourceInstanceId: string = "",
-  triggeringCardInstanceId?: string
+  triggeringCardInstanceId?: string,
+  // P1.14 — ability provenance for citing source on prompts surfaced from
+  // post-resolution paths (move_damage stage 2, move_character stage 2, etc.).
+  abilitySource?: AbilitySource,
 ): GameState {
   switch (effect.type) {
     case "deal_damage": {
@@ -7801,7 +7921,7 @@ function applyEffectToTarget(
             pendingChoice: {
               type: "choose_amount",
               choosingPlayerId: controllingPlayerId,
-              prompt: `Remove how much damage? (0–${maxHeal})`,
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Remove how much damage? (0–${maxHeal})`),
               min: 0,
               max: maxHeal,
               pendingEffect: effect,
@@ -8201,7 +8321,7 @@ function applyEffectToTarget(
             pendingChoice: {
               type: "choose_amount",
               choosingPlayerId: controllingPlayerId,
-              prompt: `Move how much damage? (0–${maxMove})`,
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Move how much damage? (0–${maxMove})`),
               min: 0,
               max: maxMove,
               pendingEffect: effect,
@@ -8289,7 +8409,7 @@ function applyEffectToTarget(
         pendingChoice: {
           type: "choose_target",
           choosingPlayerId: controllingPlayerId,
-          prompt: "Choose a character to move damage to.",
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character to move damage to."),
           validTargets: validDests,
           pendingEffect: { ...effect, _resolvedSource: makeResolvedRef(state, definitions, targetInstanceId) },
         },
@@ -8329,9 +8449,9 @@ function applyEffectToTarget(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: effect.character.maxCount !== undefined
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, effect.character.maxCount !== undefined
               ? `Choose up to ${cap} characters to move.`
-              : "Choose any number of characters to move.",
+              : "Choose any number of characters to move."),
             validTargets: candidates,
             pendingEffect: { ...effect, _resolvedLocation: makeResolvedRef(state, definitions, targetInstanceId) },
             sourceInstanceId,
@@ -8360,7 +8480,7 @@ function applyEffectToTarget(
           pendingChoice: {
             type: "choose_target",
             choosingPlayerId: controllingPlayerId,
-            prompt: "Choose a location to move to.",
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a location to move to."),
             validTargets: validLocations,
             pendingEffect: { ...effect, _resolvedCharacter: makeResolvedRef(state, definitions, targetInstanceId) },
           },
@@ -8554,7 +8674,8 @@ function surfaceChoosePlayer(
   controllingPlayerId: PlayerID,
   sourceInstanceId: string,
   definitions: Record<string, CardDefinition>,
-  events: GameEvent[]
+  events: GameEvent[],
+  abilitySource?: AbilitySource,
 ): GameState {
   const target = (effect as { target?: { excludeSelf?: boolean } }).target;
   const opponent = getOpponent(controllingPlayerId);
@@ -8570,7 +8691,7 @@ function surfaceChoosePlayer(
     pendingChoice: {
       type: "choose_player",
       choosingPlayerId: controllingPlayerId,
-      prompt: "Choose a player.",
+      prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a player."),
       validTargets,
       pendingEffect: effect,
       sourceInstanceId,

@@ -3585,8 +3585,20 @@ export interface GameState {
   /** CRD 4.3.3.2: Action card waiting in play zone while its effect resolves (pending choice) */
   pendingActionInstanceId?: string;
 
-  /** Effects waiting to resolve after a pending choice is resolved */
-  pendingEffectQueue?: { effects: Effect[]; sourceInstanceId: string; controllingPlayerId: PlayerID } | undefined;
+  /** Effects waiting to resolve after a pending choice is resolved.
+   *
+   *  P1.14 — `abilitySource` carries the producing ability's storyName +
+   *  rulesText so any prompt surfaced when these queued effects resume cites
+   *  the same source as the original prompt did. Optional: triggers without
+   *  a JSON ability (synthesized Support/Challenger) and action cards (no
+   *  per-effect storyName) leave it undefined; the prompt builder then falls
+   *  back to def.fullName + def.rulesText (for actions) or fullName-only. */
+  pendingEffectQueue?: {
+    effects: Effect[];
+    sourceInstanceId: string;
+    controllingPlayerId: PlayerID;
+    abilitySource?: { storyName?: string; rulesText?: string };
+  } | undefined;
 
   /** CRD 3.2.3.1: Draw step deferred when a turn_start trigger ("At the start
    *  of your turn", e.g. The Queen Conceited Ruler ROYAL SUMMONS) creates a

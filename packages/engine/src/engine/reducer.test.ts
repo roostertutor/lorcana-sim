@@ -4388,7 +4388,9 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
     );
     expect(after.pendingChoice?.type).toBe("choose_target");
     expect((after.pendingChoice as any)?.count).toBe(1);
-    expect(after.pendingChoice?.prompt).toBe("Choose a target to banish.");
+    // P1.14 — prompt now cites source card; verb preserved as a substring.
+    expect(after.pendingChoice?.prompt).toContain("Helga Sinclair - No Backup Needed");
+    expect(after.pendingChoice?.prompt).toContain("Choose a target to banish.");
   });
 
   it("banish target:chosen with count>1 — uses 'up to N' promptForCount variant (Grab Your Bow)", () => {
@@ -4400,7 +4402,8 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
       { type: "banish", target: { type: "chosen", count: 2, filter: { zone: "play", cardType: ["character"] } } } as any,
       sourceId, "player1", CARD_DEFINITIONS, [],
     );
-    expect(after.pendingChoice?.prompt).toBe("Choose up to 2 targets to banish.");
+    // P1.14 — verb preserved as substring; source citation prefixed.
+    expect(after.pendingChoice?.prompt).toContain("Choose up to 2 targets to banish.");
     expect((after.pendingChoice as any)?.count).toBe(2);
   });
 
@@ -4429,7 +4432,8 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
       sourceId, "player1", CARD_DEFINITIONS, [],
     );
     expect(after.pendingChoice?.type).toBe("choose_target");
-    expect(after.pendingChoice?.prompt).toBe("Choose a card to return to hand.");
+    // P1.14 — verb preserved as substring; source citation prefixed.
+    expect(after.pendingChoice?.prompt).toContain("Choose a card to return to hand.");
   });
 
   it("return_to_hand target:triggering_card — sets lastResolvedTarget (Yzma BACK TO WORK pattern)", () => {
@@ -4475,7 +4479,8 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
       sourceId, "player1", CARD_DEFINITIONS, [],
     );
     expect(after.pendingChoice?.type).toBe("choose_target");
-    expect(after.pendingChoice?.prompt).toBe("Choose a card to put into inkwell.");
+    // P1.14 — verb preserved as substring; source citation prefixed.
+    expect(after.pendingChoice?.prompt).toContain("Choose a card to put into inkwell.");
   });
 
   it("put_card_on_bottom_of_deck from:play respects chooser:target_player (Family Scattered pattern)", () => {
@@ -4498,6 +4503,95 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
     );
     // pendingChoice surfaces to player2 (the target), not player1 (caster).
     expect(after.pendingChoice?.choosingPlayerId).toBe("player2");
+  });
+});
+
+// =============================================================================
+// P1.14 — Prompt format regression tests
+//
+// Per docs/AUDIT_2026-04-28_action_items.md P1.14: every targeting prompt
+// surfaces source-card provenance (def.fullName + ability.storyName +
+// ability.rulesText) so simultaneous prompts are distinguishable. Sample a few
+// representative shapes — full ability path (activated), action-card fallback
+// (no per-effect storyName), and a triggered-ability may-prompt path.
+// =============================================================================
+
+describe("P1.14 — prompt source citation", () => {
+  it("activated ability with chosen target — prompt cites fullName + storyName + rulesText (Dinglehopper STRAIGHTEN HAIR)", () => {
+    let state = startGame();
+    let dingleId: string, victimId: string;
+    ({ state, instanceId: dingleId } = injectCard(state, "player1", "dinglehopper", "play", { isDrying: false }));
+    ({ state, instanceId: victimId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 1 }));
+    void victimId;
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: dingleId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const prompt = r.newState.pendingChoice?.prompt ?? "";
+    // Source card name
+    expect(prompt).toContain("Dinglehopper");
+    // Story name (in quotes, matching the choose_may builder's shape)
+    expect(prompt).toContain("STRAIGHTEN HAIR");
+    // Rules text
+    expect(prompt).toContain("Remove up to 1 damage from chosen character");
+    // Verb preserved
+    expect(prompt).toContain("Choose a character to remove damage from.");
+  });
+
+  it("action card with chosen target — prompt cites fullName + def.rulesText (no storyName) (Stampede)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let stampedeId: string, damagedId: string;
+    ({ state, instanceId: stampedeId } = injectCard(state, "player1", "stampede", "hand"));
+    ({ state, instanceId: damagedId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { damage: 1 }));
+    void damagedId;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: stampedeId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const prompt = r.newState.pendingChoice?.prompt ?? "";
+    // Action card name
+    expect(prompt).toContain("Stampede");
+    // Action's whole-card rulesText is the citation (no per-effect storyName for actions).
+    expect(prompt).toContain("Deal 2 damage to chosen damaged character");
+    // Verb preserved
+    expect(prompt).toContain("Choose a target to deal damage to.");
+  });
+
+  it.skip("[debug] print prompt formats for length inspection", () => {
+    // Skipped diagnostic — flip `.skip` off to print prompts when measuring
+    // mobile UI overflow risk after format changes. Prints a few representative
+    // shapes (activated, action, may-prompt) to vitest stdout.
+    let state = startGame();
+    let dingleId: string;
+    ({ state, instanceId: dingleId } = injectCard(state, "player1", "dinglehopper", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { damage: 1 }));
+    const r1 = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: dingleId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    console.log("ACTIVATED (Dinglehopper):", JSON.stringify(r1.newState.pendingChoice?.prompt));
+    let s2 = startGame();
+    s2 = giveInk(s2, "player1", 5);
+    let stampedeId: string;
+    ({ state: s2, instanceId: stampedeId } = injectCard(s2, "player1", "stampede", "hand"));
+    ({ state: s2 } = injectCard(s2, "player2", "minnie-mouse-beloved-princess", "play", { damage: 1 }));
+    const r2 = applyAction(s2, { type: "PLAY_CARD", playerId: "player1", instanceId: stampedeId }, CARD_DEFINITIONS);
+    console.log("ACTION (Stampede):", JSON.stringify(r2.newState.pendingChoice?.prompt));
+  });
+
+  it("triggered may-ability (Bodyguard enter-exerted) — gold-standard mayPrompt cites fullName + storyName + rulesText (Goofy Musketeer)", () => {
+    // The trigger-stack mayPrompt builder (the original gold standard at
+    // reducer.ts:6703) was migrated to use buildPrompt for format parity.
+    // Goofy's Bodyguard keyword fires first on play, surfacing a may-prompt
+    // for the enter-exerted choice — this is the canonical may-prompt path.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let goofyId: string;
+    ({ state, instanceId: goofyId } = injectCard(state, "player1", "goofy-musketeer", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: goofyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const prompt = r.newState.pendingChoice?.prompt ?? "";
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    // Source card name
+    expect(prompt).toContain("Goofy - Musketeer");
+    // Story name OR keyword name (Bodyguard surfaces with that as the heading)
+    expect(prompt).toContain("Bodyguard");
+    // Rules text from the ability/keyword
+    expect(prompt).toContain("This character may enter play exerted");
   });
 });
 
