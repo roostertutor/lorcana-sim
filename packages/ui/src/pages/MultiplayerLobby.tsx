@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
 import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
@@ -354,15 +354,24 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       queueChannelRef.current = subscribeMatchmakingPairFound(data.user.id, ({ gameId }) => {
         // Server pairs both users into the same gameId; the side the
         // current user lands on (player1 vs player2) is determined by
-        // server-side coin flip / play-draw rule. We don't get that side
-        // back over the broadcast — fetch it from getGameInfo at the
-        // game-start callback site (App.tsx already does this fallback
-        // when localStorage is missing).
+        // server-side coin flip. The Realtime broadcast doesn't carry
+        // myPlayerId, so we look it up via getGameInfo before navigating.
+        // Skipping this lookup means BOTH clients write myPlayerId="player1"
+        // to localStorage and both treat themselves as player1 in the
+        // game (chooser-only modals show on both, etc.) — bug fixed
+        // 2026-04-27.
         setQueueStatus(null);
-        // Caller's onGameStart prefers myPlayerId; default to "player1"
-        // since the server will redirect-correct via getGameInfo when
-        // the value is wrong.
-        onGameStart(gameId, "player1");
+        void getGameInfo(gameId).then((info) => {
+          if (info && info.status === "active") {
+            onGameStart(gameId, info.playerSide);
+          } else {
+            // Defensive fallback — if getGameInfo fails, App.tsx's own
+            // fallback fires when localStorage gameId mismatches. Pass
+            // a placeholder gameId+player1 so navigation proceeds; the
+            // remount fetches the real side.
+            onGameStart(gameId, "player1");
+          }
+        });
       });
     });
     return () => {
@@ -391,7 +400,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         queueKind,
       });
       if (result.status === "paired") {
-        onGameStart(result.gameId, "player1");
+        // Same fix as the Realtime path — look up myPlayerId before
+        // writing localStorage. Both clients can hit this branch
+        // (whichever user joined second pairs immediately on INSERT;
+        // the first user gets the broadcast).
+        const info = await getGameInfo(result.gameId);
+        const myPlayerId = info?.playerSide ?? "player1";
+        onGameStart(result.gameId, myPlayerId);
         return;
       }
       // Queued — fetch full status to populate the queue-wait UI.
