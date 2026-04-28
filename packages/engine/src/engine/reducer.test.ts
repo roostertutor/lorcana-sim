@@ -11,7 +11,7 @@ import {
   CARD_DEFINITIONS,
   startGame, injectCard, giveInk, setLore, passTurns, emptyDeck, buildTestDeck,
 } from "./test-helpers.js";
-import { generateId, getZone, getInstance, getEffectiveLore, makeResolvedRef as makeResolvedRefImport } from "../utils/index.js";
+import { generateId, getZone, getInstance, getEffectiveLore, getDefinition as getDefinitionImport, makeResolvedRef as makeResolvedRefImport } from "../utils/index.js";
 import { getGameModifiers } from "../engine/gameModifiers.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
 
@@ -381,6 +381,100 @@ describe("ResolvedRef privacy (privateTo stamping)", () => {
     expect(refPublic?.privateTo).toBeUndefined();
     const refPrivate = makeResolvedRefImport(s1, CARD_DEFINITIONS, instanceId, { privateTo: "player1" });
     expect(refPrivate?.privateTo).toBe("player1");
+  });
+});
+
+// =============================================================================
+// HIDDEN_DEFINITION sentinel — server-filter contract.
+// Server's filterStateForPlayer (server/src/services/stateFilter.ts) replaces
+// opponent-side cards in hidden zones with stubs whose definitionId === "hidden".
+// The UI's optimistic-apply path runs `applyAction(filteredState, action,
+// definitions)` locally for instant feedback — `definitions` doesn't carry a
+// "hidden" entry, so anything that calls `getDefinition` on the stub used to
+// throw "Card definition not found: hidden". Most-common trip site: PASS_TURN
+// cascading into the opponent's automatic turn-start draw, which calls
+// `getDefinition(state, topCardId, definitions)` for the log line.
+// =============================================================================
+
+describe("HIDDEN_DEFINITION (server-filter sentinel)", () => {
+  it('applyDraw resolves a "hidden" definitionId card without throwing (MP optimistic-apply path)', () => {
+    // Build a state mimicking what the UI sees in MP: an opponent-side card in
+    // the hidden deck zone whose definitionId is the server's "hidden" sentinel
+    // and is NOT registered in CARD_DEFINITIONS. Then drive a PASS_TURN whose
+    // cascading turn-start draw reads the top of that deck.
+    let state = startGame();
+    // Strip player2's deck so we can replace its top with the hidden stub.
+    const p2Deck = [...state.zones.player2.deck];
+    const evictedIds = p2Deck.slice(0, 1);
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player2: { ...state.zones.player2, deck: p2Deck.slice(1) },
+      },
+    };
+    // Inject a hidden-stub card matching the server's filterStateForPlayer
+    // shape (definitionId: "hidden", in opponent's deck, owned by opponent).
+    let stubInstanceId: string;
+    ({ state, instanceId: stubInstanceId } = injectCard(state, "player2", "hidden", "deck"));
+    // Move the stub to the top of the deck so the next draw consumes it.
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player2: {
+          ...state.zones.player2,
+          deck: [stubInstanceId, ...state.zones.player2.deck.filter(id => id !== stubInstanceId)],
+        },
+      },
+    };
+    // Sanity: CARD_DEFINITIONS truly does not carry a "hidden" entry.
+    expect(CARD_DEFINITIONS["hidden"]).toBeUndefined();
+    // Pass player1's turn → player2 starts → automatic turn-start draw reads
+    // the hidden stub at deck top. Without HIDDEN_DEFINITION fallback, this
+    // throws inside applyDraw and applyAction returns success:false.
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    // The stub moved from deck → hand.
+    const stubAfter = result.newState.cards[stubInstanceId]!;
+    expect(stubAfter.zone).toBe("hand");
+    // Log line uses the placeholder fullName ("Hidden Card") not "Unknown".
+    const drawEntry = result.newState.actionLog.find(
+      (e) => e.type === "card_drawn" && e.playerId === "player2" && /drew Hidden Card/.test(e.message)
+    );
+    expect(drawEntry).toBeDefined();
+    // Suppress unused warning on evictedIds — we keep it captured for clarity
+    // about what got removed from the deck top.
+    expect(evictedIds.length).toBe(1);
+  });
+
+  it("real (non-hidden) definitionIds still throw via getDefinition (regression: sentinel branch is narrow)", () => {
+    // Sanity-check the bypass is keyed strictly on the literal string "hidden":
+    // any other unknown definitionId still throws via the original error path.
+    // Without this guard, a typo in a real card's definitionId would silently
+    // resolve to the placeholder and downstream effects would no-op.
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player1", "no-such-card-id", "hand"));
+    // Direct unit test on getDefinition — the contract is "if definitionId is
+    // not 'hidden' AND not in definitions, throw." This must stay a throw so
+    // typos in real card ids surface immediately rather than silently no-op via
+    // the placeholder.
+    expect(() => getDefinitionImport(state, instanceId, CARD_DEFINITIONS)).toThrow(/no-such-card-id/);
+  });
+
+  it('getDefinition returns the HIDDEN_DEFINITION placeholder for a "hidden"-stub instance (direct contract)', () => {
+    // Reads through engine's public API — covers the consumer surface for any
+    // optimistic-apply path that resolves opponent-side hidden cards.
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player2", "hidden", "deck"));
+    const def = getDefinitionImport(state, instanceId, CARD_DEFINITIONS);
+    expect(def.id).toBe("hidden");
+    expect(def.fullName).toBe("Hidden Card");
+    expect(def.abilities).toEqual([]);
+    expect(def.inkColors).toEqual([]);
+    expect(def.traits).toEqual([]);
   });
 });
 

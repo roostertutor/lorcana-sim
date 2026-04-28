@@ -38,6 +38,7 @@ export type { GameConfig, DeckEntry } from "./engine/initializer.js";
 export {
   getInstance,
   getDefinition,
+  HIDDEN_DEFINITION,
   getZone,
   getZoneInstances,
   getEffectiveStrength,

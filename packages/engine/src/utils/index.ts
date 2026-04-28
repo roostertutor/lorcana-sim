@@ -27,6 +27,46 @@ export function getInstance(state: GameState, instanceId: string): CardInstance 
   return instance;
 }
 
+/** Placeholder definition returned for the server-filter `"hidden"` stub.
+ *
+ *  Server's `filterStateForPlayer` (server/src/services/stateFilter.ts) replaces
+ *  opponent-side cards in hidden zones (hand, deck, face-down under-piles) with
+ *  CardInstance stubs whose `definitionId` is the sentinel string `"hidden"`.
+ *  The UI's optimistic-apply path then runs `applyAction(filteredState, action,
+ *  definitions)` locally for instant feedback — but `definitions` doesn't carry
+ *  a `"hidden"` entry, so any code path that resolves a hidden card's definition
+ *  (most commonly `applyDraw` reading the drawn card's name for the log line, or
+ *  `card_drawn` triggers cascading on opponent's automatic draw at turn start)
+ *  used to throw `Card definition not found: hidden`. The engine's outer
+ *  try/catch swallowed the throw and returned `{ success: false }`, so MP
+ *  gameplay still worked via the server echo — but every PASS_TURN logged a
+ *  noisy `[engine] applyAction threw` to the console.
+ *
+ *  This placeholder is benign for any matcher: empty abilities (no triggers /
+ *  statics fire), empty inks (no color-keyed filter matches), no traits, zero
+ *  cost. Stat fields are left undefined per CardDefinition's optional shape;
+ *  the existing effective-stat helpers default `def.strength ?? 0` etc.
+ *
+ *  The sentinel id matches `hiddenStub` in the server (currently `"hidden"`).
+ *  If that contract changes, update both call sites — but exposing the value
+ *  here keeps the engine forgiving of a known server contract without N
+ *  consumers needing to merge the placeholder into their definitions map. */
+export const HIDDEN_DEFINITION: CardDefinition = {
+  id: "hidden",
+  name: "Hidden",
+  fullName: "Hidden Card",
+  cardType: "character",
+  cost: 0,
+  inkable: false,
+  inkColors: [],
+  traits: [],
+  abilities: [],
+  rarity: "common",
+  setId: "hidden",
+  number: 0,
+  rulesText: "",
+};
+
 /** Get the static definition for an instance */
 export function getDefinition(
   state: GameState,
@@ -35,8 +75,13 @@ export function getDefinition(
 ): CardDefinition {
   const instance = getInstance(state, instanceId);
   const def = definitions[instance.definitionId];
-  if (!def) throw new Error(`Card definition not found: ${instance.definitionId}`);
-  return def;
+  if (def) return def;
+  // Server-filter sentinel: opponent-side cards in hidden zones come back with
+  // definitionId === "hidden" and are not registered in the definitions map
+  // passed to applyAction (UI optimistic-apply path). Return the placeholder
+  // so the throwing variant stays graceful for the MP path. See HIDDEN_DEFINITION JSDoc.
+  if (instance.definitionId === "hidden") return HIDDEN_DEFINITION;
+  throw new Error(`Card definition not found: ${instance.definitionId}`);
 }
 
 /** Get all instance IDs for a player in a specific zone */
