@@ -1707,10 +1707,16 @@ function applyActivateAbility(
   }
 
   events.push({ type: "ability_triggered", instanceId, abilityType: "activated" });
+  // Surface ability.storyName so the log distinguishes which of a card's
+  // multiple activated abilities fired (e.g. "WAVE THE SCEPTER" vs the bare
+  // "an ability"). Mirrors the trigger-log pattern at :6463 which already
+  // reads `trigger.ability.storyName`. Falls back to "an ability" so cards
+  // with no storyName preserve the previous wording.
+  const abilityName = ability.storyName ?? "an ability";
   state = appendLog(state, {
     turn: state.turnNumber,
     playerId,
-    message: `${playerId} activated an ability on ${def.fullName}.`,
+    message: `${playerId} activated ${abilityName} on ${def.fullName}.`,
     type: "ability_activated",
   });
 
