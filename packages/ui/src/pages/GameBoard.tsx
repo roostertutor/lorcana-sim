@@ -47,6 +47,7 @@ import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 import { renderRulesText } from "../utils/rulesTextRender.js";
+import { formatDuration as formatDurationLabel } from "../utils/formatDuration.js";
 
 // -----------------------------------------------------------------------------
 // Shared sizing tokens for the utility-strip tiles (deck / discard / inkwell)
@@ -189,20 +190,6 @@ const BOARD_WIDE_EFFECTS = new Set([
   "grant_activated_ability",
 ]);
 
-function formatEffectDuration(d: string | undefined): string | undefined {
-  if (!d) return undefined;
-  switch (d) {
-    case "end_of_turn": return "This turn";
-    case "end_of_owner_next_turn": return "Until their next turn";
-    case "until_caster_next_turn": return "Until your next turn";
-    case "end_of_next_turn": return "Until next turn";
-    case "while_in_play": return "While in play";
-    case "permanent": return "Permanent";
-    case "once": return "Once";
-    default: return d.replace(/_/g, " ");
-  }
-}
-
 interface ActiveEffect {
   label: string;
   source: string;
@@ -294,9 +281,12 @@ function getActiveEffects(
         const effectType = (ability as any).effect?.type;
         if (!effectType || !BOARD_WIDE_EFFECTS.has(effectType)) continue;
         if (ability.condition && !evaluateCondition(ability.condition, state, definitions, pid, id)) continue;
+        // Final fallback is "Active effect" rather than the raw discriminator
+        // (e.g. "modify_stat") — only fires when the static lacks both
+        // storyName and rulesText (synthesized statics).
         const text = ability.storyName
           ? `${ability.storyName} ${ability.rulesText ?? ""}`
-          : (ability.rulesText ?? effectType);
+          : (ability.rulesText ?? "Active effect");
         effects.push({ label: trimPillText(text), source: `${side}: ${def.fullName}`, color: "text-amber-300", sourceName: def.fullName });
       }
     }
@@ -316,21 +306,37 @@ function getActiveEffects(
   for (const pid of [myId, oppId] as PlayerID[]) {
     for (const r of (state.players[pid]?.playRestrictions ?? [])) {
       const src = sourceText((r as any).sourceInstanceId, "restrict_play");
-      const label = src ? src.text : `Can't play ${r.cardTypes.join("/")}s`;
+      // Fallback: "Can't play Item / Location" — joining with " / " reads
+      // acceptable without the heuristic plural `s` (which produced
+      // "Item/Locations" for multi-type restrictions).
+      const label = src ? src.text : `Can't play ${r.cardTypes.join(" / ")}`;
       const source = src ? `${r.casterPlayerId === myId ? "You" : "Opp"}: ${src.name}` : `${r.casterPlayerId === myId ? "You" : "Opp"}`;
       effects.push({ label, source, color: "text-red-400", sourceName: src?.name });
     }
   }
 
   // Global timed effects (Restoring Atlantis, Kuzco BY INVITE ONLY, etc.)
-  const globalEffects = (state as any).globalTimedEffects as { type: string; controllingPlayerId: string; expiresAt: string; sourceInstanceId?: string }[] | undefined;
+  const globalEffects = (state as any).globalTimedEffects as { type: string; controllingPlayerId: PlayerID; expiresAt: string; sourceInstanceId?: string }[] | undefined;
   if (globalEffects) {
     for (const ge of globalEffects) {
       const who = ge.controllingPlayerId === myId ? "You" : "Opp";
       const src = sourceText(ge.sourceInstanceId, "grant_keyword");
-      const label = src ? src.text : ge.type.replace(/_/g, " ");
+      // Fallback to "Active effect" rather than the raw discriminator string
+      // (e.g. "grant_keyword" → "grant keyword") when the source ability
+      // can't be resolved.
+      const label = src ? src.text : "Active effect";
       const source = src ? `${who}: ${src.name}` : who;
-      effects.push({ label: label.trim(), source, color: "text-orange-400", sourceName: src?.name, duration: formatEffectDuration(ge.expiresAt) });
+      effects.push({
+        label: label.trim(),
+        source,
+        color: "text-orange-400",
+        sourceName: src?.name,
+        // GlobalTimedEffect.controllingPlayerId IS the caster (per CRD
+        // mapping in types/index.ts). Owner-anchored durations don't apply
+        // to global effects (they're not card-targeted), so ownerPlayerId
+        // is undefined.
+        duration: formatDurationLabel(ge.expiresAt, ge.controllingPlayerId, myId),
+      });
     }
   }
 
@@ -382,7 +388,9 @@ function getActiveEffects(
       if (!inst || !inst.timedEffects?.length) continue;
       const target = cardName(id);
       // Group by (type, sourceInstanceId); target is fixed within this loop.
-      type Group = { type: string; sourceInstanceId?: string; count: number; expiresAt: string; sample: any };
+      // Track casterPlayerId from the first matching effect — within a group
+      // (same type + same source instance) the caster is consistent.
+      type Group = { type: string; sourceInstanceId?: string; count: number; expiresAt: string; casterPlayerId?: PlayerID; sample: any };
       const groups = new Map<string, Group>();
       for (const te of inst.timedEffects) {
         const teAny = te as any;
@@ -392,22 +400,38 @@ function getActiveEffects(
           existing.count += 1;
           existing.expiresAt = teAny.expiresAt; // keep latest
         } else {
-          groups.set(key, { type: teAny.type, sourceInstanceId: teAny.sourceInstanceId, count: 1, expiresAt: teAny.expiresAt, sample: te });
+          const g: Group = {
+            type: teAny.type,
+            sourceInstanceId: teAny.sourceInstanceId,
+            count: 1,
+            expiresAt: teAny.expiresAt,
+            sample: te,
+          };
+          if (teAny.casterPlayerId) g.casterPlayerId = teAny.casterPlayerId as PlayerID;
+          groups.set(key, g);
         }
       }
       for (const g of groups.values()) {
         const src = sourceText(g.sourceInstanceId, g.type);
-        const label = src ? `${src.text} (on ${target})` : `${g.type.replace(/_/g, " ")} on ${target}`;
+        // Fallback when source ability can't be resolved: drop the raw
+        // discriminator entirely and just say "Effect on <target>".
+        const label = src ? `${src.text} (on ${target})` : `Effect on ${target}`;
         const source = src ? src.name : "";
-        effects.push({
+        // For caster-anchored durations the casterPlayerId is on the
+        // TimedEffect itself (engine guarantees it for
+        // until_caster_next_turn). For owner-anchored durations
+        // (end_of_owner_next_turn) we pass the affected card's ownerId.
+        const duration = formatDurationLabel(g.expiresAt, g.casterPlayerId, myId, inst.ownerId);
+        const entry: ActiveEffect = {
           label,
           source,
           color: "text-cyan-400",
-          sourceName: src?.name,
           target,
-          duration: formatEffectDuration(g.expiresAt),
-          ...(g.count > 1 ? { stackCount: g.count } : {}),
-        });
+        };
+        if (src?.name) entry.sourceName = src.name;
+        if (duration) entry.duration = duration;
+        if (g.count > 1) entry.stackCount = g.count;
+        effects.push(entry);
       }
     }
   }
@@ -2931,6 +2955,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           actions={[]}
           onClose={() => setInspectModalOpen(false)}
           gameModifiers={gameModifiers}
+          viewerPlayerId={myId}
         />
       )}
 

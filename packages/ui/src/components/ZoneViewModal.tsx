@@ -175,6 +175,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
             definitions={definitions}
             actions={actions}
             onClose={() => setInspectId(null)}
+            viewerPlayerId={myId}
           />
         );
       })()}

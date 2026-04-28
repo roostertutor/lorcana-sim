@@ -1,5 +1,5 @@
 import React from "react";
-import type { CardDefinition, GameState, GameModifiers } from "@lorcana-sim/engine";
+import type { CardDefinition, GameState, GameModifiers, PlayerID } from "@lorcana-sim/engine";
 import { getEffectiveStrength, getEffectiveWillpower } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import ModalFrame from "./ModalFrame.js";
@@ -7,6 +7,7 @@ import Glyph, { type GlyphName } from "./Glyph.js";
 import { getInspectCardImage } from "../utils/cardImage.js";
 import CardPlaceholder from "./CardPlaceholder.js";
 import { renderRulesText } from "../utils/rulesTextRender.js";
+import { formatDuration } from "../utils/formatDuration.js";
 
 type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
 
@@ -17,6 +18,11 @@ interface Props {
   actions: CardBtn[];
   onClose: () => void;
   gameModifiers?: GameModifiers | null;
+  /** Viewer's player ID — needed so duration labels like "Until your next
+   *  turn" don't lie when the viewer is the opponent of the caster. When
+   *  omitted, perspective-aware labels fall back to neutral phrasing
+   *  ("Until the caster's next turn") rather than rendering wrong "your". */
+  viewerPlayerId?: PlayerID;
 }
 
 // Ink color → badge color class. Background hex matches the primary
@@ -31,7 +37,7 @@ const INK_COLOR_CLASS: Record<string, string> = {
   steel: "bg-[#97a3ae] text-gray-950",
 };
 
-export default function CardInspectModal({ instanceId, gameState, definitions, actions, onClose, gameModifiers }: Props) {
+export default function CardInspectModal({ instanceId, gameState, definitions, actions, onClose, gameModifiers, viewerPlayerId }: Props) {
   const instance = gameState.cards[instanceId];
   const def = instance ? definitions[instance.definitionId] : undefined;
 
@@ -302,7 +308,17 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
                     srcText = "";
                   }
                   const srcName = srcDef?.fullName ?? "Unknown";
-                  const duration = formatDuration(te.expiresAt);
+                  // Owner-anchored durations (`end_of_owner_next_turn`) reference
+                  // the affected card's owner; caster-anchored durations
+                  // (`until_caster_next_turn`) reference the TimedEffect's
+                  // casterPlayerId. Pass both so formatDuration picks the
+                  // correct one and renders viewer-perspective pronouns.
+                  const duration = formatDuration(
+                    te.expiresAt,
+                    te.casterPlayerId as PlayerID | undefined,
+                    viewerPlayerId,
+                    instance?.ownerId as PlayerID | undefined,
+                  );
                   return (
                     <div key={i} className="rounded-lg bg-gray-900 border border-gray-800 px-2.5 py-1.5">
                       <div className="flex items-center justify-between gap-2">
@@ -365,17 +381,4 @@ function StatPill({ glyph, base, effective }: { glyph: GlyphName; base: number; 
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-function formatDuration(d: string): string {
-  switch (d) {
-    case "end_of_turn": return "This turn";
-    case "end_of_owner_next_turn": return "Until their next turn";
-    case "until_caster_next_turn": return "Until your next turn";
-    case "end_of_next_turn": return "Until next turn";
-    case "while_in_play": return "While in play";
-    case "permanent": return "Permanent";
-    case "once": return "Once";
-    default: return d.replace(/_/g, " ");
-  }
 }
