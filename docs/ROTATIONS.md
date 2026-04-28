@@ -9,6 +9,41 @@ this doc keeps them in sync.
 
 ---
 
+## ⚠️ Pending refactor — matchmaking ship 2026-04-27
+
+**Several runbook steps below are slated to simplify** when the matchmaking
+ship lands (see `docs/HANDOFF.md` → "Engine agent: rotation registry
+refactor" + "Server agent: casual + ranked matchmaking queues" entries).
+Specifically:
+
+1. **`decks.format_rotation` will be dropped entirely.** Decks will only
+   carry `format_family`. Rotation becomes a per-game choice (server
+   default = current live; per-game opt-in for staged rotation when one
+   exists). This eliminates the per-set deck-restamp chore — runbook 2's
+   "every existing deck needs migration" implication goes away.
+
+2. **`RotationEntry` gains a `ranked: boolean` field.** Rotations now have
+   2 explicit playable states: **staged** (offeredForNewDecks=true,
+   ranked=false — test queue) and **live** (offeredForNewDecks=true,
+   ranked=true). A retired rotation has offeredForNewDecks=false; no live
+   games of any kind allowed (private OR queue), only historical reads.
+
+3. **Infinity legalSets become per-rotation snapshots.** Today both
+   `INFINITY_ROTATIONS.s11` and `INFINITY_ROTATIONS.s12` point at the same
+   `INFINITY_ALL_SETS` constant — meaning an Infinity-s11 deck CAN run a
+   set 12 card today, which is wrong. Post-refactor: s11 frozen at sets
+   1-11, s12 frozen at sets 1-12, etc.
+
+4. **Private lobbies become unconditionally unranked** (anti-collusion).
+   Only the future Ranked queue updates ELO. Runbook 2's ELO-bucket
+   coordination still matters but only for ranked-queue games.
+
+The runbooks below describe the CURRENT shipped state. The matchmaking
+ship will rewrite Runbook 2 (release day) significantly — see notes inline
+below. Other runbooks (banlist, rotation-cut audit) are largely unchanged.
+
+---
+
 ## Current state (as of 2026-04-21)
 
 | Rotation | Family | Legal sets | Banlist | Offered for new decks | Status |
@@ -90,7 +125,59 @@ and shows the new rotation alongside the live one automatically.
 
 ---
 
-## Runbook 2: Release day (switch the live Core default)
+## Runbook 2 (post-refactor): Release day after matchmaking ship lands
+
+> **Use this version once the matchmaking ship lands** (see HANDOFF entries:
+> "Engine agent: rotation registry refactor" + "Server agent: casual +
+> ranked matchmaking queues"). Until then, use Runbook 2 (current) below.
+
+After the refactor, release day becomes ~10 minutes of work:
+
+```ts
+// packages/engine/src/formats/legality.ts
+// ON 2026-05-08:
+CORE_ROTATIONS = {
+  s11: { ..., offeredForNewDecks: false, ranked: false },  // RETIRED — no new games
+  s12: { ..., offeredForNewDecks: true,  ranked: true  },  // LIVE — was staged
+};
+INFINITY_ROTATIONS = {
+  s11: { ..., offeredForNewDecks: false, ranked: false },  // RETIRED
+  s12: { ..., offeredForNewDecks: true,  ranked: true  },  // LIVE
+};
+```
+
+That's it. Two flag flips per registry. No per-deck migration (decks no
+longer carry `format_rotation`). No SQL DEFAULT changes (rotation is
+selected per-game, not stored on deck records).
+
+UI auto-updates: deckbuilder shows Core-s12 as the only live Core rotation;
+ranked queue dropdown filters to s12 only; stale s11 decks get the legality
+drift indicator (`⚠️ N cards illegal`) with `[Edit deck]` / `[Migrate to
+Infinity]` actions.
+
+### Verification
+
+```bash
+# Engine
+pnpm --filter engine test           # rotation tests pass with new flag values
+```
+
+```sql
+-- Confirm no game records were created for retired rotations after the cut
+SELECT COUNT(*) FROM games
+WHERE format_rotation = 's11' AND created_at > '2026-05-08 00:00:00';
+-- Should be 0 — server rejects new games on offeredForNewDecks=false
+
+-- Active queue should have no entries for retired rotations
+SELECT COUNT(*) FROM matchmaking_queue WHERE format_rotation = 's11';
+-- Should be 0 — server rejected the join attempts
+```
+
+That's the whole runbook post-refactor.
+
+---
+
+## Runbook 2 (current — pre-matchmaking-ship): Release day (switch the live Core default)
 
 **When:** the new set actually releases. Prior rotation stops being offered
 for new decks (but remains in the registry for stored-deck validation).
