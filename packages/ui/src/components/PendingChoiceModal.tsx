@@ -1,11 +1,64 @@
 import React from "react";
 import type { PendingChoice, PlayerID, GameState, CardDefinition } from "@lorcana-sim/engine";
-import { getEffectiveStrength, getEffectiveWillpower, getEffectiveLore, getGameModifiers } from "@lorcana-sim/engine";
-import { buildLabelMap } from "../utils/buildLabelMap.js";
+import { getEffectiveStrength, getEffectiveWillpower, getEffectiveLore, getGameModifiers, matchesFilter } from "@lorcana-sim/engine";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import GameCard from "./GameCard.js";
 import CardTextRender from "./CardTextRender.js";
 import AbilityTextRender from "./AbilityTextRender.js";
+
+/**
+ * Render a CardFilter as a short, human-readable label for per-type cap lines
+ * on Look at the top X / "up to 1 character AND up to 1 item" prompts.
+ *
+ * Covers the common shapes used by Might Solve a Mystery, The Family Madrigal,
+ * Look at This Family, and similar tutors. Composite filters with several
+ * orthogonal constraints (ink + trait + cost range) fall through to a generic
+ * "Filter N" label — those don't currently exist in the card pool and would
+ * need bespoke labels per card if they ever do.
+ */
+function filterLabel(filter: any, fallbackIndex?: number): string {
+  if (!filter || typeof filter !== "object") {
+    return fallbackIndex != null ? `Filter ${fallbackIndex + 1}` : "Filter";
+  }
+  // Normalize cardType — JSON allows either a single string ("character") or
+  // an array (["character","item"]). matchesFilter's .includes() coercion
+  // accidentally accepts strings; we normalize defensively here too.
+  const ct = filter.cardType;
+  const cardTypes: string[] = Array.isArray(ct) ? ct : ct ? [ct] : [];
+  const hasTrait = filter.hasTrait;
+  const hasAnyTrait: string[] | undefined = filter.hasAnyTrait;
+
+  // Trait-scoped card-type combos take precedence (Madrigal character, Song action).
+  if (hasTrait && cardTypes.length === 1) {
+    if (hasTrait === "Song") return "Songs";
+    return `${hasTrait} ${cardTypePlural(cardTypes[0]!)}`;
+  }
+  if (hasTrait) return pluralizeTrait(hasTrait);
+  if (hasAnyTrait && hasAnyTrait.length === 1) return pluralizeTrait(hasAnyTrait[0]!);
+
+  if (cardTypes.length === 1) return cardTypePlural(cardTypes[0]!);
+  if (cardTypes.length > 1) return cardTypes.map(cardTypePlural).join(" / ");
+
+  return fallbackIndex != null ? `Filter ${fallbackIndex + 1}` : "Filter";
+}
+
+function cardTypePlural(t: string): string {
+  switch (t) {
+    case "character": return "Characters";
+    case "item": return "Items";
+    case "action": return "Actions";
+    case "location": return "Locations";
+    default: return t.charAt(0).toUpperCase() + t.slice(1) + "s";
+  }
+}
+
+function pluralizeTrait(trait: string): string {
+  // Most traits are nouns that pluralize with a simple "s" (Madrigals, Princesses,
+  // Heroes). A few quirky ones get capitalized as-is. This is heuristic; users
+  // will tolerate "Floatings" once if a card ever uses such a filter.
+  if (/s$/i.test(trait)) return trait;
+  return trait + "s";
+}
 
 interface Props {
   pendingChoice: PendingChoice;
@@ -826,6 +879,15 @@ export default function PendingChoiceModal({
     const pendingEffect = (pendingChoice as any).pendingEffect;
     const maxToHand: number | undefined =
       pendingEffect?.type === "look_at_top" ? pendingEffect.maxToHand : undefined;
+    // Per-type cap (Might Solve a Mystery, The Family Madrigal): pendingEffect.filters
+    // is `CardFilter[]` where each entry means "up to 1 card matching this filter,"
+    // collectively capped by maxToHand. The engine validator enforces feasibility
+    // via greedy bipartite assignment; we mirror that here for the click gate +
+    // cap-line UX.
+    const perTypeFilters: any[] | undefined =
+      pendingEffect?.type === "look_at_top" && Array.isArray(pendingEffect.filters)
+        ? pendingEffect.filters
+        : undefined;
     const rawCap = maxToHand ?? (pendingChoice as any).count ?? 1;
     // Can't pick more than exist among valid targets (mandatory "put 2" with only
     // 1 valid match collapses to exactly 1).
@@ -851,10 +913,71 @@ export default function PendingChoiceModal({
     }
     const showGrouped = !isRevealedFlow && mineIds.length > 0 && oppIds.length > 0;
 
+    // Per-filter feasibility check (greedy bipartite, mirroring validator.ts).
+    // Returns true if the given list of selected ids can be legally assigned
+    // to filter slots (each filter accepts at most 1 card, each chosen card
+    // must consume some filter slot it matches). This is what the engine
+    // validator does at submit time — running it client-side prevents the
+    // rejected-confirm round-trip and tells us which cards to mark
+    // unselectable as the player builds the selection.
+    const isFilterFeasible = (ids: string[]): boolean => {
+      if (!perTypeFilters || perTypeFilters.length === 0) return true;
+      const consumed = new Array(perTypeFilters.length).fill(false);
+      for (const id of ids) {
+        const inst = gameState.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        if (!def) return false;
+        let assigned = -1;
+        for (let i = 0; i < perTypeFilters.length; i++) {
+          if (consumed[i]) continue;
+          if (matchesFilter(inst, def, perTypeFilters[i], gameState, myId)) {
+            assigned = i;
+            break;
+          }
+        }
+        if (assigned < 0) return false;
+        consumed[assigned] = true;
+      }
+      return true;
+    };
+
+    const filterViolated = !isFilterFeasible(multiSelectTargets);
+
+    // Per-filter selection counts (for the cap-line readout). Does NOT account
+    // for the bipartite assignment — a Madrigal-Song card adds to BOTH counts.
+    // That's fine for UX: filterViolated above is the authoritative gate.
+    const perFilterCounts: number[] = perTypeFilters
+      ? perTypeFilters.map(() => 0)
+      : [];
+    if (perTypeFilters) {
+      for (const id of multiSelectTargets) {
+        const inst = gameState.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        for (let i = 0; i < perTypeFilters.length; i++) {
+          if (matchesFilter(inst, def, perTypeFilters[i], gameState, myId)) {
+            perFilterCounts[i] = (perFilterCounts[i] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
     const renderCard = (id: string) => {
       const selectable = validSet.has(id);
       const isSelected = isMultiTarget ? multiSelectTargets.includes(id) : multiSelectTargets[0] === id;
-      const selection: SelectionState = !selectable
+      // Per-type cap: if adding this card to the current selection would make
+      // the bipartite assignment infeasible, mark unselectable so the player
+      // can't paint themselves into a corner. Already-selected cards stay
+      // selectable so they can be deselected.
+      const wouldOverfillFilter =
+        !!perTypeFilters &&
+        !isSelected &&
+        !isFilterFeasible([...multiSelectTargets, id]);
+      const blockedByFilter = wouldOverfillFilter;
+      const finalSelectable = selectable && !blockedByFilter;
+      const selection: SelectionState = !finalSelectable
         ? { kind: "unselectable" }
         : isSelected
         ? { kind: "checked" }
@@ -866,6 +989,7 @@ export default function PendingChoiceModal({
           selection={selection}
           onClick={() => {
             if (!selectable) return;
+            if (blockedByFilter) return;
             if (isMultiTarget) {
               onMultiSelectChange((prev) =>
                 prev.includes(id) ? prev.filter((t) => t !== id) : prev.length < targetCount ? [...prev, id] : prev,
@@ -938,9 +1062,29 @@ export default function PendingChoiceModal({
     pushCap("Total {L}", sumLore, pc.totalLoreAtMost, pc.totalLoreAtLeast);
     pushCap("Total damage", sumDamage, pc.totalDamageAtMost, pc.totalDamageAtLeast);
 
+    // Per-filter cap lines: "Characters: 1/1", "Items: 1/1", etc. Each filter
+    // means "up to 1 card matching this filter," so the limit is always 1 and
+    // ok = current ≤ 1. Note: a card matching multiple filters increments
+    // both counts, so the count line can read 2/1 even when the bipartite
+    // assignment is feasible. filterViolated (computed above via the same
+    // greedy assignment as the engine validator) is the authoritative gate;
+    // these lines are just a visual readout.
+    if (perTypeFilters && perTypeFilters.length > 0) {
+      perTypeFilters.forEach((f, i) => {
+        capLines.push({
+          label: filterLabel(f, i),
+          current: perFilterCounts[i] ?? 0,
+          limit: 1,
+          kind: "at_most",
+          ok: (perFilterCounts[i] ?? 0) <= 1,
+        });
+      });
+    }
+
     // Any violation blocks Confirm (engine would reject anyway — this just
-    // prevents the round-trip for UX cleanliness).
-    const aggregateViolated = capLines.some((c) => !c.ok);
+    // prevents the round-trip for UX cleanliness). Includes per-filter
+    // bipartite feasibility (filterViolated) on top of the per-cap arithmetic.
+    const aggregateViolated = capLines.some((c) => !c.ok) || filterViolated;
 
     return (
       <div className="space-y-3">
