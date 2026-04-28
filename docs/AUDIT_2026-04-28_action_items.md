@@ -70,8 +70,9 @@ These three are sequenced; later phases depend on earlier. Server-specialist's f
 | ID | Status | Item | Effort | Owner | Source | Comments |
 |---|---|---|---|---|---|---|
 | **P2.22** | ☐ | **Tier 0 cancels (pre-commit)** — pure UI. Mid-pendingChoice Cancel button reverts to pre-action state. No server. | ~half day | gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 1 | Smallest takeback win — ships independent of server work |
-| **P2.23** | ❓ | **Tier 1 neutral takebacks (INK_CARD, undeclared QUEST)** — server endpoint + 5-sec undo pill. **BLOCKED on Q1**: should `stateFilter.ts` redact opponent inkwells per CRD 4.1.4? | ~1 day cross-package | server-specialist + gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 2 + open policy Q1 | If inkwells go face-down → PLAY_INK is fully neutral, simple Tier 1. If visible → PLAY_INK is consent-required (Tier 2) and the value calc shifts |
+| **P2.23** | ☐ | **Tier 1 neutral takebacks (INK_CARD, undeclared QUEST)** — server endpoint + 5-sec undo pill. ~~BLOCKED on Q1~~ — Q1 resolved 2026-04-28 + P2.25 prereq shipped. Now paused per Q3. | ~1 day cross-package | server-specialist + gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 2 | Per Q1 resolution: PLAY_INK is now fully neutral (opponent already saw the identity at moment of inking; takeback re-hides it but no NEW info gain). Simple Tier 1 viable when work resumes. |
 | **P2.24** | ☐ | **Tier 2 info-gain takebacks (private lobby only)** — opponent consent flow, `takebacks` audit table. Big UI surface. | ~2-3 days | server-specialist + gameboard-specialist + ui-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 3 | Only ship after Tier 1 sees adoption |
+| **P2.25** | ✅ | **CRD inkwell privacy compliance** — surfaced from Q1 audit. Three fixes: (a) PLAY_INK log entry public per CRD 4.2.1.1 (was incorrectly privateTo); (b) `stateFilter.ts` redacts opponent inkwell card identities per CRD 4.1.4 (was fully visible); (c) Ink Geyser-style returns log with privateTo per CRD 4.1.4 (was silent). Filed today after Q1 resolved. | ~1 hr engine + server | engine-expert | Q1 audit finding + P1.11 anti-pattern parallel | Shipped 2026-04-28 in `1af754b`. Engine 726→728, server 44→50. New `card_returned_from_inkwell` GameLogEntryType variant. UI typecheck improved 152→149 via drive-by fix in GameBoard activeEffects builder. |
 
 ---
 
@@ -79,7 +80,7 @@ These three are sequenced; later phases depend on earlier. Server-specialist's f
 
 | ID | Status | Item | Effort | Owner | Source | Comments |
 |---|---|---|---|---|---|---|
-| **P3.25** | ⏭️ | i18n readiness sweep — extract every hardcoded user-facing string into a `strings.ts` const map. 100% English-literal codebase today; no translation infrastructure. | ~3-5 hours | ui-specialist + gameboard-specialist | ui non-gameboard §10 | Only ship if localization lands on the roadmap. Skip for now. |
+| **P3.25** | ⏭️ | i18n readiness sweep — extract every hardcoded user-facing string into a `strings.ts` const map. 100% English-literal codebase today; no translation infrastructure. | ~3-5 hours | ui-specialist + gameboard-specialist | ui non-gameboard §10 | **Superseded by BACKLOG entry 2026-04-28** ("Multi-language / i18n support" under `## UI / Design`). User: "multilanguage would be a very nice to have." Trigger conditions documented there. |
 | **P3.26** | ⏭️ | Pluralization helper (`pluralize(noun, count)`) — minor consolidation; not urgent. | ~10 min | ui-specialist | ui non-gameboard §9 | Tiny; bundle with another cleanup |
 | **P3.27** | ⏭️ | Phase 4 takebacks — Tier 3 public reveals (Powerline-style). Same as Phase 3 plus toast wording. Marginal value over Phase 3. | ~half day on top of Phase 3 | server-specialist + gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 4 | Probably skip permanently |
 
@@ -89,12 +90,12 @@ These three are sequenced; later phases depend on earlier. Server-specialist's f
 
 | ID | Question | Affects | Default proposed | Decision |
 |---|---|---|---|---|
-| **Q1** | Should `stateFilter.ts` redact opponent inkwells per CRD 4.1.4 (face-down)? | P2.23 (Tier 1 takebacks classification of `PLAY_INK`); broader anti-cheat baseline | Yes — fix the filter to match CRD; PLAY_INK becomes fully neutral | _pending_ |
-| **Q2** | What's the canonical button-vocab pair for confirm/skip in modals? | P2.18 | `Confirm` / `Skip` | _pending_ |
-| **Q3** | Should we ship Tier 0 takebacks (P2.22) without committing to Tier 1+? | P2.22 sequencing | Yes — Tier 0 is pure UI, ships independent | _pending_ |
-| **Q4** | Should `getSampleDeck()` return a fixed canonical deck or rotate seasonally? | P1.8 | Fixed (least drift; least support load) | _pending_ |
-| **Q5** | Should MP takeback `takebacks` audit table be visible to players post-game (their opponent's takeback rate) or admin-only? | P2.24 + future moderation | Admin-only initially; consider player-facing once data exists | _pending_ |
-| **Q6** | Does i18n make the roadmap? Affects whether P3.25 ever happens. | P3.25 | No (English-only for foreseeable future) | _pending_ |
+| **Q1** | Should `stateFilter.ts` redact opponent inkwells per CRD 4.1.4 (face-down)? | P2.23 (Tier 1 takebacks classification of `PLAY_INK`); broader anti-cheat baseline | Yes — fix the filter to match CRD; PLAY_INK becomes fully neutral | ✅ **Resolved 2026-04-28.** Nuanced answer: inkwells are face-down per CRD 4.1.4 (filter redacts identity), AND the standard PLAY_INK action publicly reveals identity at moment of inking per CRD 4.2.1.1 (log entry public). Effect-driven inks (Detective, Fishbone Quill, etc.) and effect-driven returns (Ink Geyser, Mufasa) stay private. Shipped via P2.25 (`1af754b`). |
+| **Q2** | What's the canonical button-vocab pair for confirm/skip in modals? | P2.18 | `Confirm` / `Skip` | ✅ **Resolved 2026-04-28.** `Confirm` / `Skip`. Shipped via P2.18 (`e74da80`). `Decline (as opponent)` intentionally kept for explicit yes/no flows where Skip would mislead about consequences. |
+| **Q3** | Should we ship Tier 0 takebacks (P2.22) without committing to Tier 1+? | P2.22 sequencing | Yes — Tier 0 is pure UI, ships independent | ⏸️ **Paused 2026-04-28.** User pausing on MP takebacks for now. P2.22 stays open in the tracker. |
+| **Q4** | Should `getSampleDeck()` return a fixed canonical deck or rotate seasonally? | P1.8 | Fixed (least drift; least support load) | ⏭️ **Moot 2026-04-28.** P1.8 shipped via removing the signed-out paste pane (`9cd00d5`) instead of building the engine helper. The fixed-vs-rotating question dissolves with the feature. |
+| **Q5** | Should MP takeback `takebacks` audit table be visible to players post-game (their opponent's takeback rate) or admin-only? | P2.24 + future moderation | Admin-only initially; consider player-facing once data exists | ⏸️ **Paused 2026-04-28.** Same pause as Q3. Revisit when MP takebacks unblocks. |
+| **Q6** | Does i18n make the roadmap? Affects whether P3.25 ever happens. | P3.25 | No (English-only for foreseeable future) | ⏭️ **Moved to BACKLOG 2026-04-28.** User: "multilanguage would be a very nice to have." Parked under `## UI / Design` in BACKLOG with trigger conditions. P3.25 can be marked as superseded by the BACKLOG entry. |
 
 ---
 

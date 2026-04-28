@@ -24,6 +24,39 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Multi-language / i18n support
+
+**Considered**: 100% English-literal codebase today. Every user-facing string (chrome, modals, log lines, prompts, button vocab, error messages) is hardcoded English. No translation infrastructure. P3.25 in the audit tracker originally proposed extracting every hardcoded string into a `strings.ts` const map as the prep step for i18n; the audit deferred it, then the user (2026-04-28) said "multilanguage would be a very nice to have" — parking the work here with proper trigger conditions.
+
+**Why parked (2026-04-28)**: No active translation requirement. The product is English-only by default and the user base (current playtesters + future MP users) skews English-fluent. Implementing i18n is a multi-front sweep:
+- Extract every hardcoded string in `packages/ui/` into a `strings.ts` const map (~3-5 hours; touches ~20+ files).
+- Add a translation-key system (probably `react-i18next` or similar — adds a runtime dependency and bundle weight).
+- Per-card translations come from card data (`def.fullName`, `def.rulesText`, `ability.storyName`, etc.) — Ravensburger publishes localized card data via their API (Lorcast may also have it). Need to extend `import-cards-rav.ts` to fetch + store per-locale fields, OR keep card data English-only and translate game-level prose only (lossy but simpler).
+- Engine prose (log lines, prompts via `buildPrompt` from P1.14) — rewrite to use translation keys instead of inline English. Some of these prose strings are constructed via interpolation; need a key + variables shape.
+- Multi-language testing — at least one non-English target locale to validate end-to-end (Spanish? French? — Lorcana has official localization in those + others).
+- Plurals (P3.26 in audit — already deferred) becomes mandatory; `pluralize` helper can't punt to English's `+s` heuristic.
+- RTL languages (Arabic, Hebrew) — not currently required if first targets are LTR.
+
+**Trigger to reconsider** (any one):
+- A user / partner / reviewer requests a non-English experience and we have a concrete locale to target.
+- Lorcana official localization adds a market that overlaps our user base meaningfully (e.g., expanding to Spanish-speaking playgroups via a partnership).
+- We attempt a public release and competitive analysis shows non-English markets are reachable without translation costs being prohibitive.
+- The codebase grows past a point where retrofitting i18n becomes substantially harder (currently ~150 hardcoded strings — manageable; at 1000+ strings the lift gets real).
+
+**Expected scope**: ~1-2 weeks engineering for a single non-English locale, depending on how much of card data we localize:
+- Game UI / chrome strings + extraction: ~1 week (translation key system, wire react-i18next, extract every hardcoded string, smoke test).
+- Card data localization: ~2-3 days additional if we extend the importer to pull localized Ravensburger data, OR ~0 days additional if we keep card data English-only.
+- Engine prose updates (log lines, P1.14 prompts): ~2-3 days. Major decision: do the buildPrompt outputs translate or stay English? The verbatim card-text portion stays English-by-card-data; only the `verb` portion ("Choose a target to banish.") needs translation keys.
+- Multi-locale QA: ~2-3 days for one round of locale-pair testing + bug fixes.
+
+Total: ~10-15 work-days for a single locale shipped. Each additional locale is incremental (~2-3 days). Breaks even on effort vs reach when the target locale has >5-10% of user base or specific partnership leverage.
+
+**Decisions explicitly NOT to revisit**:
+- Don't attempt i18n via auto-translation (Google Translate / DeepL on the fly). Card text accuracy is load-bearing for game correctness (ability text drives mechanics in players' minds); machine translation would introduce subtle wrong-ness that breaks gameplay trust.
+- Don't try to support i18n in the engine itself. Engine emits structured data (events, GameLogEntry types, structured prompts via buildPrompt). UI does the localization at render time. P1.14's prompt format (`${fullName} — "${storyName}": ${rulesText}\n${verb}`) already separates verbatim card data from the action verb — translation work concentrates on the `verb`.
+
+---
+
 ### Unify `choose_order` direction across all cards (Hypnotic Deduction vs Vision of the Future)
 
 **Considered**: After the P0.2 fix in `99e3892` (2026-04-28), the `choose_order` modal helper text now reads `pendingChoice.position` from the engine and renders the appropriate first-tap → top-vs-bottom mapping. This means the helper differs by card:
