@@ -468,6 +468,23 @@ export function useGameSession(): GameSession {
 
   // ---------------------------------------------------------------------------
   // undo — replay to N-1 actions from the initial state snapshot
+  //
+  // Granularity: one click pops one entry from `actionHistoryRef`. The user-
+  // facing semantic is implicitly "back to the last `pendingChoice`" because
+  // `applyAction` splits a multi-step play into multiple actions whenever the
+  // engine surfaces a pendingChoice — e.g. PLAY_CARD of a card with
+  // `isMay: true` lands as two history entries (PLAY_CARD → may prompt; then
+  // RESOLVE_CHOICE accept → effect resolves). One undo from the resolved
+  // state returns to the may prompt; two undos return to pre-play.
+  //
+  // This is an UNDOCUMENTED COUPLING between card-data design and undo UX —
+  // dropping `isMay` from a card collapses its undo to one click without
+  // warning. There's a P2.20 regression test in the audit tracker
+  // (`docs/AUDIT_2026-04-28_action_items.md`) that pins the invariant for at
+  // least one card per may-style ability shape.
+  //
+  // MP undo is disabled (server is authoritative; takebacks design lives in
+  // `docs/audit/2026-04-28_mp_takebacks_design.md`).
   // ---------------------------------------------------------------------------
   const undo = useCallback(() => {
     const history = actionHistoryRef.current;

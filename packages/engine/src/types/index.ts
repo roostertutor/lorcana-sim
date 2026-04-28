@@ -3926,6 +3926,23 @@ export interface PendingChoice {
   };
 }
 
+/**
+ * Human-readable event line for the game log UI. **Derived projection — NOT a
+ * source of truth for replay.** See `docs/STREAMS.md` for the full contract
+ * across the three streams.
+ *
+ * - `message` is paraphrased English prose (see `appendLog` callsites in
+ *   `reducer.ts`); information loss is real (banish causality is collapsed,
+ *   activated-ability log drops which ability fired, etc.). Don't string-match
+ *   `message` to derive structured state — both `runGame.ts:258`'s mulligan
+ *   detection (P1.7) and any similar future patterns are drift bugs.
+ * - For privacy-aware redaction, see `privateTo` below — the server's
+ *   `filterStateForPlayer` is responsible for replacing `message` with a
+ *   redacted summary when the viewer isn't the privacy owner.
+ * - For canonical replay, use `GameResult.actions: GameAction[]` (lossless,
+ *   typed). For per-action engine events (animations / sound cues), use
+ *   `ActionResult.events: GameEvent[]`.
+ */
 export interface GameLogEntry {
   timestamp: number;
   turn: number;
