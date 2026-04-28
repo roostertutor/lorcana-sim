@@ -1950,3 +1950,150 @@ describe("§11 Set 11 — Angela Night Warrior ETERNAL NIGHT", () => {
     void angelaId;
   });
 });
+
+// =============================================================================
+// SET 10 — Might Solve a Mystery: per-type cap on choose_from_top
+// =============================================================================
+//
+// Oracle text: "Look at the top 4 cards of your deck. You may reveal up to 1
+// character card and up to 1 item card and put them into your hand. Put the
+// rest on the bottom of your deck in any order."
+//
+// Pre-fix wiring used `maxToHand: 2` with no `filters[]` — which meant the
+// player could pick ANY 2 of the 4 revealed cards (e.g. 2 characters or 2
+// items, both wrong). Fix adds `filters: [{cardType: "character"}, {cardType:
+// "item"}]` to the action effect, and the validator now enforces the
+// per-filter "max 1 each" cap on choose_from_revealed resolves. (HANDOFF
+// 2026-04-28.)
+//
+// Same primitive (filters[]) also covers The Family Madrigal (Madrigal char
+// + song). Adding validator-side enforcement closes the gap that the bot path
+// (greedy assignment) already had: a UI player could submit 2 chars and the
+// reducer would silently accept it.
+describe("§10 Set 10 — Might Solve a Mystery (per-type cap on choose_from_top)", () => {
+  function setupMightSolve(charSlugs: string[], itemSlugs: string[]) {
+    // Use an item-friendly filler so opening hand draws don't yank our planted
+    // top cards. We arrange the deck top to be exactly [charSlugs..., itemSlugs...].
+    let state = startGame();
+    state = { ...state, interactive: true };
+    state = giveInk(state, "player1", 10);
+
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "might-solve-a-mystery", "hand"));
+
+    // Inject the 2 characters and 2 items into the deck, then move them to top.
+    const topIds: string[] = [];
+    for (const slug of [...charSlugs, ...itemSlugs]) {
+      let id: string;
+      ({ state, instanceId: id } = injectCard(state, "player1", slug, "deck"));
+      topIds.push(id);
+    }
+    // Reorder the deck so topIds are at the top (front of array = top).
+    state = {
+      ...state,
+      zones: {
+        ...state.zones,
+        player1: {
+          ...state.zones.player1,
+          deck: [...topIds, ...state.zones.player1.deck.filter((id) => !topIds.includes(id))],
+        },
+      },
+    };
+    return { state, songId, topIds };
+  }
+
+  it("surfaces a choose_from_revealed prompt over the top 4 cards", () => {
+    const { state, songId } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+    // 4 cards looked at — all 4 are valid pre-pick (the per-filter cap is
+    // enforced on submit, not via validTargets pruning).
+    expect(r.newState.pendingChoice?.revealedCards?.length).toBe(4);
+    expect(r.newState.pendingChoice?.optional).toBe(true); // isMay: true
+  });
+
+  it("rejects 2-character pick (violates 'up to 1 character' per-filter cap)", () => {
+    const { state, songId, topIds } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Try to put both characters into hand.
+    const [char1, char2] = topIds;
+    const bad = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [char1!, char2!],
+    }, CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    expect(bad.error).toMatch(/filter slot|each filter accepts/i);
+  });
+
+  it("rejects 2-item pick (violates 'up to 1 item' per-filter cap)", () => {
+    const { state, songId, topIds } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Try to put both items into hand.
+    const [, , item1, item2] = topIds;
+    const bad = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [item1!, item2!],
+    }, CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    expect(bad.error).toMatch(/filter slot|each filter accepts/i);
+  });
+
+  it("accepts 1 character + 1 item (matches both filter slots)", () => {
+    const { state, songId, topIds } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const handBefore = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    const [char1, , item1] = topIds; // 1 character + 1 item
+    const ok = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [char1!, item1!],
+    }, CARD_DEFINITIONS);
+    expect(ok.success).toBe(true);
+
+    // Both picks moved to hand. handBefore minus the song that was played +2 picks.
+    expect(getZone(ok.newState, "player1", "hand").length).toBe(handBefore - 1 + 2);
+    expect(getInstance(ok.newState, char1!).zone).toBe("hand");
+    expect(getInstance(ok.newState, item1!).zone).toBe("hand");
+  });
+
+  it("accepts 0 picks (isMay: 'You may reveal...' allows declining)", () => {
+    const { state, songId } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const ok = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [],
+    }, CARD_DEFINITIONS);
+    expect(ok.success).toBe(true);
+  });
+
+  it("accepts 1 character only (uses one filter slot, leaves the other unused)", () => {
+    const { state, songId, topIds } = setupMightSolve(
+      ["mickey-mouse-true-friend", "minnie-mouse-beloved-princess"],
+      ["dinglehopper", "lantern"],
+    );
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: songId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const [char1] = topIds;
+    const ok = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [char1!],
+    }, CARD_DEFINITIONS);
+    expect(ok.success).toBe(true);
+    expect(getInstance(ok.newState, char1!).zone).toBe("hand");
+  });
+});

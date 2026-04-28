@@ -1110,5 +1110,75 @@ function validateResolveChoice(
     }
   }
 
+  // choose_from_revealed (look_at_top → choose_from_top): the player is
+  // selecting a subset of revealed cards to send to a destination (hand,
+  // deck top, inkwell, discard). Validate:
+  //   1. Every chosen id is in validTargets.
+  //   2. choice.length ≤ maxToHand (or pendingChoice.count fallback).
+  //   3. If pendingEffect.filters[] is set: per-filter cap of 1 each.
+  //      Each chosen card must match at least one filter, and the
+  //      bipartite assignment of chosen→filter must be feasible
+  //      (no filter consumed by more than one card). This enforces
+  //      "up to 1 character card AND up to 1 item card" wording —
+  //      Might Solve a Mystery, The Family Madrigal, Look at This Family.
+  //
+  // Empty choice is allowed when the choice is optional (isMay) or there
+  // are no valid targets to pick from. The reducer's resolver does NOT
+  // re-validate, so this is the only barrier.
+  if (state.pendingChoice.type === "choose_from_revealed" && Array.isArray(choice)) {
+    const pc = state.pendingChoice;
+    const validTargets = pc.validTargets ?? [];
+    for (const id of choice as string[]) {
+      if (!validTargets.includes(id)) {
+        return fail("Selected card is not in the revealed pool.");
+      }
+    }
+    const pendingEffect = pc.pendingEffect as any;
+    const maxToHand = pendingEffect?.type === "look_at_top"
+      ? (pendingEffect.maxToHand ?? 1)
+      : (pc.count ?? 1);
+    if ((choice as string[]).length > maxToHand) {
+      return fail(`Cannot pick more than ${maxToHand} card(s).`);
+    }
+    // Optional ("you may reveal..."): empty submission is fine. Mandatory
+    // ("put N into your hand"): the resolver auto-min's against valid
+    // count, but if the player submits short of the cap with valid
+    // targets remaining, that's a CRD 1.7.x violation — defer enforcement
+    // to the reducer's existing flow (it will pad). Don't reject here.
+
+    // Per-filter cap. filters[i] = "up to one card matching this filter"
+    // collectively summing to maxToHand. Same shape as the bot path
+    // greedy assignment in reducer.ts choose_from_top.
+    const filters: any[] | undefined = pendingEffect?.filters;
+    if (filters && filters.length > 0 && (choice as string[]).length > 0) {
+      // Greedy bipartite match: for each chosen card, find an unused
+      // filter slot it matches. If we can't match all chosen cards under
+      // the per-filter cap, reject. Greedy is sufficient because
+      // each filter has capacity 1 and the order of chosen cards doesn't
+      // affect feasibility — an unmatchable card is unmatchable regardless
+      // of which other cards are placed first (no shared resources beyond
+      // the single-slot capacity).
+      const filtersConsumed = new Array(filters.length).fill(false);
+      for (const id of choice as string[]) {
+        const inst = state.cards[id];
+        if (!inst) return fail("Selected card no longer exists.");
+        const def = definitions[inst.definitionId];
+        if (!def) return fail("Selected card has no definition.");
+        let assigned = -1;
+        for (let i = 0; i < filters.length; i++) {
+          if (filtersConsumed[i]) continue;
+          if (matchesFilter(inst, def, filters[i], state, playerId)) {
+            assigned = i;
+            break;
+          }
+        }
+        if (assigned < 0) {
+          return fail(`Selected ${def.fullName} doesn't match any remaining filter slot (each filter accepts at most 1 card).`);
+        }
+        filtersConsumed[assigned] = true;
+      }
+    }
+  }
+
   return OK;
 }

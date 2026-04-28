@@ -10925,6 +10925,10 @@
         "count": 4,
         "action": "choose_from_top",
         "maxToHand": 2,
+        "filters": [
+          { "cardType": "character" },
+          { "cardType": "item" }
+        ],
         "target": {
           "type": "self"
         },
