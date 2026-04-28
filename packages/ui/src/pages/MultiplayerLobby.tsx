@@ -81,6 +81,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [queueElapsedSec, setQueueElapsedSec] = useState(0);
   const [queueJoinError, setQueueJoinError] = useState<MatchmakingError | null>(null);
   const queueChannelRef = useRef<(() => void) | null>(null);
+
+  // User's explicit rotation override. Null = use the family's live rotation
+  // (default). Set when the user picks a non-default rotation from the
+  // dropdown (e.g., Core-s12 test rotation pre-launch). Resets to null when
+  // the deck's family changes (a new family has its own rotation lifecycle).
+  const [selectedRotation, setSelectedRotation] = useState<import("@lorcana-sim/engine").RotationId | null>(null);
   const publicPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Listen for auth state changes (catches OAuth redirects + session restore)
@@ -151,20 +157,34 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const selectedDeck = selectedDeckId
     ? savedDecks.find((d) => d.id === selectedDeckId) ?? null
     : null;
-  // Decks no longer carry rotation (dropped 2026-04-27); resolve the
-  // rotation to validate against as the current live rotation per family.
-  // Falls back to the highest-id offered rotation if no live rotation
-  // exists. Full lobby restructure (per-game rotation picker, queue
-  // dropdowns) lands in a follow-up commit.
-  const gameFormat: GameFormat = deckMode === "saved" && selectedDeck
-    ? {
-        family: selectedDeck.format_family,
-        rotation: getLiveRotation(selectedDeck.format_family)
-          ?? listOfferedRotationsForFamily(selectedDeck.format_family).at(-1)?.rotation
-          ?? "s12",
-      }
-    : pasteFormat;
+  // Family is determined by the deck (saved deck stamp) or by paste-mode
+  // user choice. Rotation is per-game — defaults to the family's live
+  // ranked rotation, but the user can override via the rotation dropdown
+  // (visible when a family has multiple offered rotations, e.g., during
+  // a staging window pre-set-launch when both s11 live and s12 staged
+  // exist). selectedRotation is the user's override; null means use
+  // default. Wraps in a null-safe fallback so an unknown family never
+  // crashes the lobby.
+  const formatFamily = deckMode === "saved" && selectedDeck
+    ? selectedDeck.format_family
+    : pasteFormat.family;
+  const offeredRotations = listOfferedRotationsForFamily(formatFamily);
+  const defaultRotation = getLiveRotation(formatFamily)
+    ?? offeredRotations.at(-1)?.rotation
+    ?? "s12";
+  const effectiveRotation = selectedRotation ?? defaultRotation;
+  const gameFormat: GameFormat = { family: formatFamily, rotation: effectiveRotation };
   const formatAccent = FORMAT_FAMILY_ACCENT[gameFormat.family];
+  // Whether the chosen rotation supports ranked play. Drives the Find
+  // Ranked button visibility — hide when the user picked a non-ranked
+  // rotation (e.g. Core-s12 test pre-launch).
+  const chosenRotationIsRanked = offeredRotations.find((r) => r.rotation === effectiveRotation)?.ranked ?? false;
+  // Reset selectedRotation when family changes — new family has its own
+  // rotation lifecycle; carrying a stale rotation id from another family
+  // would point at a non-existent rotation.
+  useEffect(() => {
+    setSelectedRotation(null);
+  }, [formatFamily]);
 
   // Client-side legality pre-check — mirrors the server's isLegalFor()
   // validation in createLobby / joinLobby. Surfacing the issues inline
@@ -623,12 +643,54 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
+        {/* Format rotation picker — only rendered when multiple rotations
+             are offered for the deck's family (e.g., during a staging
+             window pre-set-launch when both s11 live and s12 staged
+             coexist). Drives Find Casual + Host private lobby; Find
+             Ranked is constrained to ranked rotations and hides when
+             the picked rotation isn't ranked. Default is the family's
+             live ranked rotation. */}
+        {offeredRotations.length > 1 && (
+          <div className="card p-3 space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
+              Format Rotation
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {offeredRotations.map((opt) => {
+                const isCurrent = opt.rotation === effectiveRotation;
+                return (
+                  <button
+                    key={opt.rotation}
+                    onClick={() => setSelectedRotation(opt.rotation)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border ${
+                      isCurrent
+                        ? `${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border}`
+                        : "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"
+                    }`}
+                    title={opt.ranked ? "Live rotation — ranked play available" : "Test rotation — casual only (no ELO)"}
+                  >
+                    {opt.displayName}
+                    {!opt.ranked && (
+                      <span className="ml-1.5 text-[9px] opacity-70">test</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="text-[10px] text-gray-500">
+              {chosenRotationIsRanked
+                ? "Ranked queue available for this rotation."
+                : "Test rotation — only Casual queue and private lobby. ELO unaffected."}
+            </div>
+          </div>
+        )}
+
         {/* ─ Quick Play ────────────────────────────────────────────────
              Find Casual / Find Ranked queues + Solo vs Bot. Restructured
              2026-04-27 from a flat "Solo button + multiplayer divider +
              Host/Join cards" layout into Quick Play / Custom Game
-             sections. Find Casual + Find Ranked are stubs in this commit;
-             wiring to /matchmaking endpoints lands in follow-up commits.
+             sections. Find Ranked is hidden when the chosen rotation
+             isn't ranked (server enforces this too — defensive UI).
              ───────────────────────────────────────────────────────────── */}
         <div className="space-y-2">
           <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
@@ -653,12 +715,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             Find Casual Match
           </button>
 
-          {/* Find Ranked — only visible when the deck's family has a live
-               ranked rotation. Pre-Set-12-launch: getLiveRotation returns
-               s11 for Core/Infinity, so button is shown. Post-launch:
-               returns s12. The "no live ranked rotation" case (mid-cut)
-               briefly hides the button — defensive. */}
-          {session && getLiveRotation(gameFormat.family) !== null && (
+          {/* Find Ranked — only visible when the chosen rotation is ranked.
+               If the user picked a test rotation from the dropdown above,
+               this button hides (server would 400 anyway; defensive UI).
+               Pre-Set-12-launch: chosen=s11 (live, ranked) → shown;
+               chosen=s12 (test) → hidden. Post-launch s12 becomes ranked. */}
+          {session && chosenRotationIsRanked && (
             <button
               className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800
                          disabled:text-gray-600 text-white rounded-lg text-sm font-bold
