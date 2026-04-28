@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory, listPublicLobbies } from "../lib/serverApi.js";
-import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound } from "../lib/serverApi.js";
+import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
@@ -72,6 +72,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [publicLobbies, setPublicLobbies] = useState<PublicLobby[]>([]);
   const [publicLoading, setPublicLoading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Matchmaking queue state. Server is authoritative — queue entry exists
+  // server-side or it doesn't. The UI mirrors that with a `queueStatus`
+  // object; null when not queued. `queueElapsedSec` ticks locally for the
+  // timer display so we don't hammer GET /matchmaking every second.
+  const [queueStatus, setQueueStatus] = useState<MatchmakingStatus | null>(null);
+  const [queueElapsedSec, setQueueElapsedSec] = useState(0);
+  const [queueJoinError, setQueueJoinError] = useState<MatchmakingError | null>(null);
+  const queueChannelRef = useRef<(() => void) | null>(null);
   const publicPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Listen for auth state changes (catches OAuth redirects + session restore)
@@ -275,6 +284,116 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       }
     };
   }, [session, publicBrowserOpen]);
+
+  // Hydrate queue state on mount + after sign-in. If the server has a
+  // queue entry for this user (e.g., they refreshed mid-queue), pick up
+  // where we left off. This is a one-shot fetch — the timer effect below
+  // ticks the elapsed counter locally; the Realtime subscription handles
+  // pair-found push.
+  useEffect(() => {
+    if (!session) {
+      setQueueStatus(null);
+      return;
+    }
+    let cancelled = false;
+    void getMatchmakingStatus().then((status) => {
+      if (cancelled) return;
+      setQueueStatus(status);
+      if (status) setQueueElapsedSec(Math.floor(status.elapsedMs / 1000));
+    });
+    return () => { cancelled = true; };
+  }, [session]);
+
+  // Tick the queue-elapsed counter while queued. Same pattern as
+  // waitElapsedSec for the host-waiting timer.
+  useEffect(() => {
+    if (!queueStatus) return;
+    const startMs = Date.now() - queueStatus.elapsedMs;
+    const handle = setInterval(() => {
+      setQueueElapsedSec(Math.floor((Date.now() - startMs) / 1000));
+    }, 1000);
+    return () => clearInterval(handle);
+  }, [queueStatus]);
+
+  // Realtime subscribe to pair-found broadcasts while queued. On pair, the
+  // server sends { gameId, opponentId } on `matchmaking:user:<userId>` —
+  // we grab the first event and navigate straight into the game. Server
+  // also broadcasts via DELETE on the matchmaking_queue row (REPLICA
+  // IDENTITY FULL) as a fallback signal we don't currently consume.
+  useEffect(() => {
+    if (!session || !queueStatus) {
+      if (queueChannelRef.current) {
+        queueChannelRef.current();
+        queueChannelRef.current = null;
+      }
+      return;
+    }
+    let cancelled = false;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (cancelled || !data.user) return;
+      queueChannelRef.current = subscribeMatchmakingPairFound(data.user.id, ({ gameId }) => {
+        // Server pairs both users into the same gameId; the side the
+        // current user lands on (player1 vs player2) is determined by
+        // server-side coin flip / play-draw rule. We don't get that side
+        // back over the broadcast — fetch it from getGameInfo at the
+        // game-start callback site (App.tsx already does this fallback
+        // when localStorage is missing).
+        setQueueStatus(null);
+        // Caller's onGameStart prefers myPlayerId; default to "player1"
+        // since the server will redirect-correct via getGameInfo when
+        // the value is wrong.
+        onGameStart(gameId, "player1");
+      });
+    });
+    return () => {
+      cancelled = true;
+      if (queueChannelRef.current) {
+        queueChannelRef.current();
+        queueChannelRef.current = null;
+      }
+    };
+  }, [session, queueStatus, onGameStart]);
+
+  /** Join the matchmaking queue with the current deck + format selection.
+   *  Handles the immediate-pair path (server pairs inline on INSERT when a
+   *  peer is already waiting) by skipping straight to onGameStart. The
+   *  queued path stores the queue entry in state so the queue-wait UI
+   *  takes over. */
+  async function handleFindMatch(queueKind: QueueKind) {
+    if (!session || !deckReady) return;
+    setQueueJoinError(null);
+    setError(null);
+    try {
+      const result = await joinMatchmaking({
+        deck,
+        format: gameFormat,
+        matchFormat: format,
+        queueKind,
+      });
+      if (result.status === "paired") {
+        onGameStart(result.gameId, "player1");
+        return;
+      }
+      // Queued — fetch full status to populate the queue-wait UI.
+      const status = await getMatchmakingStatus();
+      if (status) {
+        setQueueStatus(status);
+        setQueueElapsedSec(0);
+      }
+    } catch (err) {
+      // MatchmakingError shape (per serverApi.ts) — surface the message;
+      // include legality issues if present.
+      const e = err as MatchmakingError;
+      setQueueJoinError(e);
+    }
+  }
+
+  async function handleCancelQueue() {
+    setQueueJoinError(null);
+    await cancelMatchmaking();
+    setQueueStatus(null);
+    setQueueElapsedSec(0);
+  }
 
   async function handleCreateLobby() {
     if (!session || !deckReady) return;
@@ -517,17 +636,19 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           </div>
 
           {/* Find Casual — primary CTA. Always visible; disabled when not
-               signed in or no deck ready. Stub onClick alerts; real wiring
-               in the next commit. */}
+               signed in or no deck ready. */}
           <button
             className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
                        disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                        transition-colors active:scale-[0.98]"
-            onClick={() => alert(
-              "Find Casual Match — wiring up in the next commit. Server endpoints are already live."
-            )}
-            disabled={!session || !deckReady}
-            title={!session ? "Sign in to play matchmaking" : undefined}
+            onClick={() => handleFindMatch("casual")}
+            disabled={!session || !deckReady || queueStatus !== null || isWaiting}
+            title={
+              !session ? "Sign in to play matchmaking"
+              : queueStatus !== null ? "Already in a queue — cancel first"
+              : isWaiting ? "Hosting a lobby — cancel first"
+              : undefined
+            }
           >
             Find Casual Match
           </button>
@@ -542,13 +663,34 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800
                          disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                          transition-colors active:scale-[0.98]"
-              onClick={() => alert(
-                "Find Ranked Match — wiring up in the next commit. Server endpoints are already live."
-              )}
-              disabled={!deckReady}
+              onClick={() => handleFindMatch("ranked")}
+              disabled={!deckReady || queueStatus !== null || isWaiting}
+              title={
+                queueStatus !== null ? "Already in a queue — cancel first"
+                : isWaiting ? "Hosting a lobby — cancel first"
+                : undefined
+              }
             >
               Find Ranked Match
             </button>
+          )}
+
+          {/* Queue-join error — surfaces server rejections (illegal deck,
+               rate limit, ranked-rotation-required, etc.) */}
+          {queueJoinError && (
+            <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
+              <div className="font-bold">{queueJoinError.message}</div>
+              {queueJoinError.issues && queueJoinError.issues.length > 0 && (
+                <ul className="text-red-400/80 space-y-0.5">
+                  {queueJoinError.issues.slice(0, 3).map((issue, i) => (
+                    <li key={i}>· {issue.message ?? issue.fullName ?? "(card)"}</li>
+                  ))}
+                  {queueJoinError.issues.length > 3 && (
+                    <li className="italic">· …and {queueJoinError.issues.length - 3} more</li>
+                  )}
+                </ul>
+              )}
+            </div>
           )}
 
           {/* Play Solo — opponent picker + button. Opponent picker only
@@ -695,7 +837,61 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               </button>
             </div>
 
-            {!isWaiting ? (
+            {queueStatus ? (
+              /* ─ Queue-wait screen ────────────────────────────────────────
+                 Active when the user is in the matchmaking queue. Hides
+                 Custom Game UI to prevent concurrent host/join attempts.
+                 Realtime broadcast on `matchmaking:user:<userId>` is the
+                 primary pair-found signal — see useEffect above. Server
+                 also enforces concurrency invariants, so even if the user
+                 manages to fire a host/join before the UI updates,
+                 server-side rejections (409 QUEUED_ELSEWHERE) trip
+                 first. */
+              <div className="card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-200">
+                      Searching for {queueStatus.queueKind === "ranked" ? "Ranked" : "Casual"} match…
+                    </div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">
+                      {queueStatus.format.family === "core" ? "Core" : "Infinity"} {queueStatus.format.rotation} · {queueStatus.matchFormat === "bo1" ? "Bo1" : "Bo3"}
+                    </div>
+                  </div>
+                  <div className="text-2xl font-mono text-amber-400 tabular-nums">
+                    {Math.floor(queueElapsedSec / 60).toString().padStart(2, "0")}
+                    :
+                    {(queueElapsedSec % 60).toString().padStart(2, "0")}
+                  </div>
+                </div>
+
+                {/* Ranked: show ELO band progression. Server widens the
+                     band over time (±50 → ±150 → ±400 → unbounded at
+                     30/60/90s). currentBand is null for casual or after
+                     unbounded. */}
+                {queueStatus.queueKind === "ranked" && queueStatus.eloSnapshot != null && (
+                  <div className="text-[11px] text-gray-400">
+                    <div>
+                      Your ELO: <span className="font-mono text-gray-200">{queueStatus.eloSnapshot}</span>
+                    </div>
+                    <div className="mt-0.5">
+                      Searching{" "}
+                      {queueStatus.currentBand != null ? (
+                        <>within ±<span className="font-mono text-gray-200">{queueStatus.currentBand}</span></>
+                      ) : (
+                        <>any ELO (search widened)</>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs font-bold transition-colors"
+                  onClick={handleCancelQueue}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : !isWaiting ? (
               <>
               {/* ─ Custom Game ──────────────────────────────────────────────
                    Host private lobby (with public-toggle option), join by

@@ -258,3 +258,122 @@ export async function saveReplay(replay: ReplayPayload): Promise<void> {
     // Non-critical — replay save failure should not surface to the user
   }
 }
+
+// =============================================================================
+// MATCHMAKING — POST/GET/DELETE /matchmaking + Realtime pair-found channel.
+// Server impl in dd04bb1; spec in docs/HANDOFF.md.
+// =============================================================================
+
+export type QueueKind = "casual" | "ranked"
+
+export interface JoinMatchmakingParams {
+  deck: DeckEntry[]
+  cardMetadata?: Record<string, unknown>
+  format: { family: GameFormatFamily; rotation: RotationId }
+  matchFormat: "bo1" | "bo3"
+  queueKind: QueueKind
+}
+
+/** Server response when a queue join either parks the user in the queue OR
+ *  finds an immediate pair. The "paired" branch carries the new gameId so
+ *  the client can navigate straight into the game without waiting on a
+ *  Realtime broadcast. */
+export type JoinMatchmakingResponse =
+  | { status: "queued"; queueEntryId: string; eloSnapshot: number | null }
+  | { status: "paired"; queueEntryId: string; gameId: string; opponentId: string; eloSnapshot: number | null }
+
+/** GET /matchmaking response. Status is null when the user has no queue
+ *  entry; otherwise the entry's full state including elapsed time + current
+ *  ELO band (ranked only — null for casual or after band-widening reaches
+ *  unbounded at 90s). */
+export interface MatchmakingStatus {
+  entryId: string
+  format: { family: GameFormatFamily; rotation: RotationId }
+  matchFormat: "bo1" | "bo3"
+  queueKind: QueueKind
+  joinedAt: string
+  elapsedMs: number
+  eloSnapshot: number | null
+  currentBand: number | null
+  pairedGameId: string | null
+}
+
+/** Errors the client should special-case (per server spec):
+ *  - `ALREADY_QUEUED` (409)         — user has an active queue entry
+ *  - `HOSTING_LOBBY` (409)          — user has a waiting lobby
+ *  - `ACTIVE_GAME` (409)            — user is already in a game
+ *  - `RATE_LIMITED` (429)           — >10 queue joins this hour
+ *  - `RANKED_ROTATION_REQUIRED` (400) — picked rotation has ranked=false
+ *  - `ROTATION_RETIRED` (400)        — rotation no longer offered for new decks
+ *  - `ILLEGAL_DECK` (400)           — deck has cards not legal in chosen rotation
+ *  Server also returns the full LegalityResult issues[] for ILLEGAL_DECK so
+ *  the UI can surface specific cards.
+ */
+export interface MatchmakingError {
+  status: number
+  code: string
+  message: string
+  issues?: Array<{ definitionId?: string; fullName?: string; reason?: string; message?: string }>
+}
+
+export async function joinMatchmaking(params: JoinMatchmakingParams): Promise<JoinMatchmakingResponse> {
+  const res = await fetch(`${SERVER_URL}/matchmaking`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: JSON.stringify(params),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({})) as { error?: string; code?: string; issues?: unknown[] }
+    const err: MatchmakingError = {
+      status: res.status,
+      code: data.code ?? `HTTP_${res.status}`,
+      message: data.error ?? `HTTP ${res.status}`,
+    }
+    if (Array.isArray(data.issues)) err.issues = data.issues as NonNullable<MatchmakingError["issues"]>
+    throw err
+  }
+  return await res.json() as JoinMatchmakingResponse
+}
+
+export async function getMatchmakingStatus(): Promise<MatchmakingStatus | null> {
+  const res = await fetch(`${SERVER_URL}/matchmaking`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { status: MatchmakingStatus | null }
+  return data.status
+}
+
+export async function cancelMatchmaking(): Promise<{ ok: boolean; removed: boolean }> {
+  const res = await fetch(`${SERVER_URL}/matchmaking`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return { ok: false, removed: false }
+  return await res.json() as { ok: boolean; removed: boolean }
+}
+
+/** Subscribe to the per-user matchmaking-results channel for pair-found
+ *  events. Server broadcasts `pair_found` with payload { gameId, opponentId }
+ *  when the user is paired into a game. Returns an unsubscribe function.
+ *
+ *  Channel: `matchmaking:user:<userId>` (Supabase Realtime broadcast).
+ *  This is the PRIMARY signal — DELETE on the matchmaking_queue row works
+ *  as a fallback (REPLICA IDENTITY FULL is set on the table) but the
+ *  broadcast is more direct. */
+export function subscribeMatchmakingPairFound(
+  userId: string,
+  onPair: (payload: { gameId: string; opponentId: string }) => void,
+): () => void {
+  const channel = supabase.channel(`matchmaking:user:${userId}`)
+  channel.on("broadcast", { event: "pair_found" }, (msg) => {
+    const payload = msg.payload as { gameId?: string; opponentId?: string } | undefined
+    if (payload?.gameId && payload?.opponentId) {
+      onPair({ gameId: payload.gameId, opponentId: payload.opponentId })
+    }
+  })
+  channel.subscribe()
+  return () => {
+    void supabase.removeChannel(channel)
+  }
+}
