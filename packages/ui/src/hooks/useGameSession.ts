@@ -193,6 +193,9 @@ export function useGameSession(): GameSession {
         .then((state) => {
           gameStateRef.current = state;
           setGameState(state);
+          // Bump actionCount on initial state arrival — see comment near
+          // setActionCount in dispatch's MP branch for why.
+          setActionCount((c) => c + 1);
         })
         .catch((err: unknown) => setError(String(err)));
 
@@ -218,6 +221,11 @@ export function useGameSession(): GameSession {
                 gameStateRef.current = filtered;
                 setGameState(filtered);
                 setError(null);
+                // Bump actionCount when an opponent action arrives via Realtime,
+                // so reveal-detection in GameBoard sees `advanced === true`.
+                // Without this, the opponent's reveal-bearing actions (e.g. P2
+                // plays Diablo) never trigger the reveal modal on P1's view.
+                setActionCount((c) => c + 1);
               })
               .catch((err: unknown) => {
                 setError(String(err));
@@ -254,12 +262,18 @@ export function useGameSession(): GameSession {
     if (mp) {
       // Multiplayer: apply locally first for instant feedback, then send to server.
       // Server is authoritative — if the action fails, re-sync from server state.
+      // We bump actionCount on every state install (local apply + server echo +
+      // error re-sync) so GameBoard's reveal-detection effect — which gates new
+      // entries on `actionCount > prevRevealActionCount` — actually fires. There
+      // is no undo in MP, so monotonic increment is safe; the absolute value is
+      // not meaningful (we just need forward motion to differ from "no change").
       const prev = gameStateRef.current;
       if (prev && configRef.current) {
         const localResult = applyAction(prev, action, configRef.current.definitions);
         if (localResult.success) {
           gameStateRef.current = localResult.newState;
           setGameState(localResult.newState);
+          setActionCount((c) => c + 1);
         }
       }
       // Fire-and-forget to server — Realtime will push authoritative state to both players
@@ -269,6 +283,7 @@ export function useGameSession(): GameSession {
           if (res.newState) {
             gameStateRef.current = res.newState;
             setGameState(res.newState);
+            setActionCount((c) => c + 1);
           }
           // Bo3: server created the next game in the match
           if (res.nextGameId) {
@@ -282,6 +297,7 @@ export function useGameSession(): GameSession {
             .then((state) => {
               gameStateRef.current = state;
               setGameState(state);
+              setActionCount((c) => c + 1);
             })
             .catch(() => {});
         });

@@ -1037,8 +1037,16 @@ function applyPlayInk(
   state = appendLog(state, {
     turn: state.turnNumber,
     playerId,
+    // CRD 4.1.4: inkwell cards are face-down. Count + timing are public,
+    // but the card identity that just went in is hidden. The card was in
+    // hand (hidden zone) at the moment this log line is written. Server
+    // redacts message text for non-authorized viewers — see
+    // GameLogEntry.privateTo JSDoc. (Note: the broader inkwell-zone
+    // visibility leak via stateFilter is a separate concern handled
+    // server-side.)
     message: `${playerId} added ${def.fullName} to their inkwell.`,
     type: "card_put_into_inkwell",
+    privateTo: playerId,
   });
   // CRD 6.2: card_put_into_inkwell triggered abilities (Chicha Dedicated Mother). Queue
   // after the inkPlaysThisTurn counter has been bumped so condition checks see
@@ -2075,8 +2083,13 @@ function applyDraw(
     state = appendLog(state, {
       turn: state.turnNumber,
       playerId,
+      // Drawn card name is private to the drawer (it came from the hidden
+      // deck zone into the hidden hand zone). Server's filterStateForPlayer
+      // redacts message text for non-authorized viewers — see
+      // GameLogEntry.privateTo JSDoc.
       message: `${playerId} drew ${cardName}.`,
       type: "card_drawn",
+      privateTo: playerId,
     });
     // Ink Amplifier ENERGY CAPTURE: tally draws this turn so the
     // "Nth card drawn this turn" condition reads the post-draw count.
@@ -2168,11 +2181,22 @@ function applyResolveChoice(
       state = applyDraw(state, playerId, 1, events, definitions);
     }
 
-    // Log the mulligan decision with specific card names
+    // Log the mulligan decision with specific card names. The names are
+    // private to the mulliganing player — the cards were in the hidden hand
+    // zone and went to the bottom of the hidden deck. Opponent only sees
+    // count + timing. The "kept their opening hand" branch carries no card
+    // names and is safe to publish, but stamping privateTo uniformly keeps
+    // the contract simple. Server redacts for non-authorized viewers.
     const msg = drawCount > 0
       ? `${playerId} mulliganed: ${cardsToReturn.map((id) => getDefinition(state, id, definitions)?.fullName ?? "Unknown").join(", ")}.`
       : `${playerId} kept their opening hand.`;
-    state = appendLog(state, { turn: state.turnNumber, playerId, message: msg, type: "mulligan" });
+    state = appendLog(state, {
+      turn: state.turnNumber,
+      playerId,
+      message: msg,
+      type: "mulligan",
+      ...(drawCount > 0 ? { privateTo: playerId } : {}),
+    });
 
     // Advance to next mulligan phase or start the game. CRD 2.2.2: the
     // starting player mulligans first, then the other player. mulligan_p1 =
@@ -2652,7 +2676,18 @@ function applyResolveChoice(
       // Track a snapshot of the targeted card. Used by follow-up effects like
       // target_owner ("its player draws") and last_target_location_lore
       // (I've Got a Dream: "lore equal to that location's {L}").
-      const ref = makeResolvedRef(state, definitions, targetId);
+      //
+      // Privacy: nearly all choose_target flows pick from `play` (chosen
+      // character/item/location) where identity is publicly visible. The
+      // outliers are flows like Hypnotic Deduction "put 1 card from your hand
+      // on top of your deck" where the validTargets are in the chooser's
+      // hand. Stamp privateTo when the targeted card is in a hidden zone so
+      // server-side filtering redacts identity for the non-chooser.
+      const targetZoneAtPick = state.cards[targetId]?.zone;
+      const isHiddenZone =
+        targetZoneAtPick === "hand" || targetZoneAtPick === "deck" || targetZoneAtPick === "inkwell";
+      const refOpts = isHiddenZone ? { privateTo: pendingChoice.choosingPlayerId } : undefined;
+      const ref = makeResolvedRef(state, definitions, targetId, refOpts);
       if (ref) {
         state = { ...state, lastResolvedTarget: ref };
       }
@@ -4275,7 +4310,13 @@ export function applyEffect(
           }
           const pickedId = matchingCards[0]!;
           const rest = topCards.filter((id) => id !== pickedId);
-          const ref = makeResolvedRef(state, definitions, pickedId);
+          // Privacy: the picked card stays in deck (a hidden zone) until a
+          // follow-up effect (typically play_for_free with target=
+          // last_resolved_target) acts on it. Unlike the interactive resolution
+          // path, the bot/headless flow does NOT push a `card_revealed` event,
+          // so the snapshot's `name`/`fullName` carry hidden-zone identity.
+          // Stamp `privateTo` so server-side filtering redacts for the opponent.
+          const ref = makeResolvedRef(state, definitions, pickedId, { privateTo: controllingPlayerId });
           if (ref) state = { ...state, lastResolvedTarget: ref };
           moveRest(rest);
           return state;
@@ -4448,8 +4489,19 @@ export function applyEffect(
           // dispatch escalation effects (Queen Diviner: "If that item costs 3
           // or less, you may play it for free instead"). Only meaningful when
           // exactly one card is picked (maxToHand=1).
+          //
+          // Privacy: the picked card has just moved to `pickDestination`. For
+          // hand / inkwell_exerted / deck_top destinations, the card is now in
+          // a hidden zone — opponent cannot see its identity, so stamp
+          // `privateTo` to the controller. For "discard", the card is in a
+          // public zone — leave `privateTo` undefined.
           if (picked.length === 1) {
-            const ref = makeResolvedRef(state, definitions, picked[0]!);
+            const isPrivateDestination =
+              pickDestination === "hand" ||
+              pickDestination === "inkwell_exerted" ||
+              pickDestination === "deck_top";
+            const refOpts = isPrivateDestination ? { privateTo: controllingPlayerId } : undefined;
+            const ref = makeResolvedRef(state, definitions, picked[0]!, refOpts);
             if (ref) state = { ...state, lastResolvedTarget: ref };
           }
           return state;

@@ -4489,7 +4489,7 @@
         },
         "effects": [
           {
-            "type": "reveal_hand",
+            "type": "look_at_hand",
             "target": {
               "type": "opponent"
             },

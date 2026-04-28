@@ -758,10 +758,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     ? `${lastRevealedCards.sequenceId}:${lastRevealedCards.instanceIds.join(",")}`
     : null;
   const prevDeckRevealKey = useRef<string | null>(null);
-  // Hand reveals have no sequenceId, so we detect new ones via object
-  // reference (engine creates a fresh lastRevealedHand on each reveal_hand
-  // action). The actionCount-advanced gate filters undo for both kinds.
-  const prevHandRevealRef = useRef<typeof lastRevealedHand>(undefined);
+  // Hand reveals have no sequenceId, so we detect new ones via a content
+  // hash (sourceInstanceId + sorted cardIds). Reference-based detection
+  // would double-fire in MP because the local optimistic apply and the
+  // server echo install distinct objects with identical content. The
+  // actionCount-advanced gate filters undo for both kinds.
+  const prevHandRevealKey = useRef<string | null>(null);
   const prevRevealActionCount = useRef<number>(-1);
 
   useEffect(() => {
@@ -800,8 +802,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     }
 
     // New hand reveal? ref change + forward advance.
-    const handRefChanged = lastRevealedHand !== prevHandRevealRef.current;
-    if (handRefChanged && advanced && lastRevealedHand) {
+    // Content-based dedupe key: in MP, the same reveal arrives twice (local
+    // optimistic apply, then server echo with a re-parsed object). References
+    // differ, so we'd push twice and flash the modal. Source instance + sorted
+    // card ids uniquely identify the reveal content (the same source can't
+    // produce two identical-card-id reveals in one action).
+    const handDedupeKey = lastRevealedHand
+      ? `${lastRevealedHand.sourceInstanceId}:${[...lastRevealedHand.cardIds].sort().join(",")}`
+      : null;
+    const handContentChanged = handDedupeKey !== null && handDedupeKey !== prevHandRevealKey.current;
+    if (handContentChanged && advanced && lastRevealedHand) {
       const isMine = lastRevealedHand.playerId === myId;
       const handLabel = isMine ? "Your hand" : "Opponent's hand";
       // sourceInstanceId on lastRevealedHand was added engine-side in
@@ -813,17 +823,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       const srcName = srcDef?.fullName ?? "an effect";
       const newEntry: RevealEntry = {
         kind: "hand",
-        key: `hand:${session.actionCount}`,
+        key: `hand:${handDedupeKey}`,
         playerId: lastRevealedHand.playerId,
         sourceLabel: `${handLabel} revealed by ${srcName}`,
         instanceIds: lastRevealedHand.cardIds,
         birthActionCount: session.actionCount,
       };
       setRevealHistory(prev => {
-        // Hand reveals have no sequenceId — dedupe by birthActionCount + ref-
-        // changed signal (re-detection of the same ref produces an identical
-        // birthActionCount, which we'd already have).
-        if (prev.some(e => e.kind === "hand" && e.birthActionCount === newEntry.birthActionCount)) return prev;
+        // Content-based dedupe — see handDedupeKey comment above.
+        if (prev.some(e => e.kind === "hand" && e.key === newEntry.key)) return prev;
         return [...prev, newEntry];
       });
       newestPushedKey = newEntry.key;
@@ -846,7 +854,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     });
 
     prevDeckRevealKey.current = currentDeckRevealKey;
-    prevHandRevealRef.current = lastRevealedHand;
+    prevHandRevealKey.current = handDedupeKey;
     prevRevealActionCount.current = session.actionCount;
   }, [currentDeckRevealKey, lastRevealedCards, lastRevealedHand, session.actionCount, session.gameState?.turnNumber, session.gameState?.cards, definitions, myId, revealHistoryTurn]);
 

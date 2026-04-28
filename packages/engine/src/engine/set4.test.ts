@@ -803,6 +803,35 @@ describe("§4 Set 4 — Noi Acrobatic Baby (damage_prevention_timed)", () => {
   });
 });
 
+describe("§4 Set 4 — Diablo Maleficent's Spy SCOUT AHEAD (look_at_hand)", () => {
+  it("on play, snapshots opponent hand with privateTo=controller (it's 'look at', not 'reveal')", () => {
+    // Oracle: "When you play this character, you may look at each opponent's
+    // hand." The "may" is optional, but with isMay+no choice surfacing for
+    // automated tests we drive PLAY_CARD and verify the snapshot lands.
+    let state = startGame(["diablo-maleficents-spy"]);
+    state = giveInk(state, "player1", 5);
+    // Seed the opponent's hand so there's something to peek at.
+    const { state: s1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand");
+    const { state: s2, instanceId: diabloId } = injectCard(s1, "player1", "diablo-maleficents-spy", "hand");
+
+    let r = applyAction(s2, { type: "PLAY_CARD", playerId: "player1", instanceId: diabloId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Trigger may surface a choose_may pending choice; accept if so.
+    if (r.newState.pendingChoice?.type === "choose_may") {
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+    }
+    // look_at_hand stamps privateTo to the casting player so the server
+    // filter can keep card data visible to player1 only. reveal_hand would
+    // leak the opponent's hand to both players (wrong for "look at" wording).
+    expect(r.newState.lastRevealedHand?.playerId).toBe("player2");
+    expect(r.newState.lastRevealedHand?.privateTo).toBe("player1");
+    expect(r.newState.lastRevealedHand?.cardIds.length).toBeGreaterThan(0);
+    // sourceInstanceId is persisted so the UI can attribute the peek to Diablo.
+    expect(r.newState.lastRevealedHand?.sourceInstanceId).toBe(diabloId);
+  });
+});
+
 describe("§4 Set 4 — Diablo Devoted Herald (altShiftCost discard)", () => {
   it("alt-shift: discard an action to shift onto base Diablo, 0 ink spent", () => {
     let state = startGame();

@@ -11,7 +11,7 @@ import {
   CARD_DEFINITIONS,
   startGame, injectCard, giveInk, setLore, passTurns, emptyDeck, buildTestDeck,
 } from "./test-helpers.js";
-import { generateId, getZone, getInstance, getEffectiveLore } from "../utils/index.js";
+import { generateId, getZone, getInstance, getEffectiveLore, makeResolvedRef as makeResolvedRefImport } from "../utils/index.js";
 import { getGameModifiers } from "../engine/gameModifiers.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
 
@@ -220,6 +220,167 @@ it("switches to opponent after passing turn", () => {
     expect(card.timedEffects.filter((t: any)=>t.type==="modify_strength").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
     expect(card.timedEffects.filter((t: any)=>t.type==="modify_willpower").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
     expect(card.timedEffects.filter((t: any)=>t.type==="modify_lore").reduce((s: number,t: any)=>s+(t.amount??0),0)).toBe(0);
+  });
+});
+
+// =============================================================================
+// ActionLog privacy — `privateTo` stamping on entries that name cards from
+// hidden zones. Server's filterStateForPlayer redacts message text for
+// non-authorized viewers; engine's job is to declare the audience by
+// stamping privateTo. See GameLogEntry JSDoc in types/index.ts.
+// =============================================================================
+
+describe("ActionLog privacy (privateTo stamping)", () => {
+  it("opening-hand draws stamp privateTo to the drawing player", () => {
+    const state = startGame();
+    const p1Opening = state.actionLog.find(
+      (e) => e.type === "card_drawn" && e.playerId === "player1" && /drew:/.test(e.message)
+    );
+    const p2Opening = state.actionLog.find(
+      (e) => e.type === "card_drawn" && e.playerId === "player2" && /drew:/.test(e.message)
+    );
+    expect(p1Opening).toBeDefined();
+    expect(p2Opening).toBeDefined();
+    expect(p1Opening!.privateTo).toBe("player1");
+    expect(p2Opening!.privateTo).toBe("player2");
+  });
+
+  it("per-turn draws stamp privateTo to the drawing player", () => {
+    let state = startGame();
+    // Pass P1's turn — P2 begins, draws on turn-start (CRD 3.2.3.1).
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    state = result.newState;
+    // Find the most recent card_drawn entry on P2's turn.
+    const drawEntries = state.actionLog.filter(
+      (e) => e.type === "card_drawn" && /drew /.test(e.message) && !/drew:/.test(e.message)
+    );
+    expect(drawEntries.length).toBeGreaterThan(0);
+    const lastDraw = drawEntries[drawEntries.length - 1]!;
+    expect(lastDraw.playerId).toBe("player2");
+    expect(lastDraw.privateTo).toBe("player2");
+  });
+
+  it("inking a card stamps privateTo (face-down inkwell card identity is hidden, CRD 4.1.4)", () => {
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+
+    const result = applyAction(state, { type: "PLAY_INK", playerId: "player1", instanceId }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    const inkEntry = result.newState.actionLog.find(
+      (e) => e.type === "card_put_into_inkwell" && e.playerId === "player1"
+    );
+    expect(inkEntry).toBeDefined();
+    expect(inkEntry!.privateTo).toBe("player1");
+  });
+
+  it("public log entries (plays, quests) leave privateTo undefined", () => {
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player1", 5);
+
+    const result = applyAction(
+      state,
+      { type: "PLAY_CARD", playerId: "player1", instanceId },
+      CARD_DEFINITIONS
+    );
+    expect(result.success).toBe(true);
+
+    const playEntry = result.newState.actionLog.find((e) => e.type === "card_played");
+    expect(playEntry).toBeDefined();
+    expect(playEntry!.privateTo).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// ResolvedRef privacy — `privateTo` stamping on lastResolvedTarget /
+// lastResolvedSource / lastDiscarded snapshots that name cards from hidden
+// zones. Server's filterStateForPlayer redacts identity (name/fullName) for
+// non-authorized viewers; engine's job is to declare the audience by stamping
+// privateTo. See ResolvedRef JSDoc in types/index.ts.
+// =============================================================================
+
+describe("ResolvedRef privacy (privateTo stamping)", () => {
+  it("look_at_top choose_from_top → hand stamps lastResolvedTarget.privateTo to controller", () => {
+    // Develop Your Brain pattern: look at top 2, put 1 into hand. The picked
+    // card moves to a hidden zone (hand) — opponent must not see its identity.
+    // Bot path (state.interactive=false default) hits the writer at the
+    // pickDestination='hand' branch in look_at_top → choose_from_top.
+    //
+    // Use applyEffect directly so the action-boundary cleanup (which clears
+    // lastResolvedTarget when no pendingChoice / triggers remain) doesn't fire
+    // — we want to inspect the snapshot mid-chain, the way the server's
+    // filterStateForPlayer would see it during a multi-step ability.
+    let state = startGame();
+    const { state: s1, instanceId: src } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const after = applyEffect(
+      s1,
+      {
+        type: "look_at_top",
+        count: 2,
+        action: "choose_from_top",
+        maxToHand: 1,
+        target: { type: "self" },
+      } as any,
+      src, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.lastResolvedTarget).toBeDefined();
+    expect(after.lastResolvedTarget?.privateTo).toBe("player1");
+  });
+
+  it("look_at_top choose_from_top → discard leaves privateTo undefined (discard is public)", () => {
+    // Mad Hatter Eccentric Host pattern: picked card moves to discard (public
+    // zone) — no privacy stamp needed. The pickDestination:"discard" branch
+    // must NOT stamp privateTo.
+    let state = startGame();
+    const { state: s1, instanceId: src } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const after = applyEffect(
+      s1,
+      {
+        type: "look_at_top",
+        count: 1,
+        action: "choose_from_top",
+        maxToHand: 1,
+        target: { type: "self" },
+        pickDestination: "discard",
+      } as any,
+      src, "player1", CARD_DEFINITIONS, [],
+    );
+    expect(after.lastResolvedTarget).toBeDefined();
+    expect(after.lastResolvedTarget?.privateTo).toBeUndefined();
+  });
+
+  it("public return_to_hand (triggering_card in play) leaves lastResolvedTarget.privateTo undefined", () => {
+    // return_to_hand triggering_card path snapshots lastResolvedTarget via
+    // setLastResolvedTargetOnTriggering. Target was in play — public — so
+    // privateTo must remain undefined. Mirrors the existing Yzma BACK TO WORK
+    // pattern test in §6 with a privacy assertion added.
+    let state = startGame();
+    const { state: s1, instanceId: triggerer } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const { state: s2, instanceId: sourceId } = injectCard(s1, "player1", "helga-sinclair-no-backup-needed", "play");
+    const after = applyEffect(
+      s2,
+      { type: "return_to_hand", target: { type: "triggering_card" } } as any,
+      sourceId, "player1", CARD_DEFINITIONS, [],
+      triggerer,
+    );
+    expect(after.lastResolvedTarget).toBeDefined();
+    expect(after.lastResolvedTarget?.instanceId).toBe(triggerer);
+    expect(after.lastResolvedTarget?.privateTo).toBeUndefined();
+  });
+
+  it("makeResolvedRef propagates privateTo from opts", () => {
+    // Direct unit test on the helper — the contract is "if opts.privateTo is
+    // set, the snapshot carries it." Ensures callers stamping at writer sites
+    // produce the right shape for filterStateForPlayer to read.
+    let state = startGame();
+    const { state: s1, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play");
+    const refPublic = makeResolvedRefImport(s1, CARD_DEFINITIONS, instanceId);
+    expect(refPublic?.privateTo).toBeUndefined();
+    const refPrivate = makeResolvedRefImport(s1, CARD_DEFINITIONS, instanceId, { privateTo: "player1" });
+    expect(refPrivate?.privateTo).toBe("player1");
   });
 });
 

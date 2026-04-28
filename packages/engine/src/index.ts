@@ -25,6 +25,7 @@ export type {
   PendingChoice,
   GameLogEntry,
   RngState,
+  ResolvedRef,
 } from "./types/index.js";
 
 // Engine functions

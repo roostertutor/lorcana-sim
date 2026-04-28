@@ -198,13 +198,15 @@ export function getSelfActionUnlockCost(
  * Build a ResolvedRef snapshot from a card instance. Captures identity + a
  * stat snapshot at the current moment so downstream effect steps can reference
  * the previously-resolved card even if it later moves zones or has its stats
- * modified. Pass `delta` for `isUpTo` consumption tracking.
+ * modified. Pass `delta` for `isUpTo` consumption tracking. Pass `privateTo`
+ * when the resolved card is in a hidden zone so server-side filterStateForPlayer
+ * can redact identity fields for non-audience viewers (see ResolvedRef JSDoc).
  */
 export function makeResolvedRef(
   state: GameState,
   definitions: Record<string, CardDefinition>,
   instanceId: string,
-  opts?: { delta?: number }
+  opts?: { delta?: number; privateTo?: PlayerID }
 ): ResolvedRef | undefined {
   const instance = state.cards[instanceId];
   if (!instance) return undefined;
@@ -228,6 +230,7 @@ export function makeResolvedRef(
     ref.lore = def.lore;
   }
   if (opts?.delta !== undefined) ref.delta = opts.delta;
+  if (opts?.privateTo !== undefined) ref.privateTo = opts.privateTo;
   return ref;
 }
 

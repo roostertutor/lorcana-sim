@@ -41,6 +41,34 @@ export interface ResolvedRef {
   /** How many units the previous step actually consumed (for `isUpTo` patterns).
    *  E.g. remove_damage actually-removed count, move_damage actually-moved count. */
   delta?: number;
+  /**
+   * If set, the `name` / `fullName` (and other identifying fields) on this
+   * snapshot are derived from a card in a hidden zone — only the named player
+   * is allowed to see them. Mirrors the `GameLogEntry.privateTo` and
+   * `lastRevealedHand.privateTo` semantics.
+   *
+   * Engine writes the full snapshot and stamps `privateTo` to declare who's
+   * allowed to read it. The server's `filterStateForPlayer`
+   * (server/src/services/stateFilter.ts) is responsible for redacting `name`
+   * / `fullName` (and any other identifying fields) on snapshots where
+   * `privateTo != null && privateTo !== viewerId` before sending state to a
+   * non-authorized viewer — typically by replacing with a placeholder string
+   * that preserves shape (count + timing + stat snapshot for non-identifying
+   * follow-ups) without leaking card identity.
+   *
+   * Stamped today on:
+   *   - `look_at_top` peek_and_set_target bot/headless path (card stays in
+   *     deck after the look — no `card_revealed` event is pushed)
+   *   - `look_at_top` choose_from_top picked card when pickDestination is
+   *     hand / deck_top / inkwell_exerted (private destinations)
+   *
+   * Leave `undefined` for public snapshots: banishes, returns-to-hand, exerts,
+   * remove_damage / move_damage on in-play targets, choose_target (the choice
+   * UI already publicly identifies the card), peek_and_set_target interactive
+   * path (a `card_revealed` event is pushed), reveal_top_switch, and
+   * lastDiscarded refs (cards have already entered the public discard zone).
+   */
+  privateTo?: PlayerID;
 }
 export type ZoneName = "deck" | "hand" | "play" | "discard" | "inkwell" | "under";
 export type InkColor =
@@ -3898,6 +3926,30 @@ export interface GameLogEntry {
   message: string;
   /** Machine-readable type for filtering/replay */
   type: GameLogEntryType;
+  /**
+   * If set, this log entry contains information that should only be visible
+   * to the named player (e.g. card names from a hidden zone). Mirrors the
+   * existing `lastRevealedHand.privateTo` semantic.
+   *
+   * Engine writes the entry's `message` in full and stamps `privateTo` to
+   * declare who's allowed to read it. The server's `filterStateForPlayer`
+   * (server/src/services/stateFilter.ts) is responsible for redacting the
+   * `message` text on entries where `privateTo != null && privateTo !==
+   * viewerId` before sending state to a non-authorized viewer — typically
+   * by replacing with a generic "<player> drew a card." style summary that
+   * preserves count + timing without leaking card identity.
+   *
+   * Stamped today on:
+   *   - opening hand draws (initializer)
+   *   - per-turn draws (applyDraw)
+   *   - mulligan decisions (which cards were returned)
+   *   - inking a card (the card identity in the inkwell is face-down per CRD
+   *     4.1.4, even though count/timing are public)
+   *
+   * Leave `undefined` for public events (plays, quests, challenges, banishes,
+   * lore changes, ability triggers — anything visible to both players).
+   */
+  privateTo?: PlayerID;
 }
 
 export type GameLogEntryType =

@@ -261,8 +261,12 @@ export function createGame(
           timestamp: Date.now(),
           turn: 1,
           playerId,
+          // Card names are private to the drawer — opening hand cards are in
+          // a hidden zone. Server's filterStateForPlayer redacts message text
+          // for non-authorized viewers (see GameLogEntry.privateTo JSDoc).
           message: `${playerId} drew: ${cardNames}.`,
           type: "card_drawn" as const,
+          privateTo: playerId,
         },
       ],
     };
