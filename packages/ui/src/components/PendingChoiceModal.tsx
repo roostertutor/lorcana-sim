@@ -846,22 +846,37 @@ export default function PendingChoiceModal({
       //   1. Bulleted list: "Choose one:\n• A\n• B" → split on lines starting with •
       //   2. " or " split: "Do X, or do Y" → comma-or and plain-or
       //   3. Fallback: generic "Option 1"/"Option 2"
+      //
+      // P1.9 (2026-04-28) — every parsed-label path is gated through
+      // `looksSensible`: if any extracted label is empty or absurdly long
+      // (>120 chars — implies the regex swallowed unrelated rulesText), we
+      // discard the whole parse and fall back to generic "Option N". This
+      // is a UI safety net; the long-term fix is engine-side typed labels
+      // on `choose_option` (flagged in HANDOFF for engine-expert). Same
+      // anti-pattern as `runGame.ts:258` (fixed in 5a0fe17).
       function extractOptionTexts(text: string, count: number): string[] {
+        const fallback = (): string[] =>
+          Array.from({ length: count }, (_, i) => `Option ${i + 1}`);
+        // Heuristic: empty strings are obvious failures; >120 chars implies
+        // the parser ate unrelated text (a single option longer than that
+        // is unusual and visually unreadable in a stacked button anyway).
+        const looksSensible = (labels: string[]): boolean =>
+          labels.length === count && labels.every(l => l.length > 0 && l.length <= 120);
         // Try bullet format. Lorcana uses • (U+2022) as its canonical bullet.
         const bulletLines = text
           .split(/\n/)
           .map(s => s.trim())
           .filter(s => s.startsWith("•"))
           .map(s => s.replace(/^•\s*/, "").trim());
-        if (bulletLines.length === count) return bulletLines;
+        if (looksSensible(bulletLines)) return bulletLines;
         // Try " or " split on everything after an optional "Choose one:" prefix.
         const afterChoose = text.replace(/^.*?choose one:?\s*/i, "").trim();
-        const orParts = afterChoose.split(/\s*,?\s+or\s+/i);
-        if (orParts.length === count) {
-          return orParts.map(p => p.replace(/^(when you play this character, |choose and )/i, "").trim());
-        }
-        // Fallback
-        return Array.from({ length: count }, (_, i) => `Option ${i + 1}`);
+        const orParts = afterChoose
+          .split(/\s*,?\s+or\s+/i)
+          .map(p => p.replace(/^(when you play this character, |choose and )/i, "").trim());
+        if (looksSensible(orParts)) return orParts;
+        // Fallback — generic numeric labels. Always renders, never malformed.
+        return fallback();
       }
 
       const optionTexts = extractOptionTexts(rulesText, pendingChoice.options.length);

@@ -4,7 +4,7 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers, GameLogEntry } from "@lorcana-sim/engine";
 import { parseDecklist, getGameModifiers, evaluateCondition, hasKeyword, getKeywordValue, isSong, getLoreThreshold } from "@lorcana-sim/engine";
 import {
   GreedyBot,
@@ -2091,16 +2091,39 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     .replace(/\bplayer1\b/g, "P1").replace(/\bplayer2\b/g, "P2")
     .replace(/^(P1|P2)\s+/, ""); // strip leading "P1 "/"P2 " — the colored prefix already shows it
 
+  // P1.13 — surface the structured BanishCause discriminator for `card_banished`
+  // entries so players can reconstruct causality without parsing prose. The
+  // engine's `message` text stays "X was banished." for backward compatibility;
+  // we append a short lowercase suffix to match the existing log voice. Older
+  // entries lacking `cause` (or the unused `gsc_cleanup` / `banish_effect`
+  // variants where the prior log line already names the effect) render
+  // unchanged. Suffix is colored gray-600 — slightly dimmer than the message
+  // itself so it reads as metadata, not part of the engine's prose.
+  const causeSuffix = (entry: GameLogEntry): string | null => {
+    if (entry.type !== "card_banished") return null;
+    switch (entry.cause) {
+      case "challenge": return " — by challenge";
+      case "damage":    return " — by damage";
+      // banish_effect: prior log line already names the effect; gsc_cleanup
+      // is reserved/unused. Both fall through to no suffix.
+      default: return null;
+    }
+  };
+
   // Log entries — rendered inline; caller wraps with appropriate height class
-  const logEntries = recentLog.map((entry, i) => (
-    <div key={i} className="text-gray-500">
-      <span className="text-gray-700">T{entry.turn}</span>{" "}
-      <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
-        {entry.playerId === "player1" ? "P1" : "P2"}
-      </span>{" "}
-      {fmtMsg(entry.message)}
-    </div>
-  ));
+  const logEntries = recentLog.map((entry, i) => {
+    const suffix = causeSuffix(entry);
+    return (
+      <div key={i} className="text-gray-500">
+        <span className="text-gray-700">T{entry.turn}</span>{" "}
+        <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+          {entry.playerId === "player1" ? "P1" : "P2"}
+        </span>{" "}
+        {fmtMsg(entry.message)}
+        {suffix && <span className="text-gray-600">{suffix}</span>}
+      </div>
+    );
+  });
 
   return (
     <DndContext
@@ -2451,15 +2474,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             <span className="text-sm font-bold text-gray-300">Game Log ({actionLog.length})</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] space-y-0.5 select-text">
-            {recentLog.map((entry, i) => (
-              <div key={i} className="text-gray-500">
-                <span className="text-gray-700">T{entry.turn}</span>{" "}
-                <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
-                  {entry.playerId === "player1" ? "P1" : "P2"}
-                </span>{" "}
-                {fmtMsg(entry.message)}
-              </div>
-            ))}
+            {recentLog.map((entry, i) => {
+              const suffix = causeSuffix(entry);
+              return (
+                <div key={i} className="text-gray-500">
+                  <span className="text-gray-700">T{entry.turn}</span>{" "}
+                  <span className={entry.playerId === "player1" ? "text-green-600" : "text-red-600"}>
+                    {entry.playerId === "player1" ? "P1" : "P2"}
+                  </span>{" "}
+                  {fmtMsg(entry.message)}
+                  {suffix && <span className="text-gray-600">{suffix}</span>}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
