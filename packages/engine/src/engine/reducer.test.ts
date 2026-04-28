@@ -74,6 +74,52 @@ describe("§1 Concepts", () => {
     expect(result.newState.isGameOver).toBe(false);
   });
 
+  // P0.4: lore-threshold win logs a `game_over` entry naming the winner
+  it("lore-threshold win appends a game_over log entry naming the winner (CRD 1.8.1.1)", () => {
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
+    state = setLore(state, "player1", 19);
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, CARD_DEFINITIONS);
+
+    expect(result.newState.isGameOver).toBe(true);
+    expect(result.newState.winner).toBe("player1");
+    const gameOverEntries = result.newState.actionLog.filter((e) => e.type === "game_over");
+    expect(gameOverEntries).toHaveLength(1);
+    expect(gameOverEntries[0]!.message).toContain("player1");
+    expect(gameOverEntries[0]!.message).toContain("wins");
+  });
+
+  // P0.5: typed cause-of-game-end discriminator surfaces win condition to UI/clients
+  it("wonBy is set to 'lore' on lore-threshold win (CRD 1.8.1.1)", () => {
+    let state = startGame();
+    let instanceId: string;
+    ({ state, instanceId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // lore: 1
+    state = setLore(state, "player1", 19);
+
+    const result = applyAction(state, { type: "QUEST", playerId: "player1", instanceId }, CARD_DEFINITIONS);
+
+    expect(result.newState.isGameOver).toBe(true);
+    expect(result.newState.wonBy).toBe("lore");
+  });
+
+  it("wonBy is set to 'deckout' on empty-deck loss (CRD 2.3.3.2)", () => {
+    let state = startGame();
+    state = emptyDeck(state, "player1");
+
+    const result = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+
+    expect(result.success).toBe(true);
+    expect(result.newState.isGameOver).toBe(true);
+    expect(result.newState.wonBy).toBe("deckout");
+  });
+
+  it("wonBy is null while the game is in progress", () => {
+    const state = startGame();
+    expect(state.wonBy).toBeNull();
+  });
+
   // CRD 1.8.1.4: Game state check banishes characters with damage >= willpower
   it("game state check banishes character with damage >= willpower (CRD 1.8.1.4)", () => {
     let state = startGame();

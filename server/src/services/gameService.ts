@@ -453,7 +453,7 @@ export async function resignGame(gameId: string, userId: string) {
   const winnerId = winner === "player1" ? game.player1_id : game.player2_id
 
   // Update the GameState so clients see isGameOver + winner via Realtime
-  const updatedState = { ...(game.state as Record<string, unknown>), isGameOver: true, winner }
+  const updatedState = { ...(game.state as Record<string, unknown>), isGameOver: true, winner, wonBy: "concede" }
 
   // Land the resignation's ELO change in the correct per-rotation bucket by
   // reading format+rotation from the parent lobby (queue-spawned games have

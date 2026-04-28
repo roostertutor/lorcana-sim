@@ -3720,6 +3720,13 @@ export interface GameState {
 
   winner: PlayerID | null;
   isGameOver: boolean;
+  /**
+   * Why the game ended. `null` while the game is in progress.
+   *  - `"lore"`     — winner reached the lore threshold (CRD 1.8.1.1)
+   *  - `"deckout"`  — opponent ended turn with empty deck (CRD 2.3.3.2)
+   *  - `"concede"`  — opponent resigned (server-side; engine never sets this)
+   */
+  wonBy: "lore" | "deckout" | "concede" | null;
 }
 
 /** CRD 6.2.7.1: A floating triggered ability created by an action card. */

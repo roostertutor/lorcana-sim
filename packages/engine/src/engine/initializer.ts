@@ -242,6 +242,7 @@ export function createGame(
     ],
     winner: null,
     isGameOver: false,
+    wonBy: null,
   };
 
   // Deal opening hands

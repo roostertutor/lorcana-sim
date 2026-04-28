@@ -1801,6 +1801,7 @@ function performTurnTransition(
       ...state,
       isGameOver: true,
       winner,
+      wonBy: "deckout",
       pendingTurnTransition: undefined,
     };
   }
@@ -8614,7 +8615,13 @@ function runGameStateCheck(
     for (const [playerId, playerState] of Object.entries(state.players)) {
       const threshold = getLoreThreshold(state, definitions, playerId as PlayerID);
       if (playerState.lore >= threshold) {
-        return { ...state, winner: playerId as PlayerID, isGameOver: true };
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: playerId as PlayerID,
+          message: `${playerId} reached ${playerState.lore} lore. ${playerId} wins!`,
+          type: "game_over",
+        });
+        return { ...state, winner: playerId as PlayerID, isGameOver: true, wonBy: "lore" };
       }
     }
   }
