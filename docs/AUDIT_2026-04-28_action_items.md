@@ -1,0 +1,116 @@
+# Audit 2026-04-28 — Action Items Tracker
+
+Working tracker for the 24 audit items surfaced 2026-04-28. Companion to `docs/AUDIT_2026-04-28_log_modal_undo.md` (the synthesis doc — read that for context) and the five `docs/audit/2026-04-28_*.md` source files (drill-down detail).
+
+**Numbering** matches the synthesis doc's prioritized action list (P0.1 through P3). Use the IDs to reference items in commit messages and follow-up discussion.
+
+**Status legend:**
+- ☐ TODO — not started
+- 🔄 IN PROGRESS — agent dispatched or work underway
+- ✅ DONE — shipped, link to commit
+- ⏭️ SKIPPED — explicitly decided not to ship
+- ❓ NEEDS DECISION — blocked on user input
+
+---
+
+## P0 — Gameplay bugs (ship before next playtest)
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P0.1** | ☐ | Verify `choose_card_name` and `choose_player` PendingChoice types are unused by current cards; if any card surfaces them, the UI has no input control and play hangs. Either way, add explicit UI branches with a "type unsupported" fallback. | ~30 min audit + ~30 min UI fix | gameboard-specialist (UI fix); engine-expert (audit which cards) | gameboard `2026-04-28_modal_strings.md` | |
+| **P0.2** | ☐ | Fix `choose_order` modal helper text — currently hardcodes "first tap → bottom"; should read placement direction from engine state (top vs bottom). | ~30 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | |
+| **P0.3** | ☐ | Fix `ZoneViewModal` empty state — hardcodes `"No cards in discard"` regardless of zone; should read the zone name from props (also used as deck/reveal/cards-under viewer). | ~15 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | |
+| **P0.4** | ☐ | Add `game_over` log entry for lore-threshold wins at `reducer.ts:8617`. Currently only deck-out wins log. One line. | ~15 min | engine-expert | engine `2026-04-28_engine_log_undo_rl.md` Topic 1 | |
+| **P0.5** | ☐ | Surface win condition on Game Over modal — currently invisible whether you won by lore / deckout / concede. | ~30 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | Probably wants matching engine signal — `isGameOver` should carry `wonBy: "lore" \| "deckout" \| "concede"` |
+
+---
+
+## P1 — Drift / coupling fixes (compound over time)
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P1.6** | ☐ | Fix `storage.ts:67` to strip only `actionLog` from saved sims, NOT `actions[]`. Past games become replayable. One-line fix with high leverage. | ~10 min | engine-expert / simulator | engine `2026-04-28_engine_log_undo_rl.md` Topic 3 | High value — past sim files unblocked for replay |
+| **P1.7** | ☐ | Fix `runGame.ts:258` — derive mulligan state from `actions[]`, not log substring matching. Both bot-trainer + engine-expert flagged this independently. | ~30 min | engine-expert / simulator | engine + bot-trainer | Same anti-pattern as P1.9 — string-parsing structured data |
+| **P1.8** | ☐ | Replace `SAMPLE_DECKLIST` (15 hardcoded card-name lines in `DecksPage.tsx:24-39`) with engine helper `getSampleDeck(format)`. Eliminates the "Load sample" drift risk. | ~20 min UI + ~20 min engine helper | ui-specialist + engine-expert | ui non-gameboard `2026-04-28_modal_strings_non_gameboard.md` §10 | Engine should expose the sample deck (known-legal current rotation) |
+| **P1.9** | ☐ | Audit `extractOptionTexts` rulesText parsing. When parse fails, fall back to `"Option N"` labels rather than ship malformed text. | ~45 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | HIGH drift risk — bullet-parsing card prose |
+| **P1.10** | ☐ | Conditional copy on legality-drift tooltip in `DecksPage.tsx:240` — drop "migrate to Infinity" when deck is already on Infinity. | ~15 min | ui-specialist | ui non-gameboard §10 | |
+| **P1.11** | ☐ | Add log lines for effect-driven mutations (discard, look_at_hand, gain_lore, damage, move_damage, add_ink_from_hand) — currently silent. Players can't reconstruct why hand/lore/damage changed. | ~2-4 hrs (touches every effect handler) | engine-expert | engine `2026-04-28_engine_log_undo_rl.md` Topic 1 | Logs should be reconstructable; this is the biggest single log-completeness gap |
+| **P1.12** | ☐ | Use `ability.storyName` in activated-ability log at `reducer.ts:1710` — currently `"X activated an ability on Y"` drops which ability. | ~20 min | engine-expert | engine `2026-04-28_engine_log_undo_rl.md` Topic 1 | |
+| **P1.13** | ☐ | Add structured `cause` field to banish log so simulator/replay can disambiguate (challenge / damage / banish-effect / CRD 8.5.4 cleanup) without prose parsing. | ~1 hr engine + ~30 min UI | engine-expert + gameboard-specialist | engine `2026-04-28_engine_log_undo_rl.md` Topic 1 | |
+| **P1.14** | ☐ | **Migrate every targeting prompt to the `choose_may` gold-standard pattern** — engine passes `def.fullName + ability.storyName + ability.rulesText` to all prompt builders. Eliminates indistinguishable simultaneous prompts. | ~half-day engine | engine-expert | gameboard `2026-04-28_modal_strings.md` | **Single biggest UX leverage item.** Currently 4/50 prompts cite source |
+
+---
+
+## P2 — Documentation
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P2.15** | ☐ | Create `docs/STREAMS.md` documenting the three streams (`actionLog` / `actions[]` / `episodeHistory`) — contracts, audiences, when each is consumed. Prevents future drift like P1.7. | ~1 hr | bot-trainer + engine-expert (joint) | bot-trainer `2026-04-28_rl_log_action_stream.md` + engine Topic 3 | |
+| **P2.16** | ☐ | Add JSDoc on `GameLogEntry` (in `types/index.ts:3894`) clarifying it's a derived projection, not a source of truth for replay. | ~10 min | engine-expert | bot-trainer `2026-04-28_rl_log_action_stream.md` | Cheap; high anti-coupling value |
+| **P2.17** | ☐ | Add code comment on `useGameSession.ts:472` documenting the implicit undo-granularity contract ("1 click = back to last pendingChoice"). | ~10 min | gameboard-specialist | engine `2026-04-28_engine_log_undo_rl.md` Topic 2 | |
+
+---
+
+## P2 — Consistency / polish
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P2.18** | ☐ | Unify Confirm / Skip / Decline button vocabulary across modals (8+ variants today: OK / Confirm / Done / Submit / Cancel / Skip / Pass / No thanks / Decline). Pick a canonical pair. | ~30 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | Probably `Confirm` / `Skip` |
+| **P2.19** | ☐ | Consolidate hand-rolled modals through `ModalFrame` — DeckBuilderPage's discard-changes + box-art picker currently hand-roll the backdrop. | ~30 min | ui-specialist | ui non-gameboard §10 | |
+| **P2.20** | ☐ | Add regression test for undo-after-may-trigger invariant — assert that after `PLAY_CARD` of any card with optional triggers, an undo returns to the may prompt (not pre-play). Catches the "drop `isMay` and undo silently collapses" coupling. | ~30 min | engine-expert | engine `2026-04-28_engine_log_undo_rl.md` Topic 2 | |
+| **P2.21** | ☐ | Audit `useActiveEffects` label builder for paraphrase risk — flagged by gameboard-specialist as similar in shape to `formatDuration` / `filterLabel`. | ~30 min | gameboard-specialist | gameboard `2026-04-28_modal_strings.md` | |
+
+---
+
+## P2 — MP takebacks (server-specialist's Phase 1-3)
+
+These three are sequenced; later phases depend on earlier. Server-specialist's full design is in `docs/audit/2026-04-28_mp_takebacks_design.md`.
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P2.22** | ☐ | **Tier 0 cancels (pre-commit)** — pure UI. Mid-pendingChoice Cancel button reverts to pre-action state. No server. | ~half day | gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 1 | Smallest takeback win — ships independent of server work |
+| **P2.23** | ❓ | **Tier 1 neutral takebacks (INK_CARD, undeclared QUEST)** — server endpoint + 5-sec undo pill. **BLOCKED on Q1**: should `stateFilter.ts` redact opponent inkwells per CRD 4.1.4? | ~1 day cross-package | server-specialist + gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 2 + open policy Q1 | If inkwells go face-down → PLAY_INK is fully neutral, simple Tier 1. If visible → PLAY_INK is consent-required (Tier 2) and the value calc shifts |
+| **P2.24** | ☐ | **Tier 2 info-gain takebacks (private lobby only)** — opponent consent flow, `takebacks` audit table. Big UI surface. | ~2-3 days | server-specialist + gameboard-specialist + ui-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 3 | Only ship after Tier 1 sees adoption |
+
+---
+
+## P3 — Future work (intentional defer)
+
+| ID | Status | Item | Effort | Owner | Source | Comments |
+|---|---|---|---|---|---|---|
+| **P3.25** | ⏭️ | i18n readiness sweep — extract every hardcoded user-facing string into a `strings.ts` const map. 100% English-literal codebase today; no translation infrastructure. | ~3-5 hours | ui-specialist + gameboard-specialist | ui non-gameboard §10 | Only ship if localization lands on the roadmap. Skip for now. |
+| **P3.26** | ⏭️ | Pluralization helper (`pluralize(noun, count)`) — minor consolidation; not urgent. | ~10 min | ui-specialist | ui non-gameboard §9 | Tiny; bundle with another cleanup |
+| **P3.27** | ⏭️ | Phase 4 takebacks — Tier 3 public reveals (Powerline-style). Same as Phase 3 plus toast wording. Marginal value over Phase 3. | ~half day on top of Phase 3 | server-specialist + gameboard-specialist | server `2026-04-28_mp_takebacks_design.md` Phase 4 | Probably skip permanently |
+
+---
+
+## Open policy questions (need user decision before relevant items can ship)
+
+| ID | Question | Affects | Default proposed | Decision |
+|---|---|---|---|---|
+| **Q1** | Should `stateFilter.ts` redact opponent inkwells per CRD 4.1.4 (face-down)? | P2.23 (Tier 1 takebacks classification of `PLAY_INK`); broader anti-cheat baseline | Yes — fix the filter to match CRD; PLAY_INK becomes fully neutral | _pending_ |
+| **Q2** | What's the canonical button-vocab pair for confirm/skip in modals? | P2.18 | `Confirm` / `Skip` | _pending_ |
+| **Q3** | Should we ship Tier 0 takebacks (P2.22) without committing to Tier 1+? | P2.22 sequencing | Yes — Tier 0 is pure UI, ships independent | _pending_ |
+| **Q4** | Should `getSampleDeck()` return a fixed canonical deck or rotate seasonally? | P1.8 | Fixed (least drift; least support load) | _pending_ |
+| **Q5** | Should MP takeback `takebacks` audit table be visible to players post-game (their opponent's takeback rate) or admin-only? | P2.24 + future moderation | Admin-only initially; consider player-facing once data exists | _pending_ |
+| **Q6** | Does i18n make the roadmap? Affects whether P3.25 ever happens. | P3.25 | No (English-only for foreseeable future) | _pending_ |
+
+---
+
+## Summary stats
+
+- **Total items**: 27 (P0: 5, P1: 9, P2: 10, P3: 3)
+- **Already-shipped (in flight)**: 0
+- **Blocked on user decision**: 1 explicitly (P2.23 → Q1) plus 5 open Qs that influence future work
+- **Estimated total effort to clear P0+P1**: ~12-16 hours of focused work across 3-4 agents
+- **Estimated effort for P0 only** (gameplay bugs): ~2 hours
+
+---
+
+## Working notes
+
+Use this section freely as we work through items — paste links to commits, decisions made, etc.
+
+**Session log:**
+
+- 2026-04-28: Audit shipped (commits TBD). 4 research agents + 1 synthesis pass.
