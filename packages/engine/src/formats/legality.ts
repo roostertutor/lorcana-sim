@@ -51,6 +51,12 @@ export interface RotationEntry {
    *  Stored decks stamped with a rotation where this is now `false` still
    *  validate against that rotation — they just can't be CREATED with it. */
   readonly offeredForNewDecks: boolean;
+  /** When true, games played under this rotation count for ELO / ranked
+   *  ladders and ranked matchmaking. False during pre-release / staged-test
+   *  windows where new sets are playable but not yet officially live. The
+   *  matchmaking server's `updateElo` and ranked-queue endpoints early-return
+   *  on unranked rotations; the UI uses this to gate the Find Ranked button. */
+  readonly ranked: boolean;
   /** Human-readable label for UI surfacing (e.g. "Set 12 Core"). */
   readonly displayName: string;
 }
@@ -70,36 +76,51 @@ export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11"]),
     banlist: new Set<string>([]),
     offeredForNewDecks: true,
+    ranked: true,
     displayName: "Set 11 Core",
   },
   s12: {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11", "12"]),
     banlist: new Set<string>([]),
     offeredForNewDecks: true,
+    ranked: false,
     displayName: "Set 12 Core",
   },
 };
 
-/** Infinity rotations — all sets + promos are always legal; only the banlist
- *  progresses between rotations. Listed as an explicit set (rather than
- *  "anything goes") so the legality check has a single shape and future
- *  restrictions are registry edits. */
-const INFINITY_ALL_SETS: ReadonlySet<string> = new Set([
-  "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12",
-  "P1", "P2", "P3", "C1", "C2", "CP", "D23", "DIS",
+/** Infinity rotations — all sets + promos are always legal within a rotation,
+ *  but each rotation is a frozen card-pool SNAPSHOT, not a shared union. A
+ *  deck stamped Infinity-s11 must remain playable against its s11-era card
+ *  pool even after s12 cards exist in the catalog; otherwise s11 decks could
+ *  silently incorporate set-12 cards just by being matched against them.
+ *
+ *  Maintenance: when a new set drops, snapshot the previous rotation's set
+ *  list into a fresh `INFINITY_S{N}_SETS` constant, add the new set id (and
+ *  any new promos) to it, and wire it into a new `INFINITY_ROTATIONS.s{N}`
+ *  entry. Same shape Core already uses. */
+const INFINITY_S11_SETS: ReadonlySet<string> = new Set([
+  "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+  "P1", "P2", "P3", "C1", "CP", "D23", "DIS",
+]);
+
+const INFINITY_S12_SETS: ReadonlySet<string> = new Set([
+  ...INFINITY_S11_SETS,
+  "12", "C2",
 ]);
 
 export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
-    legalSets: INFINITY_ALL_SETS,
+    legalSets: INFINITY_S11_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
     offeredForNewDecks: true,
+    ranked: true,
     displayName: "Set 11 Infinity",
   },
   s12: {
-    legalSets: INFINITY_ALL_SETS,
+    legalSets: INFINITY_S12_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
     offeredForNewDecks: true,
+    ranked: false,
     displayName: "Set 12 Infinity",
   },
 };
@@ -154,6 +175,14 @@ function resolveRotation(format: GameFormat): RotationEntry {
     );
   }
   return entry;
+}
+
+/** Whether games played under this format count for ELO / ranked matchmaking.
+ *  Server `updateElo()` early-returns when this is false; the matchmaking
+ *  ranked-queue endpoint rejects joins; the UI hides the Find Ranked button.
+ *  Throws on unknown rotation (delegates to `resolveRotation`). */
+export function isRankedFormat(format: GameFormat): boolean {
+  return resolveRotation(format).ranked;
 }
 
 /** Check whether a single card is legal in the given format. Exposed so the

@@ -74,6 +74,7 @@ export {
   INFINITY_ROTATIONS,
   isCardLegalInFormat,
   isLegalFor,
+  isRankedFormat,
   listOfferedRotations,
 } from "./formats/legality.js";
 export type {

@@ -6,6 +6,7 @@ import {
   type GameFormat,
   isCardLegalInFormat,
   isLegalFor,
+  isRankedFormat,
   listOfferedRotations,
 } from "./legality.js";
 
@@ -54,11 +55,27 @@ describe("rotation registry", () => {
     expect(INFINITY_ROTATIONS.s12.banlist.has("hiram-flaversham-toymaker")).toBe(true);
   });
 
-  it("Infinity rotations include every main set + promos", () => {
-    for (const s of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "P1", "P2", "P3", "D23", "DIS"]) {
-      expect(INFINITY_ROTATIONS.s11.legalSets.has(s)).toBe(true);
-      expect(INFINITY_ROTATIONS.s12.legalSets.has(s)).toBe(true);
+  it("Infinity-s11 is a frozen snapshot: sets 1-11 + s11-era promos, NOT set 12", () => {
+    const entry = INFINITY_ROTATIONS.s11;
+    for (const s of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "P1", "P2", "P3", "C1", "D23", "DIS"]) {
+      expect(entry.legalSets.has(s)).toBe(true);
     }
+    // Set 12 (and post-s11 promos like C2) must NOT be in the s11 snapshot —
+    // an Infinity-s11-stamped deck shouldn't silently absorb new-set cards.
+    expect(entry.legalSets.has("12")).toBe(false);
+    expect(entry.legalSets.has("C2")).toBe(false);
+  });
+
+  it("Infinity-s12 is additive over s11: every s11 set + set 12 + C2", () => {
+    const s11 = INFINITY_ROTATIONS.s11;
+    const s12 = INFINITY_ROTATIONS.s12;
+    // Every s11 set is also legal in s12 (additive).
+    for (const s of s11.legalSets) {
+      expect(s12.legalSets.has(s)).toBe(true);
+    }
+    // Plus the new arrivals.
+    expect(s12.legalSets.has("12")).toBe(true);
+    expect(s12.legalSets.has("C2")).toBe(true);
   });
 
   it("all rotations are offered for new decks during pre-release window", () => {
@@ -68,6 +85,36 @@ describe("rotation registry", () => {
     expect(CORE_ROTATIONS.s12.offeredForNewDecks).toBe(true);
     expect(INFINITY_ROTATIONS.s11.offeredForNewDecks).toBe(true);
     expect(INFINITY_ROTATIONS.s12.offeredForNewDecks).toBe(true);
+  });
+
+  it("ranked flag — s11 live (ranked), s12 staged-test (unranked) pre-launch", () => {
+    // Pre-2026-05-08 state: s11 is the live ranked rotation; s12 is the
+    // staged-test rotation (offered for deck building, but games don't count
+    // for ELO until Ravensburger flips it live). Same flag applies to Core
+    // and Infinity in the same time window.
+    expect(CORE_ROTATIONS.s11.ranked).toBe(true);
+    expect(CORE_ROTATIONS.s12.ranked).toBe(false);
+    expect(INFINITY_ROTATIONS.s11.ranked).toBe(true);
+    expect(INFINITY_ROTATIONS.s12.ranked).toBe(false);
+  });
+});
+
+describe("isRankedFormat", () => {
+  it("returns ranked flag for the resolved rotation (Core)", () => {
+    expect(isRankedFormat({ family: "core", rotation: "s11" })).toBe(true);
+    expect(isRankedFormat({ family: "core", rotation: "s12" })).toBe(false);
+  });
+
+  it("returns ranked flag for the resolved rotation (Infinity)", () => {
+    expect(isRankedFormat({ family: "infinity", rotation: "s11" })).toBe(true);
+    expect(isRankedFormat({ family: "infinity", rotation: "s12" })).toBe(false);
+  });
+
+  it("throws on unknown rotation id", () => {
+    expect(() =>
+      // @ts-expect-error — deliberately invalid rotation id
+      isRankedFormat({ family: "core", rotation: "s99" }),
+    ).toThrow(/Unknown rotation/);
   });
 });
 
@@ -101,8 +148,16 @@ describe("isCardLegalInFormat", () => {
     expect(def.setId).toBe("12");
     expect(isCardLegalInFormat(def, CORE_S12)).toBe(true);
     expect(isCardLegalInFormat(def, CORE_S11)).toBe(false);
-    // Infinity always accepts by set; banlist is empty for this card.
-    expect(isCardLegalInFormat(def, INF_S11)).toBe(true);
+  });
+
+  // Regression test for the 2026-04-27 Infinity-snapshot bug: pre-fix, both
+  // INFINITY_ROTATIONS pointed at a single shared INFINITY_ALL_SETS constant
+  // including set 12, so an Infinity-s11-stamped deck could silently run a
+  // set-12 card. Each Infinity rotation should be a frozen card-pool snapshot.
+  it("set-12-only card is rejected by Infinity-s11 (frozen snapshot) but accepted by Infinity-s12", () => {
+    const def = CARD_DEFINITIONS["dale-excited-friend"]!;
+    expect(def.setId).toBe("12");
+    expect(isCardLegalInFormat(def, INF_S11)).toBe(false); // ← was true pre-fix
     expect(isCardLegalInFormat(def, INF_S12)).toBe(true);
   });
 
@@ -174,6 +229,44 @@ describe("isLegalFor", () => {
       [{ definitionId: "captain-hook-forceful-duelist", count: 4 }],
       defs,
       CORE_S12,
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  // Regression test for the 2026-04-27 Infinity-snapshot bug. The deck-level
+  // function `isLegalFor` is the actual entry point used by the deck builder
+  // and matchmaker — confirms the snapshot fix flows through both layers.
+  it("rejects an Infinity-s11 deck containing a set-12 card (frozen-snapshot regression)", () => {
+    const result = isLegalFor(
+      [{ definitionId: "dale-excited-friend", count: 4 }],
+      defs,
+      INF_S11,
+    );
+    expect(result.ok).toBe(false);
+    expect(result.issues).toHaveLength(1);
+    expect(result.issues[0]!.reason).toBe("set_not_legal");
+    expect(result.issues[0]!.message).toContain("Set 11 Infinity");
+  });
+
+  it("accepts an Infinity-s12 deck containing a set-12 card", () => {
+    const result = isLegalFor(
+      [{ definitionId: "dale-excited-friend", count: 4 }],
+      defs,
+      INF_S12,
+    );
+    expect(result.ok).toBe(true);
+  });
+
+  it("accepts an Infinity-s11 deck of only s11-era cards (set 1 + reprint into set 8)", () => {
+    // ariel-on-human-legs is set 1 only; captain-hook-forceful-duelist is
+    // set 1 + set 8 reprint. Both are in INFINITY_S11_SETS.
+    const result = isLegalFor(
+      [
+        { definitionId: "ariel-on-human-legs", count: 4 },
+        { definitionId: "captain-hook-forceful-duelist", count: 4 },
+      ],
+      defs,
+      INF_S11,
     );
     expect(result.ok).toBe(true);
   });
