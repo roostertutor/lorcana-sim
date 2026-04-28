@@ -602,133 +602,6 @@ the percentage may have shifted since 31.8%.
 
 ---
 
-## Engine agent: rotation registry refactor — `ranked` flag + Infinity per-rotation snapshots
-
-**Supersedes the prior 2026-04-21 "unranked rotation flag for pre-release Set 12 play" entry.** Now part of a coordinated matchmaking ship (see "Server agent: casual + ranked matchmaking queues" entry below). User-locked decisions captured 2026-04-27.
-
-### What's changing in the engine
-
-Two distinct fixes, both in `packages/engine/src/formats/legality.ts`:
-
-**A. Add `ranked: boolean` to `RotationEntry`** (was specced before, locked now).
-
-```ts
-export interface RotationEntry {
-  readonly legalSets: ReadonlySet<string>;
-  readonly banlist: ReadonlySet<string>;
-  readonly offeredForNewDecks: boolean;
-  readonly ranked: boolean;          // ← new
-  readonly displayName: string;
-}
-```
-
-Pre-launch values (today through 2026-05-08):
-```ts
-CORE_ROTATIONS = {
-  s11: { ..., offeredForNewDecks: true, ranked: true  },  // live, ELO-affecting
-  s12: { ..., offeredForNewDecks: true, ranked: false },  // staged test, unranked
-};
-INFINITY_ROTATIONS = {
-  s11: { ..., offeredForNewDecks: true, ranked: true  },
-  s12: { ..., offeredForNewDecks: true, ranked: false },
-};
-```
-
-On 2026-05-08: flip s11.offeredForNewDecks → false, s11.ranked → false (effectively retires s11; old decks still readable but no new games), and flip s12.ranked → true (new live ranked season).
-
-**B. Split `INFINITY_ALL_SETS` into per-rotation snapshots** (the bug user surfaced 2026-04-27). Currently both Infinity rotations point at the same `INFINITY_ALL_SETS` constant including set 12 — meaning an Infinity-s11-stamped deck CAN run a set 12 card today, which is wrong. Infinity rotations should be frozen card-pool snapshots.
-
-```ts
-// packages/engine/src/formats/legality.ts
-
-const INFINITY_S11_SETS: ReadonlySet<string> = new Set([
-  "1","2","3","4","5","6","7","8","9","10","11",
-  "P1","P2","P3","C1","CP","D23","DIS",  // promos legal at s11 cut
-]);
-
-const INFINITY_S12_SETS: ReadonlySet<string> = new Set([
-  ...INFINITY_S11_SETS,
-  "12", "C2",   // newly-legal in s12 era
-]);
-
-INFINITY_ROTATIONS = {
-  s11: {
-    legalSets: INFINITY_S11_SETS,        // ← was INFINITY_ALL_SETS
-    banlist: new Set(["hiram-flaversham-toymaker"]),
-    offeredForNewDecks: true,
-    ranked: true,
-    displayName: "Set 11 Infinity",
-  },
-  s12: {
-    legalSets: INFINITY_S12_SETS,        // ← was INFINITY_ALL_SETS
-    banlist: new Set(["hiram-flaversham-toymaker"]),
-    offeredForNewDecks: true,
-    ranked: false,
-    displayName: "Set 12 Infinity",
-  },
-};
-
-// INFINITY_ALL_SETS constant can be deleted (no remaining consumers). If
-// useful for analytics/dev-tooling, keep it as the union of all rotations.
-```
-
-The set-N-launch runbook for adding future Infinity rotations becomes:
-1. Snapshot the previous rotation's set list
-2. Add the new set id (and any new promos) to a new `INFINITY_S{N}_SETS` constant
-3. Wire the new constant into `INFINITY_ROTATIONS.s{N}`
-
-Same shape Core already uses. No more shared mutable constant.
-
-### Helper to expose to consumers
-
-```ts
-export function isRankedFormat(format: GameFormat): boolean {
-  return resolveRotation(format).ranked;
-}
-```
-
-Used by:
-- Server `updateElo()` (early-return on unranked games)
-- Server matchmaking endpoints (reject ranked queue joins for non-ranked rotations)
-- UI `MultiplayerLobby` (gate Find Ranked button visibility)
-
-Export from `packages/engine/src/index.ts` alongside existing legality exports.
-
-### Tests — `legality.test.ts`
-
-New cases:
-- `RotationEntry.ranked` flag — both core and infinity `s12` return `false`; `s11` returns `true`; defaults documented
-- **Infinity s11 deck with a set-12 card is illegal** (was passing before due to shared `INFINITY_ALL_SETS` — would FAIL today, passes after the fix)
-- Infinity s12 deck with all sets 1-12 + promos is legal
-- `isRankedFormat({family: 'core', rotation: 's11'})` returns true; `s12` returns false
-- Same for infinity
-
-### Sequencing
-
-This entry is the **first work to land** in the matchmaking ship. Server + GUI both depend on `RotationEntry.ranked`, `isRankedFormat`, and the corrected Infinity legalSets. ~1-2 hours.
-
-After landing:
-- Server agent picks up the casual + ranked matchmaking entry (below) — adds `ranked` field consumption to `updateElo`, plus all the new matchmaking infrastructure
-- GUI agent (me) picks up the lobby restructure entry (below) — needs `isRankedFormat` for ranked-queue gating
-
-### 2026-05-08 release-day note (rotation-runbook addition)
-
-When flipping s12 to live in `CORE_ROTATIONS` and `INFINITY_ROTATIONS`:
-
-```ts
-// Before launch:
-s11: { ..., offeredForNewDecks: true,  ranked: true  },   // live
-s12: { ..., offeredForNewDecks: true,  ranked: false },   // test/staged
-
-// On 2026-05-08:
-s11: { ..., offeredForNewDecks: false, ranked: false },   // RETIRED (no new games)
-s12: { ..., offeredForNewDecks: true,  ranked: true  },   // LIVE
-```
-
-Two flag flips per registry. Backdated games on s12 stay unranked (they were created when ranked=false). Old s11-stamped decks remain readable in history but can't be used to host or queue (server rejects on offeredForNewDecks=false).
-
----
-
 ## Server agent (first) + GUI agent (follow-up): in-app feedback / bug report system
 
 Planned with user 2026-04-21. Reusable "Report an issue" trigger surfaced
@@ -1436,278 +1309,73 @@ section only — public games section can ship without it.
 
 ---
 
-## Server agent: casual + ranked matchmaking queues + decks lose `format_rotation`
+## Gameboard agent + engine agent + server agent: live MP gameplay bugs (first batch)
 
-**Locked with user 2026-04-27** after a long planning conversation. Replaces the previous Phase 3 matchmaking sketch. Co-ships with the engine `RotationEntry.ranked` + Infinity legalSets refactor (entry above) and the GUI lobby restructure (entry below). All three are required for the matchmaking experience to work end-to-end.
-
-Depends on: engine entry above (RotationEntry.ranked, isRankedFormat helper) lands first.
-
-### Overview
-
-Three new game types (and one removal):
-
-| Match | match_source | ranked | Path |
-|---|---|---|---|
-| Private lobby (host code / browse public) | `'private'` | always **false** | Custom Game → Host / Join / Browse |
-| Casual queue | `'queue'` | always **false** | Quick Play → Find Casual |
-| Ranked queue | `'queue'` | **true** when rotation.ranked=true | Quick Play → Find Ranked |
-| Solo vs bot | n/a (no MP record) | n/a | Quick Play → Solo |
-
-Anti-collusion rule: **private lobbies are now ALWAYS unranked**, regardless of rotation. Two friends can no longer farm ELO via private games. The only way to update ELO is the Ranked queue.
-
-### Schema migration
-
-```sql
--- Drop format_rotation from decks (rotation is now chosen per-game, not per-deck)
-ALTER TABLE decks DROP COLUMN format_rotation;
--- Decks now carry only format_family ('core' | 'infinity')
-
--- Add match_source enum + ranked boolean to games
-ALTER TABLE games
-  ADD COLUMN IF NOT EXISTS match_source TEXT NOT NULL DEFAULT 'private'
-    CHECK (match_source IN ('private', 'queue', 'tournament')),
-  ADD COLUMN IF NOT EXISTS ranked BOOLEAN NOT NULL DEFAULT FALSE;
--- Existing games keep match_source='private', ranked=false (matches pre-launch
--- anti-collusion rule retroactively — no historical ranked games existed
--- because we never went live with ELO)
-
--- Matchmaking queue
-CREATE TABLE IF NOT EXISTS matchmaking_queue (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  format_family TEXT NOT NULL,
-  format_rotation TEXT NOT NULL,
-  match_format TEXT NOT NULL,    -- 'bo1' | 'bo3'
-  queue_kind TEXT NOT NULL CHECK (queue_kind IN ('casual', 'ranked')),
-  decklist_text TEXT NOT NULL,
-  card_metadata JSONB,
-  elo INTEGER,                   -- snapshotted at queue-join, used for band-widening (ranked only)
-  joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (user_id)               -- one queue entry per user (concurrency invariant)
-);
-
--- Indexes for pairing query performance
-CREATE INDEX IF NOT EXISTS idx_matchmaking_queue_lookup
-  ON matchmaking_queue (format_family, format_rotation, match_format, queue_kind, joined_at);
-```
-
-### Routes
-
-**`POST /matchmaking`**
-- Body: `{ deckId | decklistText, format: { family, rotation, matchFormat }, queueKind: 'casual' | 'ranked' }`
-- Validates:
-  - User isn't already in a queue OR a waiting lobby (concurrency invariant — reject 409 if either holds)
-  - Rate limit: ≤10 queue joins from this user in the last hour (reject 429 if exceeded)
-  - Rotation exists and is `offeredForNewDecks=true` (reject 400 otherwise)
-  - For `queueKind='ranked'`: rotation has `ranked=true` (reject 400 otherwise)
-  - Deck legality against the chosen rotation via `isLegalFor` (reject 400 with issue list)
-- On success: INSERT into `matchmaking_queue`, snapshot user's ELO for the format bucket, attempt inline pairing (see below)
-- Returns: `{ queueEntryId, position, eloSnapshot }`
-
-**`GET /matchmaking`**
-- Returns the current user's queue entry (if any) with elapsed time + current ELO band (ranked only)
-- Used by UI's queue-wait screen for timer/band display
-
-**`DELETE /matchmaking`**
-- Removes the user's queue entry. Idempotent; returns 200 even if no entry existed.
-
-### Pairing logic
-
-**Inline on INSERT** (primary path) — when a queue entry is created, check for a compatible peer in the same bucket:
-
-```ts
-// Casual: FIFO match
-SELECT * FROM matchmaking_queue
-WHERE format_family = $1 AND format_rotation = $2 AND match_format = $3
-  AND queue_kind = 'casual'
-  AND user_id != $4
-ORDER BY joined_at ASC
-LIMIT 1;
-
-// Ranked: ELO band-widening
-// Compute current band based on time since user's joined_at:
-//   t < 30s  → ±50
-//   t < 60s  → ±150
-//   t < 90s  → ±400
-//   t ≥ 90s  → unbounded
-SELECT * FROM matchmaking_queue
-WHERE format_family = $1 AND format_rotation = $2 AND match_format = $3
-  AND queue_kind = 'ranked'
-  AND user_id != $4
-  AND ABS(elo - $5) <= $current_band
-ORDER BY ABS(elo - $5) ASC, joined_at ASC
-LIMIT 1;
-```
-
-If a peer is found:
-1. Atomically DELETE both entries from `matchmaking_queue`
-2. Create a `games` row with `match_source='queue'` + `ranked = (queueKind='ranked' AND rotation.ranked)`
-3. Run mandatory legality check on BOTH decks (reject + re-INSERT both queue entries if either deck is illegal — shouldn't happen given pre-validation, but defensive)
-4. Broadcast pair-success on both users' Realtime channels: `{ gameId, opponent }`
-
-**Poll-based safety net** — a server-side `setInterval(60_000, checkAllQueues)` re-runs pairing on entries older than the inline path covered. Catches edge cases where Realtime triggers raced or pairing was attempted before a peer joined. Same pairing logic.
-
-### `updateElo` change
-
-```ts
-import { isRankedFormat } from "@lorcana-sim/engine";
-
-async function updateElo(p1Id, p2Id, winner, eloKey, gameRanked: boolean) {
-  if (!gameRanked) {
-    // Still increment games_played for activity tracking
-    await Promise.all([
-      supabase.from("profiles").update({ games_played: ... }).eq("id", p1Id),
-      supabase.from("profiles").update({ games_played: ... }).eq("id", p2Id),
-    ]);
-    return;
-  }
-  // ... existing ELO math
-}
-```
-
-The `gameRanked` flag is read directly from `games.ranked` (no need to re-derive from rotation registry — the flag is set at game creation time using both the queueKind AND rotation.ranked, so it's already authoritative).
-
-### Game creation legality check
-
-Add to `gameService.ts:createGame` (whichever path creates the game record — lobby join, queue pair, future tournament):
-
-```ts
-import { isLegalFor } from "@lorcana-sim/engine";
-
-const result1 = isLegalFor(parseDecklist(p1Deck), { family, rotation });
-if (!result1.ok) {
-  return { error: 'illegal_deck_p1', issues: result1.issues };
-}
-const result2 = isLegalFor(parseDecklist(p2Deck), { family, rotation });
-if (!result2.ok) {
-  return { error: 'illegal_deck_p2', issues: result2.issues };
-}
-// proceed with game creation
-```
-
-This is the authoritative gate. Even if UI lets through a stale-deck submission (race condition between UI render and server processing), the server-side check rejects.
-
-### Concurrency invariant
-
-Server enforces: a user can have AT MOST ONE of:
-- An entry in `matchmaking_queue`
-- An entry in `lobbies` with status='waiting'
-
-`POST /matchmaking` rejects with 409 if user has a waiting lobby; `POST /lobby/create` rejects with 409 if user has a queue entry. The `UNIQUE(user_id)` constraint on `matchmaking_queue` provides the queue-side guarantee at the DB level.
-
-### Rate limit
-
-10 queue-joins per user per rolling hour. Implementation: in-memory token bucket on the Hono server (per-user-id keyed map; each entry has a `count + windowStart`). Resets after 60 minutes from window start. Returns 429 with retry-after on exceeded.
-
-### Tests (server side)
-
-- POST /matchmaking with active lobby returns 409
-- POST /matchmaking with active queue entry returns 409
-- POST /matchmaking 11th time in an hour returns 429
-- POST /matchmaking with deck illegal in chosen rotation returns 400
-- POST /matchmaking ranked on rotation with `ranked=false` returns 400
-- POST /matchmaking with retired rotation (`offeredForNewDecks=false`) returns 400
-- Casual queue: two users with matching `(family, rotation, match_format)` triple pair within 3s (test the inline path)
-- Ranked queue: two users with ELO 1200 and 1400 pair within ~30s (band-widening reaches ±150 by then)
-- `games.match_source='queue'` and `games.ranked` set correctly per queue type
-- `updateElo` is a no-op when `game.ranked=false`; `games_played` still increments
-
-### Rate-limit + concurrency invariants — DB constraints
-
-- `matchmaking_queue.user_id` UNIQUE — enforces single queue entry per user
-- Server-side check at lobby create: `SELECT 1 FROM matchmaking_queue WHERE user_id = $1` — rejects if found
-- Mirror check at matchmaking join: `SELECT 1 FROM lobbies WHERE host_user_id = $1 AND status = 'waiting'` — rejects if found
-
-### Sequencing within this entry
-
-1. **Engine work lands first** (entry above — `RotationEntry.ranked` + `isRankedFormat` + Infinity split). Server can't compile against `isRankedFormat` until that exports.
-2. Server work (this entry) starts after engine merges.
-3. UI work (entry below) can start in parallel with server — UI's lobby restructure is mostly chrome and can stub the matchmaking endpoints. The Realtime + queue-wait flow needs server endpoints live to test, but the page layout work is pure refactor.
-
-### Estimated effort
-
-- Migration + matchmaking_queue table + endpoints: ~2 hrs
-- Pairing logic (FIFO casual + band-widening ranked): ~2 hrs
-- updateElo signature change + flag plumbing: ~30 min
-- Mandatory legality check at game creation: ~30 min (mostly verifying existing path)
-- Concurrency invariant + rate limit middleware: ~1 hr
-- Tests: ~2 hrs
-
-**Total: ~1 day server work.** Engine is ~1-2 hrs. UI is ~half-day. Whole ship is ~2 days of coordinated work.
+Discovered 2026-04-28 during the very first end-to-end MP playtest after matchmaking shipped. Both bugs were latent — invisible until two real clients were paired into a single game. Two distinct issue classes; one is a UI/event-flow bug, the other is a state-filter info leak.
 
 ---
 
-## GUI agent: matchmaking lobby UI (blocks on engine + server above)
+### Bug #1: reveal modal + revealed pill never appears for the casting player
 
-**Locked with user 2026-04-27.** This is my (ui-specialist) work queue for the matchmaking ship. Blocks on the engine + server entries above for the runtime endpoints, but the lobby restructure refactor itself can land in parallel as a no-functional-change prep step.
+**Symptom.** When P1 plays Diablo - Maleficent's Spy on turn 1, the reveal modal never appears for P1, and the revealed pill (the chrome that shows "X revealed by Diablo - Maleficent's Spy") also never appears. P2's view was not specifically reported but should be checked.
 
-### Scope
+**Repro.**
+1. Two real clients paired via casual matchmaking.
+2. P1 plays `diablo-maleficents-spy` (set 4) on turn 1.
+3. Observe: no reveal modal, no revealed pill, no console errors on either client.
 
-1. **Drop `format_rotation` from deck-related UI** — `DeckBuilderPage`, `MultiplayerLobby`, `FormatPicker`, deck save/load paths. Decks now carry only `format_family`. Rotation is chosen per-game.
+**What we know.**
+- The card lives in `packages/engine/src/cards/card-set-4.json` (one match — verified).
+- Reveal flow on the engine side persists revealed hands on `state.lastRevealedHand` (with `sourceInstanceId` plumbed through as of 2026-04-24's engine ship — see DONE entry near top of this doc).
+- The server's `filterStateForPlayer` already preserves `lastRevealedCards` and `lastRevealedHand` for the audience the reveal was scoped to (`stateFilter.ts:39-53`). Public reveals (`privateTo == null`) keep card data on both sides; private peeks keep card data only for the peeker.
+- UI consumes `lastRevealedHand` / `lastRevealedCards` somewhere in `GameBoard.tsx` (the "Unified reveal log" comment at line 702) and `PendingChoiceModal.tsx`.
 
-2. **Deckbuilder format-picker simplification** — single dropdown: `Core` / `Infinity`. No rotation choice in the deckbuilder. Legality validates against current live rotation only (e.g., `Core-s11` pre-launch).
+**Suspected causes (gameboard agent should triangulate).**
+1. Diablo's ability JSON in card-set-4.json may not be wired correctly — could be a stub, or the trigger may not fire on play, or the effect type may be wrong (e.g. `look_at_hand` vs `reveal_hand`). Needs an engine-expert read of the card's JSON.
+2. The reveal modal mount condition in GameBoard.tsx may key off something that doesn't survive the server round-trip (e.g. an event reference that isn't replayed for the casting player, vs. the persisted `lastRevealedHand` snapshot).
+3. The "revealed pill" / "look at opponent's hand" UI may only render when the viewer is the OPPONENT of the peeker (so the peeker — P1 — doesn't see anything because the chrome was designed for the audience that's being looked-at, not the peeker themselves).
 
-3. **Legality drift indicator on deck cards** — when a deck has cards that aren't legal in the current live rotation, show:
-   - On `DecksPage` deck tile: small `⚠️ N cards illegal` badge
-   - On `DeckBuilderPage` editor: inline banner with click-to-expand showing which cards + three actions: `[Edit deck]` `[Migrate to Infinity]` `[Leave as-is]`
-   - "Migrate to Infinity" flips `format_family` from 'core' → 'infinity'; cards stay; legality re-checks against Infinity rotation; saves immediately
-   - Subtle helper text when 5+ cards are from a future set: *"X cards are from Set 12 — testable in test queue until 2026-05-08"*
+**First investigation step.** Before debugging UI: print Diablo's full ability JSON from card-set-4.json and confirm the trigger + effect shape against the oracle text ("When you play this character, look at your opponent's hand."). If the JSON is correct, attach a debug log in `GameBoard.tsx` for `gameState.lastRevealedHand` after PLAY_CARD lands and see whether it's populated on the casting player's filtered state.
 
-4. **`MultiplayerLobby` restructure into Quick Play + Custom Game sections:**
-   - **Quick Play** (top, prominent):
-     - Find Casual Match → server's casual queue
-     - Find Ranked Match → server's ranked queue (button hidden when `!isRankedFormat(deck.family, currentLiveRotation)`)
-     - Solo vs Bot (existing — moved here)
-   - **Custom Game** (collapsible or below):
-     - Host Private Lobby (existing — modified to set ranked=false unconditionally per anti-collusion)
-     - Join by Code (existing)
-     - Browse Public Lobbies (existing)
+---
 
-5. **Format dropdown on host + queue surfaces** (NOT toggle widgets):
-   - Host private lobby: dropdown shows ALL non-retired rotations (`offeredForNewDecks=true`), regardless of ranked status
-   - Find Casual queue: dropdown shows ALL non-retired rotations
-   - Find Ranked queue: dropdown shows ONLY rotations where `ranked=true` (test rotations excluded)
-   - User picks rotation → server validates deck against that rotation → button enables/disables based on legality
-   - Default selection: current live rotation per family (read from registry)
+### Bug #2: opening-hand and per-turn draw log entries leak opponent's card names
 
-6. **Queue-wait screens** — separate from the existing host-waiting flow:
-   - Casual: timer (`0:23`) + cancel button + deck preview chip
-   - Ranked: timer + current ELO band display (`±50` → `±150` → `±400` → unbounded) + cancel + deck preview chip
-   - Both subscribe to user's Realtime channel for pair-success → auto-redirect to `/game/:id` with brief "Match found!" overlay (1-2s)
+**Symptom.** At game start, the in-game log shows `player1 drew: <real card names>.` AND `player2 drew: <real card names>.` to BOTH players. Same leak pattern continues through any per-turn draw — every `card_drawn` log line carries the actual card name regardless of who drew or who's reading.
 
-7. **Concurrency UI feedback** — when user is in queue, hide / dim Host & Join buttons (server enforces, UI mirrors). When user is hosting, hide / dim Find Match buttons.
+**Repro.** Just start a real two-client MP game and open the Game Log on either side.
 
-8. **Rejection messaging** — when server returns illegal-deck or unavailable-rotation 400s, surface contextual hints:
-   - "5 cards illegal in Core-s11 — switch to Core-s12 (test rotation) or pick a different deck"
-   - "Ranked queue not available for Core-s12 (test rotation) — try Casual queue or wait until 2026-05-08"
-   - "Already in a queue — cancel that queue first"
+**Root cause (already located — engine + server fix).**
 
-9. **Solo opponent picker stays as-is** — already shipped 357a660; no changes needed.
+The server's anti-cheat filter (`server/src/services/stateFilter.ts:32`) only redacts `state.cards` — replacing opponent-hand and opponent-deck cards with `hiddenStub` instances. It does **not** touch `state.actionLog`. The engine writes log entries that name the drawn card directly into the message string at two sites:
 
-### Files touched
+1. **Opening hand** — `packages/engine/src/engine/initializer.ts:264`:
+   ```ts
+   message: `${playerId} drew: ${cardNames}.`,
+   ```
+   Both players' opening hand entries get appended in one pass; the entire `actionLog` is then mirrored verbatim through Realtime to both clients.
 
-- `packages/ui/src/pages/MultiplayerLobby.tsx` — restructure into Quick Play / Custom Game sections; new queue-wait sub-component; format dropdowns; rejection-message handling
-- `packages/ui/src/pages/DeckBuilderPage.tsx` — remove rotation picker; legality drift indicator; migrate-to-Infinity action
-- `packages/ui/src/pages/DecksPage.tsx` — drift badge on deck tiles
-- `packages/ui/src/components/FormatPicker.tsx` — simplifies to family-only OR is replaced by inline dropdowns
-- `packages/ui/src/lib/deckApi.ts` — remove `format_rotation` from create/update payloads
-- `packages/ui/src/lib/serverApi.ts` — new endpoints: `joinMatchmaking`, `getMatchmakingStatus`, `cancelMatchmaking`; subscribe to user's matchmaking-results channel
-- `packages/ui/src/components/QueueWaitScreen.tsx` — NEW
-- `packages/ui/src/components/LegalityDriftIndicator.tsx` — NEW (or inline; small enough)
+2. **Per-turn draw** — `packages/engine/src/engine/reducer.ts:2078`:
+   ```ts
+   message: `${playerId} drew ${cardName}.`,
+   ```
+   Every automatic + ability-driven draw appends a line containing the actual `fullName`.
 
-### Sequencing
+**Recommended fix (engine + server, coordinated).**
 
-Can start the lobby-restructure refactor immediately as a no-functional-change PR (Quick Play + Custom Game sections, Find Casual / Find Ranked buttons stubbed with `alert("coming soon")`, format dropdowns wired but not gated). Land that, then wire the actual endpoints once server lands.
+Option A (preferred — minimal surface, explicit privacy bit): add an optional `privateTo?: PlayerID` field to `GameLogEntry` (mirrors the existing `lastRevealedHand.privateTo` semantics). Engine stamps `privateTo: playerId` on draw entries. Server's `filterStateForPlayer` redacts `message` on entries where `privateTo != null && privateTo !== viewerId` — replace with a generic `"<opponent> drew a card."` (or N cards for the opening-hand line). This preserves count + timing for the opponent's audit log without leaking names.
 
-Estimated effort: ~half-day for refactor + ~half-day for endpoint wiring + ~2 hrs for legality drift indicator + ~2 hrs for tests/fixes = ~1.5 days UI work.
+Option B (server-only, brittle): server-side regex over message strings keyed off `type === "card_drawn"` and `playerId !== viewerId`. Rejected — string-matching engine messages couples server to engine wording and breaks silently if the format ever changes.
 
-### UI labels — explicit deferral
+**Also audit other log-message sites that may leak hidden info** — grep for any `message:` literal that interpolates `fullName` / card names in contexts where the card was in a hidden zone at the time. Likely candidates: tutor effects, scry/look-at-deck effects, hand-reveal logs (these may be intentional but should be marked `privateTo` to confirm). The CLAUDE.md "No-op stubs and silent-field typos" pattern suggests running `pnpm grep` with a wider net once Option A's `privateTo` field exists.
 
-The user-facing labels for the two queues (`Casual` vs `Competitive` vs `Ranked`) are deferred to post-implementation. Database values stay technical (`'casual'` / `'ranked'` for `queue_kind`). UI labels can be a 5-min string change once the system is up.
+**Why this didn't surface earlier.** Solo + sandbox shows both players' logs because there's only one viewer, so `playerId !== viewerId` redaction was never exercised. The bug was invisible until two real clients shared a real game state.
 
-### Out of scope for this entry
+---
 
-- Friends list / friend challenge UI (Phase 5 in MP UX plan)
-- Spectator mode (Phase 7)
-- Tournament queue UI (future)
-- Chess-clock timers (parked elsewhere)
+### Coordination
+
+- **Bug #1** likely splits as: engine-expert verifies Diablo's card JSON and the reveal-effect wiring, then gameboard-specialist debugs the UI mount condition for the reveal modal/pill on the casting player's view.
+- **Bug #2** is engine-expert (add `privateTo` field, stamp on draw entries, audit other leak sites) + server-specialist (extend `filterStateForPlayer` to redact `actionLog` entries).
+- Both are blockers for any user-visible MP playtest. Bug #2 is a competitive-integrity issue (P2 can read P1's hand from the log mid-game).
+- Additional bugs from this same playtest may follow — when batched, append to this same section rather than scattering across the doc.
