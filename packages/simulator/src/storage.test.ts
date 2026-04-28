@@ -2,7 +2,7 @@
 // STORAGE ROUND-TRIP TESTS
 // Pins the contract that `actions[]` survives save/load (canonical replay
 // record per docs/STREAMS.md) while `actionLog` is stripped (regeneratable
-// prose projection). Regression for P1.6 in AUDIT_2026-04-28_action_items.md.
+// prose projection). Regression for the storage strip fix in commit `5a0fe17`.
 // =============================================================================
 
 import { describe, it, expect, afterEach } from "vitest";

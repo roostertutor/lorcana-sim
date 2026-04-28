@@ -24,6 +24,20 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Pluralization helper (`pluralize(noun, count)`)
+
+**Considered**: Replace the small number of ad-hoc `+s` plural sites in the UI with a single `pluralize(noun, count)` helper. Mostly cosmetic — fixes things like "1 cards" / "Item/Locations" before they ship.
+
+**Why parked (2026-04-28)**: P2.21a (commit `2a47ba2`) already cleaned up the `Item/Locations` heuristic in the play-restriction fallback. The remaining sites (count-based "N cards" footers, etc.) all correctly handle the singular case via inline `${n === 1 ? "" : "s"}` — not buggy, just verbose. Mostly bundle with another cleanup if you're already in the area. Trivially blocked by i18n (translation systems handle plurals via locale-aware rules; English `+s` heuristic doesn't generalize) — if i18n ever lands (separate BACKLOG entry above), this becomes mandatory infrastructure.
+
+**Trigger to reconsider**:
+- A new feature ships ad-hoc plural English that would benefit from a helper (e.g., "you have N cards in hand" + "you have N tokens" + "N opponents drew M cards" all want the same shape), OR
+- i18n work begins (mandatory prerequisite — translation libraries handle pluralization via locale rules).
+
+**Expected scope**: ~10 min if standalone (helper + 1-2 site migrations). ~half day as part of i18n setup (where it integrates with the locale system).
+
+---
+
 ### Multi-language / i18n support
 
 **Considered**: 100% English-literal codebase today. Every user-facing string (chrome, modals, log lines, prompts, button vocab, error messages) is hardcoded English. No translation infrastructure. P3.25 in the audit tracker originally proposed extracting every hardcoded string into a `strings.ts` const map as the prep step for i18n; the audit deferred it, then the user (2026-04-28) said "multilanguage would be a very nice to have" — parking the work here with proper trigger conditions.
@@ -545,6 +559,37 @@ Three small items engine-expert verified (2026-04-21) as legitimate gaps with no
 ---
 
 ## Server
+
+### MP takebacks (Tier 0 / Tier 1 / Tier 2 / Tier 3)
+
+**Considered**: Four-tier takeback system surfaced from MP playtest cycle 2026-04-28. Full design lives in `docs/MP_TAKEBACKS_DESIGN.md` (server-specialist's research output, ~970 lines — anti-cheat boundary, info-delta classification, snapshot rollback mechanism, opponent-consent flow, edge cases, audit table). Summary of the four phases:
+
+- **Tier 0 — pre-commit cancels** (mid-pendingChoice Cancel button reverts in-flight choice). Pure UI; no server. ~half day. Allowed in all formats.
+- **Tier 1 — neutral takebacks** (INK_CARD misclick, undeclared QUEST). Server snapshot rollback + 5-sec undo pill. ~1 day cross-package. Allowed in casual + private. **Now unblocked**: Q1 resolved 2026-04-28 (P2.25 shipped CRD 4.1.4 inkwell redaction), so PLAY_INK is fully neutral — opponent already saw identity at moment of inking; takeback re-hides without new info gain.
+- **Tier 2 — info-gain takebacks** (private peeks like Diablo - Maleficent's Spy reveal). Opponent consent prompt + `takebacks` audit table. Private-lobby only. ~2-3 days.
+- **Tier 3 — public reveals** (Powerline-style). Opponent consent + honest "you both saw the cards but the effect is undone" toast. Marginal value over Tier 2; **probably skip permanently** (was P3.27 in audit).
+
+**Why parked (2026-04-28)**: User pausing on MP takebacks for now. Q3 ("ship Tier 0 without committing to Tier 1+?") and Q5 ("audit table visibility — admin-only or post-game?") both deferred. The CRD-compliance prereqs (P2.25) shipped independently as anti-cheat fixes; the takebacks UX work itself is now self-contained engineering.
+
+**Trigger to reconsider**:
+- Multiplayer playtests show repeated misclick frustration on PLAY_INK or QUEST (specifically — the audit synthesis flagged these as the most common takeback cases in casual play), OR
+- A streamer / creator scenario URL (clip-export, scripted opponent) needs a takeback for the recorded session, OR
+- Ranked queue volume justifies a touch-move-discipline / takeback-disabled workflow distinction (currently the engine already supports per-format takeback policy via the rotation registry).
+
+**Expected scope**:
+- Tier 0: ~half day pure UI (gameboard-specialist — Cancel affordance during pendingChoice).
+- Tier 1: ~1 day server endpoint + 5-sec undo pill UI (server-specialist + gameboard-specialist).
+- Tier 2: ~2-3 days cross-package (consent flow, audit table, opponent-prompt UI).
+- Tier 3: ~half day on top of Tier 2 (probably skip).
+
+Total if all four ship: ~5-6 work-days.
+
+**Decisions explicitly NOT to revisit** (captured 2026-04-28 in the design doc):
+- Server NEVER trusts client's tier classification — re-classifies every takeback request from the `events: GameEvent[]` stream (any `card_revealed` / `hand_revealed` event in the stream auto-bumps tier).
+- Ranked queue → zero takebacks. Plumbed through the existing `format.rotation.ranked` flag.
+- Animation honesty for Tier 3 — don't lie with reverse-animations; show an honest toast instead.
+
+---
 
 ### Server-side test infrastructure
 

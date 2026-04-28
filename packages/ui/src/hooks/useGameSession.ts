@@ -479,12 +479,13 @@ export function useGameSession(): GameSession {
   //
   // This is an UNDOCUMENTED COUPLING between card-data design and undo UX —
   // dropping `isMay` from a card collapses its undo to one click without
-  // warning. There's a P2.20 regression test in the audit tracker
-  // (`docs/AUDIT_2026-04-28_action_items.md`) that pins the invariant for at
-  // least one card per may-style ability shape.
+  // warning. The regression test pinning this invariant lives in
+  // `packages/engine/src/engine/reducer.test.ts` under "P2.20 — undo
+  // granularity invariant (may-trigger boundary)".
   //
-  // MP undo is disabled (server is authoritative; takebacks design lives in
-  // `docs/audit/2026-04-28_mp_takebacks_design.md`).
+  // MP undo is disabled (server is authoritative). Future MP-takeback design
+  // is parked in `docs/MP_TAKEBACKS_DESIGN.md` (referenced from
+  // `docs/BACKLOG.md` → Server → MP takebacks).
   // ---------------------------------------------------------------------------
   const undo = useCallback(() => {
     const history = actionHistoryRef.current;

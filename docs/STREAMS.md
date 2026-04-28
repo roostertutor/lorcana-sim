@@ -92,9 +92,9 @@ interface EpisodeStep {
 
 These exist or recently existed because someone treated structured data as a string and parsed it:
 
-1. **`runGame.ts:258`** — derives `mulliganed: Record<PlayerID, boolean>` by substring-matching `"mulliganed"` against log prose. Both the 2026-04-28 audit's engine-expert and bot-trainer flagged this independently. **Fix is P1.7 in `docs/AUDIT_2026-04-28_action_items.md`** — should derive from `actions[]` (look for `RESOLVE_CHOICE` against a `choose_mulligan` pendingChoice).
+1. **`runGame.ts:258`** — *fixed in commit `5a0fe17`*. Previously derived `mulliganed: Record<PlayerID, boolean>` by substring-matching `"mulliganed"` against log prose; now derives from `actions[]` via the exported `deriveMulliganed(actions)` helper (scans for the first array-shaped `RESOLVE_CHOICE` per player). The substring-match was the canonical anti-pattern this doc warns against.
 
-2. **`storage.ts:67`** — `stripActionLog` strips BOTH `actionLog` AND `actions[]` from saved sim files. Since `actionLog` is a derivable projection but `actions[]` is the canonical replay record, this means past saved sims **cannot be replayed**. **Fix is P1.6** — strip only `actionLog`; keep `actions[]` (~5KB/game).
+2. **`storage.ts:67`** — *fixed in commit `5a0fe17`*. Previously stripped BOTH `actionLog` AND `actions[]` from saved sim files. Since `actionLog` is a derivable projection but `actions[]` is the canonical replay record, this rendered past saved sims unreplayable. The strip was scoped down to `actionLog` only; `actions[]` (~5KB/game) survives so saved sims are now replay-capable.
 
 The pattern is: treat structured data as a string only at the very last UI rendering step; never parse strings to derive structure. The tooling supports this — `CardFilter` is fully typed, `GameAction` is discriminated, `GameLogEntryType` is a discriminator. Use the structured field. If you find yourself reaching for `message.includes(...)` or `rulesText.split("\n")` outside a UI render path, you're probably introducing a drift coupling.
 

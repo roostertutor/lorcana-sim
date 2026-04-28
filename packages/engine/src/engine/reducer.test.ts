@@ -4518,11 +4518,12 @@ describe("resolveTargetAndApply helper — consolidated zone-move dispatch", () 
 // =============================================================================
 // P1.14 — Prompt format regression tests
 //
-// Per docs/AUDIT_2026-04-28_action_items.md P1.14: every targeting prompt
-// surfaces source-card provenance (def.fullName + ability.storyName +
-// ability.rulesText) so simultaneous prompts are distinguishable. Sample a few
-// representative shapes — full ability path (activated), action-card fallback
-// (no per-effect storyName), and a triggered-ability may-prompt path.
+// Per the prompt-source-citation sweep landed in commit `cc61c3d`: every
+// targeting prompt surfaces source-card provenance (def.fullName +
+// ability.storyName + ability.rulesText) so simultaneous prompts are
+// distinguishable. Sample a few representative shapes — full ability path
+// (activated), action-card fallback (no per-effect storyName), and a
+// triggered-ability may-prompt path.
 // =============================================================================
 
 describe("P1.14 — prompt source citation", () => {
@@ -4951,8 +4952,8 @@ describe("P1.13 — banish log entry `cause` discriminator", () => {
 // `isMay`, the action history collapses to a single entry and `actions[0..-1]`
 // replay returns to pre-play instead of to the may prompt.
 //
-// See `docs/AUDIT_2026-04-28_action_items.md` P2.20 and
-// `docs/audit/2026-04-28_engine_log_undo_rl.md` Topic 2 for the full design.
+// See useGameSession.ts:472 for the implicit "1 click = back to last
+// pendingChoice" contract these tests pin.
 // =============================================================================
 
 describe("P2.20 — undo granularity invariant (may-trigger boundary)", () => {
