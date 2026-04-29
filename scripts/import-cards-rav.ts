@@ -533,6 +533,52 @@ function parseKeywordAbilities(
   const anchor = "(?:^|\\n)\\s*";
   const tail = "\\s*(?:\\(|\\+?\\d|$|\\n|{[IES]})";
 
+  // CRD 8.10.8 Shift variants:
+  //   - Universal Shift (Baymax Set 7+): "<Universal <Shift>> N" — variant: "universal"
+  //   - Classification Shift (Thunderbolt Set 8 Puppy Shift): "<Puppy <Shift>> N" — variant: "classification" + classifier
+  // Ravensburger uses a nested-bracket form. Both emit a single shift KeywordAbility
+  // carrying the variant fields, NOT a separate static effect (pre-2026-04-30 shape).
+  // Match these BEFORE the bare <Shift> pattern so the inner <Shift> token in
+  // a nested form doesn't double-count. The bare-shift anchor requires
+  // start-of-line / after-newline, so nested inner <Shift> doesn't match it
+  // (preceded by `<Universal ` etc.) — but defensive ordering matters if the
+  // rules text format ever changes.
+  const universalShiftMatch = rulesText.match(
+    new RegExp(`${anchor}<Universal\\s+<Shift>>\\s*(\\d+)`, "i"),
+  );
+  if (universalShiftMatch) {
+    const v = parseInt(universalShiftMatch[1]!, 10);
+    shiftCost = v;
+    abilities.push({
+      type: "keyword",
+      keyword: "shift",
+      value: v,
+      variant: "universal",
+    });
+  }
+  // Classification Shift — `<<Classifier> <Shift>>` where Classifier is a
+  // capitalized trait word (Puppy, Dog, Princess, etc.). Skip "Universal"
+  // since it's handled above. Single classifier word for now; multi-word
+  // classifiers (none observed across sets 1-12) would extend here.
+  const classificationShiftMatch = rulesText.match(
+    new RegExp(`${anchor}<([A-Z][a-zA-Z]+)\\s+<Shift>>\\s*(\\d+)`, "i"),
+  );
+  if (
+    classificationShiftMatch &&
+    classificationShiftMatch[1]!.toLowerCase() !== "universal"
+  ) {
+    const v = parseInt(classificationShiftMatch[2]!, 10);
+    shiftCost = v;
+    abilities.push({
+      type: "keyword",
+      keyword: "shift",
+      value: v,
+      variant: "classification",
+      classifier: classificationShiftMatch[1]!,
+    });
+  }
+  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!(classificationShiftMatch && classificationShiftMatch[1]!.toLowerCase() !== "universal");
+
   const patterns: [RegExp, (m: RegExpMatchArray) => void][] = [
     [new RegExp(`${anchor}<Bodyguard>${tail}`, "i"), () => add("bodyguard")],
     [new RegExp(`${anchor}<Rush>${tail}`, "i"), () => add("rush")],
@@ -544,7 +590,15 @@ function parseKeywordAbilities(
     [new RegExp(`${anchor}<Alert>${tail}`, "i"), () => add("alert")],
     [new RegExp(`${anchor}<Challenger>\\s*\\+?(\\d+)`, "i"), (m) => add("challenger", parseInt(m[1]!, 10))],
     [new RegExp(`${anchor}<Singer>\\s*(\\d+)`, "i"), (m) => add("singer", parseInt(m[1]!, 10))],
-    [new RegExp(`${anchor}<Shift>\\s*(\\d+)`, "i"), (m) => { const v = parseInt(m[1]!, 10); shiftCost = v; add("shift", v); }],
+    [new RegExp(`${anchor}<Shift>\\s*(\\d+)`, "i"), (m) => {
+      // Skip if a variant pattern already captured this card's Shift. Defends
+      // against nested-bracket re-matching if rules text ever loses the
+      // outer wrapper.
+      if (shiftAlreadyAddedAsVariant) return;
+      const v = parseInt(m[1]!, 10);
+      shiftCost = v;
+      add("shift", v);
+    }],
     [new RegExp(`${anchor}<Resist>\\s*\\+?(\\d+)`, "i"), (m) => add("resist", parseInt(m[1]!, 10))],
     [new RegExp(`${anchor}<Boost>\\s*(\\d+)`, "i"), (m) => add("boost", parseInt(m[1]!, 10))],
     [new RegExp(`${anchor}<Sing\\s*Together>\\s*(\\d+)`, "i"), (m) => add("sing_together", parseInt(m[1]!, 10))],
