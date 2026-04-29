@@ -28,6 +28,7 @@ pnpm typecheck                        # fails on pre-existing exactOptionalPrope
 pnpm dev                              # UI at localhost:5173
 pnpm import-cards                     # fetch all sets + promos from Ravensburger API
 pnpm learn                            # train RL policy (see --help)
+pnpm find-precedent "<substring>"     # grep card precedents — REQUIRED before citing any card by name (see "Card-claim discipline" below)
 ```
 
 Card data source hierarchy: **`ravensburger` > `lorcast` > `manual`** — each card
@@ -132,11 +133,28 @@ These three docs partition the "what's next" surface. Knowing where an item belo
 
 ## Rules (always follow)
 
-### No hallucinated cards or rules
-- ALWAYS look up card data from `card-set-XXX.json` files — never guess card text, costs, stats, or abilities from training data.
-- ALWAYS cite CRD rule numbers from `docs/CRD_TRACKER.md` — never invent rules or assume how a mechanic works.
-- Read the full CRD rule text from `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf` when implementing a rule or a card ability that depends on one. The tracker is an index; the PDF has the complete spec with examples and edge cases.
-- If data isn't available, say so and look it up. Do not make things up.
+### Card-claim discipline (READ THIS FIRST)
+
+**Every card name you mention as a precedent or example must be paired with a `file:line` citation in the same sentence or table cell. Bare card-name mentions are not allowed in any output that proposes implementation work.** This rule is procedural, not aspirational — it is enforceable by the user scanning your output for unpaired card names and rejecting the message.
+
+**Workflow — grep first, write second:**
+1. Before naming a card as a precedent, run `pnpm find-precedent "<substring>"` (or `Grep` on `packages/engine/src/cards/`).
+2. Take the `file:line — fullName` output and paste it into your proposal verbatim.
+3. Only then write the explanation referencing that citation.
+
+Reversing this order ("write proposal → grep if challenged") is what produces hallucinated precedents. The 2026-04-29 set 12 wiring proposal shipped a precedent table citing five cards from training-data recall — three of the five (Mother Knows Best, Madam Mim, Aurora set-5) didn't actually exist or didn't match the claimed mechanic. The rule was already in this file; it was treated as advice instead of procedure.
+
+**Compliant vs non-compliant phrasing:**
+
+❌ Non-compliant — bare card name from recall:
+> "For the Hero filter we can use the Aurora pattern."
+
+✅ Compliant — every card paired with `file:line`:
+> "For `last_resolved_target` + trait check, use Widow Tweed - Kindly Soul (`card-set-11.json:1667-1730`) — it does `return_to_hand` then `self_replacement` with `condition: { hasName: 'Tod' }` on `target: { type: 'last_resolved_target' }`."
+
+**Same rule applies to CRD claims.** Cite rule numbers from `docs/CRD_TRACKER.md` and read the full text from `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf` before claiming a rule says X. The tracker is an index; the PDF has the full spec with examples and edge cases.
+
+**If data isn't available, say so and look it up.** Do not make things up. Subagent dispatches inherit this rule — when briefing engine-expert / others, every precedent in the brief must already carry its `file:line`, and you must instruct them to do the same in commit messages and tests.
 
 ### Handler existence is not correctness
 Grep-finding a `case "X":` label doesn't prove the handler works. Before claiming a card / mechanic is correctly implemented, do at least ONE of:
