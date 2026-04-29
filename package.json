@@ -15,6 +15,7 @@
     "learn": "pnpm --filter cli learn",
     "import-cards": "tsx scripts/import-cards-rav.ts",
     "import-cards-lorcast": "tsx scripts/import-cards-lorcast.ts",
+    "sync-reprints": "tsx scripts/sync-promo-reprints.ts",
     "backfill-source-manual": "tsx scripts/backfill-source-manual.ts",
     "audit-cards": "tsx scripts/audit-card-data.ts",
     "audit-dead-primitives": "tsx scripts/audit-dead-primitives.ts",

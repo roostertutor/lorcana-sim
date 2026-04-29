@@ -43,6 +43,7 @@ import {
   splitConcatenatedKeywordReminders,
 } from "./lib/normalize-rules-text.js";
 import { isR2Shape, readR2PublicBaseUrlFromEnv } from "./lib/image-sync.js";
+import { syncReprints } from "./sync-promo-reprints.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..");
@@ -970,14 +971,11 @@ async function main() {
 
   // Stats
   const allCards = [...cardsBySet.values()].flat();
-  const withStubs = allCards.filter((c) => (c._namedAbilityStubs?.length ?? 0) > 0);
-  const totalStubs = withStubs.reduce((s, c) => s + (c._namedAbilityStubs?.length ?? 0), 0);
 
   console.log(`
 ──────────────────────────────────────
   Total cards imported:  ${allCards.length}
   Skipped (no ink color): ${skipped}
-  Have named stubs:      ${withStubs.length} cards, ${totalStubs} total named abilities
 ──────────────────────────────────────`);
 
   if (isDry) {
@@ -988,8 +986,27 @@ async function main() {
 
   mkdirSync(OUT_DIR, { recursive: true });
 
+  // Track which (setCode, id, number) tuples are NEW in this import — i.e.
+  // weren't on disk before. Used to scope the post-import "needs implementation"
+  // report to fresh cards rather than re-flagging long-known stubs in unrelated
+  // sets. Captured BEFORE mergeWithExisting because that step pulls forward
+  // carried-over cards onto setCards, blurring "new" vs "preserved".
+  const newCardKeys = new Set<string>();
+
   for (const [setCode, setCards] of cardsBySet) {
     const outPath = setJsonPath(setCode);
+    const preMergeKeys = existsSync(outPath)
+      ? new Set(
+          (JSON.parse(readFileSync(outPath, "utf-8")) as { id?: string; number?: number }[])
+            .map((c) => `${c.id ?? ""}|${c.number ?? 0}`)
+        )
+      : new Set<string>();
+    for (const c of setCards) {
+      const key = `${c.id}|${c.number}`;
+      if (!preMergeKeys.has(key)) {
+        newCardKeys.add(`${setCode}|${key}`);
+      }
+    }
     const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, lockedUpgradesAvailable } = mergeWithExisting(setCode, setCards);
     if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0 || manualReplaced > 0 || sourceSkipped > 0) {
       console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
@@ -1081,8 +1098,147 @@ export const ALL_CARDS: CardDefinition[] = built.all;
   writeFileSync(OUT_TS, tsModule, "utf-8");
   console.log(`  Wrote TS module     → ${OUT_TS}`);
 
-  if (withStubs.length > 0) {
-    console.log(`\n  ${withStubs.length} cards have named ability stubs — wire them in abilities[].`);
+  // ───────────────────────────────────────────────────────────────────────
+  // Auto-sync rarity reprints (within-set + cross-set promo).
+  //
+  // Many incoming cards look like "needs implementation" stubs but are
+  // actually rarity reprints of an already-wired sibling (e.g. Set 12 ships
+  // both `kida-crystal-scion` #160 legendary AND #236 enchanted with the
+  // same id; only the #160 entry is hand-wired). The within-set pass copies
+  // abilities/actionEffects/etc. from the wired sibling onto the stub
+  // sibling so the post-import report doesn't bog down the user with
+  // false-positive "wire this card" flags.
+  // ───────────────────────────────────────────────────────────────────────
+  console.log(`\nSyncing rarity reprints…`);
+  const syncResult = syncReprints({ silent: true });
+  if (syncResult.withinSetSynced + syncResult.promoSynced > 0) {
+    const parts: string[] = [];
+    if (syncResult.withinSetSynced > 0) parts.push(`${syncResult.withinSetSynced} within-set`);
+    if (syncResult.promoSynced > 0) parts.push(`${syncResult.promoSynced} promo`);
+    console.log(`  Auto-wired ${parts.join(" + ")} reprint(s) from wired siblings.`);
+    for (const [setCode, n] of Object.entries(syncResult.perSetWithin)) {
+      console.log(`    set-${setCode}: ${n} within-set variant(s)`);
+    }
+    for (const [setCode, n] of Object.entries(syncResult.perSetPromo)) {
+      console.log(`    set-${setCode}: ${n} promo reprint(s)`);
+    }
+  } else {
+    console.log(`  No reprint sync needed (all variants already wired or nothing to copy from).`);
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  // Categorize incoming cards for the post-import report.
+  //
+  // Buckets:
+  //   - vanilla:           no _namedAbilityStubs and no abilities — true vanilla.
+  //   - alreadyWired:      has triggered/activated/static abilities or actionEffects
+  //                        (preserved from a previous import or freshly inherited
+  //                        via the rarity-reprint sync).
+  //   - autoWired:         was a stub before sync, now has abilities — i.e. the
+  //                        within-set / promo sync just filled it in. Surfaces
+  //                        as "no human attention needed" in the report.
+  //   - needsImplementation: still has named-ability stubs after sync, with no
+  //                        wired siblings to copy from. THESE are the cards
+  //                        the user actually needs to wire by hand.
+  //
+  // Source of truth = the JSON files on disk after sync. We re-read them so
+  // the categorization observes the post-sync, post-merge state instead of
+  // the pre-merge mapped objects (which don't reflect the sync changes).
+  // ───────────────────────────────────────────────────────────────────────
+  type Bucket = "vanilla" | "alreadyWired" | "autoWired" | "needsImplementation";
+  const counts: Record<Bucket, number> = {
+    vanilla: 0,
+    alreadyWired: 0,
+    autoWired: 0,
+    needsImplementation: 0,
+  };
+  const needsImplementationCards: Array<{ setCode: string; id: string; number: number; cardType: string; fullName: string }> = [];
+
+  // Re-read the per-set JSONs to observe the post-sync state.
+  const touchedSets = [...cardsBySet.keys()];
+  for (const setCode of touchedSets) {
+    const fp = setJsonPath(setCode);
+    if (!existsSync(fp)) continue;
+    const cards = JSON.parse(readFileSync(fp, "utf-8")) as Array<CardDefinitionOut & { _namedAbilityStubs?: AbilityStub[] }>;
+    for (const card of cards) {
+      const key = `${setCode}|${card.id}|${card.number}`;
+      // Only count cards from THIS import. Carried-over preserved cards aren't
+      // newly imported and shouldn't show up in the report. (They're handled
+      // by the existing "Preserved manual abilities" line per-set above.)
+      if (!newCardKeys.has(key)) continue;
+
+      const hasNamedAbility = (card.abilities ?? []).some((a: any) =>
+        ["triggered", "activated", "static"].includes(a.type)
+      );
+      const hasActionEffects = !!(card.actionEffects && card.actionEffects.length > 0);
+      const hasAlternateNames = !!((card as any).alternateNames && (card as any).alternateNames.length > 0);
+      const hasPlayRestrictions = !!((card as any).playRestrictions && (card as any).playRestrictions.length > 0);
+      const hasAltPlayCost = (card as any).altPlayCost !== undefined;
+      const isWired =
+        hasNamedAbility || hasActionEffects || hasAlternateNames || hasPlayRestrictions || hasAltPlayCost;
+
+      // A "named ability stub" with non-empty body that has no wiring backing it.
+      // Filter out stubs that are pure keyword-reminder text for a keyword the
+      // card already has — those aren't real wiring gaps. Mirrors hasNamedStubs
+      // in scripts/card-status.ts.
+      const cardKeywords: string[] = (card.abilities ?? [])
+        .filter((a: any) => a.type === "keyword")
+        .map((a: any) => String(a.keyword || "").toLowerCase());
+      const realStubs = (card._namedAbilityStubs ?? []).filter((s: any) => {
+        const text = (s.rulesText ?? "").trim();
+        if (!text) return false;
+        const firstWord = text.split(/[\s(]/)[0]?.toLowerCase() ?? "";
+        if (cardKeywords.includes(firstWord)) return false;
+        if (/\byou may have up to \d+ copies\b/i.test(text)) return false;
+        return true;
+      });
+
+      if (syncResult.syncedKeys.has(key) && isWired) {
+        counts.autoWired++;
+      } else if (isWired) {
+        counts.alreadyWired++;
+      } else if (realStubs.length === 0) {
+        counts.vanilla++;
+      } else {
+        counts.needsImplementation++;
+        needsImplementationCards.push({
+          setCode,
+          id: card.id,
+          number: card.number,
+          cardType: card.cardType,
+          fullName: card.fullName,
+        });
+      }
+    }
+  }
+
+  const totalNew = counts.vanilla + counts.alreadyWired + counts.autoWired + counts.needsImplementation;
+  console.log(`
+──────────────────────────────────────
+  Total cards imported:        ${allCards.length}
+  New since last import:       ${totalNew}
+    Auto-wired (sibling sync): ${counts.autoWired}
+    Vanilla (no abilities):    ${counts.vanilla}
+    Already wired (preserved): ${counts.alreadyWired}
+    Needs implementation:      ${counts.needsImplementation} card${counts.needsImplementation === 1 ? "" : "s"}
+──────────────────────────────────────`);
+
+  if (needsImplementationCards.length > 0) {
+    console.log(`\nCards needing implementation:`);
+    // Sort by setCode then number for stable output.
+    needsImplementationCards.sort((a, b) => {
+      if (a.setCode !== b.setCode) return a.setCode.localeCompare(b.setCode);
+      return a.number - b.number;
+    });
+    // Pad cardType for column alignment.
+    const maxTypeLen = Math.max(...needsImplementationCards.map((c) => c.cardType.length));
+    const maxNumLen = Math.max(...needsImplementationCards.map((c) => String(c.number).length));
+    for (const c of needsImplementationCards) {
+      const typePad = c.cardType.padEnd(maxTypeLen);
+      const numPad = String(c.number).padStart(maxNumLen);
+      console.log(`  [set-${c.setCode}/${typePad} #${numPad}] ${c.fullName}`);
+    }
+    console.log(`\n  Run \`pnpm card-status --set ${needsImplementationCards[0]!.setCode}\` for details.`);
   }
 }
 

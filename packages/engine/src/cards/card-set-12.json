@@ -1775,14 +1775,18 @@
     "setId": "12",
     "number": 24,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2739,
     "subtitle": "Caring Baker",
     "strength": 1,
     "willpower": 2,
     "lore": 1,
     "rulesText": "RESTORING RECIPE When you play this character and whenever she quests, you may remove up to 1 damage from chosen character or location.",
     "flavorText": "\"Mi amor, your kind heart is the best gift I've ever received.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/24_e8ba385c1cf0b3ef_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/24_fb4173b28f01539662097bb6bdce0501d9bc7408.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/24_fb4173b28f01539662097bb6bdce0501d9bc7408.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/24_e3776edbb03f3948f6d90ea0e071a98f40977f15.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "RESTORING RECIPE",
@@ -2157,6 +2161,50 @@
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/29_2235662bdf58da8d5c6f5b840be2cd02c3643a6b.jpg",
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/29_65b812b602a0b74308fd10cead960d06bd6f5477.jpg"
+  },
+  {
+    "id": "youve-got-a-friend-in-me",
+    "name": "You've Got a Friend in Me",
+    "fullName": "You've Got a Friend in Me",
+    "cardType": "action",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Song"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 30,
+    "rarity": "super_rare",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2745,
+    "rulesText": "(A character with cost 3 or more can {E} to sing this song for free.)\nLook at the top 4 cards of your deck. You may reveal up to 2 Toy character cards and put them into your hand. Put the rest on the bottom of your deck in any order.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/30_4c637109f5cf8a0954a51475969738cc2cb16007.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/30_4c637109f5cf8a0954a51475969738cc2cb16007.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/30_a36e7446e03103bfc47e2d1c158db22f786150f0.jpg",
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "choose_from_top",
+        "maxToHand": 2,
+        "target": {
+          "type": "self"
+        },
+        "filter": {
+          "cardType": [
+            "character"
+          ],
+          "hasTrait": "Toy"
+        },
+        "isMay": true,
+        "revealPicks": true
+      }
+    ]
   },
   {
     "id": "metamorphosis",
@@ -3413,22 +3461,69 @@
     "setId": "12",
     "number": 49,
     "rarity": "rare",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2764,
     "subtitle": "Super Stretchy",
     "strength": 5,
     "willpower": 6,
     "lore": 1,
     "rulesText": "FLEXIBLE THINKING At the start of your turn, you may choose one:\n• This character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/49_5a9386184c0d3bef_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/49_f655cea17908facc55ac503ebac9875fe46a4ae6.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/49_f655cea17908facc55ac503ebac9875fe46a4ae6.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/49_619d0c514dfde08f177d6eb62082b286aae11646.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FLEXIBLE THINKING",
-        "rulesText": "At the start of your turn, you may choose one:",
-        "raw": "FLEXIBLE THINKING At the start of your turn, you may choose one:"
+        "rulesText": "At the start of your turn, you may choose one:\n• This character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn.",
+        "raw": "FLEXIBLE THINKING At the start of your turn, you may choose one:\n• This character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)\n• This character gets +1 {L} this turn."
       }
     ],
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_a7974610679d43d190ee370d23d6e0b3.avif?1776301692"
+  },
+  {
+    "id": "hamish-hubert-harris-making-mischief",
+    "name": "Hamish, Hubert & Harris",
+    "fullName": "Hamish, Hubert & Harris - Making Mischief",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Prince"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 50,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2765,
+    "subtitle": "Making Mischief",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "STAY QUIET This character may enter play exerted.\nCLEVER TRAP At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_1ebcbfb76cb2da430a14c561bf641c98f955b10b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STAY QUIET",
+        "rulesText": "This character may enter play exerted.",
+        "raw": "STAY QUIET This character may enter play exerted."
+      },
+      {
+        "storyName": "CLEVER TRAP",
+        "rulesText": "At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn.",
+        "raw": "CLEVER TRAP At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn."
+      }
+    ]
   },
   {
     "id": "elinor-bespelled-queen",
@@ -3470,6 +3565,45 @@
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_d9a54961169daeb37e9a4c2057015fc68508e14d.jpg",
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/51_b69e810696f3daf81c034ddc17cc201bec1b6ff0.jpg"
+  },
+  {
+    "id": "mickey-mouse-experienced-traveler",
+    "name": "Mickey Mouse",
+    "fullName": "Mickey Mouse - Experienced Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 52,
+    "rarity": "uncommon",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2767,
+    "subtitle": "Experienced Traveler",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "LIGHTING THE WAY Whenever this character quests, if you played another character this turn, you may draw a card.",
+    "flavorText": "You're never lost when you have a friend by your side.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_2a01318d41d0080eec83ba9656bb2905ac89779d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LIGHTING THE WAY",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may draw a card.",
+        "raw": "LIGHTING THE WAY Whenever this character quests, if you played another character this turn, you may draw a card."
+      }
+    ]
   },
   {
     "id": "mirage-super-recruiter",
@@ -4318,6 +4452,30 @@
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/62_1bb785394e31a78b12d114a365be1bf5af425b3e.jpg"
   },
   {
+    "id": "super-relocation-program",
+    "name": "Super Relocation Program",
+    "fullName": "Super Relocation Program",
+    "cardType": "action",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 63,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2778,
+    "rulesText": "Return chosen character of yours to your hand. If you returned a Hero character this way, draw 2 cards.",
+    "flavorText": "“We appreciate what you did in the old days, but those days are over.”\n—Rick Dicker",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_e82fc442a948e1e76a1a1e04b932b1024920ae5c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_e82fc442a948e1e76a1a1e04b932b1024920ae5c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_46d5e66af71925ccdf563b0bf40f6d59c77720b3.jpg"
+  },
+  {
     "id": "right-behind-you",
     "name": "Right Behind You",
     "fullName": "Right Behind You",
@@ -5070,14 +5228,18 @@
     "setId": "12",
     "number": 75,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2790,
     "subtitle": "Evil Ruler",
     "strength": 2,
     "willpower": 1,
     "lore": 1,
     "rulesText": "UNEQUALED CRUELTY While an opposing damaged character is in play, this character gets +2 {S}.",
-    "flavorText": "\"With such a gift to further the Council's goals, soon all will tremble before my power.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/75_279da38e6efe86b4_normal.jpg",
+    "flavorText": "“With such a gift to further the Council’s goals, soon all will tremble before my power.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/75_14aab3337d2b6266af4ddb9b63b4330c2da7fcee.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/75_14aab3337d2b6266af4ddb9b63b4330c2da7fcee.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/75_34a73502525754ce22e95d02117993df547b23cd.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "UNEQUALED CRUELTY",
@@ -5108,13 +5270,17 @@
     "setId": "12",
     "number": 76,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2791,
     "subtitle": "Space Ranger",
     "strength": 3,
     "willpower": 3,
     "lore": 1,
-    "flavorText": "\"Environment appears habitable, but the flora seems to have undergone some strange mutations. Could be Zurg's influence.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/76_aa0f5428fe4c850e_normal.jpg",
+    "flavorText": "“Environment appears habitable, but the flora seems to have undergone some strange mutations. Could be Zurg's influence.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/76_1e5b4d62b11d9cca96e7f1fa3d844838a48197a5.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/76_1e5b4d62b11d9cca96e7f1fa3d844838a48197a5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/76_b5f28b0fabc263c7428037dba298b68db1ecfd92.jpg",
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_7a1dc3b9b23041a78c7e1b46ff4a2f2c.avif?1776733871"
   },
@@ -5675,13 +5841,17 @@
     "setId": "12",
     "number": 83,
     "rarity": "rare",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2798,
     "subtitle": "True Believer",
     "strength": 1,
     "willpower": 1,
     "lore": 1,
     "rulesText": "WE ARE ONE This character gets +1 {S} for each other Toy character you have in play.\nHE HAS BEEN CHOSEN During your turn, when this character is banished, return another character card named Alien from your discard to your hand.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/83_de51733d0965aa7f_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/83_dfeca870ea0bb513c21b1f75795e3f976ddf0162.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/83_dfeca870ea0bb513c21b1f75795e3f976ddf0162.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/83_954a6ecc46ac73fd78b193c0bd7fe0fe7eefef34.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WE ARE ONE",
@@ -5878,13 +6048,17 @@
     "setId": "12",
     "number": 85,
     "rarity": "rare",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2800,
     "subtitle": "On the Way",
     "strength": 4,
     "willpower": 2,
     "lore": 1,
     "rulesText": "SECRET MISSION Whenever you pay 2 {I} or less to play a non-character, draw a card, then choose and discard a card.\nWORLD’S GREATEST TOY Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/85_93f438d77623b5bd_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/85_e60069621fe465605b61cb36ffc1ad387d9420a9.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/85_e60069621fe465605b61cb36ffc1ad387d9420a9.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/85_e009feab88e95222da6f2c87e004b891d3c26bbb.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "SECRET MISSION",
@@ -5894,7 +6068,7 @@
       {
         "storyName": "WORLD'S GREATEST TOY",
         "rulesText": "Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character.",
-        "raw": "WORLD'S GREATEST TOY Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character."
+        "raw": "WORLD’S GREATEST TOY Whenever you pay 2 {I} or less to play a character, deal 1 damage to chosen opposing damaged character."
       }
     ],
     "_imageSource": "lorcast",
@@ -7038,15 +7212,19 @@
     "setId": "12",
     "number": 99,
     "rarity": "rare",
-    "_source": "lorcast",
-    "rulesText": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand.",
-    "flavorText": "\"Trust in the Claw. It shall lift us from this terrible place!\"\n- Alien",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/99_24425e48438a465e_normal.jpg",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2814,
+    "rulesText": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters — Return chosen opposing character to their player’s hand.",
+    "flavorText": "“Trust in the Claw. It shall lift us from this terrible place!”\n—Alien",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/99_45aa6c751530012647095479d2b4b602bfcc4ead.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/99_45aa6c751530012647095479d2b4b602bfcc4ead.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/99_59e7a955c3f63855fa0d6375c3f53cd4fda3e03f.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "THE CLAW CHOOSES",
-        "rulesText": "{E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand.",
-        "raw": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters - Return chosen opposing character to their player’s hand."
+        "rulesText": "{E}, 2 {I}, Banish one of your characters — Return chosen opposing character to their player’s hand.",
+        "raw": "THE CLAW CHOOSES {E}, 2 {I}, Banish one of your characters — Return chosen opposing character to their player’s hand."
       }
     ],
     "_imageSource": "lorcast",
@@ -7441,12 +7619,17 @@
     "setId": "12",
     "number": 104,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2819,
     "subtitle": "Bob Parr",
     "strength": 2,
     "willpower": 2,
+    "lore": 1,
     "flavorText": "Dropping weight and getting in shape!",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/104_5833a4122c2733f7_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/104_19a9177dc0492c9c31bafff6c698b009b0d7e3a8.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/104_19a9177dc0492c9c31bafff6c698b009b0d7e3a8.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/104_70246e29f496633bce215e1859483f25a08e0da4.jpg",
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_89a70d23433346ac879702a68882a0e4.avif?1776733954"
   },
@@ -7608,14 +7791,18 @@
     "setId": "12",
     "number": 108,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2823,
     "subtitle": "Courageous Explorer",
     "strength": 4,
     "willpower": 3,
     "lore": 1,
     "rulesText": "FASCINATING DISCOVERY During your turn, if 2 or more cards were put into your discard this turn, this character gets +1 {L}.",
-    "flavorText": "\"Just think, Amazu—without the vine, we might never have discovered these ruins.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/108_b9be7258853a11ed_normal.jpg",
+    "flavorText": "“Just think, Amazu—without the vine, we might never have discovered these ruins!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/108_b4a4ecc025ea24de1b46924115db9608772d285c.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/108_b4a4ecc025ea24de1b46924115db9608772d285c.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/108_696bab2f3d74646944d493e45a265340ea4c8aec.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FASCINATING DISCOVERY",
@@ -8475,8 +8662,8 @@
   },
   {
     "id": "jack-jack-parr-incredible-potential",
-    "name": "Jack-jack Parr",
-    "fullName": "Jack-jack Parr - Incredible Potential",
+    "name": "Jack-Jack Parr",
+    "fullName": "Jack-Jack Parr - Incredible Potential",
     "cardType": "character",
     "inkColors": [
       "ruby"
@@ -8568,18 +8755,22 @@
     "setId": "12",
     "number": 121,
     "rarity": "super_rare",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2836,
     "subtitle": "Incredible Potential",
     "strength": 4,
     "willpower": 4,
     "lore": 1,
-    "rulesText": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard.\nIf its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/121_39a27afc5edb7705_normal.jpg",
+    "rulesText": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/121_5be0c6e34af28b7ae21b074c7a7efb5ba210c5b5.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/121_5be0c6e34af28b7ae21b074c7a7efb5ba210c5b5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/121_e5cc2d895805dd9f6f87b64e975e0eb64f79bb7b.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "WEIRD THINGS ARE HAPPENING",
-        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard.",
-        "raw": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard."
+        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
+        "raw": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character."
       }
     ],
     "_imageSource": "lorcast",
@@ -9199,6 +9390,30 @@
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/128_27b37aed710621b6115a2cae9e74bdec3cc56d8b.jpg"
   },
   {
+    "id": "inner-strength",
+    "name": "Inner Strength",
+    "fullName": "Inner Strength",
+    "cardType": "action",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [],
+    "abilities": [],
+    "setId": "12",
+    "number": 129,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2844,
+    "rulesText": "Chosen character gets +1 {S} this turn. Draw a card.",
+    "flavorText": "Just when you think you've given it all you've got, sometimes you can give a little more.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_f39ee19e5a72290f2255810d645ee686ff4ff863.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_f39ee19e5a72290f2255810d645ee686ff4ff863.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_7d61b6af58603007a67780d13bb255c7385ce189.jpg"
+  },
+  {
     "id": "firefly-swarm",
     "name": "Firefly Swarm",
     "fullName": "Firefly Swarm",
@@ -9340,7 +9555,7 @@
     "_source": "ravensburger",
     "_ravensburgerId": 2847,
     "rulesText": "Your characters get +1 {S} this turn. Your Hero characters gain “Whenever this character challenges another character, each opponent loses 1 lore and you gain 1 lore” this turn.",
-    "flavorText": "\"It's a whole family of Supers!\" \n—Syndrome",
+    "flavorText": "\"It's a whole family of Supers!\"\n—Syndrome",
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/132_77b0d45ef45393cf53e4230a6e048e9097827ad1.jpg",
     "foilType": "silver",
@@ -9767,14 +9982,18 @@
     "setId": "12",
     "number": 139,
     "rarity": "uncommon",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2854,
     "subtitle": "Feisty Fairy",
     "strength": 4,
     "willpower": 5,
     "lore": 1,
     "rulesText": "<Ward> (Opponents can’t choose this character except to challenge.)",
-    "flavorText": "\"We'll need a fire! A nice blue fire, of course.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/139_a95a0acf39957792_normal.jpg",
+    "flavorText": "\"We'll need a fire! A nice <blue> fire, of course.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/139_dcd9dc327544ab77367015d4e01379f5c31495dc.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/139_706b4e5e9ad724b728272dcec711a846a73b9fe0.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/139_4a9b5276d2cdda4f0e1b52fc6d07ec9454457d84.jpg",
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_31821d032ad0412f9bcc5868d002aa2a.avif?1776889776"
   },
@@ -9890,6 +10109,45 @@
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_66e94a1fe266d63c6fb39be4c306bcced22b4bbf.jpg",
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/141_25953d9a58fca3fbbf5cdce1904172d622743b7b.jpg"
+  },
+  {
+    "id": "mirabel-madrigal-resourceful-daughter",
+    "name": "Mirabel Madrigal",
+    "fullName": "Mirabel Madrigal - Resourceful Daughter",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Madrigal"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 142,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2857,
+    "subtitle": "Resourceful Daughter",
+    "strength": 3,
+    "willpower": 6,
+    "lore": 1,
+    "rulesText": "THIS WILL HELP When you play this character, remove up to 2 damage from chosen character.",
+    "flavorText": "“We'll get you something to eat when we get to camp. For now, you should drink this.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_bd7cddd92a89c411f03ad37086fbee96732ec670.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THIS WILL HELP",
+        "rulesText": "When you play this character, remove up to 2 damage from chosen character.",
+        "raw": "THIS WILL HELP When you play this character, remove up to 2 damage from chosen character."
+      }
+    ]
   },
   {
     "id": "syndrome-evil-inventor",
@@ -10359,23 +10617,27 @@
     "setId": "12",
     "number": 149,
     "rarity": "rare",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2864,
     "subtitle": "Super Suit Designer",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
-    "rulesText": "KEY ACCESSORY {E} - Ready chosen item.\nALL THE BASICS While you have an item named Super Suit in play, this character gains <Ward>. (Opponents can’t choose them except to challenge.)",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/149_ea7b46dba0cdd07d_normal.jpg",
+    "rulesText": "KEY ACCESSORY {E} — Ready chosen item.\nALL THE BASICS While you have an item named Super Suit in play, this character gains <Ward>. (Opponents can’t choose them except to challenge.)",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/149_ee4eb83f46a7564dcbe57588ba2a1353989c4b03.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/149_ee4eb83f46a7564dcbe57588ba2a1353989c4b03.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/149_69d2d918448d972a0ba029c2525ef690db220fd7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "KEY ACCESSORY",
-        "rulesText": "Ready chosen item.",
-        "raw": "KEY ACCESSORY {E} - Ready chosen item."
+        "rulesText": "{E} — Ready chosen item.",
+        "raw": "KEY ACCESSORY {E} — Ready chosen item."
       },
       {
         "storyName": "ALL THE BASICS",
-        "rulesText": "While you have an item named Super Suit in play, this character gains Ward. (Opponents can't choose them except to challenge.)",
-        "raw": "ALL THE BASICS While you have an item named Super Suit in play, this character gains Ward. (Opponents can't choose them except to challenge.)"
+        "rulesText": "While you have an item named Super Suit in play, this character gains <Ward>. (Opponents can’t choose them except to challenge.)",
+        "raw": "ALL THE BASICS While you have an item named Super Suit in play, this character gains <Ward>. (Opponents can’t choose them except to challenge.)"
       }
     ],
     "_imageSource": "lorcast",
@@ -10964,19 +11226,23 @@
     "setId": "12",
     "number": 156,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2871,
     "subtitle": "Seeing the Future",
     "strength": 5,
     "willpower": 6,
     "lore": 2,
     "rulesText": "CHANGE THE OUTCOME When you play this character, you may look at the top card of chosen player’s deck. Put it on either the top or the bottom of their deck.",
     "flavorText": "\"It's so hard to make out . . . I think it's something buried deep underground.\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/156_3bdd329745921911_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/156_77d17b1c5a4a4db88c5442652c10d09ff076e645.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/156_77d17b1c5a4a4db88c5442652c10d09ff076e645.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/156_2e429370be0f5868e4eaf49c0a8d615eeb7daba7.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "CHANGE THE OUTCOME",
-        "rulesText": "When you play this character, you may look at the top card of chosen player's deck. Put it on either the top or the bottom of their deck.",
-        "raw": "CHANGE THE OUTCOME When you play this character, you may look at the top card of chosen player's deck. Put it on either the top or the bottom of their deck."
+        "rulesText": "When you play this character, you may look at the top card of chosen player’s deck. Put it on either the top or the bottom of their deck.",
+        "raw": "CHANGE THE OUTCOME When you play this character, you may look at the top card of chosen player’s deck. Put it on either the top or the bottom of their deck."
       }
     ],
     "_imageSource": "lorcast",
@@ -12379,6 +12645,43 @@
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/174_4940207245bb703ad58c61640aa49a2c8226d220.jpg"
   },
   {
+    "id": "fergus-king-of-dunbroch",
+    "name": "Fergus",
+    "fullName": "Fergus - King of DunBroch",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Mentor",
+      "King"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      }
+    ],
+    "setId": "12",
+    "number": 175,
+    "rarity": "common",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2890,
+    "subtitle": "King of DunBroch",
+    "strength": 3,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)",
+    "flavorText": "\"Come on then! I'll take ye all on at once!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/175_0e514400f16392d9d8a772dbd6786fbf0edae489.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/175_0e514400f16392d9d8a772dbd6786fbf0edae489.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/175_241af316608ce863541fb974454cf7793c1bb578.jpg"
+  },
+  {
     "id": "wee-dingwall-scrappy-lad",
     "name": "Wee Dingwall",
     "fullName": "Wee Dingwall - Scrappy Lad",
@@ -12589,19 +12892,23 @@
     "setId": "12",
     "number": 179,
     "rarity": "common",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2894,
     "subtitle": "Helen Parr",
     "strength": 1,
     "willpower": 1,
     "lore": 2,
-    "rulesText": "PEP TALK When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {} while challenging.)",
+    "rulesText": "PEP TALK When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
     "flavorText": "\"You can do this. I believe in you. Now let's show them what we can do!\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/179_e7fb94e90622a73e_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/179_874b700fed6b578742d37b47accda3f07f1eeead.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/179_874b700fed6b578742d37b47accda3f07f1eeead.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/179_1b5ba2569ae4a6cc51c066c9aba98342960fd9f2.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "PEP TALK",
-        "rulesText": "When you play this character, chosen character gains Challenger +2 this turn. (They get +2 {} while challenging.)",
-        "raw": "PEP TALK When you play this character, chosen character gains Challenger +2 this turn. (They get +2 {} while challenging.)"
+        "rulesText": "When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)",
+        "raw": "PEP TALK When you play this character, chosen character gains <Challenger> +2 this turn. (They get +2 {S} while challenging.)"
       }
     ],
     "_imageSource": "lorcast",
@@ -13219,14 +13526,18 @@
     "setId": "12",
     "number": 189,
     "rarity": "uncommon",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2904,
     "subtitle": "Determined Traveler",
     "strength": 2,
     "willpower": 2,
     "lore": 1,
     "rulesText": "FALLING ROCKS Whenever this character quests, if you played another character this turn, you may deal 1 damage to chosen character or location.",
-    "flavorText": "\"Gowrsh! Look out below!\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/189_c082f35863e741e6_normal.jpg",
+    "flavorText": "“Gawrsh! Look out below!”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/189_42a1cd6d239a0147471a3026e610c21c44f9aad5.jpg",
+    "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/189_42a1cd6d239a0147471a3026e610c21c44f9aad5.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/189_723b4c65144b63a88fddd76722642c5c9b0c330e.jpg",
     "_namedAbilityStubs": [
       {
         "storyName": "FALLING ROCKS",
@@ -14517,6 +14828,77 @@
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2eb1fa4c7ab0498b8d4cfcd28f56a8cf.avif?1776734424"
   },
   {
+    "id": "rex-protective-dinosaur",
+    "name": "Rex",
+    "fullName": "Rex - Protective Dinosaur",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Dinosaur",
+      "Toy"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "storyName": "RUN AWAY!",
+        "rulesText": "During an opponent's turn, when this character is banished, gain 1 lore.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "isSelf": true
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 206,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2921,
+    "subtitle": "Protective Dinosaur",
+    "strength": 3,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "<Bodyguard> (This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.)\nRUN AWAY! During an opponent’s turn, when this character is banished, gain 1 lore.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/206_ad48c11aeba8c4f6b887d53546d7b95002366e4d.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/206_88a77ea7c2376392c8be3688551716c5853f0317.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/206_f2cb125ea2fa866a59e4b0d81bfd7e56ed2ed512.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "RUN AWAY!",
+        "rulesText": "During an opponent’s turn, when this character is banished, gain 1 lore.",
+        "raw": "RUN AWAY! During an opponent’s turn, when this character is banished, gain 1 lore."
+      }
+    ]
+  },
+  {
     "id": "isabela-madrigal-such-a-lovely-voice",
     "name": "Isabela Madrigal",
     "fullName": "Isabela Madrigal - Such a Lovely Voice",
@@ -14585,6 +14967,576 @@
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_bd26b13fffb234f26982d111f6d42c8569d0b4a4.jpg",
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/207_6573d18f42b50e991ec4bfa49cd5e1b04260671c.jpg"
+  },
+  {
+    "id": "mirage-super-recruiter",
+    "name": "Mirage",
+    "fullName": "Mirage - Super Recruiter",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            },
+            "anyOf": [
+              {
+                "hasTrait": "Super"
+              },
+              {
+                "hasTrait": "Hero"
+              }
+            ]
+          }
+        },
+        "storyName": "BUSINESS ARRANGEMENT",
+        "rulesText": "When you play this character, if you have a Super or Hero character in play, you may draw a card."
+      }
+    ],
+    "setId": "12",
+    "number": 208,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2923,
+    "subtitle": "Super Recruiter",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "BUSINESS ARRANGEMENT When you play this character, if you have a Super or Hero character in play, you may draw a card.",
+    "flavorText": "“The Supers aren’t gone, Mr. Incredible. You’re still here. You can still do great things.”",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/208_7545fef34ab03d19c4a4b8db9d489f4f0c815a09.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/208_ca24211cec6f8eb1d8603654fecbfd0dd9b3ef24.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/208_3d5f19c738f474baebc91bca46987034a6c382d0.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BUSINESS ARRANGEMENT",
+        "rulesText": "When you play this character, if you have a Super or Hero character in play, you may draw a card.",
+        "raw": "BUSINESS ARRANGEMENT When you play this character, if you have a Super or Hero character in play, you may draw a card."
+      }
+    ]
+  },
+  {
+    "id": "edna-mode-fashion-designer",
+    "name": "Edna Mode",
+    "fullName": "Edna Mode - Fashion Designer",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player's hand. If you do, its player draws a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "cardType": [
+                      "item"
+                    ],
+                    "zone": "play",
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "target_owner"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Super"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 209,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2924,
+    "subtitle": "Fashion Designer",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.\nMAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/209_c03007045c2c0a9fa1163be5e67d5001a1089150.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/209_cc0cc51cc482257d98cc4c79ecba396aa6366b84.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/209_a188df8c39c577836e075f8e7f73d2a64bc948dc.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO CAPES!",
+        "rulesText": "When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card.",
+        "raw": "NO CAPES! When you play this character, you may return chosen item with cost 2 or less to its player’s hand. If you do, its player draws a card."
+      },
+      {
+        "storyName": "MAKING SUPERS FABULOUS",
+        "rulesText": "Whenever this character quests, your Super characters get +1 {L} this turn.",
+        "raw": "MAKING SUPERS FABULOUS Whenever this character quests, your Super characters get +1 {L} this turn."
+      }
+    ]
+  },
+  {
+    "id": "doc-taking-notes",
+    "name": "Doc",
+    "fullName": "Doc - Taking Notes",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Seven Dwarfs"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SHARE KNOWLEDGE",
+        "rulesText": "When you play this character, if you have another Seven Dwarfs character or a Princess character in play, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "compound_or",
+          "conditions": [
+            {
+              "type": "has_character_with_trait",
+              "trait": "Seven Dwarfs",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            {
+              "type": "has_character_with_trait",
+              "trait": "Princess",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 210,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2925,
+    "subtitle": "Taking Notes",
+    "strength": 3,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "SHARE KNOWLEDGE When you play this character, if you have another Seven Dwarfs character or a Princess character in play, draw a card.",
+    "flavorText": "\"Oh boy! Now this is a change grant . . . uh, a ranged pant . . . a strange plant!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/210_79e6f8da2b697ae63df718f2eaa46697d843902b.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/210_17fc8743694031d90f4c27dd775c2a8b97154a5c.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/210_bef88ab4246cfd1661942aac08b46712e4ad7369.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SHARE KNOWLEDGE",
+        "rulesText": "When you play this character, if you have another Seven Dwarfs character or a Princess character in play, draw a card.",
+        "raw": "SHARE KNOWLEDGE When you play this character, if you have another Seven Dwarfs character or a Princess character in play, draw a card."
+      }
+    ]
+  },
+  {
+    "id": "buzz-lightyear-space-ranger",
+    "name": "Buzz Lightyear",
+    "fullName": "Buzz Lightyear - Space Ranger",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Toy",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 211,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2926,
+    "subtitle": "Space Ranger",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "flavorText": "“Environment appears habitable, but the flora seems to have undergone some strange mutations. Could be Zurg's influence.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/211_2dee75b4b1d8c64ea188d291781cd75ae0b6432c.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/211_4e7ca0bfbbe37e0059f5958ed3f245721c760dd9.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/211_9111e654d898f4d262463f398ec34fc3474b8c32.jpg",
+    "foilTopLayer": "high_gloss"
+  },
+  {
+    "id": "donald-duck-distracted-traveler",
+    "name": "Donald Duck",
+    "fullName": "Donald Duck - Distracted Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ],
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "storyName": "BURNING CURIOSITY",
+        "rulesText": "Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card."
+      }
+    ],
+    "setId": "12",
+    "number": 212,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2927,
+    "subtitle": "Distracted Traveler",
+    "strength": 3,
+    "willpower": 6,
+    "lore": 2,
+    "rulesText": "BURNING CURIOSITY Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card.",
+    "flavorText": "In the wilderness of Lorcana, a little luck goes a long way.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/212_6acba0b0f1a84ba7b789ef70abc89b974dfe8660.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/212_c6f7676952cc8ef76810063f831752811e2981d6.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/212_ed87a5d2fd2e41e43e2ea1259c90c3862b490e85.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BURNING CURIOSITY",
+        "rulesText": "Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card.",
+        "raw": "BURNING CURIOSITY Whenever this character quests, if you played another character this turn, each opponent chooses and discards a card."
+      }
+    ]
+  },
+  {
+    "id": "merida-gifted-archer",
+    "name": "Merida",
+    "fullName": "Merida - Gifted Archer",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "triggering_card"
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "storyName": "FIERCE PROTECTION",
+        "rulesText": "While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character."
+      }
+    ],
+    "setId": "12",
+    "number": 213,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2928,
+    "subtitle": "Gifted Archer",
+    "strength": 3,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I} (You may pay 3 {I} to play this on top of one of your characters named Merida.)\nFIERCE PROTECTION While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/213_c049823c135740133983029360b4512c7d62fa16.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/213_9b04d3b20dd5a6412cef431765ee8d9159c0f0d0.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/213_20ba279e5e4b726af9208db3c61a509c5475cc17.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIERCE PROTECTION",
+        "rulesText": "While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character.",
+        "raw": "FIERCE PROTECTION While this character is exerted, whenever an opposing character challenges, you may deal 1 damage to the challenging character."
+      }
+    ]
+  },
+  {
+    "id": "lyle-tiberius-rourke-crystallized-commander",
+    "name": "Lyle Tiberius Rourke",
+    "fullName": "Lyle Tiberius Rourke - Crystallized Commander",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 6,
+    "inkable": false,
+    "traits": [
+      "Floodborn",
+      "Villain"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "PLAN'S CHANGED",
+        "rulesText": "When you play this character, put the top 2 cards of your deck into your discard. Then, you may return an action card with cost 4 or less from your discard to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_top_cards_into_discard",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": [
+                  "action"
+                ],
+                "owner": {
+                  "type": "self"
+                },
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 4
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 214,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2929,
+    "subtitle": "Crystallized Commander",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "<Shift> 4 {I} (You may pay 4 {I} to play this on top of one of your characters named Lyle Tiberius Rourke.)\nPLAN’S CHANGED When you play this character, put the top 2 cards of your deck into your discard. Then, you may return an action card with cost 4 or less from your discard to your hand.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/214_c0be2042491031fd8bb4c348c87919b68950c2ba.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/214_08685da3f23d5fe400ab51d2523d6e466b107244.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/214_ff77283b5ac0df5421e9f6005d7d06f6d7537040.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PLAN'S CHANGED",
+        "rulesText": "When you play this character, put the top 2 cards of your deck into your discard. Then, you may return an action card with cost 4 or less from your discard to your hand.",
+        "raw": "PLAN’S CHANGED When you play this character, put the top 2 cards of your deck into your discard. Then, you may return an action card with cost 4 or less from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "mr-incredible-bob-parr",
+    "name": "Mr. Incredible",
+    "fullName": "Mr. Incredible - Bob Parr",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [],
+    "setId": "12",
+    "number": 215,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2930,
+    "subtitle": "Bob Parr",
+    "strength": 2,
+    "willpower": 2,
+    "lore": 1,
+    "flavorText": "Dropping weight and getting in shape!",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/215_65c1d372d1046eabdb608b3243d46d422fcf2c51.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/215_e76cbb419753c5ae2a5996d869ab5765b4b9b398.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/215_245b6dff00841a7957bf71debcf6c612a4386c9b.jpg",
+    "foilTopLayer": "high_gloss"
   },
   {
     "id": "daisy-duck-trendy-traveler",
@@ -14675,6 +15627,395 @@
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/216_8af71ab12682bc4bacac1083ec357ed593014a53.jpg"
   },
   {
+    "id": "kida-guardian-of-the-path",
+    "name": "Kida",
+    "fullName": "Kida - Guardian of the Path",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NATURAL DEFENSE",
+        "rulesText": "When you play this character, chosen opposing character gets -2 {S} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -2,
+            "duration": "end_of_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 217,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2932,
+    "subtitle": "Guardian of the Path",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "NATURAL DEFENSE When you play this character, chosen opposing character gets –2 {S} this turn.",
+    "flavorText": "\"I may be far from home, but I still know how to snare an intruder.\"\n—Kida",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/217_9a69d88c6e68ad7fc7b9d931cf3eac3303bcdff7.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/217_8e90cce7241879a48869e151b71ff26a555cdf34.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/217_89110ec25d674af7920893440f3802363a6899af.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NATURAL DEFENSE",
+        "rulesText": "When you play this character, chosen opposing character gets -2 {S} this turn.",
+        "raw": "NATURAL DEFENSE When you play this character, chosen opposing character gets -2 {S} this turn."
+      }
+    ]
+  },
+  {
+    "id": "bruno-madrigal-oasis-oracle",
+    "name": "Bruno Madrigal",
+    "fullName": "Bruno Madrigal - Oasis Oracle",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIND THAT VISION",
+        "rulesText": "Once during your turn, whenever you remove damage from one of your characters, you may look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "choose_from_top",
+            "maxToHand": 1,
+            "restPlacement": "bottom",
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "YOU'LL BE OKAY",
+        "rulesText": "Whenever this character quests, you may remove all damage from chosen character.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 99,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 218,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2933,
+    "subtitle": "Oasis Oracle",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "FIND THAT VISION Once during your turn, whenever you remove damage from one of your characters, you may look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.\nYOU’LL BE OKAY Whenever this character quests, you may remove all damage from chosen character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/218_01979c551cd701f658c142cb350a65d5e8e0ece1.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/218_5356ac3009026b11832cda93fb2793253ddab725.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/218_0b370d9845a65b5e6735a692bf5948bece70e177.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FIND THAT VISION",
+        "rulesText": "Once during your turn, whenever you remove damage from one of your characters, you may look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+        "raw": "FIND THAT VISION Once during your turn, whenever you remove damage from one of your characters, you may look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck."
+      },
+      {
+        "storyName": "YOU'LL BE OKAY",
+        "rulesText": "Whenever this character quests, you may remove all damage from chosen character.",
+        "raw": "YOU’LL BE OKAY Whenever this character quests, you may remove all damage from chosen character."
+      }
+    ]
+  },
+  {
+    "id": "minnie-mouse-practical-traveler",
+    "name": "Minnie Mouse",
+    "fullName": "Minnie Mouse - Practical Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DISCERNING EYE",
+        "rulesText": "Whenever this character quests, if you played another character this turn, gain 1 lore.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 219,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2934,
+    "subtitle": "Practical Traveler",
+    "strength": 1,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "DISCERNING EYE Whenever this character quests, if you played another character this turn, gain 1 lore.",
+    "flavorText": "\"I found a shortcut just over the ridge. We'll be at the oasis in no time!\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/219_9c68f136651a70965c1d8dad69f6ad8820a16fa3.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/219_a3d902ecaedfaae7f99a665c30bfb1050de82586.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/219_e2fe3ccff3f2ea9f29348e41c32133b78e4a0d15.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "DISCERNING EYE",
+        "rulesText": "Whenever this character quests, if you played another character this turn, gain 1 lore.",
+        "raw": "DISCERNING EYE Whenever this character quests, if you played another character this turn, gain 1 lore."
+      }
+    ]
+  },
+  {
+    "id": "pocahontas-steadfast-traveler",
+    "name": "Pocahontas",
+    "fullName": "Pocahontas - Steadfast Traveler",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "discard",
+                "cardType": [
+                  "location"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          }
+        ],
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "storyName": "WANDERING SPIRIT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
+      }
+    ],
+    "setId": "12",
+    "number": 220,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2935,
+    "subtitle": "Steadfast Traveler",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
+    "flavorText": "“Sometimes the right path is not the easiest one.”\n—Grandmother Willow",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/220_8c954d2a24a70e4af750eca1865b1228f03579af.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/220_d5ca67fdbaffc8cc80676a0bc4bc452be48f80e9.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/220_8c0e8e1febcab864222ac9cf55bdf8f757946385.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "WANDERING SPIRIT",
+        "rulesText": "Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand.",
+        "raw": "WANDERING SPIRIT Whenever this character quests, if you played another character this turn, return a location card from your discard to your hand."
+      }
+    ]
+  },
+  {
+    "id": "incrediboy-buddy-pine",
+    "name": "Incrediboy",
+    "fullName": "Incrediboy - Buddy Pine",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "condition": {
+          "type": "opponent_controls_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "hasTrait": "Hero"
+          }
+        },
+        "storyName": "NERDING OUT",
+        "rulesText": "When you play this character, if a Hero character is in play, gain 1 lore."
+      }
+    ],
+    "setId": "12",
+    "number": 221,
+    "rarity": "epic",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2936,
+    "subtitle": "Buddy Pine",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "NERDING OUT When you play this character, if a Hero character is in play, gain 1 lore.\nSPOILER ALERT This character also counts as being named Syndrome for <Shift>.",
+    "flavorText": "\"Not every superhero has powers, you know.\"",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/221_a0cbea95aa0eb01650f1fbbae34fd8741f27359d.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/221_5a74309aa431c1c7ecea13e195dd0a5aa1cd217a.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/221_77ace54c3565090f0dde5b1d21658da3c07d49d3.jpg",
+    "foilTopLayer": "high_gloss",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NERDING OUT",
+        "rulesText": "When you play this character, if a Hero character is in play, gain 1 lore.",
+        "raw": "NERDING OUT When you play this character, if a Hero character is in play, gain 1 lore."
+      },
+      {
+        "storyName": "SPOILER ALERT",
+        "rulesText": "This character also counts as being named Syndrome for <Shift>.",
+        "raw": "SPOILER ALERT This character also counts as being named Syndrome for <Shift>."
+      }
+    ],
+    "alternateNames": [
+      "Syndrome"
+    ]
+  },
+  {
     "id": "three-arrows",
     "name": "Three Arrows",
     "fullName": "Three Arrows",
@@ -14732,6 +16073,124 @@
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_2f8316ba36ec57756b86eda5fa685df8fbb0f00d.jpg",
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/222_ce9b2407d9d9ed7409a0a27165d86b939b5b3cd3.jpg"
+  },
+  {
+    "id": "jessie-lively-cowgirl",
+    "name": "Jessie",
+    "fullName": "Jessie - Lively Cowgirl",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Toy"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "zone": "play",
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Toy",
+            "excludeSelf": true
+          },
+          "minimum": 2
+        },
+        "storyName": "PART OF A FAMILY",
+        "rulesText": "Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "strength": -1,
+            "duration": "until_caster_next_turn"
+          }
+        ],
+        "storyName": "YODEL-AY-HEE-HOO!",
+        "rulesText": "Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn."
+      }
+    ],
+    "setId": "12",
+    "number": 223,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2938,
+    "subtitle": "Lively Cowgirl",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "PART OF A FAMILY Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card.\nYODEL-AY-HEE-HOO! Whenever you pay 2 {I} or less to play a card, chosen opposing character gets –1 {S} until the start of your next turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/223_dccc687c5c023b04a947948c70cade32fdf740b9.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/223_026ad0b8454bd10e2ce9d58395f01a1432d10ab8.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/223_5c4aaaa7fa212d5761222f665eebf404b6d69a5d.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PART OF A FAMILY",
+        "rulesText": "Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card.",
+        "raw": "PART OF A FAMILY Whenever this character quests, if you have 2 or more other Toy characters in play, you may draw a card."
+      },
+      {
+        "storyName": "YODEL-AY-HEE-HOO!",
+        "rulesText": "Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn.",
+        "raw": "YODEL-AY-HEE-HOO! Whenever you pay 2 {I} or less to play a card, chosen opposing character gets -1 {S} until the start of your next turn."
+      }
+    ]
   },
   {
     "id": "isabela-madrigal-caring-cultivator",
@@ -14943,6 +16402,188 @@
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/226_2424ddcd6f93970cd1f1b307a5c4237cd23cba62.jpg"
   },
   {
+    "id": "luisa-madrigal-confident-climber",
+    "name": "Luisa Madrigal",
+    "fullName": "Luisa Madrigal - Confident Climber",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Ally",
+      "Madrigal"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isUpTo": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            },
+            "destination": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "move_damage",
+            "amount": "all",
+            "source": {
+              "type": "this"
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                }
+              }
+            },
+            "condition": {
+              "type": "this_has_damage",
+              "amount": 3
+            }
+          }
+        ],
+        "storyName": "I CAN TAKE IT",
+        "rulesText": "1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character."
+      }
+    ],
+    "setId": "12",
+    "number": 227,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2942,
+    "subtitle": "Confident Climber",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 1,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I}\nI CAN TAKE IT 1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/227_3808d04feabe3bfbfa555154fb812642219c4e87.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/227_1c9bde1f77d708c5ba957ecf03ee0ffd476dfc1b.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/227_00fb8af4783749c102c38f79f8e06d12635b7c45.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "I CAN TAKE IT",
+        "rulesText": "1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character.",
+        "raw": "I CAN TAKE IT 1 {I} — Move up to 1 damage from chosen character of yours to this character. Then, if this character has 3 or more damage, move all damage from this character to chosen opposing character."
+      }
+    ]
+  },
+  {
+    "id": "dunbroch-family-tapestry",
+    "name": "DunBroch Family Tapestry",
+    "fullName": "DunBroch Family Tapestry",
+    "cardType": "item",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [],
+    "abilities": [
+      {
+        "type": "static",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        },
+        "storyName": "TORN APART",
+        "rulesText": "This item enters play exerted."
+      },
+      {
+        "type": "activated",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "all",
+            "effects": [
+              {
+                "type": "shuffle_into_deck",
+                "target": {
+                  "type": "all",
+                  "filter": {
+                    "zone": "discard",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "storyName": "MEND THE BOND",
+        "rulesText": "{E}, Banish this item — Each player shuffles all character cards from their discard into their deck."
+      }
+    ],
+    "setId": "12",
+    "number": 228,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2943,
+    "rulesText": "TORN APART This item enters play exerted.\nMEND THE BOND {E}, Banish this item — Each player shuffles all character cards from their discard into their deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/228_cf3992b9716a4b2061283bf62fefb6a486d2bdbf.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/228_6cda5ed6adc4b8328a7581fe6348b969ddd914a2.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/228_1c8f3e05b2b2430c9d97341de64de5a5255f631f.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "TORN APART",
+        "rulesText": "This item enters play exerted.",
+        "raw": "TORN APART This item enters play exerted."
+      },
+      {
+        "storyName": "MEND THE BOND",
+        "rulesText": "{E}, Banish this item — Each player shuffles all character cards from their discard into their deck.",
+        "raw": "MEND THE BOND {E}, Banish this item — Each player shuffles all character cards from their discard into their deck."
+      }
+    ]
+  },
+  {
     "id": "alien-true-believer",
     "name": "Alien",
     "fullName": "Alien - True Believer",
@@ -15017,12 +16658,19 @@
     "setId": "12",
     "number": 229,
     "rarity": "enchanted",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2944,
     "subtitle": "True Believer",
     "strength": 1,
     "willpower": 1,
+    "lore": 1,
     "rulesText": "WE ARE ONE This character gets +1 {S} for each other Toy character you have in play.\nHE HAS BEEN CHOSEN During your turn, when this character is banished, return another character card named Alien from your discard to your hand.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/229_7033a8771859be9c_normal.jpg",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/229_0853805f33e667fa0e3ef520fe2d8a1bb6236bca.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/229_3a944c901b36cb79002169d13bb0cb58b63e93a2.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/229_906fd4917c76553f51db8cf281a7a7f133a6d492.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
     "_namedAbilityStubs": [
       {
         "storyName": "WE ARE ONE",
@@ -15037,6 +16685,116 @@
     ],
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c671f23fc8e74ee3a7925ad650577008.avif?1776823953"
+  },
+  {
+    "id": "milo-thatch-getting-his-hands-dirty",
+    "name": "Milo Thatch",
+    "fullName": "Milo Thatch - Getting His Hands Dirty",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "SCHOLAR'S GAMBIT",
+        "rulesText": "When you play this character, you may choose and discard a card to return chosen character to their player's hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "PRACTICAL KNOWLEDGE",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, draw a card.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 230,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2945,
+    "subtitle": "Getting His Hands Dirty",
+    "strength": 5,
+    "willpower": 5,
+    "lore": 3,
+    "rulesText": "<Ward>\nSCHOLAR’S GAMBIT When you play this character, you may choose and discard a card to return chosen character to their player’s hand.\nPRACTICAL KNOWLEDGE At the end of your turn, if 2 or more cards were put into your discard this turn, draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/230_0abf805db2c0fa1fb99f07e6d17421c85e53eff6.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/230_4f11bef3372163c6f10389c0634ecaf2d3a81f66.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/230_1194b3d4ee34b1585ec5c683e3e845a773346014.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "SCHOLAR'S GAMBIT",
+        "rulesText": "When you play this character, you may choose and discard a card to return chosen character to their player’s hand.",
+        "raw": "SCHOLAR’S GAMBIT When you play this character, you may choose and discard a card to return chosen character to their player’s hand."
+      },
+      {
+        "storyName": "PRACTICAL KNOWLEDGE",
+        "rulesText": "At the end of your turn, if 2 or more cards were put into your discard this turn, draw a card.",
+        "raw": "PRACTICAL KNOWLEDGE At the end of your turn, if 2 or more cards were put into your discard this turn, draw a card."
+      }
+    ]
   },
   {
     "id": "the-familys-scattered",
@@ -15116,8 +16874,8 @@
   },
   {
     "id": "jack-jack-parr-incredible-potential",
-    "name": "Jack-jack Parr",
-    "fullName": "Jack-jack Parr - Incredible Potential",
+    "name": "Jack-Jack Parr",
+    "fullName": "Jack-Jack Parr - Incredible Potential",
     "cardType": "character",
     "inkColors": [
       "ruby"
@@ -15209,22 +16967,401 @@
     "setId": "12",
     "number": 232,
     "rarity": "enchanted",
-    "_source": "lorcast",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2947,
     "subtitle": "Incredible Potential",
     "strength": 4,
     "willpower": 4,
-    "lore": 2,
-    "rulesText": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n* character, this character gets +2 {S} this turn.\n* action or item, this character gets +2 {L} this turn.\n* location, banish chosen character.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/232_11818974993ade1d_normal.jpg",
+    "lore": 1,
+    "rulesText": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/232_087e77730b575f70cfa5ee3835f844b2ceb28b5b.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/232_80d0e4d21d84b41cb91e60ae5478c8006cba7bf6.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/232_e01b63f7c28b815fec5234912defc41edef17359.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
     "_namedAbilityStubs": [
       {
         "storyName": "WEIRD THINGS ARE HAPPENING",
-        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard. If its card type is:",
-        "raw": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:"
+        "rulesText": "At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character.",
+        "raw": "WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the top card of your deck into your discard. If its card type is:\n• character, this character gets +2 {S} this turn.\n• action or item, this character gets +2 {L} this turn.\n• location, banish chosen character."
       }
     ],
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_519eea38258c49ca9b1eab9981d74544.avif?1776823996"
+  },
+  {
+    "id": "the-leviathan-guardian-of-atlantis",
+    "name": "The Leviathan",
+    "fullName": "The Leviathan - Guardian of Atlantis",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 10,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Monster",
+      "Robot"
+    ],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "IT'S A MACHINE!",
+        "rulesText": "When you play this character, if 2 or more cards were put into your discard this turn, you may banish any number of chosen opposing characters with total {S} 10 or less.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 2
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "count": "any",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              },
+              "totalStrengthAtMost": 10
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 233,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2948,
+    "subtitle": "Guardian of Atlantis",
+    "strength": 10,
+    "willpower": 10,
+    "lore": 3,
+    "rulesText": "IT’S A MACHINE! When you play this character, if 2 or more cards were put into your discard this turn, you may banish any number of chosen opposing characters with total {S} 10 or less.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/233_758393e5c42a3070820c7230186a0fba74158e78.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/233_9c39a09580d9cc694c8f0d9d404baebaa3df59f0.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/233_f51cf75bfd110565c66af2aecd2190382bf92652.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "IT'S A MACHINE!",
+        "rulesText": "When you play this character, if 2 or more cards were put into your discard this turn, you may banish any number of chosen opposing characters with total {S} 10 or less.",
+        "raw": "IT’S A MACHINE! When you play this character, if 2 or more cards were put into your discard this turn, you may banish any number of chosen opposing characters with total {S} 10 or less."
+      }
+    ]
+  },
+  {
+    "id": "mr-incredible-super-strong",
+    "name": "Mr. Incredible",
+    "fullName": "Mr. Incredible - Super Strong",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 5,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": {
+            "type": "count",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "zone": "play",
+              "owner": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            }
+          },
+          "target": {
+            "type": "this"
+          }
+        },
+        "storyName": "ALWAYS UNITED",
+        "rulesText": "This character gets +2 {S} for each other character you have in play."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "challenges",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Super"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ],
+        "storyName": "LET'S DO THIS!",
+        "rulesText": "Whenever one of your Super characters challenges another character, draw a card."
+      }
+    ],
+    "setId": "12",
+    "number": 234,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2949,
+    "subtitle": "Super Strong",
+    "strength": 6,
+    "willpower": 4,
+    "lore": 1,
+    "shiftCost": 3,
+    "rulesText": "<Shift> 3 {I}\nALWAYS UNITED This character gets +2 {S} for each other character you have in play.\nLET’S DO THIS! Whenever one of your Super characters challenges another character, draw a card.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/234_3f946381982ae80e97cf6442390e6137ae7b2343.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/234_ac9dc764749efee04f347142559a2cdcf5d078ec.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/234_567e22305c069363a119ede8395df0bb258f2fe8.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ALWAYS UNITED",
+        "rulesText": "This character gets +2 {S} for each other character you have in play.",
+        "raw": "ALWAYS UNITED This character gets +2 {S} for each other character you have in play."
+      },
+      {
+        "storyName": "LET'S DO THIS!",
+        "rulesText": "Whenever one of your Super characters challenges another character, draw a card.",
+        "raw": "LET’S DO THIS! Whenever one of your Super characters challenges another character, draw a card."
+      }
+    ]
+  },
+  {
+    "id": "zipper-big-helper",
+    "name": "Zipper",
+    "fullName": "Zipper - Big Helper",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Ally"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "BUZZING ENTHUSIASM",
+        "rulesText": "Whenever this character quests, you may add his {W} to another chosen character's {S} this turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "isSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "duration": "this_turn",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "strengthDynamic": {
+              "type": "stat_ref",
+              "from": "source",
+              "property": "willpower"
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 235,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2950,
+    "subtitle": "Big Helper",
+    "strength": 0,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 2,
+    "rulesText": "<Shift> 2 {I}\nBUZZING ENTHUSIASM Whenever this character quests, you may add his {W} to another chosen character’s {S} this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/235_5bb4c22c4fee7c03518704a0ef63282f37b60f3c.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/235_3658516dbc03c7d7a8f575ce9be33b20afee6ffc.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/235_578374c36735127c8144d1984f1598e7e404726c.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BUZZING ENTHUSIASM",
+        "rulesText": "Whenever this character quests, you may add his {W} to another chosen character’s {S} this turn.",
+        "raw": "BUZZING ENTHUSIASM Whenever this character quests, you may add his {W} to another chosen character’s {S} this turn."
+      }
+    ]
+  },
+  {
+    "id": "kida-crystal-scion",
+    "name": "Kida",
+    "fullName": "Kida - Crystal Scion",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 8,
+    "inkable": true,
+    "traits": [
+      "Floodborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6
+      },
+      {
+        "type": "triggered",
+        "storyName": "FLOOD OF POWER",
+        "rulesText": "When you play this character, each player may put up to 5 cards from their discard into their inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "isSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "all",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "put_into_inkwell",
+                "enterExerted": true,
+                "fromZone": "discard",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "discard"
+                  },
+                  "count": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "THE PATH REVEALED",
+        "rulesText": "7 {I} — Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 7
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 2,
+            "action": "choose_from_top",
+            "target": {
+              "type": "self"
+            },
+            "maxToHand": 1
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 236,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2951,
+    "subtitle": "Crystal Scion",
+    "strength": 7,
+    "willpower": 7,
+    "lore": 2,
+    "shiftCost": 6,
+    "rulesText": "<Shift> 6 {I}\nFLOOD OF POWER When you play this character, each player may put up to 5 cards from their discard into their inkwell facedown and exerted.\nTHE PATH REVEALED 7 {I} — Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/236_3f44b3017f6d3f25364c38fa430c32b902009ddf.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/236_8f48cab554045521f5d620874fb08a2c8e15cd0a.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/236_7636a558ad9d5f1b6ffd300525a55ad7cfffc92b.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "FLOOD OF POWER",
+        "rulesText": "When you play this character, each player may put up to 5 cards from their discard into their inkwell facedown and exerted.",
+        "raw": "FLOOD OF POWER When you play this character, each player may put up to 5 cards from their discard into their inkwell facedown and exerted."
+      },
+      {
+        "storyName": "THE PATH REVEALED",
+        "rulesText": "7 {I} — Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck.",
+        "raw": "THE PATH REVEALED 7 {I} — Look at the top 2 cards of your deck. Put one into your hand and the other on the bottom of your deck."
+      }
+    ]
   },
   {
     "id": "what-else-can-i-do",
@@ -15289,6 +17426,212 @@
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_62bc5b2ce28db546ae63d1929c9586b3d61c4bd3.jpg",
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/237_e46c90e37b77d8ea0cf1a3c0c2fe1012118f7a89.jpg"
+  },
+  {
+    "id": "syndrome-out-for-revenge",
+    "name": "Syndrome",
+    "fullName": "Syndrome - Out for Revenge",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 6,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Super",
+      "Villain",
+      "Inventor"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4
+      },
+      {
+        "type": "triggered",
+        "storyName": "GOT ME MONOLOGUING!",
+        "rulesText": "Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "discard",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Robot"
+              }
+            }
+          },
+          {
+            "type": "play_card",
+            "isMay": true,
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Robot",
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 8
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "setId": "12",
+    "number": 238,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2953,
+    "subtitle": "Out for Revenge",
+    "strength": 4,
+    "willpower": 6,
+    "lore": 2,
+    "shiftCost": 4,
+    "rulesText": "<Shift> 4 {I}\nGOT ME MONOLOGUING! Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/238_1099704b0caa4f1b01d45cd17621cc160fb51ca8.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/238_dc0610c2d8e4c27d2f4000dfd6a15d099465275e.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/238_51746891c787e785b0a83ecd913cb1f82f5113f4.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GOT ME MONOLOGUING!",
+        "rulesText": "Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free.",
+        "raw": "GOT ME MONOLOGUING! Whenever this character quests, return a Robot character card from your discard to your hand. Then, you may play or shift a Robot character with cost 8 or less for free."
+      }
+    ]
+  },
+  {
+    "id": "mrs-incredible-determined-rescuer",
+    "name": "Mrs. Incredible",
+    "fullName": "Mrs. Incredible - Determined Rescuer",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 7,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Super",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          },
+          "value": 1
+        },
+        "storyName": "PULL BACK",
+        "rulesText": "Your characters gain <Resist> +1."
+      },
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "banished_in_challenge",
+          "filter": {
+            "excludeSelf": true
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Super"
+              }
+            },
+            "isMay": true,
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "end_of_turn"
+              }
+            ]
+          }
+        ],
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "storyName": "REGROUP",
+        "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
+      }
+    ],
+    "setId": "12",
+    "number": 239,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2954,
+    "subtitle": "Determined Rescuer",
+    "strength": 5,
+    "willpower": 4,
+    "lore": 3,
+    "shiftCost": 5,
+    "rulesText": "<Shift> 5 {I}\nPULL BACK Your characters gain <Resist> +1.\nREGROUP During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/239_7e825043a20a9f3d0cc2cbb3ce7456cbaf31633d.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/239_5ec662a009fd796b5dca59490007b1bb7add9df9.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/239_f663404fadf6cc3ffffdc2bc9b55809f964ab81a.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "PULL BACK",
+        "rulesText": "Your characters gain <Resist> +1.",
+        "raw": "PULL BACK Your characters gain <Resist> +1."
+      },
+      {
+        "storyName": "REGROUP",
+        "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn.",
+        "raw": "REGROUP During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
+      }
+    ]
   },
   {
     "id": "touch-the-sky",
