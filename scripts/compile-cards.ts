@@ -633,6 +633,32 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       },
     }),
   },
+  // "banish chosen opposing character with N {S/W} or less" — owner+stat
+  // filtered banish. 4× recurrence (Madame Medusa The Boss set 3 #112 THAT
+  // TERRIBLE WOMAN, Sisu Daring Visitor set 9 #119 BRING ON THE HEAT!,
+  // Headless Horseman Terror of Sleepy Hollow set 10 #125, etc.).
+  {
+    name: "banish_chosen_opposing_char_stat_filter",
+    pattern: /^banish chosen opposing character with (\d+) \{(S|W)\} or less/i,
+    build: (m) => ({
+      type: "banish",
+      target: {
+        type: "chosen",
+        filter: {
+          zone: "play",
+          cardType: ["character"],
+          owner: { type: "opponent" },
+          statComparisons: [
+            {
+              stat: m[2].toUpperCase() === "S" ? "strength" : "willpower",
+              op: "lte",
+              value: parseInt(m[1], 10),
+            },
+          ],
+        },
+      },
+    }),
+  },
   {
     name: "banish_chosen_character_may",
     pattern: /^you may banish chosen character/i,
@@ -783,6 +809,26 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
         filter: { zone: "play", cardType: ["character"], hasTrait: m[1] },
       },
       isMay: true,
+      followUpEffects: [
+        {
+          type: "cant_action",
+          action: "quest",
+          target: { type: "last_resolved_target" },
+          duration: "end_of_turn",
+        },
+      ],
+    }),
+  },
+  // "ready chosen character. They can't quest for the rest of this turn." —
+  // mandatory ready variant of the may-ready-cant-quest pattern. 4× recurrence
+  // (LeFou Instigator set 1 #112 FAN THE FLAMES, Lilo Causing an Uproar
+  // set 8 #137 RAAAWR! + alt-art #217). Distinct from may variant — no isMay.
+  {
+    name: "ready_chosen_cant_quest",
+    pattern: /^ready chosen character\. They can'?t quest for the rest of this turn/i,
+    build: () => ({
+      type: "ready",
+      target: chosenCharacter(),
       followUpEffects: [
         {
           type: "cant_action",
@@ -1799,6 +1845,91 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       isMay: /^you may /i.test(m[0]) || undefined,
     }),
   },
+  // "Look at the top N cards of your deck. Put them back on the top of your
+  // deck in any order." — scry-and-reorder (Reflection set 1 #65). Both
+  // sentence-break and conjunction ("...and put them back...") forms are
+  // supported. Action="reorder" tells the engine to surface a choose_order
+  // prompt over the looked-at cards. Effectively "scry N — caster reorders."
+  {
+    name: "look_at_top_n_back_on_top_reorder",
+    pattern: /^(?:you may )?look at the top (\d+) cards of your deck(?:\.|\s+and)\s*[Pp]ut them (?:back )?on (?:the )?top of your deck in any order/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: parseInt(m[1], 10),
+      action: "reorder",
+      target: { type: "self" },
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+  // "Look at the top N cards of your deck and put them back in any order." —
+  // bare reorder, no explicit "on top" mention (the implication is the same).
+  // 3× recurrence (The Queen Mirror Seeker set 3 #156 + reprints CALCULATING
+  // AND VAIN, Pascal Inquisitive Pet set 4 #151 COLORFUL TACTICS).
+  {
+    name: "look_at_top_n_reorder_bare",
+    pattern: /^(?:you may )?look at the top (\d+) cards of your deck and put them back in any order/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: parseInt(m[1], 10),
+      action: "reorder",
+      target: { type: "self" },
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+  // "Look at the top N cards. Put M (or 'one') into your hand and the
+  // other/rest on the bottom (of your deck) in any order." — generalized
+  // scry N, pick M to hand, restPlacement=bottom. action="choose_from_top".
+  // Handles 4 sub-wordings:
+  //   - "Put one into your hand and the other on the bottom of the deck"
+  //     Develop Your Brain (set 1 #161): N=2, M=1
+  //   - "Put one into your hand and the rest on the bottom of your deck in any order"
+  //     Vision of the Future (set 5 #160): N=5, M=1
+  //   - "Put 2 into your hand and the rest on the bottom of your deck in any order"
+  //     Dig a Little Deeper set 9 #166: N=7, M=2 (single conjunction)
+  //   - "Put 2 into your hand. Put the rest on the bottom of your deck in any order"
+  //     Dig a Little Deeper set 4 #162: N=7, M=2 (sentence-break variant)
+  {
+    name: "look_at_top_n_pick_m_rest_bottom",
+    pattern: /^(?:you may )?look at the top (\d+) cards? of your deck\. Put (one|\d+) into your hand(?:\s+and the (?:other|rest)|\.\s+Put the rest)\s+on the bottom of (?:your |the )?deck(?:\s+in any order)?/i,
+    build: (m) => {
+      const total = parseInt(m[1], 10);
+      const pick = m[2].toLowerCase() === "one" ? 1 : parseInt(m[2], 10);
+      return {
+        type: "look_at_top",
+        count: total,
+        action: "choose_from_top",
+        target: { type: "self" },
+        maxToHand: pick,
+        restPlacement: "bottom",
+        isMay: /^you may /i.test(m[0]) || undefined,
+      };
+    },
+  },
+  // "Look at the top N cards. You may reveal up to M <filter> cards and put
+  // them into your hand. Put the rest on the bottom of your deck in any
+  // order." — scry N with reveal-and-pick of filtered cards. Look at This
+  // Family (set 4 #28 + reprints, set 9 #25): N=5, M=2, filter=character.
+  // The "You may reveal" makes the player's pick optional (isMay:true).
+  // revealPicks:true so the picks become public on the way to hand.
+  {
+    name: "look_at_top_n_reveal_filtered_to_hand_rest_bottom",
+    pattern: /^(?:you may )?look at the top (\d+) cards? of your deck\. You may reveal up to (\d+) ([\w ]+?) cards? and put them into your hand\. Put the rest on the bottom of your deck(?:\s+in any order)?/i,
+    build: (m) => {
+      const total = parseInt(m[1], 10);
+      const pick = parseInt(m[2], 10);
+      return {
+        type: "look_at_top",
+        count: total,
+        action: "choose_from_top",
+        target: { type: "self" },
+        maxToHand: pick,
+        filter: parseSimpleFilter(m[3].trim()),
+        restPlacement: "bottom",
+        revealPicks: true,
+        isMay: true,
+      };
+    },
+  },
 
   // ============= DECK MANIPULATION ==========================================
   // ORDER MATTERS: reveal_top_switch_3way_type must come BEFORE
@@ -2318,6 +2449,49 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     pattern: /^while this character has no damage/i,
     build: () => ({ type: "this_has_no_damage" }),
   },
+  // this_has_damage (bare, no amount) — "while this character has damage"
+  // 3× across sets 3, 5, 7 (Scroop Backstabber set 3 #122 BRUTE, Ratigan
+  // Raging Rat set 5 #113, Li Shang Newly Promoted set 7 #133).
+  // Sibling of this_has_no_damage; engine type carries no amount field.
+  // Use a lookahead for the trailing token so the iterative leading-
+  // condition peel sees the comma it expects after `consumed`.
+  {
+    name: "this_has_damage_bare",
+    pattern: /^while this character has damage(?=,|\s|$)/i,
+    build: () => ({ type: "this_has_damage" }),
+  },
+  // self_stat_gte — "while this character has N {S/W/L} or more"
+  // 8× across sets 2, 8 (Alice Growing Girl set 2 #137 + alt-arts WHAT
+  // DID I DO?, Pain Underworld Imp set 2 #86, Pete Bad Guy set 2 #88,
+  // Lady Decisive Dog set 8 #33 TAKE THE LEAD, etc.).
+  {
+    name: "self_stat_gte",
+    pattern: /^while this character has (\d+) \{(S|W|L)\} or more/i,
+    build: (m) => {
+      const stat =
+        m[2].toUpperCase() === "S"
+          ? "strength"
+          : m[2].toUpperCase() === "W"
+            ? "willpower"
+            : "lore";
+      return {
+        type: "self_stat_gte",
+        stat,
+        amount: parseInt(m[1], 10),
+      };
+    },
+  },
+  // this_at_location — "while this character is at a location"
+  // 8× across sets 3, 6, 9 (Shenzi Hyena Pack Leader set 3 #85 + reprints,
+  // Minnie Funky Spelunker set 3 #183, Zazu Steward of the Pride Lands set
+  // 3 #93, Milo Thatch Spirited Scholar #115, Mickey Courageous Sailor
+  // set 6 #115, etc.). Single bare condition (CRD 8.7-ish — at-location
+  // status check on the source character).
+  {
+    name: "this_at_location",
+    pattern: /^while this character is at a location/i,
+    build: () => ({ type: "this_at_location" }),
+  },
 
   // your_first_turn_as_underdog — "If this is your first turn and you're not
   // the first player". Straight/curly apostrophes both accepted.
@@ -2411,6 +2585,12 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     .replace(/[\u2018\u2019]/g, "'")   // curly → straight apostrophes
     .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift|Singer|Sing Together|Boost|Alert|Universal Shift)>/gi, "$1")
     // Generic leading + trailing reminder-paren strip. Reminder text never
+    // Strip a leading keyword-with-value preamble before the leading-paren
+    // strip below. Sing Together songs (Look at This Family, Dig a Little
+    // Deeper) have the shape "Sing Together N (Any number of...)<body>"
+    // after bracket unwrap; without this strip the leading-paren strip
+    // wouldn't fire. Same applies to Singer N, Shift N {I}, Boost N {I}.
+    .replace(/^(?:Sing Together|Singer|Boost|Shift|Universal Shift)\s+\d+\s*(?:\{[A-Z]\})?\s*/i, "")
     // carries mechanical info — it restates keyword/song rules that already
     // exist in the engine. Stripping generically (instead of per-wording)
     // means upstream transcription drift doesn't matter (e.g. Ravensburger's
@@ -2685,6 +2865,40 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     const ability: Json = {
       type: "static",
       effect: { type: "self_cost_reduction", amount: parseInt(statSelfCost[1], 10) },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "You pay N {I} less to play <Trait> characters." — global cost reduction
+  // static with a trait filter. 3× recurrence (Mickey Mouse Wayward Sorcerer
+  // set 1 #51 ANIMATE BROOM "Broom characters", reprints set 1 #208 / set 9
+  // similar). Engine: cost_reduction static with filter:{ hasTrait: X }.
+  const statCostReductionByTrait = /^You pay (\d+) \{I\} less to play ([A-Z][a-zA-Z]+) characters\.?$/i.exec(rest);
+  if (statCostReductionByTrait) {
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "cost_reduction",
+        amount: parseInt(statCostReductionByTrait[1], 10),
+        filter: { hasTrait: statCostReductionByTrait[2] },
+      },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+  // "You pay N {I} less to play characters named X." — same as above but
+  // by name instead of trait. Snow White Unexpected Houseguest set 2 #24
+  // HOW DO YOU DO? "Characters named Dwarf" / similar phrasing.
+  const statCostReductionByName = /^You pay (\d+) \{I\} less to play characters named ([A-Z][\w'’\- ]*?)\.?$/i.exec(rest);
+  if (statCostReductionByName) {
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "cost_reduction",
+        amount: parseInt(statCostReductionByName[1], 10),
+        filter: { hasName: statCostReductionByName[2].trim() },
+      },
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
@@ -2980,6 +3194,34 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
       target: { type: "this" },
     };
     const ability: Json = { type: "static", effect };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character gets +N {stat} for each card under him/her/it/them." —
+  // dynamic stat keyed off the source's own cardsUnder count. Uses
+  // modify_stat_per_count with countCardsUnderSelf:true. 4× recurrence
+  // (Genie Magical Researcher set 11 #49 INCREASING WISDOM, Wreck-it Ralph
+  // Raging Wrecker set 11 #103 POWERED UP, Morty Fieldmouse Tiny Tim set
+  // 11 #157 HOLIDAY CHEER).
+  const statDynamicPerCardUnder = /^This character gets \+(\d+) \{(S|W|L)\} for each card under (?:him|her|it|them)\.?$/i.exec(rest);
+  if (statDynamicPerCardUnder) {
+    const stat =
+      statDynamicPerCardUnder[2].toUpperCase() === "S"
+        ? "strength"
+        : statDynamicPerCardUnder[2].toUpperCase() === "W"
+          ? "willpower"
+          : "lore";
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "modify_stat_per_count",
+        stat,
+        perCount: parseInt(statDynamicPerCardUnder[1], 10),
+        countCardsUnderSelf: true,
+        target: { type: "this" },
+      },
+    };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
   }
@@ -3723,6 +3965,12 @@ export function compileCard(card: CardJSON): CompiledCard {
       .replace(/[\u2018\u2019]/g, "'")
       .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift|Singer|Sing Together|Boost|Alert|Universal Shift)>/gi, "$1")
       // Generic leading + trailing reminder-paren strip (same logic as
+    // Strip a leading keyword-with-value preamble before the leading-paren
+    // strip below. Sing Together songs (Look at This Family, Dig a Little
+    // Deeper) have the shape "Sing Together N (Any number of...)<body>"
+    // after bracket unwrap; without this strip the leading-paren strip
+    // wouldn't fire. Same applies to Singer N, Shift N {I}, Boost N {I}.
+    .replace(/^(?:Sing Together|Singer|Boost|Shift|Universal Shift)\s+\d+\s*(?:\{[A-Z]\})?\s*/i, "")
       // compileAbility above \u2014 see comment there for rationale).
       .replace(/^\(\s*[^)]*\)\s*/, "")
       .replace(/\s*\([^)]*\)\s*\.?$/, "")
