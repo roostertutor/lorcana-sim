@@ -732,6 +732,95 @@ function validateCardFields(card: any): FieldError[] {
   return errors;
 }
 
+// =============================================================================
+// FIDELITY-VIOLATION DETECTION (CLAUDE.md "Structural fidelity to printed text")
+// -----------------------------------------------------------------------------
+// Detects encodings that work today but harbor latent bugs against
+// `oncePerTurn` budgeting, replacement-effect targeting, and effect-body drift.
+// Orthogonal to the primary category — fidelity violations can co-occur with
+// implemented/partial/etc., so they're tracked as a separate field on
+// CardEntry and reported as a warning line plus a `--category
+// fidelity-violation` filter.
+//
+// Detection rules:
+//   1. **Duplicate storyName within abilities[]** — Hiram-class. One printed
+//      ability split into N JSON entries; second+ usually missing storyName.
+//      We flag any non-empty storyName that appears 2+ times in one card.
+//   2. **Degenerate `compound_and` / `compound_or`** — Nala-class. Hand-paraphrasing
+//      a compound condition can produce a `compound_and` with duplicate
+//      sub-conditions (deep-equal) or only 1 sub-condition (which should just
+//      be the unwrapped condition). Both are encoder confusion.
+// =============================================================================
+
+interface FidelityViolation {
+  kind: "duplicate-storyName" | "degenerate-compound" | "redundant-compound";
+  detail: string;
+}
+
+function findFidelityViolations(card: any): FidelityViolation[] {
+  const violations: FidelityViolation[] = [];
+  const abilities: any[] = Array.isArray(card.abilities) ? card.abilities : [];
+
+  // Rule 1: duplicate storyName within abilities[].
+  // CRD 5.2.8: each printed ability has one bold name. A name appearing 2+
+  // times means we paraphrased the printed ability into multiple JSON entries.
+  // Empty storyNames don't count (anonymous static-effect chains, vanilla, etc.)
+  const nameCounts = new Map<string, number>();
+  for (const a of abilities) {
+    const name = (a?.storyName ?? "").trim();
+    if (!name) continue;
+    nameCounts.set(name, (nameCounts.get(name) ?? 0) + 1);
+  }
+  for (const [name, count] of nameCounts) {
+    if (count >= 2) {
+      violations.push({
+        kind: "duplicate-storyName",
+        detail: `storyName "${name}" appears ${count}× — one printed ability should be one JSON ability (consider multi-trigger combinator if oracle uses "X and Y" trigger phrasing)`,
+      });
+    }
+  }
+
+  // Rules 2 + 3: walk every condition in every ability (effect-level too) and
+  // flag degenerate / redundant compound forms.
+  function walk(node: any, path: string): void {
+    if (!node || typeof node !== "object") return;
+    if (Array.isArray(node)) {
+      node.forEach((n, i) => walk(n, `${path}[${i}]`));
+      return;
+    }
+    const t = node.type;
+    if ((t === "compound_and" || t === "compound_or") && Array.isArray(node.conditions)) {
+      const subs = node.conditions;
+      // Redundant: only 1 sub-condition — should be the unwrapped condition.
+      if (subs.length <= 1) {
+        violations.push({
+          kind: "redundant-compound",
+          detail: `${path} is a ${t} with ${subs.length} sub-condition(s); should be the bare condition (or removed entirely if 0)`,
+        });
+      } else {
+        // Degenerate: any two sub-conditions are deep-equal.
+        const seen = new Set<string>();
+        for (const s of subs) {
+          const key = JSON.stringify(s);
+          if (seen.has(key)) {
+            violations.push({
+              kind: "degenerate-compound",
+              detail: `${path} has duplicate sub-condition: ${key.slice(0, 80)}${key.length > 80 ? "..." : ""}`,
+            });
+            break;
+          }
+          seen.add(key);
+        }
+      }
+    }
+    for (const v of Object.values(node)) walk(v, path);
+  }
+  abilities.forEach((a, i) => walk(a, `abilities[${i}]`));
+  if (Array.isArray(card.actionEffects)) walk(card.actionEffects, "actionEffects");
+
+  return violations;
+}
+
 // --- CLI args -----------------------------------------------------------------
 const args = process.argv.slice(2);
 function getArg(name: string): string | undefined {
@@ -759,6 +848,10 @@ interface CardEntry {
   setId: string;
   number: number;
   fieldErrors?: FieldError[];
+  /** Structural-fidelity violations (CLAUDE.md rule). Orthogonal to category —
+   *  a card can be both `implemented` and have fidelity violations (Hiram is the
+   *  canonical example: shipped, working, but encoded as duplicate-storyName). */
+  fidelityViolations?: FidelityViolation[];
   category: CardCategory;
   stubs: { storyName: string; rulesText: string; category: StubCategory }[];
 }
@@ -1459,6 +1552,7 @@ for (const filename of SET_FILES) {
     let category: CardCategory;
     const categorizedStubs: CardEntry["stubs"] = [];
     const fieldErrors = validateCardFields(card);
+    const fidelityViolations = findFidelityViolations(card);
 
     if (fieldErrors.length > 0) {
       category = "invalid-field";
@@ -1537,6 +1631,7 @@ for (const filename of SET_FILES) {
       category,
       stubs: categorizedStubs,
       fieldErrors: fieldErrors.length > 0 ? fieldErrors : undefined,
+      fidelityViolations: fidelityViolations.length > 0 ? fidelityViolations : undefined,
     });
   }
 }
@@ -1639,13 +1734,36 @@ if (!filterCategory) {
     console.log(`  ⚠ ${partialCount} cards have missing abilities (rulesText has more named abilities than wired).`);
     console.log(`    Run: pnpm card-status --category partial --verbose`);
   }
+  const fidelityCount = allCards.filter((c) => c.fidelityViolations).length;
+  if (fidelityCount > 0) {
+    console.log(`  ⚑ ${fidelityCount} cards violate structural fidelity (duplicate storyName or degenerate compound condition — see CLAUDE.md).`);
+    console.log(`    Run: pnpm card-status --category fidelity-violation --verbose`);
+  }
   console.log("\n  Run with --category <name> to list cards in a category.");
-  console.log("  Categories: implemented | partial | invalid-field | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown\n");
+  console.log("  Categories: implemented | partial | invalid-field | vanilla | fits-grammar | needs-new-type | needs-new-mechanic | unknown | fidelity-violation\n");
 }
 
 // --- Category detail listing -------------------------------------------------
 
 if (filterCategory) {
+  // Special handling for `fidelity-violation` — orthogonal to the primary
+  // category, so we filter by the fidelityViolations field directly rather
+  // than going through the catMap.
+  if (filterCategory === "fidelity-violation") {
+    const matching = allCards.filter((c) => c.fidelityViolations);
+    console.log(`\n=== FIDELITY-VIOLATION (${matching.length} cards) ===\n`);
+    for (const card of matching) {
+      console.log(`  [set-${card.setId}/${card.cardType} #${card.number}] ${card.fullName} (category: ${card.category})`);
+      if (verbose) {
+        for (const v of card.fidelityViolations ?? []) {
+          console.log(`    ⚑ ${v.kind}: ${v.detail}`);
+        }
+      }
+    }
+    console.log();
+    process.exit(0);
+  }
+
   const catMap: Record<string, CardCategory> = {
     implemented: "implemented",
     partial: "partial",
@@ -1658,7 +1776,7 @@ if (filterCategory) {
   };
   const cat = catMap[filterCategory];
   if (!cat) {
-    console.error(`Unknown category "${filterCategory}". Valid: ${Object.keys(catMap).join(", ")}`);
+    console.error(`Unknown category "${filterCategory}". Valid: ${Object.keys(catMap).join(", ")}, fidelity-violation`);
     process.exit(1);
   }
 
