@@ -132,6 +132,44 @@ export async function cancelLobby(
   return { ok: false, error, status: res.status }
 }
 
+/** Errors the rematch endpoint surfaces — see server/src/routes/lobby.ts.
+ *  Idempotent on the server side: two players clicking simultaneously
+ *  converge on the same new lobby + gameId. The 409 ACTIVE_GAME case is
+ *  the only one a user can self-resolve (close the other game/queue). */
+export interface RematchError {
+  status: number
+  message: string
+}
+
+/** POST /lobby/rematch — create (or join) a rematch lobby for a finished
+ *  match. Server spawns the first game synchronously and returns its id, so
+ *  the client navigates straight to /game/${gameId} without a separate
+ *  Realtime accept step. Caller responsibility: surface error.message and
+ *  re-enable the button on rejection. */
+export async function postRematch(previousLobbyId: string): Promise<{
+  lobbyId: string
+  gameId: string
+  code: string
+  myPlayerId: "player1" | "player2"
+}> {
+  const res = await fetch(`${SERVER_URL}/lobby/rematch`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: JSON.stringify({ previousLobbyId }),
+  })
+  if (!res.ok) {
+    const message = await extractError(res)
+    const err: RematchError = { status: res.status, message }
+    throw err
+  }
+  return await res.json() as {
+    lobbyId: string
+    gameId: string
+    code: string
+    myPlayerId: "player1" | "player2"
+  }
+}
+
 export async function joinLobby(code: string, deck: DeckEntry[]) {
   const res = await fetch(`${SERVER_URL}/lobby/join`, {
     method: "POST",
@@ -156,8 +194,19 @@ export async function getGameInfo(gameId: string) {
     headers: await authHeaders(),
   })
   if (!res.ok) return null
-  const data = await res.json() as { game: { state: GameState; status?: string }; playerSide: "player1" | "player2" }
-  return { state: data.game.state, playerSide: data.playerSide, status: data.game.status }
+  // Server spreads the full games row into `data.game`, so DB column names
+  // come through as snake_case. lobby_id is null for queue-spawned games
+  // (no parent lobby — see gameService.ts ~line 588).
+  const data = await res.json() as {
+    game: { state: GameState; status?: string; lobby_id?: string | null }
+    playerSide: "player1" | "player2"
+  }
+  return {
+    state: data.game.state,
+    playerSide: data.playerSide,
+    status: data.game.status,
+    lobbyId: data.game.lobby_id ?? null,
+  }
 }
 
 export async function sendAction(gameId: string, action: GameAction) {

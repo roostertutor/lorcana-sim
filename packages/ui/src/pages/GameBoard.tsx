@@ -632,6 +632,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // (preferring the local one).
   const [mpReplay, setMpReplay] = useState<ReplayData | null>(null);
 
+  // Rematch wiring (MP end-of-match only). `rematchLobbyId` is fetched once
+  // from the server when an MP game ends — it's the parent lobby's UUID,
+  // not the game's id (server enforces this distinction). `rematchPending`
+  // disables the button between click and navigation. `rematchError` shows
+  // the server's error.message inline below the button on failure. The
+  // 409 "active game" case is the only one a user can self-resolve.
+  const [rematchLobbyId, setRematchLobbyId] = useState<string | null>(null);
+  const [rematchPending, setRematchPending] = useState(false);
+  const [rematchError, setRematchError] = useState<string | null>(null);
+
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
   const [p2DeckText, setP2DeckText] = useState(SAMPLE_DECK);
   const [botId, setBotId] = useState("greedy");
@@ -1283,6 +1293,26 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     );
     return () => { cancelled = true; };
   }, [multiplayerGame, session.gameState?.isGameOver, mpReplay]);
+
+  // MP game-over → fetch the parent lobby id so the Rematch button has a
+  // `previousLobbyId` to POST. Lobby id isn't carried on multiplayerGame
+  // (App.tsx mp-game shape only stores gameId + myPlayerId), and the
+  // engine's GameState doesn't surface it either — so we reuse the
+  // /game/:id endpoint, which spreads the full row including lobby_id.
+  // One-shot, gated on rematchLobbyId being null. Queue-spawned games
+  // have no parent lobby (lobby_id = null) — Rematch isn't applicable
+  // there; the button stays absent and Back to Lobby is the only CTA.
+  useEffect(() => {
+    if (!multiplayerGame || !session.gameState?.isGameOver || rematchLobbyId) return;
+    let cancelled = false;
+    void import("../lib/serverApi.js").then(({ getGameInfo }) =>
+      getGameInfo(multiplayerGame.gameId).then((info) => {
+        if (cancelled || !info?.lobbyId) return;
+        setRematchLobbyId(info.lobbyId);
+      }),
+    );
+    return () => { cancelled = true; };
+  }, [multiplayerGame, session.gameState?.isGameOver, rematchLobbyId]);
 
   // Solo mode: auto-start with deck from lobby, bot plays P2. Re-fires whenever
   // session.gameState transitions to null (initial mount + after "Play Again"
@@ -2802,11 +2832,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               </div>
             )}
             {/* Unified button layout — same shape across solo / MP / Bo3.
-                Slot 1: contextual primary CTA (Play Again / Next Game),
-                  may be absent in MP end-of-match (no rematch UI yet —
-                  see HANDOFF.md for client-side rematch trigger).
+                Slot 1: contextual primary CTA.
+                  Solo: Play Again. MP mid-match (Bo3): Next Game. MP end-
+                  of-match: Rematch (when rematchLobbyId has been fetched
+                  and we have a parent lobby — queue-spawned games skip
+                  this since lobby_id is null server-side).
                 Slot 2: Back to Lobby — always present. Promoted to amber
-                  primary styling when slot 1 is absent (MP end-of-match).
+                  primary styling only when slot 1 is absent (MP end-of-
+                  match where lobbyId fetch is still in-flight or returned
+                  null for queue-spawned games).
                 Slot 3: Review Game / Download Replay — when replay data
                   exists. Solo: from session.completedGame. MP: from the
                   mpReplay fetch effect above. */}
@@ -2814,16 +2848,52 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               {(() => {
                 const completedReplay = session.completedGame ?? mpReplay;
                 const primaryStyle = "w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20";
+                const primaryDisabledStyle = "w-full px-5 py-2.5 bg-amber-600/40 text-white/70 rounded-lg font-bold cursor-not-allowed shadow-lg shadow-amber-600/20";
                 const secondaryStyle = "w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700";
                 const tertiaryReviewStyle = "w-full px-4 py-2 bg-indigo-700/50 hover:bg-indigo-700/70 text-indigo-200 rounded-lg font-medium transition-colors border border-indigo-600/40 text-sm";
                 const tertiaryDownloadStyle = "w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700 text-sm";
 
-                const hasPrimary = (multiplayerGame && hasNextGame) || !multiplayerGame;
+                // canRematch gates the Rematch button on having a parent
+                // lobby UUID (queue-spawned games return null and skip the
+                // CTA — they're Bo1-only and the queue is the rematch
+                // mechanism). hasPrimary now also accounts for Rematch so
+                // Back to Lobby stays styled as secondary when Rematch is
+                // showing.
+                const canRematch = !!multiplayerGame && !hasNextGame && !!rematchLobbyId;
+                const hasPrimary = !multiplayerGame || hasNextGame || canRematch;
                 const backToLobby = () => {
                   session.reset();
                   setReplayData(null);
                   setGameOverModalDismissed(false);
                   onBack?.();
+                };
+                const onRematch = () => {
+                  if (!rematchLobbyId) return;
+                  setRematchPending(true);
+                  setRematchError(null);
+                  void import("../lib/serverApi.js").then(({ postRematch }) =>
+                    postRematch(rematchLobbyId)
+                      .then((res) => {
+                        // Match the Bo3 Next Game navigation pattern exactly:
+                        // stash mp-game, reset session, hard nav. The server
+                        // is one-shot/idempotent — both players' POSTs
+                        // resolve to the same gameId so the second-clicker
+                        // doesn't get a "Waiting" race.
+                        localStorage.setItem("mp-game", JSON.stringify({ gameId: res.gameId, myPlayerId: res.myPlayerId }));
+                        session.reset();
+                        window.location.href = `/game/${res.gameId}`;
+                      })
+                      .catch((err: unknown) => {
+                        setRematchPending(false);
+                        // Server errors come through as RematchError
+                        // { status, message } from postRematch. Network /
+                        // unknown errors fall through to the generic copy.
+                        const message = (err && typeof err === "object" && "message" in err && typeof (err as { message?: unknown }).message === "string")
+                          ? (err as { message: string }).message
+                          : "Couldn't start rematch — try again.";
+                        setRematchError(message);
+                      }),
+                  );
                 };
                 return (
                   <>
@@ -2840,6 +2910,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                       >
                         Next Game
                       </button>
+                    )}
+                    {canRematch && (
+                      <>
+                        <button
+                          className={rematchPending ? primaryDisabledStyle : primaryStyle}
+                          disabled={rematchPending}
+                          onClick={onRematch}
+                        >
+                          {rematchPending ? "Waiting for opponent…" : "Rematch"}
+                        </button>
+                        {rematchError && (
+                          <div className="text-xs text-red-400 -mt-1">{rematchError}</div>
+                        )}
+                      </>
                     )}
                     {!multiplayerGame && (
                       <button
