@@ -4956,30 +4956,14 @@
         "storyName": "CUNNING MANEUVER",
         "rulesText": "When you play this character, each opponent chooses and discards a card.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "each_player",
-            "scope": "opponents",
-            "effects": [
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "CUNNING MANEUVER",
-        "rulesText": "Whenever she's challenged, each opponent chooses and discards a card.",
-        "trigger": {
-          "on": "is_challenged"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "is_challenged"
+            }
+          ]
         },
         "effects": [
           {
@@ -13409,30 +13393,14 @@
         "storyName": "CUNNING MANEUVER",
         "rulesText": "When you play this character, each opponent chooses and discards a card.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "each_player",
-            "scope": "opponents",
-            "effects": [
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "CUNNING MANEUVER",
-        "rulesText": "Whenever she's challenged, each opponent chooses and discards a card.",
-        "trigger": {
-          "on": "is_challenged"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "is_challenged"
+            }
+          ]
         },
         "effects": [
           {

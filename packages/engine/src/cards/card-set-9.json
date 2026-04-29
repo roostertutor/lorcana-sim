@@ -358,47 +358,44 @@
         "type": "static",
         "storyName": "FULL DANCE CARD",
         "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Princess"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "FULL DANCE CARD",
-        "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "amount": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Princess"
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "9",
@@ -5770,34 +5767,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "grant_keyword",
-            "keyword": "reckless",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "owner": {
-                  "type": "opponent"
-                }
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "duration": "end_of_owner_next_turn"
-          }
-        ],
-        "storyName": "PICK YOUR FIGHTS",
-        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {
@@ -7248,46 +7225,32 @@
         "type": "static",
         "storyName": "CROWNING ACHIEVEMENT",
         "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 3,
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
           }
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "CROWNING ACHIEVEMENT",
-        "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "CROWNING ACHIEVEMENT",
-        "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
+        ],
         "condition": {
           "type": "this_has_cards_under"
         }
@@ -7398,40 +7361,24 @@
         "type": "static",
         "storyName": "CONCERT LOVER",
         "rulesText": "While you have a character with Singer in play, this character gets +1 {S} and +1 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 1,
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
           }
-        },
-        "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasKeyword": "singer"
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "CONCERT LOVER",
-        "rulesText": "While you have a character with Singer in play, this character gets +1 {S} and +1 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 1,
-          "target": {
-            "type": "this"
-          }
-        },
+        ],
         "condition": {
           "type": "you_control_matching",
           "filter": {
@@ -11319,15 +11266,7 @@
           }
         ],
         "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "this_has_no_damage"
-            },
-            {
-              "type": "this_has_no_damage"
-            }
-          ]
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -14672,47 +14611,44 @@
         "type": "static",
         "storyName": "FULL DANCE CARD",
         "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Princess"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Princess"
+              }
             }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "FULL DANCE CARD",
-        "rulesText": "Your Princess characters get +1 {S} and +1 {W}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "amount": 1,
-          "target": {
-            "type": "all",
-            "filter": {
-              "owner": {
-                "type": "self"
-              },
-              "zone": "play",
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Princess"
-            }
-          }
-        }
+        ]
       }
     ],
     "setId": "9",
@@ -16246,46 +16182,32 @@
         "type": "static",
         "storyName": "CROWNING ACHIEVEMENT",
         "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 3,
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "willpower",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 3,
+            "target": {
+              "type": "this"
+            }
           }
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "CROWNING ACHIEVEMENT",
-        "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "willpower",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "CROWNING ACHIEVEMENT",
-        "rulesText": "While this character has a card under him, he gets +3 {S}, +3 {W}, and +3 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 3,
-          "target": {
-            "type": "this"
-          }
-        },
+        ],
         "condition": {
           "type": "this_has_cards_under"
         }

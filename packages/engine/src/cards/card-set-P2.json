@@ -1512,15 +1512,7 @@
           }
         ],
         "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "this_has_no_damage"
-            },
-            {
-              "type": "this_has_no_damage"
-            }
-          ]
+          "type": "this_has_no_damage"
         }
       }
     ],

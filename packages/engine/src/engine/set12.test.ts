@@ -2069,19 +2069,28 @@ describe("Set 12 — Ursula Deal Maker BY THE WAY (wiring shape)", () => {
     expect(effect?.enterExerted).toBe(true);
   });
 
-  it("QUITE THE BARGAIN is wired on both enters_play and quests (doubled trigger)", () => {
+  it("QUITE THE BARGAIN fires on enters_play AND on quests via anyOf trigger (CRD structural fidelity)", () => {
     // Oracle: "When you play this character and whenever she quests…".
-    // Pattern requires two ability entries with the same storyName/rulesText
-    // but different trigger events. Missing one half = half the value.
+    // Per CRD 5.2.8 + structural-fidelity rule, this is ONE printed ability
+    // with one bold name. Post-2026-04-30 it's encoded as a single
+    // TriggeredAbility with trigger: { anyOf: [{on:"enters_play"}, {on:"quests"}] }
+    // (was previously TWO duplicate-storyName entries — that shape silently
+    // double-counted oncePerTurn budgets and lost storyName attribution on
+    // the second copy).
     const ursula = CARD_DEFINITIONS["ursula-deal-maker"]!;
-    const bargainOnPlay = ursula.abilities.find(
-      (a: any) => a.type === "triggered" && a.storyName === "QUITE THE BARGAIN" && a.trigger?.on === "enters_play"
+    const bargain = ursula.abilities.find(
+      (a: any) => a.type === "triggered" && a.storyName === "QUITE THE BARGAIN",
+    ) as any;
+    expect(bargain).toBeDefined();
+    // Trigger should be an anyOf carrying both leaf events.
+    expect(bargain.trigger.anyOf).toBeDefined();
+    const onValues = (bargain.trigger.anyOf as any[]).map((t) => t.on).sort();
+    expect(onValues).toEqual(["enters_play", "quests"]);
+    // Migration should leave exactly ONE QUITE THE BARGAIN — no remnant duplicate.
+    const allBargain = ursula.abilities.filter(
+      (a: any) => a.type === "triggered" && a.storyName === "QUITE THE BARGAIN",
     );
-    const bargainOnQuest = ursula.abilities.find(
-      (a: any) => a.type === "triggered" && a.storyName === "QUITE THE BARGAIN" && a.trigger?.on === "quests"
-    );
-    expect(bargainOnPlay).toBeDefined();
-    expect(bargainOnQuest).toBeDefined();
+    expect(allBargain).toHaveLength(1);
   });
 });
 

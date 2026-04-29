@@ -1081,41 +1081,24 @@
         "type": "static",
         "storyName": "WE'VE GOT 'EM OUTNUMBERED",
         "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 2,
-          "target": {
-            "type": "this"
-          }
-        },
-        "condition": {
-          "type": "cards_in_zone_gte",
-          "amount": 3,
-          "zone": "play",
-          "owner": {
-            "type": "self"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
           },
-          "filter": {
-            "cardType": [
-              "character"
-            ],
-            "hasTrait": "Puppy"
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "WE'VE GOT 'EM OUTNUMBERED",
-        "rulesText": "While you have 3 or more Puppy characters in play, this character gets +2 {S} and +2 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 2,
-          "target": {
-            "type": "this"
-          }
-        },
+        ],
         "condition": {
           "type": "cards_in_zone_gte",
           "amount": 3,
@@ -1662,41 +1645,14 @@
         "storyName": "BACK ON TRACK",
         "rulesText": "When you play this character, you may return a Racer character card with cost 6 or less from your discard to your hand.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "return_to_hand",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Racer",
-                "statComparisons": [
-                  {
-                    "stat": "cost",
-                    "op": "lte",
-                    "value": 6
-                  }
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "BACK ON TRACK",
-        "rulesText": "Whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {
@@ -2016,15 +1972,7 @@
           }
         ],
         "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "this_has_no_damage"
-            },
-            {
-              "type": "this_has_no_damage"
-            }
-          ]
+          "type": "this_has_no_damage"
         }
       }
     ],
@@ -3328,25 +3276,14 @@
         "storyName": "SHORT ON PATIENCE",
         "rulesText": "When you play this character, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "draw",
-            "amount": 2,
-            "isMay": true,
-            "target": {
-              "type": "self"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "SHORT ON PATIENCE",
-        "rulesText": "Whenever he quests, you may deal 2 damage to another chosen character of yours to draw 2 cards.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {
@@ -13460,42 +13397,17 @@
         "storyName": "STRATEGIC EDGE",
         "rulesText": "When you play this character, you may draw a card, then choose and discard a card.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "sequential",
-            "isMay": true,
-            "costEffects": [],
-            "rewardEffects": [
-              {
-                "type": "draw",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                }
-              },
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
-                },
-                "chooser": "target_player"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "turn_start",
+              "player": {
+                "type": "self"
               }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "STRATEGIC EDGE",
-        "rulesText": "At the start of your turn, you may draw a card, then choose and discard a card.",
-        "trigger": {
-          "on": "turn_start",
-          "player": {
-            "type": "self"
-          }
+            }
+          ]
         },
         "effects": [
           {
@@ -14103,41 +14015,14 @@
         "storyName": "BACK ON TRACK",
         "rulesText": "When you play this character, you may return a Racer character card with cost 6 or less from your discard to your hand.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "return_to_hand",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Racer",
-                "statComparisons": [
-                  {
-                    "stat": "cost",
-                    "op": "lte",
-                    "value": 6
-                  }
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "BACK ON TRACK",
-        "rulesText": "Whenever he quests, you may return a Racer character card with cost 6 or less from your discard to your hand.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {

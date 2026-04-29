@@ -2466,28 +2466,14 @@
         "storyName": "GIVE ME TIME TO THINK",
         "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "look_at_top",
-            "count": 2,
-            "action": "choose_from_top",
-            "pickDestination": "deck_top",
-            "restPlacement": "bottom",
-            "maxToHand": 1,
-            "target": {
-              "type": "self"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "leaves_play"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "GIVE ME TIME TO THINK",
-        "rulesText": "When you play this character and when he leaves play, look at the top 2 cards of your deck. Put one on the top of your deck and the other on the bottom.",
-        "trigger": {
-          "on": "leaves_play"
+          ]
         },
         "effects": [
           {
@@ -5024,10 +5010,6 @@
               "character"
             ]
           }
-        },
-        "condition": {
-          "type": "compound_and",
-          "conditions": []
         },
         "effects": [
           {
