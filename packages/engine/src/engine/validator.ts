@@ -44,16 +44,11 @@ const fail = (reason: string): ValidationResult => ({ valid: false, reason });
 /**
  * CRD 8.10.1 + variants: can `shifting` be played via Shift onto `target`?
  *
- * Reads variant info from TWO paths during the 2026-04-30 migration window:
- *   (a) the shift keyword's `variant` / `classifier` fields (CRD-aligned, post-
- *       migration target shape — see types/index.ts KeywordAbility comment).
- *   (b) the modifiers' universalShifters / classificationShifters sets,
- *       populated by legacy `universal_shift_self` / `classification_shift_self`
- *       StaticEffects (pre-migration shape — to be removed in Layer 4).
- *
- * Either path returns the right answer; both feed the same union. Once the
- * migrate-shift-variants script lands and the legacy StaticEffects are removed,
- * path (b) becomes unreachable.
+ * Reads variant info from the shift keyword's `variant` / `classifier`
+ * fields (CRD 8.10.8 — Universal Shift, [Trait] Shift). Pre-2026-04-30 this
+ * also fell back to a modifiers-based check populated by legacy
+ * `universal_shift_self` / `classification_shift_self` StaticEffects; that
+ * path was removed once card data migrated to the keyword-variant shape.
  *
  * Handles:
  *  - base Shift (same name) — CRD 8.10.1
@@ -63,13 +58,13 @@ const fail = (reason: string): ValidationResult => ({ valid: false, reason });
  *  - alternateNames — either side may declare extra names (Turbo, Flotsam & Jetsam)
  */
 export function canShiftOnto(
-  shiftingInstanceId: string,
+  _shiftingInstanceId: string,
   shifting: CardDefinition,
   targetInstanceId: string,
   target: CardDefinition,
-  modifiers: { universalShifters: Set<string>; mimicryTargets: Set<string>; classificationShifters: Map<string, string> }
+  modifiers: { mimicryTargets: Set<string> }
 ): boolean {
-  // Path (a): read the shift keyword's variant fields (CRD-aligned).
+  // Read the shift keyword's variant fields (CRD-aligned).
   const shiftKw = (shifting.abilities ?? []).find(
     (a): a is import("../types/index.js").KeywordAbility =>
       a.type === "keyword" && a.keyword === "shift",
@@ -77,16 +72,6 @@ export function canShiftOnto(
   if (shiftKw?.variant === "universal") return true;
   if (shiftKw?.variant === "classification" && shiftKw.classifier) {
     return target.traits.includes(shiftKw.classifier);
-  }
-
-  // Path (b) [LEGACY, pre-migration]: read from modifier sets populated by
-  // universal_shift_self / classification_shift_self StaticEffects. Removed in
-  // Layer 4 of the shift-variants refactor once all cards migrate to the
-  // keyword-variant shape.
-  if (modifiers.universalShifters.has(shiftingInstanceId)) return true;
-  const requiredTrait = modifiers.classificationShifters.get(shiftingInstanceId);
-  if (requiredTrait) {
-    return target.traits.includes(requiredTrait);
   }
 
   // MIMICRY: target card explicitly ignores name match for any shifter.

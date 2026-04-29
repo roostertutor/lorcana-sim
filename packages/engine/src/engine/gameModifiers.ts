@@ -210,18 +210,12 @@ export interface GameModifiers {
    */
   mimicryTargets: Set<string>;
 
-  /**
-   * Universal shifters (Baymax Set 7+): in-hand instances whose Shift may target
-   * any character of yours regardless of name.
-   */
-  universalShifters: Set<string>;
-
-  /**
-   * Classification shifters (Thunderbolt Set 8 — "Puppy Shift"): in-hand instances
-   * whose Shift may target any character of yours that has the named trait.
-   * Key = instanceId, value = required trait.
-   */
-  classificationShifters: Map<string, string>;
+  // universalShifters / classificationShifters — REMOVED 2026-04-30 (followup
+  // to the structural-fidelity migration). Per CRD 8.10.8 these are variants
+  // of the Shift keyword, not standalone statics. KeywordAbility.variant +
+  // classifier carry the info; canShiftOnto reads them directly from the
+  // shift keyword on the card definition. Removing the empty sets cleans
+  // up the modifier-population dead code path.
 
   /**
    * Per-player lore threshold overrides (CRD 1.8.1.1, Donald Duck Flustered Sorcerer).
@@ -401,8 +395,6 @@ export function getGameModifiers(
     playForFreeSelf: new Map(),
     grantedShiftSelf: new Map(),
     mimicryTargets: new Set(),
-    universalShifters: new Set(),
-    classificationShifters: new Map(),
     loreThresholds: new Map(),
     skipsDrawStep: new Set(),
     canQuestTurnPlayed: new Set(),
@@ -841,14 +833,12 @@ export function getGameModifiers(
           break;
         }
 
-        // universal_shift_self / classification_shift_self handlers REMOVED
-        // 2026-04-30. Per CRD 8.10.8 these are variants of the Shift keyword;
-        // KeywordAbility now carries variant + classifier fields. canShiftOnto
-        // reads them directly from the card definition's shift keyword. The
-        // universalShifters / classificationShifters modifier sets are kept
-        // (empty post-migration) so canShiftOnto's legacy-path branch
-        // continues to compile until that branch is itself removed; both
-        // could be deleted together in a later refactor.
+        // universal_shift_self / classification_shift_self handlers + their
+        // associated modifier sets (universalShifters / classificationShifters)
+        // were REMOVED 2026-04-30. Per CRD 8.10.8 these are variants of the
+        // Shift keyword, not standalone statics — KeywordAbility now carries
+        // variant + classifier fields, and canShiftOnto reads them directly
+        // from the shift keyword on the card definition.
 
         case "skip_draw_step_self": {
           // Arthur Determined Squire (Set 8): owner skips their draw step.
