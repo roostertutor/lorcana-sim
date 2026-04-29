@@ -228,12 +228,22 @@ describe("Mechanic gaps batch — shift-variant", () => {
     expect(def.alternateNames).toContain("King Candy");
   });
 
-  it("Thunderbolt - Wonder Dog: Puppy Shift surfaces as a classification_shift_self static in hand", () => {
+  it("Thunderbolt - Wonder Dog: Puppy Shift encodes as shift keyword with variant:classification + classifier (CRD 8.10.8.1)", () => {
     const def = CARD_DEFINITIONS["thunderbolt-wonder-dog"]!;
     expect(def).toBeDefined();
-    const cs = def.abilities?.find((a: any) => a.type === "static" && a.effect?.type === "classification_shift_self") as any;
-    expect(cs).toBeDefined();
-    expect(cs.effect.trait).toBe("Puppy");
+    const shiftKw = def.abilities?.find(
+      (a: any) => a.type === "keyword" && a.keyword === "shift",
+    ) as any;
+    expect(shiftKw).toBeDefined();
+    expect(shiftKw.variant).toBe("classification");
+    expect(shiftKw.classifier).toBe("Puppy");
+    expect(shiftKw.value).toBe(3);
+    // Pre-2026-04-30 the static-effect form was canonical. After the
+    // shift-variant migration (CRD 8.10.8) it should be gone.
+    const legacyStatic = def.abilities?.find(
+      (a: any) => a.type === "static" && a.effect?.type === "classification_shift_self",
+    );
+    expect(legacyStatic).toBeUndefined();
   });
 });
 

@@ -6878,41 +6878,24 @@
         "type": "static",
         "storyName": "LOOK LIVELY, CREW!",
         "rulesText": "While you have another Pirate character in play, this character gets +1 {S} and +1 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "strength",
-          "amount": 1,
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
           }
-        },
-        "condition": {
-          "type": "you_control_matching",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "zone": "play",
-            "cardType": [
-              "character"
-            ],
-            "hasTrait": "Pirate",
-            "excludeSelf": true
-          }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "LOOK LIVELY, CREW!",
-        "rulesText": "While you have another Pirate character in play, this character gets +1 {S} and +1 {L}.",
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 1,
-          "target": {
-            "type": "this"
-          }
-        },
+        ],
         "condition": {
           "type": "you_control_matching",
           "filter": {
@@ -10210,54 +10193,14 @@
         "storyName": "THE TREATMENT IS WORKING",
         "rulesText": "When you play this character, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "sequential",
-            "isMay": true,
-            "costEffects": [
-              {
-                "type": "remove_damage",
-                "amount": 2,
-                "isUpTo": true,
-                "target": {
-                  "type": "chosen",
-                  "filter": {
-                    "owner": {
-                      "type": "self"
-                    },
-                    "zone": "play",
-                    "cardType": [
-                      "character"
-                    ],
-                    "excludeSelf": true
-                  }
-                }
-              }
-            ],
-            "rewardEffects": [
-              {
-                "type": "gain_lore",
-                "amount": {
-                  "type": "stat_ref",
-                  "from": "last_resolved_target",
-                  "property": "delta"
-                },
-                "target": {
-                  "type": "self"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "THE TREATMENT IS WORKING",
-        "rulesText": "Whenever he quests, you may remove up to 2 damage from another chosen character of yours. Gain 1 lore for each 1 damage removed this way.",
-        "trigger": {
-          "on": "quests"
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {

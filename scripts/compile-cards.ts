@@ -142,7 +142,11 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
   {
     name: "turn_start",
     pattern: /^At the start of your turn/i,
-    build: () => ({ on: "turn_start" }),
+    // Always scope to the controller — "At the start of your turn" oracle text
+    // means the caster's turn (CRD 4.1). Without `player: {type: "self"}` the
+    // trigger fires on every turn-start, including the opponent's, which the
+    // card-status audit flags as a silent no-op (regression for 9 set-12 cards).
+    build: () => ({ on: "turn_start", player: { type: "self" } }),
   },
   // turn_end
   {
@@ -153,7 +157,7 @@ const TRIGGER_MATCHERS: Matcher<Json>[] = [
   {
     name: "turn_end",
     pattern: /^At the end of your turn/i,
-    build: () => ({ on: "turn_end" }),
+    build: () => ({ on: "turn_end", player: { type: "self" } }),
   },
   // card_played — owner:self bare "Whenever you play a card"
   {
@@ -671,6 +675,26 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       target: { type: "chosen", filter: { zone: "play", cardType: ["item"] } },
     }),
   },
+  // "banish one of your items" / "banish one of your characters" — implicit
+  // "chosen X of yours" wording. Common cost-form for Hiram Flaversham
+  // Toymaker ARTIFICER (set 2 #149: "banish one of your items to draw 2 cards"),
+  // Genie Supportive Friend (sacrifice phrase), etc.
+  {
+    name: "banish_one_of_your_items",
+    pattern: /^banish one of your items/i,
+    build: () => ({
+      type: "banish",
+      target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["item"] } },
+    }),
+  },
+  {
+    name: "banish_one_of_your_characters",
+    pattern: /^banish one of your characters/i,
+    build: () => ({
+      type: "banish",
+      target: { type: "chosen", filter: { owner: { type: "self" }, zone: "play", cardType: ["character"] } },
+    }),
+  },
 
   // ============= EXERT / READY ==============================================
   // Mass "exert all opposing characters" — 3× hits. Use target:all filter
@@ -684,6 +708,25 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       target: {
         type: "all",
         filter: { zone: "play", cardType: ["character"], owner: { type: "opponent" } },
+      },
+    }),
+  },
+  // "exert all your characters not named X" — Mor'du Savage Cursed Prince
+  // FEROCIOUS ROAR (set 12 baseline #57). Uses notHasName CardFilter (a real
+  // filter field, distinct from name/hasName which would be inclusive).
+  {
+    name: "exert_all_your_chars_not_named",
+    pattern: /^exert all your characters not named ([\w''\- ]+?)(?:\.|$)/i,
+    build: (m) => ({
+      type: "exert",
+      target: {
+        type: "all",
+        filter: {
+          owner: { type: "self" },
+          zone: "play",
+          cardType: ["character"],
+          notHasName: m[1].trim(),
+        },
       },
     }),
   },
@@ -827,6 +870,18 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^deal (\d+) damage to chosen character/i,
     build: (m) => ({ type: "deal_damage", amount: n(m[1]), target: chosenCharacter() }),
   },
+  // "deal N damage to chosen damaged character" — Lord MacGuffin Clever
+  // Swordsman WAIT FOR IT... (set 12 baseline #78). The "damaged" qualifier
+  // adds hasDamage:true to the target filter.
+  {
+    name: "deal_damage_n_damaged",
+    pattern: /^deal (\d+) damage to chosen damaged character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: chosenCharacter({ damaged: true }),
+    }),
+  },
   // "deal N damage to the challenging character" — triggering_card target
   {
     name: "deal_damage_may_triggering",
@@ -932,6 +987,21 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   {
     name: "remove_damage_from_this",
     pattern: /^(?:you may )?remove up to (\d+) damage from this (?:location|character)/i,
+    build: (m) => ({
+      type: "remove_damage",
+      amount: n(m[1]),
+      target: { type: "this" },
+      isUpTo: true,
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
+  // "remove up to N damage from him/her/it" — pronoun referring back to the
+  // ability's source character. Pedro Madrigal Family Patriarch DEVOTED
+  // FAMILY (set 12 baseline #5) uses "from him". Same target shape as
+  // "from this character" (target.type:"this").
+  {
+    name: "remove_damage_from_pronoun",
+    pattern: /^(?:you may )?remove up to (\d+) damage from (?:him|her|it)\b/i,
     build: (m) => ({
       type: "remove_damage",
       amount: n(m[1]),
@@ -1103,8 +1173,45 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     },
   },
 
+  // "give chosen character <Keyword> [+N] until the start of your next turn"
+  // — Lord Macintosh Wiry and High-Strung TOUGH IT OUT (set 12 baseline
+  // #181, "Resist +2 until the start of your next turn").
+  {
+    name: "give_chosen_keyword_until_caster_next_turn",
+    pattern: /^give chosen character (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))? until the start of your next turn/i,
+    build: (m) => {
+      const out: Json = {
+        type: "grant_keyword",
+        keyword: m[1].toLowerCase(),
+        target: chosenCharacter(),
+        duration: "until_caster_next_turn",
+      };
+      if (m[2]) out.value = parseInt(m[2], 10);
+      return out;
+    },
+  },
+  // "give chosen character <Keyword> [+N] this turn" — Lord Dingwall
+  // Bullheaded FIGHTIN' TALK (set 12 baseline #186, "Challenger +3 this turn").
+  {
+    name: "give_chosen_keyword_this_turn",
+    pattern: /^give chosen character (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))? this turn/i,
+    build: (m) => {
+      const out: Json = {
+        type: "grant_keyword",
+        keyword: m[1].toLowerCase(),
+        target: chosenCharacter(),
+        duration: "this_turn",
+      };
+      if (m[2]) out.value = parseInt(m[2], 10);
+      return out;
+    },
+  },
+
   // ============= CAN'T ACTION ===============================================
   // "Up to N chosen characters can't quest until the start of your next turn"
+  // CantActionEffect has no isUpTo — the "up to" wording is approximated by a
+  // hard count via target.count (matches Strange Things hand-wired baseline,
+  // experiments/set12-baseline-2026-04-29.json:Strange Things actionEffects[0]).
   {
     name: "up_to_n_cant_quest",
     pattern: /^Up to (\d+) chosen characters can't quest until the start of your next turn/i,
@@ -1116,7 +1223,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
         count: parseInt(m[1], 10),
         filter: { zone: "play", cardType: ["character"] },
       },
-      isUpTo: true,
       duration: "until_caster_next_turn",
     }),
   },
@@ -1217,15 +1323,87 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
   // "chosen opponent reveals their hand and discards a[n] <type> card of your choice"
+  // Emits TWO flat effects in order: reveal_hand, then discard_from_hand. The
+  // public reveal step is essential — without it, the "of your choice" rider
+  // resolves with the caster never having seen the opponent's hand. Match
+  // Lenny - Toy Binoculars TAKE A GOOD LOOK (set 12 baseline #79).
+  // Wrapped in __actionEffects__ so parseEffectChain inline-flattens both
+  // effects (single-effect matcher framework otherwise can't emit multi-step).
   {
     name: "opponent_reveals_discards_your_choice",
     pattern: /^chosen opponent reveals their hand and discards an? (\w+) card of your choice/i,
     build: (m) => ({
-      type: "discard_from_hand",
-      amount: 1,
+      type: "__actionEffects__",
+      effects: [
+        { type: "reveal_hand", target: { type: "opponent" } },
+        {
+          type: "discard_from_hand",
+          amount: 1,
+          target: { type: "opponent" },
+          chooser: "controller",
+          filter: { cardType: [m[1].toLowerCase()] },
+        },
+      ],
+    }),
+  },
+  // "chosen opponent reveals their hand and discards a non-character card of
+  // your/their choice" — Timon Snowball Swiper GET RID OF THAT (set 11 #16),
+  // Mowgli Man Cub HAVE A BETTER LOOK (set 10 #19). The "your choice" vs
+  // "their choice" wording controls who picks (chooser:"controller" vs
+  // "target_player"). non-character expands to ["action","item","location"]
+  // per CRD card-type definition (Timon baseline omits location — that's a
+  // baseline bug; Mowgli baseline has the correct enumeration).
+  {
+    name: "opponent_reveals_discards_non_character",
+    pattern: /^chosen opponent reveals their hand and discards a non-character card of (your|their) choice/i,
+    build: (m) => ({
+      type: "__actionEffects__",
+      effects: [
+        { type: "reveal_hand", target: { type: "opponent" } },
+        {
+          type: "discard_from_hand",
+          amount: 1,
+          target: { type: "opponent" },
+          chooser: m[1].toLowerCase() === "your" ? "controller" : "target_player",
+          filter: { zone: "hand", cardType: ["action", "item", "location"] },
+        },
+      ],
+    }),
+  },
+  // "chosen player reveals their hand" — bare reveal-only effect, no discard
+  // follow-up. Match Copper Hound Pup FOUND YA (set 11 baseline #85).
+  // target is "chosen" rather than "opponent" so the caster picks (could be
+  // self in 3+P; for 2P only opponent is a legal target).
+  {
+    name: "chosen_player_reveals_hand",
+    pattern: /^chosen player reveals their hand/i,
+    build: () => ({
+      type: "reveal_hand",
+      target: { type: "chosen" },
+    }),
+  },
+  // "chosen opponent reveals their hand" — bare reveal of opponent. Match
+  // Dolores Madrigal Within Earshot I HEAR YOU (set 7 baseline #78).
+  {
+    name: "chosen_opponent_reveals_hand",
+    pattern: /^chosen opponent reveals their hand/i,
+    build: () => ({
+      type: "reveal_hand",
       target: { type: "opponent" },
-      chooser: "controller",
-      filter: { cardType: [m[1].toLowerCase()] },
+    }),
+  },
+  // "each opponent reveals their hand" — broadcast reveal across all
+  // opposing players. Match Nothing to Hide (set 2 baseline #165 action).
+  // Wraps in each_player so multi-opponent games iterate; the effect target
+  // resolves to "self" inside each iteration (the player REVEALING is self
+  // from their own each-iteration scope).
+  {
+    name: "each_opponent_reveals_hand",
+    pattern: /^each opponent reveals their hand/i,
+    build: () => ({
+      type: "each_player",
+      scope: "opponents",
+      effects: [{ type: "reveal_hand", target: { type: "self" } }],
     }),
   },
   {
@@ -1605,6 +1783,22 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       isMay: /^you may /i.test(m[0]) || undefined,
     }),
   },
+  // "look at the top 2 cards of your deck. Put one on the top of your deck
+  // and the other on the bottom." — Merlin Turtle (set 5 #38) phrasing of
+  // the top_or_bottom 2-card pattern. Different oracle wording from the
+  // generic "Put them on the top or bottom" form; the player still chooses
+  // which card is "one" and which is "other" (effectively top_or_bottom).
+  {
+    name: "look_at_top_2_split_top_bottom",
+    pattern: /^(?:you may )?look at the top 2 cards of your deck\. Put one on the top of your deck and the other on the bottom/i,
+    build: (m) => ({
+      type: "look_at_top",
+      count: 2,
+      action: "top_or_bottom",
+      target: { type: "self" },
+      isMay: /^you may /i.test(m[0]) || undefined,
+    }),
+  },
 
   // ============= DECK MANIPULATION ==========================================
   // ORDER MATTERS: reveal_top_switch_3way_type must come BEFORE
@@ -1646,6 +1840,9 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
 
 
   // "Move a character of yours to a location for free" — move_character
+  // Note: effect-driven moves are always free (move-cost only applies to the
+  // player's MOVE_CHARACTER action). The "for free" phrasing is reminder, not
+  // a separate primitive — match the hand-wired baseline (no cost field).
   {
     name: "move_character_to_location_free",
     pattern: /^Move a character of yours to a location for free/i,
@@ -1653,7 +1850,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "move_character",
       character: { type: "chosen", filter: { owner: { type: "self" }, cardType: ["character"], zone: "play" } },
       location: { type: "chosen", filter: { cardType: ["location"], zone: "play" } },
-      cost: "free",
     }),
   },
   // "draw cards equal to that location's {L}" — dynamic draw from last target
@@ -1667,9 +1863,10 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
-  // "Shift a character from your discard for free" — play_card with shift-only
-  // mode. Like Circle of Life but restricted to shift plays. Engine needs a
-  // `playMode: "shift"` flag on play_card (not yet implemented).
+  // "Shift a character from your discard for free" — Metamorphosis. Engine
+  // has no `playMode: "shift"` flag and the hand-wired baseline doesn't use
+  // one — at play time the player picks any character in discard and the
+  // shift mechanic resolves through the normal play path. Match baseline.
   {
     name: "shift_from_discard_free",
     pattern: /^Shift a character from your discard for free/i,
@@ -1678,7 +1875,6 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       sourceZone: "discard",
       filter: { zone: "discard", cardType: ["character"] },
       cost: "free",
-      playMode: "shift",
     }),
   },
 
@@ -1859,9 +2055,13 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
   // leading-condition pass already absorbs.
 
   // characters_in_play_gte — "if you have N or more [other] [Trait] characters in play"
+  // Note: `minimum` is on the condition itself, NOT on the filter.
+  // `countAtLeast` is not a CardFilter field — silent no-op flagged by
+  // card-status. Match Jessie #20 hand-wired (set 12 baseline,
+  // abilities[0].condition: { type:"you_control_matching", filter, minimum: 2 }).
   {
     name: "chars_in_play_gte_other_trait",
-    pattern: /^if you have (\d+) or more other ([A-Z][a-zA-Z]*) characters in play/i,
+    pattern: /^(?:if|while) you have (\d+) or more other ([A-Z][a-zA-Z]*) characters in play/i,
     build: (m) => ({
       type: "you_control_matching",
       filter: {
@@ -1870,13 +2070,30 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
         owner: { type: "self" },
         hasTrait: m[2],
         excludeSelf: true,
-        countAtLeast: parseInt(m[1], 10),
       },
+      minimum: parseInt(m[1], 10),
+    }),
+  },
+  // "while you have N or more <Trait> characters in play" — no "other" form,
+  // matches The Colonel Old Sheepdog WE'VE GOT 'EM OUTNUMBERED (set 8 #17:
+  // "While you have 3 or more Puppy characters in play").
+  {
+    name: "chars_in_play_gte_trait",
+    pattern: /^(?:if|while) you have (\d+) or more ([A-Z][a-zA-Z]*) characters in play/i,
+    build: (m) => ({
+      type: "you_control_matching",
+      filter: {
+        cardType: ["character"],
+        zone: "play",
+        owner: { type: "self" },
+        hasTrait: m[2],
+      },
+      minimum: parseInt(m[1], 10),
     }),
   },
   {
     name: "chars_in_play_gte_other",
-    pattern: /^if you have (\d+) or more other characters in play/i,
+    pattern: /^(?:if|while) you have (\d+) or more other characters in play/i,
     build: (m) => ({
       type: "characters_in_play_gte",
       amount: parseInt(m[1], 10),
@@ -1886,23 +2103,69 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
   },
   {
     name: "chars_in_play_gte",
-    pattern: /^if you have (\d+) or more characters in play/i,
+    pattern: /^(?:if|while) you have (\d+) or more characters in play/i,
     build: (m) => ({
       type: "characters_in_play_gte",
       amount: parseInt(m[1], 10),
       player: { type: "self" },
     }),
   },
+  // "while you have a character with <Keyword> in play" — Roxanne Powerline
+  // Fan CONCERT LOVER (set 9 #113: "While you have a character with Singer
+  // in play, this character gets +1 {S} and +1 {L}").
+  {
+    name: "has_char_with_keyword",
+    pattern: /^(?:if|while) you have a character with (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Singer) in play/i,
+    build: (m) => ({
+      type: "you_control_matching",
+      filter: {
+        cardType: ["character"],
+        zone: "play",
+        owner: { type: "self" },
+        hasKeyword: m[1].toLowerCase(),
+      },
+    }),
+  },
 
-  // has_character_named — "if you have a character named X in play"
+  // has_character_named — "if/while you have a character named X in play"
+  // The "while" form gates a static effect (Lilo Snow Artist set 11 #2,
+  // Dale Excited Friend set 12 #4 — both "While you have a character
+  // named X in play, this character gets +N {stat}.").
   {
     name: "has_char_named",
-    pattern: /^if you have a character named ([A-Z][\w'’\- ]*?) in play/i,
+    pattern: /^(?:if|while) you have a character named ([A-Z][\w'’\- ]*?) in play/i,
     build: (m) => ({
       type: "has_character_named",
       name: m[1].trim(),
       player: { type: "self" },
     }),
+  },
+  // "if/while you have another character with N {W/S/L} or more in play" —
+  // statComparisons filter on you_control_matching. Match Chip Team Player
+  // RANGER RESOURCEFULNESS (set 12 #27).
+  {
+    name: "has_other_char_with_stat_gte",
+    pattern: /^(?:if|while) you have another character with (\d+) \{(W|S|L)\} or more in play/i,
+    build: (m) => {
+      const stat =
+        m[2].toUpperCase() === "W"
+          ? "willpower"
+          : m[2].toUpperCase() === "S"
+            ? "strength"
+            : "lore";
+      return {
+        type: "you_control_matching",
+        filter: {
+          cardType: ["character"],
+          zone: "play",
+          owner: { type: "self" },
+          excludeSelf: true,
+          statComparisons: [
+            { stat, op: "gte", value: parseInt(m[1], 10) },
+          ],
+        },
+      };
+    },
   },
 
   // has_character_with_trait — "if you have a|another <Trait> character in
@@ -2038,6 +2301,24 @@ const CONDITION_MATCHERS: Matcher<Json>[] = [
     }),
   },
 
+  // this_has_cards_under — "while there's a card under this character"
+  // 12× recurrence across sets 10-12 (e.g. Ursula Whisper of Vanessa set 10
+  // #59, Flynn Rider Spectral Scoundrel #81, Megara Secret Keeper #86,
+  // Omnidroid V.10 set 12 #190).
+  {
+    name: "this_has_cards_under",
+    pattern: /^while there'?s a card under this (?:character|item|location)/i,
+    build: () => ({ type: "this_has_cards_under" }),
+  },
+  // this_has_no_damage — "while this character has no damage"
+  // 5× recurrence (Nala Undaunted Lioness set 9 #173, Lawrence Jealous
+  // Manservant #187, Rat Capone Rodent Gangster set 12 #183, etc.)
+  {
+    name: "this_has_no_damage",
+    pattern: /^while this character has no damage/i,
+    build: () => ({ type: "this_has_no_damage" }),
+  },
+
   // your_first_turn_as_underdog — "If this is your first turn and you're not
   // the first player". Straight/curly apostrophes both accepted.
   {
@@ -2128,9 +2409,16 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // reporting so the display reflects what the matchers actually see.
   let rest = original
     .replace(/[\u2018\u2019]/g, "'")   // curly → straight apostrophes
-    .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
-    .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")  // song cost reminder
-    .replace(/\s*\([^)]*\)\s*\.?$/, "")  // trailing reminder parens
+    .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift|Singer|Sing Together|Boost|Alert|Universal Shift)>/gi, "$1")
+    // Generic leading + trailing reminder-paren strip. Reminder text never
+    // carries mechanical info — it restates keyword/song rules that already
+    // exist in the engine. Stripping generically (instead of per-wording)
+    // means upstream transcription drift doesn't matter (e.g. Ravensburger's
+    // set-3-only "play this song for free" reminder typo, vs every other
+    // set's "sing this song for free" — both get stripped without code
+    // change).
+    .replace(/^\(\s*[^)]*\)\s*/, "")     // leading reminder paren
+    .replace(/\s*\([^)]*\)\s*\.?$/, "")  // trailing reminder paren
     .trim();
   const normalized = rest; // for unmatched reporting
 
@@ -2140,32 +2428,109 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // On statics with a condition, the oracle text is "If X, this character
   // can't ...". Try a generic condition match first; fall back to the hard-
   // coded turn forms for phrasings the condition table doesn't cover.
-  let leadingCondition: Json | null = null;
+  // Iterative peel — oracle text often stacks two preamble conditions like
+  // "During your turn, if X were put into your discard this turn, this
+  // character gets +N {L}." (Milo Thatch Courageous Explorer, set 12 #108
+  // baseline). We peel each condition off the front, composing a list, and
+  // wrap with compound_and at the end if 2+ accumulated. Single condition
+  // stays unwrapped (matches the most common baseline shape).
+  const leadingConditions: Json[] = [];
   let oncePerTurn = false;
+
+  // Pass 1: well-known turn-scope phrasings.
   const leadCond = /^(?:During your turn|Once during your turn|Once per turn|During opponents'?\s*turns?),\s*/i.exec(rest);
   if (leadCond) {
     if (/^Once\b/i.test(leadCond[0])) {
-      leadingCondition = { type: "is_your_turn" };
+      leadingConditions.push({ type: "is_your_turn" });
       oncePerTurn = true;
     } else if (/opponents/i.test(leadCond[0])) {
-      leadingCondition = { type: "not", condition: { type: "is_your_turn" } };
+      leadingConditions.push({ type: "not", condition: { type: "is_your_turn" } });
     } else {
-      leadingCondition = { type: "is_your_turn" };
+      leadingConditions.push({ type: "is_your_turn" });
     }
     rest = rest.slice(leadCond[0].length);
-  } else {
-    // Generic: "If <condition>, ..." / "While <condition>, ...". We peel it
-    // using the same CONDITION_MATCHERS the post-trigger path uses.
+  }
+
+  // Pass 2+: generic "if X, ..." / "while X, ..." condition stacking.
+  // Loop in case multiple conditions appear (e.g. "During your turn, if X
+  // and if Y, ...") — though that's rare in practice.
+  while (true) {
     const cond = matchCondition(rest);
-    if (cond) {
-      // Must be followed by ", " for this to be a leading-condition phrase
-      // (otherwise it's the start of a sentence that happens to match).
-      const after = rest.slice(cond.consumed);
-      if (/^,\s+/.test(after)) {
-        leadingCondition = cond.json;
-        rest = after.replace(/^,\s+/, "");
+    if (!cond) break;
+    const after = rest.slice(cond.consumed);
+    if (!/^,\s+/.test(after)) break; // condition not followed by ", " — bail
+    leadingConditions.push(cond.json);
+    rest = after.replace(/^,\s+/, "");
+  }
+
+  // Compose: 0 → null, 1 → as-is, 2+ → compound_and.
+  const leadingCondition: Json | null =
+    leadingConditions.length === 0
+      ? null
+      : leadingConditions.length === 1
+        ? leadingConditions[0]
+        : { type: "compound_and", conditions: leadingConditions };
+
+  // Pronoun normalization — after peeling a leading condition, the remaining
+  // sentence often starts with "he/she/it/they" referring to the source
+  // character (e.g. Rat Capone "While this character has no damage, he gets
+  // +3 {S}." set 12 #183). Static-shape matchers all anchor on "This
+  // character"; normalize so they hit. Only applied when a leading condition
+  // was peeled — otherwise pronouns mid-rulesText would misfire.
+  if (leadingConditions.length > 0) {
+    rest = rest.replace(/^(?:he|she|it|they)\s+/i, "This character ");
+  }
+
+  // -------- Multi-trigger anyOf shape (CRD structural fidelity) ----------
+  // "When you play this character and whenever X, [body]" / "and when X" /
+  // "and at the start of your turn" — same effect body fires on multiple
+  // triggers under one printed ability name. Emit one TriggeredAbility with
+  // trigger: { anyOf: [trig1, trig2] }. Pre-2026-04-30 these were encoded
+  // as duplicate abilities sharing a storyName, which silently double-
+  // counted oncePerTurn budgets and lost storyName attribution on the
+  // second copy.
+  //
+  // Common cases: Hiram Flaversham Toymaker ARTIFICER (set 2 #149), John
+  // Silver Alien Pirate PICK YOUR FIGHTS (set 1 #82), Tamatoa So Shiny
+  // (set 1 #159), Goofy Galumphing Gumshoe HOT PURSUIT (set 10 #24),
+  // Ursula Deal Maker QUITE THE BARGAIN (set 12 #161), etc.
+  const multiTrigPrefix = /^When you play this character and (?=(?:whenever|when|at the start|at the end))/i.exec(rest);
+  if (multiTrigPrefix) {
+    let afterPrefix = rest.slice(multiTrigPrefix[0].length);
+    // Pronoun normalization for the second-trigger phrase: oracle text uses
+    // "whenever he/she/it/they quests" / "when he leaves play" but our
+    // trigger matchers anchor on "this character". Replace pronouns BEFORE
+    // matchTrigger runs so e.g. "whenever he quests" → "whenever this
+    // character quests" hits the canonical matcher.
+    afterPrefix = afterPrefix.replace(
+      /^(whenever|when)\s+(?:he|she|it|they)\s+/i,
+      "$1 this character ",
+    );
+    // Also handle "whenever he's challenged" → "whenever this character is challenged"
+    afterPrefix = afterPrefix.replace(
+      /^(whenever|when)\s+(?:he|she|it|they)'s\s+/i,
+      "$1 this character is ",
+    );
+    const secondTrig = matchTrigger(afterPrefix);
+    if (secondTrig) {
+      let after2 = afterPrefix.slice(secondTrig.consumed).trimStart();
+      if (after2.startsWith(",")) after2 = after2.slice(1).trimStart();
+      const effects = parseEffectChain(after2);
+      if (effects && effects.consumedAll) {
+        const ability: Json = {
+          type: "triggered",
+          trigger: { anyOf: [{ on: "enters_play" }, secondTrig.json] },
+          effects: effects.json,
+        };
+        if (leadingCondition) ability.condition = leadingCondition;
+        if (oncePerTurn) ability.oncePerTurn = true;
+        return { ability, unmatched: "" };
       }
     }
+    // Multi-trigger phrase recognized but second-trigger or effect-chain
+    // didn't parse — fall through to the regular triggered path so the
+    // normal matchTrigger picks up "When you play this character" alone
+    // and produces a partial wiring (the human reviewer sees the gap).
   }
 
   // -------- Triggered shape -----------------------------------------------
@@ -2221,6 +2586,68 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
       return { ability, unmatched: "" };
     }
     return { ability: null, unmatched: effects ? effects.remainder : after };
+  }
+
+  // -------- Triggered shape — implicit enters_play idioms ------------------
+  // "This character enters play with N damage" — Pedro Madrigal Family
+  // Patriarch DIFFICULT JOURNEY (set 12 baseline #5), Zeus Defiant God
+  // IMMORTAL WOUND (#109). Hand-wired as triggered on enters_play with a
+  // self-damage effect, NOT a static. The text reads like flavor but the
+  // engine implementation is event-driven.
+  const triggerEntersWithDamage = /^This character enters play with (\d+) damage\.?$/i.exec(rest);
+  if (triggerEntersWithDamage) {
+    const ability: Json = {
+      type: "triggered",
+      trigger: { on: "enters_play" },
+      effects: [
+        {
+          type: "deal_damage",
+          amount: parseInt(triggerEntersWithDamage[1], 10),
+          target: { type: "this" },
+        },
+      ],
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character may enter play exerted to <effect>" — Lord MacGuffin
+  // Clever Swordsman (#78), Lord Macintosh Wiry and High-Strung (#181), Lord
+  // Dingwall Bullheaded (#186). Wired as triggered on enters_play with a
+  // sequential(may_exert_self, <inner>) so the may-prompt offers exert-as-cost
+  // for the inner effect. Inner effect is parsed via the same EFFECT_MATCHERS
+  // table (deal_damage, grant_keyword, etc.).
+  const triggerMayEnterExerted = /^This character may enter play exerted to (.+)\.?$/i.exec(rest);
+  if (triggerMayEnterExerted) {
+    const innerText = triggerMayEnterExerted[1].trim();
+    // Capitalize the first letter so EFFECT_MATCHERS' anchored patterns match
+    // ("deal 3 damage to chosen damaged character" → "Deal..."). Most matchers
+    // are case-insensitive; this is a defensive lowercase preserver.
+    const inner = matchEffect(innerText) ??
+      matchEffect("give " + innerText.replace(/^give /i, ""));
+    if (inner) {
+      const ability: Json = {
+        type: "triggered",
+        trigger: { on: "enters_play" },
+        effects: [
+          {
+            type: "sequential",
+            isMay: true,
+            costEffects: [{ type: "exert", target: { type: "this" } }],
+            rewardEffects: [inner.json],
+          },
+        ],
+      };
+      if (leadingCondition) ability.condition = leadingCondition;
+      return { ability, unmatched: "" };
+    }
+    // Inner effect didn't match — fall through to unmatched reporting so
+    // the human-review surface gets a precise "tried may-enter-exerted but
+    // couldn't compile inner effect: <text>" signal.
+    return {
+      ability: null,
+      unmatched: `may-enter-exerted inner: ${innerText}`,
+    };
   }
 
   // -------- Static shape --------------------------------------------------
@@ -2351,12 +2778,20 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
-  // "This character may enter play exerted."
+  // "This character may enter play exerted." (no "to <effect>" tail)
+  // Per CRD: "may" requires a choice. enter_play_exerted_self auto-exerts
+  // with no prompt, so it's the wrong shape for "may"-worded oracles.
+  // Correct form is triggered enters_play with [{exert, isMay:true}] —
+  // matches Hamish, Hubert & Harris STAY QUIET (set 12 baseline #50,
+  // abilities[0]). Mickey Mouse Expedition Leader baseline uses the
+  // wrong static form; that's a baseline bug we intentionally do not
+  // reproduce.
   const statMayEnterExerted = /^This character may enter play exerted\.?$/i.exec(rest);
   if (statMayEnterExerted) {
     const ability: Json = {
-      type: "static",
-      effect: { type: "enter_play_exerted_self", isMay: true },
+      type: "triggered",
+      trigger: { on: "enters_play" },
+      effects: [{ type: "exert", target: { type: "this" }, isMay: true }],
     };
     return { ability, unmatched: "" };
   }
@@ -2480,6 +2915,49 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
+  // "This character can't challenge." / "This character can't quest." — bare
+  // per-instance restriction. Match Chief Powhatan Protective Leader STANDS
+  // HIS GROUND (set 11 baseline #11). Use `cant_action_self`, NOT
+  // `action_restriction` (the latter applies to ALL of the player's
+  // characters — a known no-op-stub pitfall called out in CLAUDE.md).
+  // Note: Percy Pupsicle (#27) baseline uses action_restriction — that's a
+  // baseline bug we intentionally do not reproduce.
+  const statCantAction = /^This character can't (challenge|quest)\.?$/i.exec(rest);
+  if (statCantAction) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "cant_action_self", action: statCantAction[1].toLowerCase() },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "Your characters not named X can't ready at the start of your turn." —
+  // Mor'du Savage Cursed Prince ROOTED BY FEAR (set 12 baseline #57).
+  // action_restriction with notHasName filter, restricts:"ready",
+  // affectedPlayer:{type:"self"}.
+  const statRootedByFear =
+    /^Your characters not named ([\w''\- ]+?) can't ready at the start of your turn\.?$/i.exec(
+      rest,
+    );
+  if (statRootedByFear) {
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "action_restriction",
+        restricts: "ready",
+        affectedPlayer: { type: "self" },
+        filter: {
+          zone: "play",
+          cardType: ["character"],
+          notHasName: statRootedByFear[1].trim(),
+        },
+      },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
   // "This character gets +X {S} for each [filter] you have in play" — dynamic
   const statDynamic = /^This character gets \+(\d+) \{(S|W|L)\} for each (other character|card in your hand|.*?) you have in play\.?$/i.exec(rest);
   if (statDynamic) {
@@ -2506,6 +2984,76 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     return { ability, unmatched: "" };
   }
 
+  // "This character gets +X {stat} and +Y {stat}" — compound stat buff
+  // (Wendy Darling Courageous Captain LOOK LIVELY CREW!, set 6 baseline
+  // #108: "While X, this character gets +1 {S} and +1 {L}"). Hand-wired
+  // baseline encodes this as TWO static abilities sharing a storyName,
+  // which violates structural fidelity (CLAUDE.md). Compiler emits the
+  // correct one-ability shape with effect-array. Place BEFORE the bare
+  // statGetsStat so compound wins.
+  const statGetsTwoStats = /^This character gets ([+-]?\d+) \{(S|W|L)\} and ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(rest);
+  if (statGetsTwoStats) {
+    const statName = (s: string) =>
+      s.toUpperCase() === "S" ? "strength" : s.toUpperCase() === "W" ? "willpower" : "lore";
+    const ability: Json = {
+      type: "static",
+      effect: [
+        {
+          type: "modify_stat",
+          stat: statName(statGetsTwoStats[2]),
+          amount: parseInt(statGetsTwoStats[1], 10),
+          target: { type: "this" },
+        },
+        {
+          type: "modify_stat",
+          stat: statName(statGetsTwoStats[4]),
+          amount: parseInt(statGetsTwoStats[3], 10),
+          target: { type: "this" },
+        },
+      ],
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character gets +X {stat} and gains <Keyword>[+M]" — compound static
+  // body. Uses StaticAbility's array effect form (CRD 6.2.6, types/index.ts
+  // line 198-200: "Array form for compound abilities: 'While X, [A] and [B]'").
+  // Match Nala Undaunted Lioness DETERMINED DIVERSION (set 9 baseline #173,
+  // "+1 {L} and gains Resist +1") — though Nala's hand-wired baseline has a
+  // duplicated condition bug (compound_and of two identical this_has_no_damage),
+  // so we emit the correct shape with the single condition. Place BEFORE the
+  // bare statGetsStat so the compound form wins on overlap.
+  const statGetsStatAndGainsKw = /^This character gets ([+-]?\d+) \{(S|W|L)\} and gains (Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish)(?: \+(\d+))?\.?$/i.exec(rest);
+  if (statGetsStatAndGainsKw) {
+    const stat =
+      statGetsStatAndGainsKw[2].toUpperCase() === "S"
+        ? "strength"
+        : statGetsStatAndGainsKw[2].toUpperCase() === "W"
+          ? "willpower"
+          : "lore";
+    const kwEffect: Json = {
+      type: "grant_keyword",
+      keyword: statGetsStatAndGainsKw[3].toLowerCase(),
+      target: { type: "this" },
+    };
+    if (statGetsStatAndGainsKw[4]) kwEffect.value = parseInt(statGetsStatAndGainsKw[4], 10);
+    const ability: Json = {
+      type: "static",
+      effect: [
+        {
+          type: "modify_stat",
+          stat,
+          amount: parseInt(statGetsStatAndGainsKw[1], 10),
+          target: { type: "this" },
+        },
+        kwEffect,
+      ],
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
   // "This character gets +X {S}" static
   const statGetsStat = /^This character gets ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(rest);
   if (statGetsStat) {
@@ -2525,7 +3073,11 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
   // "Your [other] [trait-or-named-or-keyword-qualifier] characters get +N {S}."
   const fStats = parseYourCharactersGetsStat(rest);
   if (fStats) {
-    const ability: Json = { type: "static", effect: fStats };
+    // Unwrap the __compoundEffect marker emitted by the filter-target
+    // compound-stat path (Beast FULL DANCE CARD: "+1 {S} and +1 {W}") into
+    // StaticAbility's effect-array form. Single-effect path stays as-is.
+    const effect: Json | Json[] = fStats.__compoundEffect ? fStats.effects : fStats;
+    const ability: Json = { type: "static", effect };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
   }
@@ -2850,6 +3402,37 @@ function parseYourCharactersGetsStat(text: string): Json | null {
   const f = parseYourCharactersFilter(text);
   if (!f) return null;
   const after = text.slice(f.consumed);
+  // Compound form first: "get +N {stat1} and +M {stat2}" (no duration support
+  // here — the compound form is always the durationless static buff per the
+  // hand-wired baseline). Match Beast Gracious Prince FULL DANCE CARD
+  // (set 9 baseline #4: "Your Princess characters get +1 {S} and +1 {W}"),
+  // The Colonel Old Sheepdog WE'VE GOT 'EM OUTNUMBERED (set 8 #17:
+  // "While X, this character gets +2 {S} and +2 {L}" — "this character"
+  // case is handled separately above; the filter-target case is here).
+  // Returns a marker `{ __compoundEffect: true, effects: [...] }` that
+  // the caller unwraps into a static with effect-array.
+  const mStatTwo = /^\s+get ([+-]?\d+) \{(S|W|L)\} and ([+-]?\d+) \{(S|W|L)\}\.?$/i.exec(after);
+  if (mStatTwo) {
+    const statName = (s: string) =>
+      s.toUpperCase() === "S" ? "strength" : s.toUpperCase() === "W" ? "willpower" : "lore";
+    return {
+      __compoundEffect: true,
+      effects: [
+        {
+          type: "modify_stat",
+          stat: statName(mStatTwo[2]),
+          amount: parseInt(mStatTwo[1], 10),
+          target: { type: "all", filter: f.filter },
+        },
+        {
+          type: "modify_stat",
+          stat: statName(mStatTwo[4]),
+          amount: parseInt(mStatTwo[3], 10),
+          target: { type: "all", filter: f.filter },
+        },
+      ],
+    };
+  }
   // "get +N {stat}" optionally followed by " this turn" / "until the start of
   // your next turn". Duration-ful filter-target buffs render as gain_stats
   // (not modify_stat) per existing card JSON.
@@ -2977,7 +3560,16 @@ function parseEffectChain(
       rest = rest.slice(dur.consumed);
     }
     rest = rest.trimStart();
-    effects.push(m.json);
+    // Multi-effect matcher inline-flatten — a single oracle phrase like
+    // "chosen opponent reveals their hand and discards an action card of
+    // your choice" emits two flat effects (reveal_hand, discard_from_hand)
+    // wrapped in `__actionEffects__` to fit the matcher framework's
+    // single-effect contract. Splice them in instead of pushing the wrapper.
+    if (m.json.type === "__actionEffects__" && Array.isArray(m.json.effects)) {
+      effects.push(...m.json.effects);
+    } else {
+      effects.push(m.json);
+    }
     // Strip a reminder-text parenthetical that the forward decompiler never
     // emits (e.g. "(They can challenge characters with Evasive.)").
     const rem = /^\([^)]*\)\s*/.exec(rest);
@@ -3060,8 +3652,10 @@ export function compileCard(card: CardJSON): CompiledCard {
   if (card.cardType === "action") {
     let normalized = (card.rulesText ?? "")
       .replace(/[\u2018\u2019]/g, "'")
-      .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift)>/gi, "$1")
-      .replace(/^\(A character with cost \d+ or more can \{E\} to sing this song for free\.\)\s*/i, "")
+      .replace(/<(Rush|Evasive|Ward|Reckless|Bodyguard|Support|Challenger|Resist|Vanish|Shift|Singer|Sing Together|Boost|Alert|Universal Shift)>/gi, "$1")
+      // Generic leading + trailing reminder-paren strip (same logic as
+      // compileAbility above \u2014 see comment there for rationale).
+      .replace(/^\(\s*[^)]*\)\s*/, "")
       .replace(/\s*\([^)]*\)\s*\.?$/, "")
       .trim();
 
@@ -3365,13 +3959,30 @@ function applyToSet(setId: string): void {
     if (card.cardType === "action" && compiled.actionEffectResult?.ability) {
       const ab = compiled.actionEffectResult.ability;
       if (ab.type === "__actionEffects__" && Array.isArray(ab.effects)) {
-        const issues = validateJson({ effects: ab.effects }, known);
+        // Flatten nested __actionEffects__ wrappers — some EFFECT_MATCHERS emit
+        // the wrapper as a "container" pseudo-effect (e.g.
+        // opponent_partition_3way_hand_bottom_top) which would otherwise leak
+        // through as a literal `{type:"__actionEffects__"}` entry on disk and
+        // get flagged as an unknown engine type by card-status.
+        const flatten = (effects: Json[]): Json[] => {
+          const out: Json[] = [];
+          for (const e of effects) {
+            if (e && e.type === "__actionEffects__" && Array.isArray(e.effects)) {
+              out.push(...flatten(e.effects));
+            } else {
+              out.push(e);
+            }
+          }
+          return out;
+        };
+        const flatEffects = flatten(ab.effects);
+        const issues = validateJson({ effects: flatEffects }, known);
         if (issues.length > 0) {
           skippedUnknown++;
           unknownReport.push({ card: card.fullName, issues });
           continue;
         }
-        card.actionEffects = ab.effects;
+        card.actionEffects = flatEffects;
         wired++;
         continue;
       }

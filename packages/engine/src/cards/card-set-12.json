@@ -1712,45 +1712,26 @@
         "storyName": "RESTORING RECIPE",
         "rulesText": "When you play this character, you may remove up to 1 damage from chosen character or location.",
         "trigger": {
-          "on": "enters_play",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "isSelf": true
-          }
-        },
-        "effects": [
-          {
-            "type": "remove_damage",
-            "amount": 1,
-            "isUpTo": true,
-            "isMay": true,
-            "target": {
-              "type": "chosen",
+          "anyOf": [
+            {
+              "on": "enters_play",
               "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character",
-                  "location"
-                ]
+                "owner": {
+                  "type": "self"
+                },
+                "isSelf": true
+              }
+            },
+            {
+              "on": "quests",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "isSelf": true
               }
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "RESTORING RECIPE",
-        "rulesText": "Whenever she quests, you may remove up to 1 damage from chosen character or location.",
-        "trigger": {
-          "on": "quests",
-          "filter": {
-            "owner": {
-              "type": "self"
-            },
-            "isSelf": true
-          }
+          ]
         },
         "effects": [
           {
@@ -11030,38 +11011,14 @@
         "storyName": "FEEL BETTER",
         "rulesText": "When you play this character and whenever she quests, you may move all damage from chosen character of yours to this character.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "move_damage",
-            "amount": 99,
-            "isMay": true,
-            "source": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "excludeSelf": true
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "destination": {
-              "type": "this"
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "FEEL BETTER",
-        "rulesText": "When you play this character and whenever she quests, you may move all damage from chosen character of yours to this character.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {
@@ -11728,32 +11685,14 @@
         "storyName": "QUITE THE BARGAIN",
         "rulesText": "When you play this character and whenever she quests, another chosen character gets +1 {L} this turn.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "gain_stats",
-            "lore": 1,
-            "duration": "end_of_turn",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "excludeSelf": true
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "QUITE THE BARGAIN",
-        "rulesText": "When you play this character and whenever she quests, another chosen character gets +1 {L} this turn.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {

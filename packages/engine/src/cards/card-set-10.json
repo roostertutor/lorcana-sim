@@ -1456,34 +1456,14 @@
         "storyName": "HOT PURSUIT",
         "rulesText": "When you play this character, each opposing character gets -1 {S} until the start of your next turn.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "gain_stats",
-            "strength": -1,
-            "duration": "until_caster_next_turn",
-            "target": {
-              "type": "all",
-              "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "HOT PURSUIT",
-        "rulesText": "Whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {
@@ -9981,15 +9961,7 @@
           }
         ],
         "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "is_your_turn"
-            }
-          ]
+          "type": "is_your_turn"
         }
       }
     ],
@@ -10387,34 +10359,14 @@
         "storyName": "THOROUGH INVESTIGATION",
         "rulesText": "When you play this character and whenever she quests, look at the top 3 cards of your deck. You may reveal a Detective character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "look_at_top",
-            "count": 3,
-            "action": "choose_from_top",
-            "maxToHand": 1,
-            "target": {
-              "type": "self"
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Detective"
-            },
-            "isMay": true,
-            "revealPicks": true
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "THOROUGH INVESTIGATION",
-        "rulesText": "When you play this character and whenever she quests, look at the top 3 cards of your deck. You may reveal a Detective character card and put it into your hand. Put the rest on the bottom of your deck in any order.",
-        "trigger": {
-          "on": "quests"
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {
@@ -10926,8 +10878,12 @@
         "action": "choose_from_top",
         "maxToHand": 2,
         "filters": [
-          { "cardType": "character" },
-          { "cardType": "item" }
+          {
+            "cardType": "character"
+          },
+          {
+            "cardType": "item"
+          }
         ],
         "target": {
           "type": "self"
@@ -15050,34 +15006,14 @@
         "storyName": "HOT PURSUIT",
         "rulesText": "When you play this character, each opposing character gets -1 {S} until the start of your next turn.",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "gain_stats",
-            "strength": -1,
-            "duration": "until_caster_next_turn",
-            "target": {
-              "type": "all",
-              "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
             }
-          }
-        ]
-      },
-      {
-        "type": "triggered",
-        "storyName": "HOT PURSUIT",
-        "rulesText": "Whenever he quests, each opposing character gets -1 {S} until the start of your next turn.",
-        "trigger": {
-          "on": "quests"
+          ]
         },
         "effects": [
           {
@@ -16129,15 +16065,7 @@
           }
         ],
         "condition": {
-          "type": "compound_and",
-          "conditions": [
-            {
-              "type": "is_your_turn"
-            },
-            {
-              "type": "is_your_turn"
-            }
-          ]
+          "type": "is_your_turn"
         }
       }
     ],

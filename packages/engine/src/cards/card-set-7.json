@@ -1564,21 +1564,11 @@
         "keyword": "bodyguard"
       },
       {
-        "type": "static",
-        "storyName": "Puppy Shift",
-        "rulesText": "Puppy Shift 3 (You may pay 3 {I} to play this on top of one of your Puppy characters.)",
-        "effect": {
-          "type": "classification_shift_self",
-          "trait": "Puppy"
-        },
-        "activeZones": [
-          "hand"
-        ]
-      },
-      {
         "type": "keyword",
         "keyword": "shift",
-        "value": 3
+        "value": 3,
+        "variant": "classification",
+        "classifier": "Puppy"
       }
     ],
     "setId": "7",
@@ -6864,15 +6854,10 @@
     ],
     "abilities": [
       {
-        "type": "static",
-        "storyName": "FUNCTIONALITY IMPROVED",
-        "rulesText": "Universal Shift 4 (You may pay 4 {I} to play this on top of any one of your characters.)",
-        "activeZones": [
-          "hand"
-        ],
-        "effect": {
-          "type": "universal_shift_self"
-        }
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4,
+        "variant": "universal"
       },
       {
         "type": "triggered",
@@ -12847,56 +12832,24 @@
           "type": "compound_and",
           "conditions": [
             {
-              "type": "compound_and",
-              "conditions": [
-                {
-                  "type": "is_your_turn"
-                },
-                {
-                  "type": "compound_or",
-                  "conditions": [
-                    {
-                      "type": "has_character_named",
-                      "name": "Miss Bianca",
-                      "player": {
-                        "type": "self"
-                      }
-                    },
-                    {
-                      "type": "has_character_named",
-                      "name": "Bernard",
-                      "player": {
-                        "type": "self"
-                      }
-                    }
-                  ]
-                }
-              ]
+              "type": "is_your_turn"
             },
             {
-              "type": "compound_and",
+              "type": "compound_or",
               "conditions": [
                 {
-                  "type": "is_your_turn"
+                  "type": "has_character_named",
+                  "name": "Miss Bianca",
+                  "player": {
+                    "type": "self"
+                  }
                 },
                 {
-                  "type": "compound_or",
-                  "conditions": [
-                    {
-                      "type": "has_character_named",
-                      "name": "Miss Bianca",
-                      "player": {
-                        "type": "self"
-                      }
-                    },
-                    {
-                      "type": "has_character_named",
-                      "name": "Bernard",
-                      "player": {
-                        "type": "self"
-                      }
-                    }
-                  ]
+                  "type": "has_character_named",
+                  "name": "Bernard",
+                  "player": {
+                    "type": "self"
+                  }
                 }
               ]
             }

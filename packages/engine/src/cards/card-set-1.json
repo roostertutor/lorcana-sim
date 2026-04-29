@@ -4552,34 +4552,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "grant_keyword",
-            "keyword": "reckless",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "owner": {
-                  "type": "opponent"
-                }
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "duration": "end_of_owner_next_turn"
-          }
-        ],
-        "storyName": "PICK YOUR FIGHTS",
-        "rulesText": "When you play this character and whenever he quests, chosen opposing character gains Reckless during their next turn. (They can't quest and must challenge if able.)"
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {
@@ -8223,34 +8203,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "remove_damage",
-            "amount": 2,
-            "target": {
-              "type": "all",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "isMay": true
-          }
-        ],
-        "storyName": "CARETAKER",
-        "rulesText": "When you play this character and whenever she quests, you may remove up to 2 damage from each of your characters."
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {
@@ -8837,33 +8797,14 @@
       {
         "type": "triggered",
         "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "return_to_hand",
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "discard",
-                "cardType": [
-                  "item"
-                ]
-              }
+          "anyOf": [
+            {
+              "on": "enters_play"
             },
-            "isMay": true
-          }
-        ],
-        "storyName": "WHAT HAVE WE HERE?",
-        "rulesText": "When you play this character and whenever he quests, you may return an item card from your discard to your hand."
-      },
-      {
-        "type": "triggered",
-        "trigger": {
-          "on": "quests"
+            {
+              "on": "quests"
+            }
+          ]
         },
         "effects": [
           {

@@ -3540,25 +3540,16 @@
         "type": "static",
         "storyName": "WHO DISTURBS MY SLUMBER?",
         "rulesText": "This character can't quest unless it is at a location.",
-        "effect": {
-          "type": "cant_action_self",
-          "action": "quest"
-        },
-        "condition": {
-          "type": "not",
-          "condition": {
-            "type": "this_at_location"
+        "effect": [
+          {
+            "type": "cant_action_self",
+            "action": "quest"
+          },
+          {
+            "type": "cant_action_self",
+            "action": "challenge"
           }
-        }
-      },
-      {
-        "type": "static",
-        "storyName": "WHO DISTURBS MY SLUMBER?",
-        "rulesText": "This character can't challenge unless it is at a location.",
-        "effect": {
-          "type": "cant_action_self",
-          "action": "challenge"
-        },
+        ],
         "condition": {
           "type": "not",
           "condition": {
