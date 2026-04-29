@@ -757,6 +757,54 @@ interface FidelityViolation {
   detail: string;
 }
 
+/**
+ * Walk an ability tree and return the set of effect/static-effect type
+ * discriminators that appear under it. Used by the cooperative-pattern
+ * recognizer below to identify known runtime-correct shapes that share a
+ * storyName legitimately (e.g. `remember_chosen_target` paired with
+ * `restrict_remembered_target_action` — the trigger captures the target
+ * on play, the static reads the captured target while in play).
+ */
+function collectEffectTypes(node: any, types: Set<string>): void {
+  if (!node || typeof node !== "object") return;
+  if (Array.isArray(node)) {
+    for (const n of node) collectEffectTypes(n, types);
+    return;
+  }
+  if (typeof node.type === "string") types.add(node.type);
+  for (const v of Object.values(node)) collectEffectTypes(v, types);
+}
+
+/**
+ * Returns true when a duplicate-storyName group is a known cooperative
+ * encoding — two abilities sharing a storyName that COOPERATIVELY express
+ * one printed ability the engine can't otherwise capture in a single
+ * ability. Currently recognizes:
+ *
+ * - `remember_chosen_target` (triggered) + `restrict_remembered_target_action`
+ *   (static): "When you play this, choose X. While in play, X can't ready."
+ *   Elsa's Ice Palace ETERNAL WINTER (set 5 #67, set C1 #7) is the canonical
+ *   case. The engine has no single primitive that captures-and-applies in
+ *   one step; the two-ability shape is the only correct encoding today.
+ *
+ * Add new patterns here as they're identified — keep narrow so the
+ * heuristic doesn't accidentally accept genuine fidelity violations.
+ */
+function isCooperativeEncoding(group: any[]): boolean {
+  if (group.length !== 2) return false;
+  const types = new Set<string>();
+  for (const a of group) collectEffectTypes(a, types);
+  // remember_chosen_target + restrict_remembered_target_action pair (Elsa's
+  // Ice Palace ETERNAL WINTER pattern, CRD 6.2.7-ish).
+  if (
+    types.has("remember_chosen_target") &&
+    types.has("restrict_remembered_target_action")
+  ) {
+    return true;
+  }
+  return false;
+}
+
 function findFidelityViolations(card: any): FidelityViolation[] {
   const violations: FidelityViolation[] = [];
   const abilities: any[] = Array.isArray(card.abilities) ? card.abilities : [];
@@ -765,19 +813,23 @@ function findFidelityViolations(card: any): FidelityViolation[] {
   // CRD 5.2.8: each printed ability has one bold name. A name appearing 2+
   // times means we paraphrased the printed ability into multiple JSON entries.
   // Empty storyNames don't count (anonymous static-effect chains, vanilla, etc.)
-  const nameCounts = new Map<string, number>();
+  // EXCEPTION: known cooperative encodings (e.g. remember_chosen_target +
+  // restrict_remembered_target_action) are runtime-correct and intentionally
+  // share a storyName — see isCooperativeEncoding.
+  const nameGroups = new Map<string, any[]>();
   for (const a of abilities) {
     const name = (a?.storyName ?? "").trim();
     if (!name) continue;
-    nameCounts.set(name, (nameCounts.get(name) ?? 0) + 1);
+    if (!nameGroups.has(name)) nameGroups.set(name, []);
+    nameGroups.get(name)!.push(a);
   }
-  for (const [name, count] of nameCounts) {
-    if (count >= 2) {
-      violations.push({
-        kind: "duplicate-storyName",
-        detail: `storyName "${name}" appears ${count}× — one printed ability should be one JSON ability (consider multi-trigger combinator if oracle uses "X and Y" trigger phrasing)`,
-      });
-    }
+  for (const [name, group] of nameGroups) {
+    if (group.length < 2) continue;
+    if (isCooperativeEncoding(group)) continue; // intentional shared storyName
+    violations.push({
+      kind: "duplicate-storyName",
+      detail: `storyName "${name}" appears ${group.length}× — one printed ability should be one JSON ability (consider multi-trigger combinator if oracle uses "X and Y" trigger phrasing)`,
+    });
   }
 
   // Rules 2 + 3: walk every condition in every ability (effect-level too) and

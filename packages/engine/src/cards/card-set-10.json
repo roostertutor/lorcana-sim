@@ -5435,42 +5435,45 @@
       {
         "type": "static",
         "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, she gets +1 {L}.",
+        "rulesText": "While there's a card under this character, she gets +1 {L} and gains “Whenever this character is challenged, each opponent chooses and discards a card.”",
         "condition": {
           "type": "this_has_cards_under"
         },
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 1,
-          "target": {
-            "type": "this"
-          }
-        }
-      },
-      {
-        "type": "triggered",
-        "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, whenever this character is challenged, each opponent chooses and discards a card.",
-        "trigger": {
-          "on": "is_challenged"
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        },
-        "effects": [
+        "effect": [
           {
-            "type": "each_player",
-            "scope": "opponents",
-            "effects": [
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_triggered_ability",
+            "target": {
+              "type": "this"
+            },
+            "ability": {
+              "type": "triggered",
+              "trigger": {
+                "on": "is_challenged"
+              },
+              "effects": [
+                {
+                  "type": "each_player",
+                  "scope": "opponents",
+                  "effects": [
+                    {
+                      "type": "discard_from_hand",
+                      "amount": 1,
+                      "target": {
+                        "type": "self"
+                      }
+                    }
+                  ]
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -13368,7 +13371,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MIGHTY HIT",
+        "storyName": "HAND-TO-HAND",
         "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 1 lore.",
         "trigger": {
           "on": "banished_other_in_challenge",
@@ -14323,42 +14326,45 @@
       {
         "type": "static",
         "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, she gets +1 {L}.",
+        "rulesText": "While there's a card under this character, she gets +1 {L} and gains “Whenever this character is challenged, each opponent chooses and discards a card.”",
         "condition": {
           "type": "this_has_cards_under"
         },
-        "effect": {
-          "type": "modify_stat",
-          "stat": "lore",
-          "amount": 1,
-          "target": {
-            "type": "this"
-          }
-        }
-      },
-      {
-        "type": "triggered",
-        "storyName": "I'LL BE FINE",
-        "rulesText": "While there's a card under this character, whenever this character is challenged, each opponent chooses and discards a card.",
-        "trigger": {
-          "on": "is_challenged"
-        },
-        "condition": {
-          "type": "this_has_cards_under"
-        },
-        "effects": [
+        "effect": [
           {
-            "type": "each_player",
-            "scope": "opponents",
-            "effects": [
-              {
-                "type": "discard_from_hand",
-                "amount": 1,
-                "target": {
-                  "type": "self"
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_triggered_ability",
+            "target": {
+              "type": "this"
+            },
+            "ability": {
+              "type": "triggered",
+              "trigger": {
+                "on": "is_challenged"
+              },
+              "effects": [
+                {
+                  "type": "each_player",
+                  "scope": "opponents",
+                  "effects": [
+                    {
+                      "type": "discard_from_hand",
+                      "amount": 1,
+                      "target": {
+                        "type": "self"
+                      }
+                    }
+                  ]
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -16459,7 +16465,7 @@
       },
       {
         "type": "triggered",
-        "storyName": "MIGHTY HIT",
+        "storyName": "HAND-TO-HAND",
         "rulesText": "During your turn, whenever one of your characters banishes another character in a challenge, gain 1 lore.",
         "trigger": {
           "on": "banished_other_in_challenge",

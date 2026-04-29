@@ -750,6 +750,14 @@ export interface DealDamageEffect {
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
+  /** Optional gating condition. Lets one TriggeredAbility carry two
+   *  mutually-exclusive deal_damage effects gated by complementary
+   *  conditions (e.g. Helga Sinclair COMBAT TRAINING — "deal 1 damage; if
+   *  2+ cards put in discard, deal 2 damage instead"). Without this,
+   *  encoding the conditional choice required two duplicate-storyName
+   *  TriggeredAbilities, which violated structural fidelity per CLAUDE.md.
+   *  Mirrors DrawEffect.condition / GainLoreEffect.condition / etc. */
+  condition?: Condition;
   /** Effects to run after dealing damage to the target ("deal 2, then if
    *  banished gain a lore" / sequential follow-ups). */
   followUpEffects?: Effect[];

@@ -3082,7 +3082,7 @@ function resolveDynamicAmount(
 /** Effect types whose `condition` field is a gating predicate ("if X, do
  *  this effect"). Listed explicitly because some effects (self_replacement)
  *  use `condition` as a branch selector with different semantics. */
-const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card", "grant_keyword"]);
+const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card", "grant_keyword", "deal_damage"]);
 
 export function applyEffect(
   state: GameState,
