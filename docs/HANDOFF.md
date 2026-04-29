@@ -63,72 +63,9 @@ UI inherits automatically.
 
 ---
 
-## UI agent: Sing Together gating misses static-granted Singer (Mickey Amber Champion)
+## ~~UI agent: Sing Together gating misses static-granted Singer (Mickey Amber Champion)~~ ✅ DONE
 
-Discovered 2026-04-25 while fixing a user-reported bug ("Mickey Mouse
-Amber Champion + 2 other Amber characters can't sing nor sing-together
-Circle of Life"). Engine-side fix landed in commit `2fb38be` — validator
-.canSingSong now forwards `modifiers.grantedKeywords` so static-granted
-Singer (Mickey Amber Champion FRIENDLY CHORUS: "this character gains
-Singer 8") is honored. Solo-sing works because the UI reads the engine's
-`session.legalActions` (which is now correctly populated).
-
-**The Sing Together gating is still broken UI-side.** Sing Together
-combinations aren't enumerated by the engine (combinatorial), so the UI
-re-implements the singer-cost calculation locally. That local copy
-mirrors validator.ts but predates the fix:
-
-```tsx
-// packages/ui/src/pages/GameBoard.tsx:838-855 (singerEffectiveCost)
-let cost = sDef.cost;
-if (hasKeyword(s, sDef, "singer")) cost = getKeywordValue(s, sDef, "singer");
-//                                  ^^ missing the modifiers param
-```
-
-`hasKeyword(s, sDef, "singer", modifiers)` and
-`getKeywordValue(s, sDef, "singer", modifiers.grantedKeywords.get(s.instanceId))`
-would pull in static grants. With Mickey + 2 other Ambers, FRIENDLY
-CHORUS fires and writes Singer 8 into `gameModifiers.grantedKeywords`,
-but the UI's local `singerEffectiveCost` ignores it and reads Mickey's
-printed cost of 4 — so the Sing Together math underestimates the total
-and the button stays disabled.
-
-### Fix
-
-Single line in `singerEffectiveCost` (GameBoard.tsx:846):
-
-```ts
-// Before:
-if (hasKeyword(s, sDef, "singer")) cost = getKeywordValue(s, sDef, "singer");
-
-// After:
-const sGrants = gameModifiers.grantedKeywords.get(singerInstanceId);
-const grantedSinger = (sGrants ?? []).some(g => g.keyword === "singer");
-if (hasKeyword(s, sDef, "singer") || grantedSinger) {
-  cost = getKeywordValue(s, sDef, "singer", sGrants);
-}
-```
-
-The `gameModifiers` is already in scope via the `useCallback` deps array
-(line 855). `hasKeyword`/`getKeywordValue` already support optional
-modifier/grants params.
-
-`totalReadySingerCost` (line 860+) calls `singerEffectiveCost` for each
-ready singer so it picks up the fix automatically — no change needed
-there.
-
-### Test plan
-
-Manual repro in sandbox:
-1. Inject Mickey Mouse Amber Champion + Lilo Making a Wish + Mr Smee
-   Loyal First Mate (any 2 other Amber characters), all dry, ready.
-2. Inject Circle of Life into hand.
-3. Open Sing Together flow on Circle of Life. Selecting Mickey alone
-   should satisfy the cost-8 threshold (FRIENDLY CHORUS makes him count
-   as cost 8). Pre-fix: button stays disabled. Post-fix: enables.
-
-Engine regression already covers solo-sing; this is the parallel UI
-case.
+UI fix landed in `singerEffectiveCost` at `GameBoard.tsx:983-1009` — reads `gameModifiers.grantedKeywords` and OR's static-granted Singer into the keyword check, mirroring the engine validator. CRD 8.11.1 cited in the comment block. Mickey Amber Champion FRIENDLY CHORUS (and any future static-granted Singer keyword) now resolves the Sing Together math correctly.
 
 ---
 
@@ -188,27 +125,9 @@ primary). Layout is consistent — just one missing button. Low urgency.
 
 ---
 
-## UI agent: `choose_play_order` PendingChoiceModal variant
+## ~~UI agent: `choose_play_order` PendingChoiceModal variant~~ ✅ DONE
 
-Engine + server work shipped 2026-04-22 (CRD 2.1.3.2 play-draw rule —
-coin-flip winner / series loser elects go-first-or-second). Engine
-emits a new `choose_play_order` PendingChoice; server already routes it.
-UI piece is the only remaining work.
-
-**Scope:**
-1. Add `choose_play_order` variant to `PendingChoiceModal.tsx`. Two
-   buttons ("Go First" / "Go Second"), context subtitle per game 1 /
-   Bo3 game N (read `gameState.matchInfo` for series state).
-2. Sandbox auto-resolve at `GameBoard.tsx:1099-1105` needs to also
-   auto-resolve `choose_play_order → "first"` so sandbox flow doesn't
-   hang on the new phase. Without this one-line addition, opening the
-   sandbox will block on the play-order prompt.
-3. `firstPlayerId != null` is already guarded in the mulligan subtitle
-   (`PendingChoiceModal.tsx:297-298`) so nullable-until-resolved is
-   already tolerated.
-
-CRD reference: 2.1.3.2 (Bo3 series — losing player elects), 2.2.1.1
-(game 1 — flip winner elects per tournament convention).
+Both pieces shipped: `choose_play_order` branch in `PendingChoiceModal.tsx:291` (Go First / Go Second buttons; context subtitle for game 1 / Bo3 game N), and sandbox auto-resolve `choose_play_order → "first"` at `GameBoard.tsx:1330` (alongside the mulligan auto-skip). CRD 2.1.3.2 / 2.2.1.1 implemented.
 
 ---
 
