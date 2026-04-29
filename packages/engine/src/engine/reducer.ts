@@ -8552,6 +8552,17 @@ function applyEffectToTarget(
     // put_cards_under_onto_target: folded into drain_cards_under. The
     // resolution of chosen receiving target happens in the drain_cards_under
     // case above with destination:{type:"target_pile",target}.
+    case "draw": {
+      // Player-targeted effects appearing inside a target-resolved combinator
+      // (notably `self_replacement` instead/effect branches) reach this path
+      // because the combinator dispatches all branch effects via
+      // applyEffectToTarget. `draw` doesn't act on `targetInstanceId` — defer
+      // to the canonical applyEffect handler. Caught by Super Relocation
+      // Program (set-12/63): "Return chosen character of yours to your hand.
+      // If you returned a Hero character this way, draw 2 cards." Pre-fix,
+      // the conditional draw silently no-opped.
+      return applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
+    }
     default:
       return state;
   }

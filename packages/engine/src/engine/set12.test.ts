@@ -2824,3 +2824,282 @@ describe("Set 12 — Gosalyn HEROIC INTERVENTION followUpEffects single-apply re
   });
 });
 
+// =============================================================================
+// SET 12 — fits-grammar wiring batch (Inner Strength, Mirabel Madrigal —
+// Resourceful Daughter, Mickey Mouse — Experienced Traveler, Super Relocation
+// Program, Hamish, Hubert & Harris — Making Mischief).
+// Precedents:
+//   Inner Strength       — Improvise (set-2/99) card-set-2.json:6052
+//   Mirabel Madrigal     — Transformed Chef (set-4/157) card-set-4.json:9952
+//   Mickey Experienced   — Maleficent Imperious Traveler (set-12/55) card-set-12.json:3807
+//   Super Relocation     — Widow Tweed Kindly Soul (set-11/26) card-set-11.json:1667
+//   Hamish STAY QUIET    — Bodyguard synthesizer reducer.ts:1051-1068
+//   Hamish CLEVER TRAP   — set-3 #2 turn_end + this_is_exerted card-set-3.json:79
+//                          + cant_action ready end_of_owner_next_turn from
+//                          Elsa Spirit of Winter card-set-1.json:2333
+// =============================================================================
+
+describe("Set 12 — Inner Strength", () => {
+  it("plays as a 1-cost action: +1 {S} on chosen character this turn, then draws a card", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 1);
+    let actionId: string, targetId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "inner-strength", "hand"));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // gain_stats chosen → choose_target pendingChoice.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey gets +1 {S} via a timed modify_strength TimedEffect.
+    const mickey = getInstance(state, targetId);
+    const buff = (mickey.timedEffects ?? []).find((t: any) => t.type === "modify_strength");
+    expect(buff).toBeDefined();
+    expect((buff as any).amount).toBe(1);
+    // Action card itself was the one drawn-to-card-effects-resolved; expect hand
+    // size to be (handBefore - 1 played) + 1 drawn = handBefore.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore);
+    // Action should be in discard.
+    expect(state.cards[actionId].zone).toBe("discard");
+  });
+});
+
+describe("Set 12 — Mirabel Madrigal — Resourceful Daughter THIS WILL HELP", () => {
+  it("on play, removes up to 2 damage from chosen character (precedent: Transformed Chef)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let mirabelId: string, woundedId: string;
+    ({ state, instanceId: mirabelId } = injectCard(state, "player1", "mirabel-madrigal-resourceful-daughter", "hand"));
+    ({ state, instanceId: woundedId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: mirabelId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Triggered ability surfaces a "remove up to 2" choose_target.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [woundedId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey had 2 damage; removing up to 2 brings him to 0.
+    expect(getInstance(state, woundedId).damage).toBe(0);
+  });
+});
+
+describe("Set 12 — Mickey Mouse — Experienced Traveler LIGHTING THE WAY", () => {
+  // Precedent: Maleficent Imperious Traveler (set-12/55, card-set-12.json:3807) —
+  // same trigger/condition cycle: "Whenever this character quests, if you played
+  // another character this turn, ..."
+  it("draws when another character was played this turn (positive case)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let mickeyId: string, otherId: string;
+    // Mickey already in play, dry, ready to quest.
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-experienced-traveler", "play", { isDrying: false }));
+    // Play another character this turn so the condition holds.
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: otherId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: mickeyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // "you may draw a card" → choose_may surfaced.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Hand should be +1.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
+  });
+
+  it("does NOT fire when no other character was played this turn (negative case)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-experienced-traveler", "play", { isDrying: false }));
+    // Quest without playing any other character first.
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: mickeyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // No pendingChoice — condition fails so no may-prompt.
+    expect(r.newState.pendingChoice ?? undefined).toBeUndefined();
+  });
+});
+
+describe("Set 12 — Super Relocation Program", () => {
+  // Precedent: Widow Tweed Kindly Soul I'VE GOT YOU pattern
+  // (card-set-11.json:1667) — return_to_hand chosen → self_replacement gated
+  // by last_resolved_target filter.
+  it("returning a Hero character draws 2 cards", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let actionId: string, heroId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "super-relocation-program", "hand"));
+    // Mickey Mouse - True Friend has trait Hero.
+    ({ state, instanceId: heroId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [heroId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Hero returned to hand AND 2 cards drawn → +1 (the returned Mickey)
+    // +2 (drawn) = +3 in hand.
+    expect(state.cards[heroId].zone).toBe("hand");
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 3);
+  });
+
+  it("returning a non-Hero character does NOT draw 2 cards", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let actionId: string, nonHeroId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "super-relocation-program", "hand"));
+    // Maximus Palace Horse — no Hero trait.
+    ({ state, instanceId: nonHeroId } = injectCard(state, "player1", "maximus-palace-horse", "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    const handBefore = getZone(state, "player1", "hand").length;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [nonHeroId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Non-Hero returned → +1 in hand, no draw bonus.
+    expect(state.cards[nonHeroId].zone).toBe("hand");
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 1);
+  });
+});
+
+describe("Set 12 — Hamish, Hubert & Harris STAY QUIET + CLEVER TRAP", () => {
+  // STAY QUIET precedent: Bodyguard synthesizer at reducer.ts:1051-1068
+  // (triggered enters_play → exert target:this isMay:true).
+  it("STAY QUIET: on play, surfaces a may-prompt; accept → enters exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    let hamishId: string;
+    ({ state, instanceId: hamishId } = injectCard(state, "player1", "hamish-hubert-harris-making-mischief", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hamishId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // The trigger surfaces a choose_may for the optional self-exert.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, hamishId).isExerted).toBe(true);
+  });
+
+  it("STAY QUIET decline: character stays ready (drying, but not exerted)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    let hamishId: string;
+    ({ state, instanceId: hamishId } = injectCard(state, "player1", "hamish-hubert-harris-making-mischief", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: hamishId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, hamishId).isExerted).toBe(false);
+  });
+
+  // CLEVER TRAP precedents:
+  //   - turn_end + player:{type:"self"} + this_is_exerted condition shape from
+  //     set-3 #2 (card-set-3.json:79).
+  //   - cant_action action:"ready" duration:"end_of_owner_next_turn" from
+  //     Elsa Spirit of Winter (card-set-1.json:2333).
+  // Open question resolution: queueTriggersByEvent (reducer.ts:6536-6573) does
+  // NOT self-filter turn_end by player — it iterates all cards. The trigger's
+  // OWN `player:{type:"self"}` field at lines 6556-6562 is what gates per-
+  // player firing. Set 3 #2 demonstrates this pattern; we mirror it.
+  it("CLEVER TRAP: at caster's turn end, if Hamish exerted, opposing chosen character can't ready next turn", () => {
+    let state = startGame();
+    let hamishId: string, oppId: string;
+    ({ state, instanceId: hamishId } = injectCard(state, "player1", "hamish-hubert-harris-making-mischief", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Player 1 ends their turn → CLEVER TRAP triggers.
+    let r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Trigger surfaces a choose_target on the opposing character.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(oppId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [oppId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Opposing Mickey now has cant_action ready.
+    const opp = getInstance(state, oppId);
+    const cantReady = (opp.timedEffects ?? []).find((t: any) => t.type === "cant_action" && t.action === "ready");
+    expect(cantReady).toBeDefined();
+  });
+
+  it("CLEVER TRAP does NOT fire if Hamish is ready at caster's turn end", () => {
+    let state = startGame();
+    let hamishId: string, oppId: string;
+    // Hamish ready (not exerted) — condition fails.
+    ({ state, instanceId: hamishId } = injectCard(state, "player1", "hamish-hubert-harris-making-mischief", "play", { isDrying: false, isExerted: false }));
+    ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // No pendingChoice — this_is_exerted false so trigger fizzles.
+    expect(r.newState.pendingChoice ?? undefined).toBeUndefined();
+  });
+
+  it("CLEVER TRAP does NOT fire on opponent's turn end (regression: turn_end + player:'self' filter)", () => {
+    // Pre-fix (omitting trigger.player:{type:"self"} OR is_your_turn condition)
+    // would have fired on BOTH players' turn ends since queueTriggersByEvent
+    // iterates all cards regardless of owner. Verify that Hamish's CLEVER TRAP
+    // stays silent when it's the opponent ending their turn.
+    let state = startGame();
+    let hamishId: string, oppId: string;
+    ({ state, instanceId: hamishId } = injectCard(state, "player1", "hamish-hubert-harris-making-mischief", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    // Pass to opponent's turn first, then opponent ends THEIR turn.
+    let r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Player 1's turn-end fires CLEVER TRAP (Hamish is exerted) — drain that
+    // pendingChoice by declining/picking nothing actionable, then verify the
+    // opponent's turn-end produces nothing.
+    if (r.newState.pendingChoice?.type === "choose_target") {
+      // Can't decline a choose_target with required count; satisfy by picking
+      // any valid target. We're only interested in the SECOND turn-end.
+      const validTarget = r.newState.pendingChoice.validTargets[0]!;
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [validTarget] } as any, CARD_DEFINITIONS);
+      expect(r.success).toBe(true);
+    }
+    state = r.newState;
+    expect(state.currentPlayer).toBe("player2");
+
+    // Now player2 ends their turn. Hamish (player1's) should NOT trigger.
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player2" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // No pending choice from a Hamish trigger — CLEVER TRAP gated by
+    // trigger.player:{type:"self"} so it only fires on player1's turn ends.
+    expect(r.newState.pendingChoice ?? undefined).toBeUndefined();
+  });
+});
+

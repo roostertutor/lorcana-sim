@@ -3497,7 +3497,58 @@
       "Ally",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STAY QUIET",
+        "rulesText": "This character may enter play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "CLEVER TRAP",
+        "rulesText": "At the end of your turn, if this character is exerted, chosen opposing character can't ready at the start of their next turn.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 50,
     "rarity": "uncommon",
@@ -3511,19 +3562,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_1ebcbfb76cb2da430a14c561bf641c98f955b10b.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "STAY QUIET",
-        "rulesText": "This character may enter play exerted.",
-        "raw": "STAY QUIET This character may enter play exerted."
-      },
-      {
-        "storyName": "CLEVER TRAP",
-        "rulesText": "At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn.",
-        "raw": "CLEVER TRAP At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn."
-      }
-    ]
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_1ebcbfb76cb2da430a14c561bf641c98f955b10b.jpg"
   },
   {
     "id": "elinor-bespelled-queen",
@@ -3581,7 +3620,36 @@
       "Hero",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ],
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "storyName": "LIGHTING THE WAY",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may draw a card."
+      }
+    ],
     "setId": "12",
     "number": 52,
     "rarity": "uncommon",
@@ -3596,14 +3664,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_2a01318d41d0080eec83ba9656bb2905ac89779d.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "LIGHTING THE WAY",
-        "rulesText": "Whenever this character quests, if you played another character this turn, you may draw a card.",
-        "raw": "LIGHTING THE WAY Whenever this character quests, if you played another character this turn, you may draw a card."
-      }
-    ]
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_2a01318d41d0080eec83ba9656bb2905ac89779d.jpg"
   },
   {
     "id": "mirage-super-recruiter",
@@ -4473,7 +4534,43 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_e82fc442a948e1e76a1a1e04b932b1024920ae5c.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_e82fc442a948e1e76a1a1e04b932b1024920ae5c.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_46d5e66af71925ccdf563b0bf40f6d59c77720b3.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/63_46d5e66af71925ccdf563b0bf40f6d59c77720b3.jpg",
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      },
+      {
+        "type": "self_replacement",
+        "condition": {
+          "hasTrait": "Hero"
+        },
+        "target": {
+          "type": "last_resolved_target"
+        },
+        "effect": [],
+        "instead": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "right-behind-you",
@@ -9411,7 +9508,30 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_f39ee19e5a72290f2255810d645ee686ff4ff863.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_f39ee19e5a72290f2255810d645ee686ff4ff863.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_7d61b6af58603007a67780d13bb255c7385ce189.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/129_7d61b6af58603007a67780d13bb255c7385ce189.jpg",
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": 1,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
+      },
+      {
+        "type": "draw",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        }
+      }
+    ]
   },
   {
     "id": "firefly-swarm",
@@ -10125,7 +10245,32 @@
       "Hero",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THIS WILL HELP",
+        "rulesText": "When you play this character, remove up to 2 damage from chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "12",
     "number": 142,
     "rarity": "common",
@@ -10140,14 +10285,7 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_bd7cddd92a89c411f03ad37086fbee96732ec670.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THIS WILL HELP",
-        "rulesText": "When you play this character, remove up to 2 damage from chosen character.",
-        "raw": "THIS WILL HELP When you play this character, remove up to 2 damage from chosen character."
-      }
-    ]
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_bd7cddd92a89c411f03ad37086fbee96732ec670.jpg"
   },
   {
     "id": "syndrome-evil-inventor",
