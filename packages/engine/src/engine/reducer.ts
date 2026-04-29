@@ -15,6 +15,7 @@ import type {
   PlayerID,
   ActionResult,
   TriggeredAbility,
+  TriggerEvent,
   TimedEffect,
   Effect,
   Cost,
@@ -85,6 +86,34 @@ export interface WinResult {
 export interface AbilitySource {
   storyName?: string;
   rulesText?: string;
+}
+
+/**
+ * Multi-trigger combinator support (CRD 8.10.8 sibling: structural fidelity).
+ *
+ * `TriggeredAbility.trigger` is either a single leaf TriggerEvent (the common
+ * case) or `{ anyOf: TriggerEvent[] }` (Hiram-class — "When you play this
+ * character and whenever X"). This helper returns the leaf spec from the
+ * ability that matches a given eventType, or null when none does. All
+ * dispatch sites that previously read `ability.trigger.on` / `ability.trigger
+ * .filter` etc. use this helper to get the correct leaf spec, then read
+ * fields off the returned object.
+ *
+ * Returns the FIRST matching member of `anyOf` (Lorcana's anyOf cards have
+ * mutually-exclusive event specs, so first-match is unambiguous in practice).
+ */
+function findMatchingTriggerSpec(
+  ability: TriggeredAbility,
+  eventType: string,
+): TriggerEvent | null {
+  const t = ability.trigger;
+  if ("anyOf" in t) {
+    for (const spec of t.anyOf) {
+      if (spec.on === eventType) return spec;
+    }
+    return null;
+  }
+  return t.on === eventType ? t : null;
 }
 
 /** P1.14 — build a card-source-citing prompt string for `pendingChoice.prompt`.
@@ -6441,34 +6470,40 @@ function queueTrigger(
     const { zone: _z, ...rest } = f;
     return rest;
   };
-  const selfTriggers = effectiveAbilities
-    .filter((a): a is TriggeredAbility => {
-      if (a.type !== "triggered" || a.trigger.on !== eventType) return false;
-      const triggerFilter = "filter" in a.trigger ? a.trigger.filter : undefined;
-      // CRD 6.1.6: pass sourceInstanceId so `excludeSelf` ("another character",
-      // "another item") can reject the source's own event — otherwise a card like
-      // Magic Broom Illuminary Keeper fires its "another character" trigger on its
-      // own play.
-      if (triggerFilter && !matchesFilter(instance, def, stripZoneIfNeeded(triggerFilter), state, instance.ownerId, sourceInstanceId)) return false;
-      // For `challenges` triggers, defenderFilter (optional) matches the
-      // challenged character. The defender lives on context.triggeringCardInstanceId.
-      // Used by Shenzi Head Hyena ("challenges a damaged character") etc.
-      if (a.trigger.on === "challenges" && "defenderFilter" in a.trigger && a.trigger.defenderFilter) {
-        const defId = context?.triggeringCardInstanceId;
-        if (!defId) return false;
-        const defInst = state.cards[defId];
-        const defDef = defInst ? definitions[defInst.definitionId] : undefined;
-        if (!defInst || !defDef) return false;
-        if (!matchesFilter(defInst, defDef, a.trigger.defenderFilter, state, instance.ownerId)) return false;
-      }
-      if (!matchSourceFilter(a.trigger as { sourceFilter?: CardFilter } & { on: string }, instance.ownerId)) return false;
-      return true;
-    })
-    .map((ability) => ({
-      ability,
+  // Each ability may have a single trigger or anyOf of multiple — we resolve
+  // to the matching leaf spec via findMatchingTriggerSpec. The matched spec
+  // is stored on the PendingTrigger as `matchedEvent` so resolution-time
+  // checks (leavesPlayFamily) can read which event actually fired.
+  const selfTriggers: PendingTrigger[] = [];
+  for (const a of effectiveAbilities) {
+    if (a.type !== "triggered") continue;
+    const matched = findMatchingTriggerSpec(a, eventType);
+    if (!matched) continue;
+    const triggerFilter = "filter" in matched ? matched.filter : undefined;
+    // CRD 6.1.6: pass sourceInstanceId so `excludeSelf` ("another character",
+    // "another item") can reject the source's own event — otherwise a card like
+    // Magic Broom Illuminary Keeper fires its "another character" trigger on its
+    // own play.
+    if (triggerFilter && !matchesFilter(instance, def, stripZoneIfNeeded(triggerFilter), state, instance.ownerId, sourceInstanceId)) continue;
+    // For `challenges` triggers, defenderFilter (optional) matches the
+    // challenged character. The defender lives on context.triggeringCardInstanceId.
+    // Used by Shenzi Head Hyena ("challenges a damaged character") etc.
+    if (matched.on === "challenges" && "defenderFilter" in matched && matched.defenderFilter) {
+      const defId = context?.triggeringCardInstanceId;
+      if (!defId) continue;
+      const defInst = state.cards[defId];
+      const defDef = defInst ? definitions[defInst.definitionId] : undefined;
+      if (!defInst || !defDef) continue;
+      if (!matchesFilter(defInst, defDef, matched.defenderFilter, state, instance.ownerId)) continue;
+    }
+    if (!matchSourceFilter(matched as { sourceFilter?: CardFilter } & { on: string }, instance.ownerId)) continue;
+    selfTriggers.push({
+      ability: a,
       sourceInstanceId,
       context,
-    }));
+      matchedEvent: matched,
+    });
+  }
 
   if (selfTriggers.length > 0) {
     state = { ...state, triggerStack: [...state.triggerStack, ...selfTriggers] };
@@ -6484,9 +6519,10 @@ function queueTrigger(
 
     for (const ability of watcherDef.abilities) {
       if (ability.type !== "triggered") continue;
-      if (ability.trigger.on !== eventType) continue;
+      const matched = findMatchingTriggerSpec(ability, eventType);
+      if (!matched) continue;
       // Cross-card triggers MUST have a filter to match against the source card
-      const triggerFilter = "filter" in ability.trigger ? ability.trigger.filter : undefined;
+      const triggerFilter = "filter" in matched ? matched.filter : undefined;
       if (!triggerFilter) continue;
       // Check if the source card matches the trigger's filter. Pass the watcher's
       // instanceId so atLocation: "this" filters resolve relative to the watcher
@@ -6495,17 +6531,17 @@ function queueTrigger(
       // defenderFilter check for `challenges` triggers — see selfTriggers above.
       // Cross-card precedent: Scar Vengeful Lion watches "whenever ONE OF YOUR
       // characters challenges a damaged character".
-      if (ability.trigger.on === "challenges" && "defenderFilter" in ability.trigger && ability.trigger.defenderFilter) {
+      if (matched.on === "challenges" && "defenderFilter" in matched && matched.defenderFilter) {
         const defId = context?.triggeringCardInstanceId;
         if (!defId) continue;
         const defInst = state.cards[defId];
         const defDef = defInst ? definitions[defInst.definitionId] : undefined;
         if (!defInst || !defDef) continue;
-        if (!matchesFilter(defInst, defDef, ability.trigger.defenderFilter, state, watcher.ownerId)) continue;
+        if (!matchesFilter(defInst, defDef, matched.defenderFilter, state, watcher.ownerId)) continue;
       }
       // sourceFilter check for damage_dealt_to triggers — Merida Formidable
       // Archer STEADY AIM watches "whenever ONE OF YOUR ACTIONS deals damage".
-      if (!matchSourceFilter(ability.trigger as { sourceFilter?: CardFilter } & { on: string }, watcher.ownerId)) continue;
+      if (!matchSourceFilter(matched as { sourceFilter?: CardFilter } & { on: string }, watcher.ownerId)) continue;
 
       state = {
         ...state,
@@ -6524,6 +6560,7 @@ function queueTrigger(
               ...context,
               triggeringCardInstanceId: context.triggeringCardInstanceId ?? sourceInstanceId,
             },
+            matchedEvent: matched,
           },
         ],
       };
@@ -6546,15 +6583,16 @@ function queueTriggersByEvent(
 
     for (const ability of def.abilities) {
       if (ability.type !== "triggered") continue;
-      if (ability.trigger.on !== eventType) continue;
+      const matched = findMatchingTriggerSpec(ability, eventType);
+      if (!matched) continue;
       // CRD 6.3-ish: triggered abilities default to in-play. Cards in other
       // zones must declare activeZones to fire (Lilo Escape Artist — discard).
       const activeZones = ability.activeZones ?? ["play"];
       if (!activeZones.includes(instance.zone)) continue;
 
       // For triggers with a "player" field, check the player matches
-      if ("player" in ability.trigger && ability.trigger.player) {
-        const playerTarget = ability.trigger.player;
+      if ("player" in matched && matched.player) {
+        const playerTarget = matched.player;
         const cardOwner = instance.ownerId;
         const opponent = getOpponent(cardOwner);
         if (playerTarget.type === "self" && playerId !== cardOwner) continue;
@@ -6565,7 +6603,7 @@ function queueTriggersByEvent(
         ...state,
         triggerStack: [
           ...state.triggerStack,
-          { ability, sourceInstanceId: instanceId, context: { triggeringPlayerId: playerId } },
+          { ability, sourceInstanceId: instanceId, context: { triggeringPlayerId: playerId }, matchedEvent: matched },
         ],
       };
     }
@@ -6652,7 +6690,13 @@ function processTriggerStack(
     // the time the trigger stack is processed, the watcher has been moved to
     // the "under" subzone. Treat it like a leaves-play family event so the
     // requiresInPlay zone check doesn't filter it out.
-    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges", "shifted_onto"].includes(trigger.ability.trigger.on);
+    // Read the event-type that matched at queue time. With anyOf-form triggers,
+    // ability.trigger has no `.on` field — the leaf spec is on matchedEvent.
+    // Fallback to ability.trigger when matchedEvent isn't set (legacy queue
+    // sites pre-anyOf migration).
+    const matchedOn = trigger.matchedEvent?.on
+      ?? ("on" in trigger.ability.trigger ? trigger.ability.trigger.on : "");
+    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges", "shifted_onto"].includes(matchedOn);
     if (!leavesPlayFamily) {
       const activeZones = trigger.ability.activeZones ?? ["play"];
       if (!activeZones.includes(source.zone)) continue;

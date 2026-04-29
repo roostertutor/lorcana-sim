@@ -141,6 +141,24 @@ export interface KeywordAbility {
   keyword: Keyword;
   /** Some keywords have a numeric value, e.g. Challenger +2, Singer 5, Resist +1 */
   value?: number;
+  /** Shift variant per CRD 8.10.8 — only meaningful when keyword === "shift".
+   *  - undefined: base Shift (target must share name) — CRD 8.10.1
+   *  - "universal": shift onto ANY of your characters regardless of name —
+   *    CRD 8.10.8.2 (Baymax Giant Robot, Set 7+)
+   *  - "classification": shift onto any of your characters that has the
+   *    `classifier` trait — CRD 8.10.8.1 (Thunderbolt's [Dog] Shift, Set 8)
+   *
+   *  Pre-2026-04-30: Universal/Classification Shift were encoded as separate
+   *  StaticAbility entries with effect: "universal_shift_self" /
+   *  "classification_shift_self" + activeZones: ["hand"]. That violated
+   *  structural fidelity (one printed keyword = one JSON ability). Both
+   *  encodings are accepted during migration; the static-effect path is
+   *  scheduled for removal once card data is migrated. */
+  variant?: "classification" | "universal";
+  /** Trait classifier for Classification Shift (CRD 8.10.8.1). Required when
+   *  variant === "classification"; ignored otherwise. E.g. Thunderbolt's
+   *  [Dog] Shift uses classifier: "Dog". */
+  classifier?: string;
 }
 
 export interface TriggeredAbility {
@@ -149,8 +167,16 @@ export interface TriggeredAbility {
   storyName?: string;
   /** CRD 5.2.8: The printed rules text for this ability (excluding story name) */
   rulesText?: string;
-  /** When does this trigger? */
-  trigger: TriggerEvent;
+  /** When does this trigger? Either a single leaf TriggerEvent, or a multi-
+   *  trigger combinator `{ anyOf: TriggerEvent[] }` for cards whose oracle
+   *  reads "When you play this character and whenever X". The anyOf form
+   *  fires the same effect body on any matching event — sharing storyName,
+   *  oncePerTurn budget, and effect body. Pre-2026-04-30 these were encoded
+   *  as duplicate TriggeredAbility entries with the same storyName, which
+   *  violated structural fidelity (CLAUDE.md) and silently double-counted
+   *  oncePerTurn limits. Hiram Flaversham Toymaker, John Silver Alien Pirate,
+   *  Tamatoa So Shiny et al. now use the anyOf form. */
+  trigger: TriggerEvent | { anyOf: TriggerEvent[] };
   /** What happens when it triggers? */
   effects: Effect[];
   /** Optional condition that must be true for the trigger to fire */
@@ -2164,6 +2190,13 @@ export interface MimicryTargetSelfStatic {
  * character of yours regardless of name. Lives on the in-HAND shifter — the
  * static must declare activeZones: ["hand"] so the scanner picks it up while
  * the card is still in hand at validation time.
+ *
+ * DEPRECATED post-2026-04-30 in favor of KeywordAbility.variant: "universal"
+ * (CRD 8.10.8.2). Retained during the migration window so existing card data
+ * continues to work; gameModifiers.ts populates the universalShifters set
+ * from this static-effect path AS WELL AS the keyword-variant path. After
+ * scripts/migrate-shift-variants.ts runs, no card data references this type
+ * and the type + handler can be removed (next refactor).
  */
 export interface UniversalShiftSelfStatic {
   type: "universal_shift_self";
@@ -2173,6 +2206,10 @@ export interface UniversalShiftSelfStatic {
  * Classification / Puppy Shift (Thunderbolt, Set 8): this card with Shift may
  * shift onto any character of yours that has the named trait. Lives on the
  * in-HAND shifter — declare activeZones: ["hand"].
+ *
+ * DEPRECATED post-2026-04-30 in favor of KeywordAbility.variant:
+ * "classification" + classifier: trait (CRD 8.10.8.1). See note on
+ * UniversalShiftSelfStatic for migration timing.
  */
 export interface ClassificationShiftSelfStatic {
   type: "classification_shift_self";
@@ -3823,6 +3860,13 @@ export interface PendingTrigger {
   sourceInstanceId: string;
   /** Context available when resolving */
   context: TriggerContext;
+  /** Which leaf TriggerEvent of `ability.trigger` matched at queue time.
+   *  Required when ability.trigger uses the `anyOf` combinator (multiple
+   *  leaf specs) so resolution-time checks like `leavesPlayFamily` know
+   *  which event actually fired. Optional for back-compat — when ability
+   *  has a single bare TriggerEvent the queue path may omit this and
+   *  consumers should fall back to `ability.trigger` (which is the leaf). */
+  matchedEvent?: TriggerEvent;
 }
 
 export interface TriggerContext {
