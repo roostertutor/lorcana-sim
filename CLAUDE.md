@@ -243,6 +243,28 @@ Rules to prevent regression:
 - The authoritative checker is `pnpm decompile-cards` — it scores rendered ability JSON vs oracle text. The bottom of the sorted output IS the bug list.
 - Run `pnpm card-status` after any card wiring, before claiming "100% complete." Invalid-field counts MUST be 0.
 
+### Structural fidelity to printed text (CRD 5.2.8 / 6.2.6)
+A card's `abilities[]` JSON list must mirror the printed text's bold-named ability blocks 1:1. **One printed ability (one bold name) = one JSON ability entry.** Don't split, don't merge, don't paraphrase. Within an ability:
+- "and" between effects under one condition → effect-array (`StaticEffect | StaticEffect[]`, already supported per `types/index.ts:200`)
+- "or" between effects (player chooses) → `choose` combinator (already supported)
+- "and" between triggers, same body (Hiram-class) → multi-trigger combinator (engine extension on TriggeredAbility)
+- "if X, do Y" mid-sentence → `condition` on the ability or `conditional_effect` wrapper, never split into two abilities
+
+**Why it matters — paraphrasing creates latent bug classes:**
+- **`oncePerTurn` budget doubles** when one printed ability is split into two — each gets its own `oncePerTurnKey` and fires independently. The 2026-04-29 fresh-wire experiment found Lenny COMIN' UP FAST shipping with this bug.
+- **Story-name attribution lost** on the second JSON entry of a split — UI tooltips, audit messages, replacement-effect targeting (CRD 6.5) all key off `storyName`.
+- **Effect-body drift**: two duplicated effect bodies must stay byte-identical to behave the same; no automated check enforces it.
+- **Decompile-score false negatives**: the renderer emits one sentence per ability; a split ability decompiles to N sentences vs the oracle's 1, dropping similarity by 0.10-0.15.
+
+**6 baseline bugs the 2026-04-29 fresh-wire experiment caught**, all variants of this rule violation: Mickey Expedition Leader (wrong static for "may"), Percy Pupsicle (player-wide `action_restriction` on "this character"), Lenny COMIN' UP FAST (missing `oncePerTurn`), Timon Snowball Swiper (incomplete non-character filter), Hiram Flaversham (split into two abilities, second missing storyName), Nala Undaunted Lioness (duplicated `compound_and(this_has_no_damage, this_has_no_damage)` from a hand-paraphrase).
+
+Audit support: `pnpm card-status --category fidelity-violation` flags duplicate-storyName-within-card and degenerate-compound-condition cases. Must be 0 before claiming structural correctness.
+
+### No information loss in encoding
+If the JSON shape can't represent something the oracle says, the engine type or compiler matcher needs to extend — **not** the encoder paraphrasing the oracle into a lossy approximation. Sibling rule to structural fidelity: fidelity preserves printed *structure*; this rule preserves printed *semantics*.
+
+This is the rule that prevents the `(approximation: ...)` stealth-debt class. Concrete pattern: if you find yourself wiring "do something close to what the card says, but slightly different," stop — the right answer is one of (a) extend the engine primitive to capture the missing semantic, (b) extend the compiler matcher with the precise wording, or (c) leave the card stubbed (`abilities: []`) so `pnpm card-status` flags it. Never silently lossy.
+
 ### Sequential effect `triggeringCardInstanceId` (CRD 6.1.5.1)
 When applying `sequential` costEffects/rewardEffects via `applyEffect`, always forward `triggeringCardInstanceId`. When creating a `choose_may` PendingChoice for a sequential, store `triggeringCardInstanceId` on the choice so the accept path resolves exert correctly.
 ```typescript
