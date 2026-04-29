@@ -1814,8 +1814,11 @@ export type StaticEffect =
   | GrantPlayForFreeSelfStatic
   | GrantShiftSelfStatic
   | MimicryTargetSelfStatic
-  | UniversalShiftSelfStatic
-  | ClassificationShiftSelfStatic
+  // UniversalShiftSelfStatic / ClassificationShiftSelfStatic — REMOVED 2026-04-30.
+  // Per CRD 8.10.8 these are variants of the Shift keyword, not separate
+  // statics. KeywordAbility now carries `variant` + `classifier` fields
+  // (see definition above). All affected card data was migrated by
+  // scripts/migrate-shift-variants.ts.
   | ModifyWinThresholdStatic
   | SkipDrawStepSelfStatic
   | CanQuestTurnPlayedStatic
@@ -2185,36 +2188,15 @@ export interface MimicryTargetSelfStatic {
   type: "mimicry_target_self";
 }
 
-/**
- * Universal Shift (Baymax, Set 7+): this card with Shift may shift onto ANY
- * character of yours regardless of name. Lives on the in-HAND shifter — the
- * static must declare activeZones: ["hand"] so the scanner picks it up while
- * the card is still in hand at validation time.
- *
- * DEPRECATED post-2026-04-30 in favor of KeywordAbility.variant: "universal"
- * (CRD 8.10.8.2). Retained during the migration window so existing card data
- * continues to work; gameModifiers.ts populates the universalShifters set
- * from this static-effect path AS WELL AS the keyword-variant path. After
- * scripts/migrate-shift-variants.ts runs, no card data references this type
- * and the type + handler can be removed (next refactor).
- */
-export interface UniversalShiftSelfStatic {
-  type: "universal_shift_self";
-}
-
-/**
- * Classification / Puppy Shift (Thunderbolt, Set 8): this card with Shift may
- * shift onto any character of yours that has the named trait. Lives on the
- * in-HAND shifter — declare activeZones: ["hand"].
- *
- * DEPRECATED post-2026-04-30 in favor of KeywordAbility.variant:
- * "classification" + classifier: trait (CRD 8.10.8.1). See note on
- * UniversalShiftSelfStatic for migration timing.
- */
-export interface ClassificationShiftSelfStatic {
-  type: "classification_shift_self";
-  trait: string;
-}
+// UniversalShiftSelfStatic / ClassificationShiftSelfStatic — REMOVED 2026-04-30.
+// Per CRD 8.10.8 (Universal Shift = 8.10.8.2, Classification / [Trait] Shift
+// = 8.10.8.1) these are variants of the Shift keyword, not standalone
+// statics. The KeywordAbility interface now carries `variant: "universal" |
+// "classification"` and `classifier: string` fields; all affected card data
+// was migrated by scripts/migrate-shift-variants.ts.
+//
+// Don't reintroduce these StaticEffects — fresh imports go straight to
+// keyword-variant form via parseKeywordAbilities (scripts/import-cards-rav.ts).
 
 /**
  * Permanent self-restriction: this character can't perform `action`.

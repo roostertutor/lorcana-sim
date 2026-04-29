@@ -841,23 +841,14 @@ export function getGameModifiers(
           break;
         }
 
-        case "universal_shift_self": {
-          // Baymax (Set 7+): this in-hand shifter ignores name match on its
-          // target. DEPRECATED — pre-migration shape; canShiftOnto now reads
-          // variant from KeywordAbility per CRD 8.10.8.2. Both paths feed
-          // the universalShifters set during the migration window. Removed
-          // once all card data has migrated to keyword-variant form.
-          modifiers.universalShifters.add(instance.instanceId);
-          break;
-        }
-
-        case "classification_shift_self": {
-          // Thunderbolt (Set 8): this in-hand shifter requires the target to
-          // have `trait`. DEPRECATED — pre-migration shape per CRD 8.10.8.1.
-          // See note on universal_shift_self above.
-          modifiers.classificationShifters.set(instance.instanceId, effect.trait);
-          break;
-        }
+        // universal_shift_self / classification_shift_self handlers REMOVED
+        // 2026-04-30. Per CRD 8.10.8 these are variants of the Shift keyword;
+        // KeywordAbility now carries variant + classifier fields. canShiftOnto
+        // reads them directly from the card definition's shift keyword. The
+        // universalShifters / classificationShifters modifier sets are kept
+        // (empty post-migration) so canShiftOnto's legacy-path branch
+        // continues to compile until that branch is itself removed; both
+        // could be deleted together in a later refactor.
 
         case "skip_draw_step_self": {
           // Arthur Determined Squire (Set 8): owner skips their draw step.
