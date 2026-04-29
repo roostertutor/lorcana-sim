@@ -3308,6 +3308,66 @@ function tryAIfYouDoB(text: string): Json | null {
   return null;
 }
 
+/** Shape 4: "A. If <condition>, B instead." — CRD 6.5.6 self-replacement.
+ *  "Deal 2 damage to chosen opposing character. If you have a character named
+ *   Darkwing Duck in play, deal 3 damage instead." Wraps as `self_replacement`
+ *  hoisting the shared target out of the inner effects.
+ *
+ *  Constraints (defensive — narrow to known-clean cases):
+ *   - Both halves must parse as a SINGLE effect (no chains on either side).
+ *   - Both halves must have deep-equal target shapes; the shared target is
+ *     hoisted to the self_replacement and the inner effects use target:"this".
+ *   - The inner effects must be of the same `type` (deal_damage in all four
+ *     observed cards: Helga set 12 #93, Terror That Flaps set 11 #197,
+ *     Mountain Defense set 5 #204, Kakamora set 6 #172). Restricting to
+ *     deal_damage avoids false positives on other "if X, instead" shapes.
+ *
+ *  Matches the canonical encoding used by Terror That Flaps in the Night
+ *  baseline (set 11 baseline #197 actionEffects[0]).
+ */
+function tryAInsteadOfBIfC(text: string): Json | null {
+  // Pattern: "deal <N> damage to <target>. If <cond>, deal <M> damage instead."
+  // The variant ("deal M damage") doesn't repeat the target — it's inherited
+  // from the base by oracle convention. Narrow to deal_damage so we can
+  // confidently inherit the target without ambiguity. Other paired effect
+  // types (gain_lore, draw, etc.) would extend this matcher.
+  const m = /^deal (\d+) damage to (.+?)\.\s+(?:If|if)\s+(.+?),\s+deal (\d+) damage instead\.?$/i.exec(text);
+  if (!m) return null;
+  const baseAmount = parseInt(m[1], 10);
+  const targetPhrase = m[2].trim();
+  const condText = m[3].trim();
+  const variantAmount = parseInt(m[4], 10);
+
+  // Reuse the deal_damage matchers to parse the target phrase. We construct
+  // a synthetic "deal <N> damage to <target>" string and run matchEffect on it.
+  const synthetic = `deal ${baseAmount} damage to ${targetPhrase}`;
+  const baseEff = matchEffect(synthetic);
+  if (!baseEff || baseEff.consumed !== synthetic.length) return null;
+  if (baseEff.json.type !== "deal_damage") return null;
+
+  // Match the condition. CONDITION_MATCHERS anchor on "if|while" prefix, but
+  // our regex stripped the "If" before captures — re-prepend "if " so the
+  // matcher hits, then verify it consumed the full prefix-included length.
+  const condTextWithIf = `if ${condText}`;
+  const cond = matchCondition(condTextWithIf);
+  if (!cond || cond.consumed !== condTextWithIf.length) return null;
+
+  // Hoist the target out; inner effects target "this" so the engine resolves
+  // them against the self_replacement's resolved target. The variant inherits
+  // everything from the base (target, filter, isUpTo, etc.) except amount.
+  const target = baseEff.json.target;
+  const baseInner: Json = { ...baseEff.json, amount: baseAmount, target: { type: "this" } };
+  const variantInner: Json = { ...baseEff.json, amount: variantAmount, target: { type: "this" } };
+
+  return {
+    type: "self_replacement",
+    target,
+    condition: cond.json,
+    effect: [baseInner],
+    instead: [variantInner],
+  };
+}
+
 /** Shape 3: "A or B" — inline choice. "banish her or return another chosen
  *  character of yours to your hand." Wraps as `choose { options: [[A],[B]] }`.
  *  Tries each " or " position left-to-right; first valid split wins. */
@@ -3501,6 +3561,15 @@ function parseEffectChain(
   // " or ". Only fires when both sides parse as complete effects.
   const aOrB = tryAorB(rest);
   if (aOrB) return { json: [aOrB], consumedAll: true, remainder: "" };
+
+  // Shape 4: "A. If <condition>, B instead." — CRD 6.5.6 self-replacement.
+  // "Deal 2 damage to chosen opposing character. If you have a character
+  //  named Darkwing Duck in play, deal 3 damage instead." Wraps as a
+  // self_replacement effect that hoists the shared target out of the inner
+  // effect bodies. Currently narrow to deal_damage on both sides; can extend
+  // to other paired effect types later.
+  const aInsteadB = tryAInsteadOfBIfC(rest);
+  if (aInsteadB) return { json: [aInsteadB], consumedAll: true, remainder: "" };
 
   const effects: Json[] = [];
   while (rest.length > 0) {

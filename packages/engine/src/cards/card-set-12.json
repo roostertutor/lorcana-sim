@@ -6836,8 +6836,7 @@
         },
         "effects": [
           {
-            "type": "deal_damage",
-            "amount": 2,
+            "type": "self_replacement",
             "target": {
               "type": "chosen",
               "filter": {
@@ -6853,30 +6852,25 @@
             "condition": {
               "type": "cards_put_into_discard_this_turn_atleast",
               "amount": 2
-            }
-          },
-          {
-            "type": "deal_damage",
-            "amount": 1,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "opponent"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
             },
-            "condition": {
-              "type": "not",
-              "condition": {
-                "type": "cards_put_into_discard_this_turn_atleast",
-                "amount": 2
+            "effect": [
+              {
+                "type": "deal_damage",
+                "amount": 1,
+                "target": {
+                  "type": "this"
+                }
               }
-            }
+            ],
+            "instead": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         ]
       }
