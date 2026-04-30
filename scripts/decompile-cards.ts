@@ -1994,6 +1994,12 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         .replace(/\byou draw\b/g, "draws")
         .replace(/\byou lose\b/g, "loses")
         .replace(/\byou gain\b/g, "gains")
+        // Self-target effects render bare verbs ("draw a card", "may draw")
+        // without "you" subject — under each_player, prepend verb-S.
+        // Show Me More! (each_player → draw target:self) was producing
+        // "each player draw 3 cards" missing the verb-S.
+        .replace(/^draw\b/g, "draws")
+        .replace(/(\b(?:and|then|or)\s+)draw\b/g, "$1draws")
         .replace(/\byour hand\b/g, "their hand")
         .replace(/\byour deck\b/g, "their deck")
         .replace(/\byour inkwell\b/g, "their inkwell")
@@ -2682,6 +2688,11 @@ function renderStatComparison(c: Json): string {
          : `this character's ${property}`)
     : from === "triggering_card"
       ? `the triggering character's ${property}`
+    : from === "last_discarded"
+      ? (property === "lore" ? "the discarded character's {L}"
+         : property === "strength" ? "the discarded character's {S}"
+         : property === "willpower" ? "the discarded character's {W}"
+         : `the discarded card's ${property}`)
     : `${from}.${property}`;
   const offsetPhrase = offset === 0 ? "" : offset > 0 ? ` +${offset}` : ` ${offset}`;
   // "cost equal to or less than X" / "{S} equal to or less than X" wording
@@ -2714,7 +2725,11 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // Cheshire Cat From the Shadows WICKED SMILE, Queen of Hearts COUNT OFF!,
   // Ed Hysterical Partygoer ROWDY GUEST, etc.
   if (f.hasDamage) bits.push("damaged");
-  if (f.hasKeyword) bits.push(`${cap(f.hasKeyword)}`);
+  // hasKeyword is postpositional in oracle text: "character with Reckless"
+  // (Cogsworth Talking Clock WAIT A MINUTE), "character with Evasive here"
+  // (Game Preserve EASY TO MISS). Stash for trailing-qualifier emission.
+  // (Pre-2026-04 we treated this as a prefix adjective, producing "Reckless
+  // character" — close but not the oracle wording.)
   if (f.hasTrait) bits.push(f.hasTrait);
   if (f.hasAnyTrait?.length) bits.push(f.hasAnyTrait.join(" or "));
   // Don Karnage SCORNFUL TAUNT: "an action that isn't a song" — rendered
@@ -2735,6 +2750,7 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // Trailing qualifiers
   if (f.hasName) bits.push(`named ${f.hasName}`);
   if (f.notHasName) bits.push(`not named ${f.notHasName}`);
+  if (f.hasKeyword) bits.push(`with ${cap(f.hasKeyword)}`);
   if (f.maxCost !== undefined) bits.push(`with cost ${f.maxCost} or less`);  // legacy alias still used by one card
   if (f.minCost !== undefined) bits.push(`with cost ${f.minCost} or more`);
   // statComparisons — unified numeric-axis block. Replaces the former flat

@@ -2984,6 +2984,12 @@ function resolveStatRef(
       const locId = tgtInst?.atLocationInstanceId;
       return locId ? readLiveStat(locId) : 0;
     }
+    case "last_discarded": {
+      // The Queen Disguised Peddler: "gain lore equal to the discarded
+      // character's {L}." Reads the most recently discarded card's stat.
+      const discardedId = state.lastDiscarded?.[0]?.instanceId;
+      return discardedId ? readLiveStat(discardedId) : 0;
+    }
     default:
       return 0;
   }

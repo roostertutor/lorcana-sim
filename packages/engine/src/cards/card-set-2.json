@@ -5759,7 +5759,11 @@
         "effects": [
           {
             "type": "gain_lore",
-            "amount": 2,
+            "amount": {
+              "type": "stat_ref",
+              "from": "last_discarded",
+              "property": "lore"
+            },
             "target": {
               "type": "self"
             }

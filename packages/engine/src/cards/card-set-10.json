@@ -8494,7 +8494,7 @@
         "rulesText": "Whenever this character challenges a character with 2 {S} or less, each opponent loses 1 lore.",
         "trigger": {
           "on": "challenges",
-          "filter": {
+          "defenderFilter": {
             "zone": "play",
             "cardType": [
               "character"
