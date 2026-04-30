@@ -818,7 +818,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       const which = (e.target?.filter as Json | undefined)?.isExerted === false ? "ready " : "";
       return `${maybe(e)}each opponent chooses and exerts one of their ${which}characters`;
     }
-    const base = `exert ${upTo}${count}${renderTarget(e.target ?? {})}`;
+    const base = `${maybe(e)}exert ${upTo}${count}${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
       const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
       return `${base}. ${followUp}`;
@@ -826,7 +826,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return base;
   },
   exert_character: (e) => {
-    const base = `exert ${renderTarget(e.target ?? {})}`;
+    const base = `${maybe(e)}exert ${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
       const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
       return `${base}. ${followUp}`;
@@ -1405,9 +1405,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // characters may move here for free" (amount: "all"). Sherwood Forest /
   // Outlaw Hideaway: "Your Robin Hood characters may move here for free".
   move_to_self_cost_reduction: (e) => {
-    const filt = e.filter ? renderFilter(e.filter) : "characters";
-    if (e.amount === "all") return `your ${filt} may move here for free`;
-    return `your ${filt} pay ${e.amount ?? 1} {I} less to move here`;
+    // Suppress owner:self in the inner filter — we add "your" explicitly here.
+    // Otherwise we get "your your Toy character" double-prefix.
+    const filt = e.filter ? renderFilter(e.filter, { suppressOwnerSelf: true }) : "characters";
+    // Pluralize: "Toy character" → "Toy characters".
+    const plural = pluralizeFilter(filt);
+    if (e.amount === "all") return `your ${plural} may move here for free`;
+    return `your ${plural} pay ${e.amount ?? 1} {I} less to move here`;
   },
 
   // CRD must-quest (Reckless-style restriction). Often timed.
