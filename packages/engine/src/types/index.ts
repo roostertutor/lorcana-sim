@@ -2848,7 +2848,11 @@ export type TriggerEvent =
 export type Condition =
   | { type: "opponent_has_lore_gte"; amount: number }
   | { type: "cards_in_hand_gte"; amount: number; player: PlayerTarget }
-  | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean; hasName?: string }
+  /** Count player's characters in play matching optional shortcuts (excludeSelf,
+   *  hasName) or a full CardFilter. Hans Brazen Manipulator GROWING
+   *  INFLUENCE: "if an opponent has 2 or more READY characters in play"
+   *  uses `filter: { isExerted: false }`. */
+  | { type: "characters_in_play_gte"; amount: number; player: PlayerTarget; excludeSelf?: boolean; hasName?: string; filter?: CardFilter }
   | { type: "cards_in_hand_eq"; amount: number; player: PlayerTarget }
   | { type: "has_character_named"; name: string; player: PlayerTarget }
   | { type: "has_character_with_trait"; trait: string; player: PlayerTarget; excludeSelf?: boolean }

@@ -11247,11 +11247,12 @@
       {
         "type": "static",
         "storyName": "DETERMINED DIVERSION",
-        "rulesText": "While this character has no damage, she gets +1 {L} and gains Resist +1. While this character has no damage, she gains Resist +1.",
+        "rulesText": "While this character has no damage, she gets +1 {L} and gains Resist +1.",
         "effect": [
           {
-            "type": "gain_stats",
-            "lore": 1,
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
             "target": {
               "type": "this"
             }

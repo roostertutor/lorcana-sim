@@ -514,38 +514,50 @@ function validateCardFields(card: any): FieldError[] {
     if (Array.isArray(ab.effects)) {
       ab.effects.forEach((e: any, i: number) => walkEffect(e, `${path}.effects[${i}]`));
     }
-    // Static ability: check the effect field
+    // Static ability: check the effect field. `effect` can be either a single
+    // effect object OR an array of effects (compound static — Hidden Cove
+    // "+1 S and +1 W while here", Judy Hopps Lead Detective, Hans Brazen
+    // Manipulator JOSTLING FOR POWER). Pre-2026-04-30 the array case was
+    // silently skipped: walkEffect was called once on the array and treated
+    // the array as an effect object (whose keys are "0", "1", ...) — none of
+    // those passed the validator's type check, so field-level audits never
+    // ran on array members. Hans's `target` instead of `affectedPlayer` slipped
+    // through this gap.
     if (ab.effect) {
-      walkEffect(ab.effect, path + ".effect");
-      // Static-effect discriminator must be in the StaticEffect union.
-      // Catches `cant_action` as static.effect.type (silent no-op; use
-      // `action_restriction` or `cant_action_self` instead).
-      if (ab.type === "static" && typeof ab.effect.type === "string"
-          && VALID_STATIC_EFFECT_TYPES.size > 0
-          && !VALID_STATIC_EFFECT_TYPES.has(ab.effect.type)) {
-        errors.push({
-          path: `${path}.effect`,
-          field: "type",
-          value: ab.effect.type,
-          validValues: `not a StaticEffect union member — static-ability processor has no case handler, silent no-op (valid: ${[...VALID_STATIC_EFFECT_TYPES].sort().join(", ")})`,
-        });
-      }
-      // grant_play_for_free_self MUST have activeZones:["hand"] — the static
-      // grants the hand-card a free-play option, so it has to fire while the
-      // card is in HAND. Without activeZones, the static defaults to ["play"]
-      // and the free-play silently never applies. Caught Club Door WELCOME
-      // BACK, SIR shipping broken (set-12/202).
-      if (ab.type === "static" && ab.effect.type === "grant_play_for_free_self") {
-        const zones = ab.activeZones;
-        if (!Array.isArray(zones) || !zones.includes("hand")) {
+      const effectsToCheck: any[] = Array.isArray(ab.effect) ? ab.effect : [ab.effect];
+      effectsToCheck.forEach((eff, i) => {
+        const subpath = Array.isArray(ab.effect) ? `${path}.effect[${i}]` : `${path}.effect`;
+        walkEffect(eff, subpath);
+        // Static-effect discriminator must be in the StaticEffect union.
+        // Catches `cant_action` as static.effect.type (silent no-op; use
+        // `action_restriction` or `cant_action_self` instead).
+        if (ab.type === "static" && typeof eff?.type === "string"
+            && VALID_STATIC_EFFECT_TYPES.size > 0
+            && !VALID_STATIC_EFFECT_TYPES.has(eff.type)) {
           errors.push({
-            path,
-            field: "activeZones",
-            value: zones === undefined ? "undefined" : JSON.stringify(zones),
-            validValues: `grant_play_for_free_self requires activeZones: ["hand"] — without it the static fires only in play, where the free-play option is meaningless. Add "activeZones": ["hand"] to the ability.`,
+            path: subpath,
+            field: "type",
+            value: eff.type,
+            validValues: `not a StaticEffect union member — static-ability processor has no case handler, silent no-op (valid: ${[...VALID_STATIC_EFFECT_TYPES].sort().join(", ")})`,
           });
         }
-      }
+        // grant_play_for_free_self MUST have activeZones:["hand"] — the static
+        // grants the hand-card a free-play option, so it has to fire while the
+        // card is in HAND. Without activeZones, the static defaults to ["play"]
+        // and the free-play silently never applies. Caught Club Door WELCOME
+        // BACK, SIR shipping broken (set-12/202).
+        if (ab.type === "static" && eff?.type === "grant_play_for_free_self") {
+          const zones = ab.activeZones;
+          if (!Array.isArray(zones) || !zones.includes("hand")) {
+            errors.push({
+              path,
+              field: "activeZones",
+              value: zones === undefined ? "undefined" : JSON.stringify(zones),
+              validValues: `grant_play_for_free_self requires activeZones: ["hand"] — without it the static fires only in play, where the free-play option is meaningless. Add "activeZones": ["hand"] to the ability.`,
+            });
+          }
+        }
+      });
     }
   }
 

@@ -946,6 +946,12 @@ export function evaluateCondition(
         // Optional name filter — Maleficent Formidable Queen "for each of
         // your characters named Maleficent in play".
         if (condition.hasName && def.name !== condition.hasName) return false;
+        // Optional rich CardFilter — Hans Brazen Manipulator GROWING
+        // INFLUENCE: "if an opponent has 2 or more READY characters" uses
+        // filter:{isExerted:false}.
+        if (condition.filter) {
+          if (!matchesFilter(inst, def, condition.filter, state, controllingPlayerId, sourceInstanceId, definitions)) return false;
+        }
         return true;
       });
       return charsInPlay.length >= condition.amount;

@@ -7595,32 +7595,32 @@
       {
         "type": "static",
         "storyName": "JOSTLING FOR POWER",
-        "rulesText": "King and Queen characters can't quest. Queen characters can't quest.",
+        "rulesText": "King and Queen characters can't quest.",
         "effect": [
           {
             "type": "action_restriction",
             "restricts": "quest",
-            "target": {
-              "type": "all",
-              "filter": {
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "King"
-              }
+            "affectedPlayer": {
+              "type": "both"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "King"
             }
           },
           {
             "type": "action_restriction",
             "restricts": "quest",
-            "target": {
-              "type": "all",
-              "filter": {
-                "cardType": [
-                  "character"
-                ],
-                "hasTrait": "Queen"
-              }
+            "affectedPlayer": {
+              "type": "both"
+            },
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Queen"
             }
           }
         ]
@@ -7640,6 +7640,9 @@
           "amount": 2,
           "player": {
             "type": "opponent"
+          },
+          "filter": {
+            "isExerted": false
           }
         },
         "effects": [

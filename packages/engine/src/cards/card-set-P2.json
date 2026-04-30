@@ -1494,11 +1494,12 @@
       {
         "type": "static",
         "storyName": "HAPPY HELPER",
-        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support. While this character has no damage, he gains Support.",
+        "rulesText": "While this character has no damage, he gets +2 {S} and gains Support.",
         "effect": [
           {
-            "type": "gain_stats",
-            "strength": 2,
+            "type": "modify_stat",
+            "stat": "strength",
+            "amount": 2,
             "target": {
               "type": "this"
             }
