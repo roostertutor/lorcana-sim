@@ -75,6 +75,18 @@ export function resolveChoiceIntelligently(
     return { type: "RESOLVE_CHOICE", playerId, choice: choice.validTargets ?? [] };
   }
 
+  // choose_players_subset (Beyond the Horizon): caster picks any subset of
+  // all players. Default heuristic: include all selectable players — both-
+  // sides refresh is symmetric and usually positive when the caster played
+  // the card. Future RL pass could differentiate based on hand quality.
+  if (choice.type === "choose_players_subset") {
+    return {
+      type: "RESOLVE_CHOICE",
+      playerId,
+      choice: choice.selectablePlayerIds ?? [],
+    };
+  }
+
   // choose_discard: sort validTargets by card cost ascending, discard cheapest N
   if (choice.type === "choose_discard") {
     const targets = choice.validTargets ?? [];

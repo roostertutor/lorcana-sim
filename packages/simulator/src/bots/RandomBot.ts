@@ -41,6 +41,14 @@ function resolveChoiceRandom(state: GameState, playerId: PlayerID): GameAction {
     return { type: "RESOLVE_CHOICE", playerId, choice: shuffled };
   }
 
+  // choose_players_subset (Beyond the Horizon): random subset of selectable
+  // players. Each player is independently included with 50% probability.
+  if (choice.type === "choose_players_subset") {
+    const all = choice.selectablePlayerIds ?? [];
+    const subset = all.filter(() => Math.random() < 0.5);
+    return { type: "RESOLVE_CHOICE", playerId, choice: subset };
+  }
+
   const targets = choice.validTargets ?? [];
   if (targets.length > 0) {
     // Multi-pick (Dig a Little Deeper, Look at This Family): the engine

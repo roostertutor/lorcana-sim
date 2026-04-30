@@ -996,6 +996,23 @@ function validateResolveChoice(
     return OK;
   }
 
+  // CRD 6.1.4 "any number of players" — Beyond the Horizon. Caster picks
+  // a subset (possibly empty) of selectablePlayerIds. Empty is valid since
+  // the printed wording explicitly allows it.
+  if (state.pendingChoice.type === "choose_players_subset" && Array.isArray(choice)) {
+    const selectable = state.pendingChoice.selectablePlayerIds ?? [];
+    for (const p of choice as string[]) {
+      if (!selectable.includes(p as PlayerID)) {
+        return fail("Player is not in the selectable subset.");
+      }
+    }
+    // Reject duplicates (same player listed twice).
+    if (new Set(choice as string[]).size !== choice.length) {
+      return fail("Cannot select the same player twice.");
+    }
+    return OK;
+  }
+
   // choose_order: player reorders cards for deck placement — must include all validTargets exactly once
   if (state.pendingChoice.type === "choose_order" && Array.isArray(choice)) {
     const required = state.pendingChoice.validTargets ?? [];

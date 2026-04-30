@@ -341,8 +341,15 @@ export interface EachPlayerEffect {
   effects: Effect[];
   /** Which players iterate. Default "all" (active player + non-active in
    *  turn order per CRD 7.7.4). "opponents" excludes the caster — used by
-   *  "each opponent X" (Sudden Chill, Tangle, Steal from the Rich, etc.). */
-  scope?: "all" | "opponents";
+   *  "each opponent X" (Sudden Chill, Tangle, Steal from the Rich, etc.).
+   *  "chosen_subset" surfaces a `choose_players_subset` PendingChoice to the
+   *  CASTER on first invocation; the caster picks any subset (including
+   *  empty) of all players, and only the chosen ones iterate. Used by
+   *  Beyond the Horizon ("Choose any number of players. They discard their
+   *  hands and draw 3 cards each.") — the only card with caster-decides-
+   *  who-participates wording in the corpus. CRD 6.1.4: "any number" allows
+   *  the empty selection. */
+  scope?: "all" | "opponents" | "chosen_subset";
   /** If true, each player receives a choose_may prompt before their
    *  iteration's effects run. The caster retains `acceptControllingPlayerId`
    *  for cost/trigger accounting, but the iteration's own player is the
@@ -3961,12 +3968,17 @@ export interface TriggerContext {
 }
 
 export interface PendingChoice {
-  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player" | "choose_amount" | "choose_play_order";
+  type: "choose_mulligan" | "choose_target" | "choose_option" | "choose_cards" | "choose_may" | "choose_discard" | "choose_from_revealed" | "choose_order" | "choose_trigger" | "choose_card_name" | "choose_player" | "choose_players_subset" | "choose_amount" | "choose_play_order";
   /** Which player must make the choice */
   choosingPlayerId: PlayerID;
   prompt: string;
   /** For choose_target: valid target instanceIds */
   validTargets?: string[];
+  /** For choose_players_subset: PlayerIDs the caster may include in the
+   *  chosen subset. Selection of ANY subset (including empty) is valid;
+   *  CRD 6.1.4 "any number" semantics. Used by Beyond the Horizon. The
+   *  RESOLVE_CHOICE action carries the chosen subset as a `string[]`. */
+  selectablePlayerIds?: PlayerID[];
   /** For "any number" choose_discard (Geppetto, Desperate Plan): when set, the
    *  validator allows 0..maxCount discards instead of strict equality on count.
    *  The reducer feeds the actual chosen count into lastEffectResult. */

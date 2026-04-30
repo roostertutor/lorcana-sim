@@ -2387,6 +2387,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const inner = Array.isArray(e.effects)
       ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
+    // scope:"chosen_subset" — Beyond the Horizon BHC: "Choose any number of
+    // players. They discard their hands and draw 3 cards each." The caster
+    // picks the subset; the chosen players ("they", plural) run the inner
+    // effects. Inner verbs need plural-subject agreement ("their hands"
+    // for amount:"all" discard) and a trailing "each" qualifier when the
+    // count is plural.
+    if (e.scope === "chosen_subset") {
+      // Pluralize "their hand" → "their hands" since "they" is plural.
+      // Add "each" suffix to the draw clause to match printed wording.
+      const inner2 = inner
+        .replace(/\bdiscards their hand\b/g, "discard their hands")
+        .replace(/\bdiscard their hand\b/g, "discard their hands")
+        .replace(/\bdraws (\d+ cards?)\b/g, "draw $1 each")
+        .replace(/^draw (\d+ cards?)\b/, "draw $1 each");
+      return `Choose any number of players. They ${inner2}`;
+    }
     const scope = e.scope === "opponents" ? "each opponent" : "each player";
     const filter = renderPlayerFilter(e.filter);
     const subject = filter ? `${scope} ${filter}` : scope;

@@ -1797,3 +1797,156 @@ describe("Set 6 — static gain_stats → modify_stat class-wide sweep (2026-04-
     expect(mods2.statBonuses.get(wendyId)?.lore ?? 0).toBe(1);
   });
 });
+
+// =============================================================================
+// Beyond the Horizon (Sing Together 7): "Choose any number of players. They
+// discard their hands and draw 3 cards each." Verifies the each_player effect
+// with scope:"chosen_subset" surfaces a choose_players_subset PendingChoice
+// to the caster, and that the chosen subset (possibly empty) determines
+// which players run the inner discard+draw effects.
+// =============================================================================
+
+describe("§8 Set 8 — Beyond the Horizon (each_player scope:chosen_subset)", () => {
+  it("caster picks both players → both discard hand and draw 3", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    // Seed both hands with known sizes so we can assert the discard+draw flow.
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    // Apply the each_player effect directly (matches the wiring shape we'll
+    // ship in card-set-8.json once UI lands).
+    state = applyEffect(state, {
+      type: "each_player",
+      scope: "chosen_subset",
+      effects: [
+        { type: "discard_from_hand", amount: "all", target: { type: "self" } },
+        { type: "draw", amount: 3, target: { type: "self" } },
+      ],
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
+
+    // Should surface choose_players_subset to the caster.
+    expect(state.pendingChoice?.type).toBe("choose_players_subset");
+    expect(state.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect(state.pendingChoice?.selectablePlayerIds).toEqual(["player1", "player2"]);
+    expect(state.pendingChoice?.optional).toBe(true);
+
+    // Caster picks both players.
+    const r = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: ["player1", "player2"],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Both players should have discarded their entire hand and drawn 3 fresh.
+    expect(getZone(state, "player1", "hand").length).toBe(3);
+    expect(getZone(state, "player2", "hand").length).toBe(3);
+    // Discard piles should hold the discarded hands.
+    expect(getZone(state, "player1", "discard").length).toBe(p1HandBefore);
+    expect(getZone(state, "player2", "discard").length).toBe(p2HandBefore);
+    expect(state.pendingChoice).toBeFalsy();
+  });
+
+  it("caster picks self only → only self discards+draws; opponent untouched", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    state = applyEffect(state, {
+      type: "each_player",
+      scope: "chosen_subset",
+      effects: [
+        { type: "discard_from_hand", amount: "all", target: { type: "self" } },
+        { type: "draw", amount: 3, target: { type: "self" } },
+      ],
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
+
+    const r = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: ["player1"],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Only self discarded + drew 3.
+    expect(getZone(state, "player1", "hand").length).toBe(3);
+    expect(getZone(state, "player1", "discard").length).toBe(p1HandBefore);
+    // Opponent untouched.
+    expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore);
+    expect(getZone(state, "player2", "discard").length).toBe(0);
+  });
+
+  it("caster picks empty subset → no-op; both players untouched (CRD 6.1.4)", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+
+    state = applyEffect(state, {
+      type: "each_player",
+      scope: "chosen_subset",
+      effects: [
+        { type: "discard_from_hand", amount: "all", target: { type: "self" } },
+        { type: "draw", amount: 3, target: { type: "self" } },
+      ],
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
+
+    const r = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: [],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Empty subset — neither player runs the effects.
+    expect(getZone(state, "player1", "hand").length).toBe(p1HandBefore);
+    expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore);
+    expect(getZone(state, "player1", "discard").length).toBe(0);
+    expect(getZone(state, "player2", "discard").length).toBe(0);
+    expect(state.pendingChoice).toBeFalsy();
+  });
+
+  it("validator rejects player IDs outside selectablePlayerIds", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+
+    state = applyEffect(state, {
+      type: "each_player",
+      scope: "chosen_subset",
+      effects: [{ type: "draw", amount: 1, target: { type: "self" } }],
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
+
+    // "player3" isn't a real player — validator must reject.
+    const r = applyAction(state, {
+      type: "RESOLVE_CHOICE",
+      playerId: "player1",
+      choice: ["player1", "player3"],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(false);
+  });
+
+  it("getAllLegalActions returns empty while the choose_players_subset is pending", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+
+    state = applyEffect(state, {
+      type: "each_player",
+      scope: "chosen_subset",
+      effects: [{ type: "draw", amount: 1, target: { type: "self" } }],
+    }, "synthetic-source", "player1", CARD_DEFINITIONS, []);
+
+    expect(state.pendingChoice?.type).toBe("choose_players_subset");
+    // While a pendingChoice is open, getAllLegalActions returns []; bots
+    // resolve choices via choiceResolver/RandomBot, not via legal-action
+    // enumeration. Mirrors the existing convention for choose_player /
+    // choose_amount.
+    expect(getAllLegalActions(state, "player1", CARD_DEFINITIONS)).toEqual([]);
+  });
+});

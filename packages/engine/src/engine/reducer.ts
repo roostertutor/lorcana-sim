@@ -2660,6 +2660,31 @@ function applyResolveChoice(
     return state;
   }
 
+  if (pendingChoice.type === "choose_players_subset" && Array.isArray(choice)) {
+    // Beyond the Horizon BHC: caster has picked the subset of players that
+    // run the effect. Validate every entry is in selectablePlayerIds (no
+    // injection); empty subset is valid per CRD 6.1.4. Populate `_iterations`
+    // on the pending each_player effect and re-apply.
+    const selectable = pendingChoice.selectablePlayerIds ?? [];
+    const chosenSubset = (choice as string[]).filter((p) => selectable.includes(p as PlayerID)) as PlayerID[];
+    if (pendingEffect && pendingEffect.type === "each_player") {
+      const sourceId = pendingChoice.sourceInstanceId ?? "";
+      const triggeringId = pendingChoice.triggeringCardInstanceId;
+      const resolved: EachPlayerEffect = {
+        ...(pendingEffect as EachPlayerEffect),
+        _iterations: chosenSubset,
+      };
+      // Clear pendingChoice before re-applying so the each_player handler
+      // sees a clean state. cleanupPendingAction does this but we need it
+      // pre-apply for the inline iteration.
+      state = { ...state, pendingChoice: null };
+      state = applyEffect(state, resolved, sourceId, playerId, definitions, events, triggeringId);
+    }
+    state = resumePendingEffectQueue(state, definitions, events);
+    state = cleanupPendingAction(state, playerId);
+    return state;
+  }
+
   if (pendingChoice.type === "choose_card_name" && typeof choice === "string") {
     // The Sorcerer's Hat / Merlin Clever Clairvoyant: compare the named card
     // to the top of deck. matchAction defaults to "to_hand"; Merlin uses
@@ -5107,6 +5132,33 @@ export function applyEffect(
           activePlayer === controllingPlayerId
             ? [activePlayer, other]
             : [activePlayer, other];
+        // CRD 6.1.4 "any number of players" — surface a choose_players_subset
+        // PendingChoice to the caster on first invocation. The caster picks
+        // any subset (including empty) of all players; only the chosen ones
+        // iterate. Beyond the Horizon BHC. Empty subset is valid → the
+        // each_player resolves to a no-op.
+        if (scope === "chosen_subset") {
+          const acceptEffect: EachPlayerEffect = {
+            ...effect,
+            // Strip scope so the resolver re-enters the standard branch
+            // with `_iterations` populated (avoids re-prompting).
+            scope: "all",
+            _iterations: [],  // placeholder; resolver writes the picked subset
+          };
+          return {
+            ...state,
+            pendingChoice: {
+              type: "choose_players_subset",
+              choosingPlayerId: controllingPlayerId,
+              prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose any number of players."),
+              selectablePlayerIds: allInOrder,
+              pendingEffect: acceptEffect,
+              sourceInstanceId,
+              triggeringCardInstanceId,
+              optional: true,  // empty subset is valid per CRD 6.1.4
+            },
+          };
+        }
         iterations = scope === "opponents"
           ? allInOrder.filter(p => p !== controllingPlayerId)
           : allInOrder;
