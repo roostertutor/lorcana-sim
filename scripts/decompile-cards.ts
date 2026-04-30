@@ -147,6 +147,20 @@ function renderCard(card: CardJSON): string {
     parts.push(`You can't play this character unless ${stripIfPrefix(renderCondition(restriction))}`);
   }
 
+  // Helper: capitalize the first letter of a rendered ability so it reads
+  // as a sentence ("This character can't challenge." not "this character
+  // can't challenge."). Per-ability renderers stay lowercase-prefixed to
+  // simplify mid-sentence composition (`...{E} — ${effect}`); sentence-
+  // capitalization is the renderCard-level concern.
+  const sentenceCap = (s: string): string => {
+    if (!s) return s;
+    // Don't disturb lines that already start uppercase (TRIGGER_RENDERERS
+    // emit "When you play..." / "Whenever this character..."; activated
+    // costs emit "{E} — ..." which starts with a glyph). Only capitalize
+    // when the first alphabetic character is lowercase.
+    const m = s.match(/^([^A-Za-z]*)([a-z])(.*)$/);
+    return m ? m[1] + m[2]!.toUpperCase() + m[3] : s;
+  };
   for (const ab of card.abilities ?? []) {
     // Keyword abilities render as "<Keyword> (reminder)" since the oracle
     // rulesText DOES include the keyword + its reminder text. Without this,
@@ -163,11 +177,11 @@ function renderCard(card: CardJSON): string {
       parts.push(renderKeywordWithReminder(ab));
       continue;
     }
-    parts.push(renderAbility(ab, { cardType: card.cardType }));
+    parts.push(sentenceCap(renderAbility(ab, { cardType: card.cardType })));
   }
   // Action / song bodies live on actionEffects.
   for (const eff of card.actionEffects ?? []) {
-    parts.push(renderEffect(eff));
+    parts.push(sentenceCap(renderEffect(eff)));
   }
 
   return parts.filter(Boolean).join(". ") + (parts.length ? "." : "");
@@ -506,8 +520,10 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
     const possessive = c.player?.type === "opponent" ? "their" : "your";
     if ((c.amount ?? 0) === 0) {
+      // Belle - Bookworm USE YOUR IMAGINATION: oracle says "While an opponent
+      // has no cards in their hand" (singular "their hand", not "hands").
       return c.player?.type === "opponent"
-        ? "while one or more opponents have no cards in their hands"
+        ? "if an opponent has no cards in their hand"
         : "if you have no cards in your hand";
     }
     return `if ${who} exactly ${c.amount} cards in ${possessive} hand`;
@@ -1000,13 +1016,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   modify_stat: (e) => renderStatChange(e),
 
   grant_keyword: (e) => {
-    const tgt = renderTarget(e.target ?? {});
+    const locScope = locationScopeRewrite(e.target);
+    const tgt = locScope.tgt ?? renderTarget(e.target ?? {});
     // count-typed valueDynamic: render as "Resist +1 for each X" to match
     // oracle (Snow White Fair-Hearted). Other DynamicAmounts fall back to
     // "+the-number-of-X" style.
     if (e.valueDynamic?.type === "count" && e.valueDynamic.filter) {
       const sing = renderFilter(e.valueDynamic.filter);
-      return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)} +1 for each ${sing}${dur(e)}`;
+      return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)} +1 for each ${sing}${dur(e)}${locScope.suffix}`;
     }
     let v = "";
     if (e.valueDynamic) {
@@ -1014,7 +1031,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     } else if (e.value !== undefined) {
       v = " +" + e.value;
     }
-    return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)}${v}${dur(e)}`;
+    return `${tgt} ${verbS(tgt, "gain", "gains")} ${cap(e.keyword)}${v}${dur(e)}${locScope.suffix}`;
   },
 
   cant_action: (e) => {
@@ -1735,11 +1752,6 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         who = who.replace(/\bcards?\b/, "character");
       }
       const fOwner = e.filter?.owner?.type;
-      if (e.affectedPlayer?.type === "opponent" && fOwner !== "opponent") {
-        who = `Opposing ${who}`;
-      } else if (e.affectedPlayer?.type === "self" && fOwner !== "self") {
-        who = `Your ${who}`;
-      }
       // "challenge" is the only verb that takes a target-side suffix
       // (challenges are relational). Other verbs (ready/quest/sing/play)
       // don't — pre-fix this renderer was emitting "your characters" on
@@ -1747,7 +1759,32 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       const challengeSuffix = (e.restricts === "challenge" && e.affectedPlayer?.type === "opponent")
         ? " your characters"
         : "";
-      return `${pluralizeFilter(who)} can't ${verb}${challengeSuffix}`;
+      // When the verb suffix already carries possessive "your characters",
+      // oracle drops the "Opposing" prefix because the contrast is implicit
+      // (King of Hearts OBJECTIONABLE STATE: "Damaged characters can't
+      // challenge your characters." not "Opposing damaged characters...").
+      const skipOpposingPrefix = challengeSuffix.length > 0;
+      if (e.affectedPlayer?.type === "opponent" && fOwner !== "opponent" && !skipOpposingPrefix) {
+        who = `Opposing ${who}`;
+      } else if (e.affectedPlayer?.type === "self" && fOwner !== "self") {
+        who = `Your ${who}`;
+      }
+      // Capitalize the first letter when "Opposing"/"Your" prefix is absent
+      // and the rendered filter starts with a lowercase noun ("damaged
+      // characters" → "Damaged characters").
+      if (/^[a-z]/.test(who)) who = who.charAt(0).toUpperCase() + who.slice(1);
+      // Ready-restriction timing: oracle convention adds "at the start of
+      // their/your turn(s)" because ready only happens then (Vincenzo
+      // Santorini NEUTRALIZE: "Opposing items can't ready at the start of
+      // their players' turns"; Mor'du Savage Cursed Prince ROOTED BY FEAR:
+      // "Your characters not named Mor'du can't ready at the start of your
+      // turn"). Anchor to whose turn fires the restriction.
+      const readyTimingSuffix = e.restricts === "ready"
+        ? (e.affectedPlayer?.type === "opponent" ? " at the start of their players' turns"
+          : e.affectedPlayer?.type === "self" ? " at the start of your turn"
+          : "")
+        : "";
+      return `${pluralizeFilter(who)} can't ${verb}${challengeSuffix}${readyTimingSuffix}`;
     }
     // No filter — check affectedPlayer for "opposing characters can't X"
     if (e.affectedPlayer?.type === "opponent") return `opposing characters can't ${verb}`;
@@ -1799,7 +1836,21 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Characters with cost N or less can't challenge this character"
   cant_be_challenged: (e) => {
+    const locScope = locationScopeRewrite(e.target);
+    if (locScope.tgt && !e.attackerFilter) {
+      // Tiana's Palace NIGHT OUT: "Characters can't be challenged while here."
+      return `${locScope.tgt} can't be challenged${locScope.suffix}`;
+    }
     const tgt = renderTarget(e.target ?? { type: "this" });
+    const targetIsThis = !e.target || e.target.type === "this";
+    // Oracle voice for target=this + attackerFilter is inconsistent (Mr. Big
+    // REPUTATION uses passive "This character can't be challenged by..."
+    // while Captain Hook STOLEN DUST and Ed Hysterical Partygoer use active
+    // "Characters with X can't challenge this character"). We pick passive
+    // ONLY for hasTrait filters that name a faction ("Pirate characters",
+    // Captain Amelia DRIVELING GALOOTS) — for everything else, default to
+    // active voice which matches the majority of cards.
+    const usesPassive = targetIsThis && !!e.attackerFilter?.hasTrait;
     if (e.attackerFilter) {
       // Strip cardType:character from the filter copy so we don't render
       // "Pirate character" (we'll add "characters" suffix ourselves).
@@ -1818,6 +1869,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       // Replace "card"/"cards" or "character"/"characters" noun with the
       // plural "characters", then capitalize.
       const swapped = af.replace(/\bcards?\b/, "characters").replace(/\bcharacter\b/, "characters");
+      // Passive voice for stat-comparison filters (Mr. Big REPUTATION:
+      // "This character can't be challenged by characters with 2 {S} or
+      // greater"). Active voice otherwise (Ed Hysterical Partygoer:
+      // "Damaged characters can't challenge this character"; Gantu UNDER
+      // ARREST: "Pirate characters can't challenge your characters").
+      if (usesPassive) {
+        return `${tgt} can't be challenged by ${swapped}`;
+      }
       const capped = swapped.charAt(0).toUpperCase() + swapped.slice(1);
       return `${capped} can't challenge ${tgt}`;
     }
@@ -1850,6 +1909,30 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // Degenerate: trivial condition + no default. Used as a "chain effects
     // against a chosen target" pattern (Dinner Bell pinning last_resolved_target).
     if (condFilterTrivial && (!e.effect || e.effect.length === 0)) {
+      // Inline-stat-ref pattern: when the alt is a single gain_lore /
+      // gain_stats / deal_damage with a `stat_ref` amount from
+      // `target` (= the target chosen by this self_replacement), oracle
+      // wording inlines the reference: "gain lore equal to <chosen X>'s
+      // {L}" (Pocahontas Following the Wind WHAT IS MY PATH?). Without
+      // this, the renderer emits "choose <X> — you gain lore equal to
+      // their {L}" which scores poorly against the inline oracle text.
+      const altList = (e.instead ?? []) as Json[];
+      if (altList.length === 1) {
+        const alone = altList[0]!;
+        const isStatRefFromTarget = alone?.amount
+          && typeof alone.amount === "object"
+          && alone.amount.type === "stat_ref"
+          && alone.amount.from === "target";
+        if (isStatRefFromTarget) {
+          const prop = alone.amount.property ?? "lore";
+          const sym = prop === "lore" ? "{L}" : prop === "willpower" ? "{W}" : prop === "strength" ? "{S}" : prop;
+          if (alone.type === "gain_lore") return `gain lore equal to ${tgt}'s ${sym}`;
+          if (alone.type === "deal_damage") {
+            const dmgTgt = alone.target ? renderTarget(alone.target) : "this character";
+            return `deal damage to ${dmgTgt} equal to ${tgt}'s ${sym}`;
+          }
+        }
+      }
       return alt ? `choose ${tgt} — ${alt}` : `choose ${tgt}`;
     }
     const cond = e.condition ? renderFilter(e.condition) : "matching";
@@ -1902,9 +1985,19 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // 'Your X characters gain "{E} — Gain 1 lore"' — wraps another ability.
   grant_activated_ability: (e) => {
-    const tgt = renderTarget(e.target ?? {});
+    const locScope = locationScopeRewrite(e.target);
+    const tgt = locScope.tgt ?? renderTarget(e.target ?? {});
     const inner = e.ability ? renderAbility(e.ability) : "[no-ability]";
-    return `${tgt} ${verbS(tgt, "gain", "gains")} "${inner}"`;
+    // Drop the "you " prefix from inner cost-reward bodies — when a granted
+    // activated ability's reward is "you gain 1 lore", oracle elides the
+    // pronoun: "{E} — Gain 1 lore." (Cogsworth Talking Clock WAIT A MINUTE,
+    // The Great Illuminary STARTLING DISCOVERY). The carrier is the
+    // implicit subject inside the granted ability's quotes. Also
+    // capitalize the verb that follows " — " (sentence start inside quotes).
+    const cleaned = inner
+      .replace(/ — you /g, " — ")
+      .replace(/ — ([a-z])/g, (_m, c) => ` — ${c.toUpperCase()}`);
+    return `${tgt} ${verbS(tgt, "gain", "gains")} "${cleaned}"${locScope.suffix}`;
   },
 
   // "Whenever one of your other characters would be dealt damage, put that
@@ -2136,6 +2229,32 @@ function up(e: Json): string { return e.isUpTo ? "up to " : ""; }
 function dur(e: Json): string { return e.duration ? " " + renderDuration(e.duration) : ""; }
 function plural(n: number | string): string { return n === 1 ? "" : "s"; }
 
+/** Location-grant scope rewrite (CRD 5.4 / oracle wording).
+ *  Static effects on locations targeting `{ type: "all", filter:
+ *  { ..., atLocation: "this" }}` print as "Characters gain X while here."
+ *  (The Great Illuminary, Bad-Anon, Tiana's Palace, Fang.) Without this,
+ *  renderTarget produces "all characters here" + a static-effect verb body,
+ *  which mis-renders as "all characters here gain X" — the "all" leaks and
+ *  "here" appears mid-sentence. This helper drops the "all" prefix, strips
+ *  the inline "here", and returns a trailing " while here" suffix the
+ *  caller appends after the verb body. */
+function locationScopeRewrite(target: Json | undefined): { tgt?: string; suffix: string } {
+  if (!target || target.type !== "all" || target.filter?.atLocation !== "this") {
+    return { suffix: "" };
+  }
+  // Strip atLocation:"this" and re-render the filter without the "here" bit.
+  // Suppress the owner-self "your" prefix renderFilter adds — oracle wording
+  // for location-grants drops the possessive entirely (Bad-Anon: "Villain
+  // characters gain..." not "Your Villain characters gain..."). We add the
+  // "Opposing" prefix back manually for owner:opponent locations only.
+  const { atLocation: _ignored, ...rest } = target.filter;
+  const filt = pluralizeFilter(renderFilter(rest, { suppressOwnerSelf: true }));
+  const prefix = target.filter.owner?.type === "opponent" ? "Opposing " : "";
+  const head = prefix + filt;
+  const cap = head.charAt(0).toUpperCase() + head.slice(1);
+  return { tgt: cap, suffix: " while here" };
+}
+
 /** Render a DynamicAmount (number or object like {type:"count",filter} or string). */
 function renderAmount(a: any): string {
   if (typeof a === "number") return String(a);
@@ -2204,7 +2323,15 @@ function verbS(target: string, base: string, third: string): string {
   // But NOT "each opponent" (grammatically singular) or "this characters" (doesn't exist)
   if (target.startsWith("all ")) return base;
   if (target.startsWith("opposing ") && target.endsWith("s")) return base;
+  if (target.startsWith("Opposing ") && target.endsWith("s")) return base;
   if (target.startsWith("your ") && target.endsWith("s")) return base;
+  if (target.startsWith("Your ") && target.endsWith("s")) return base;
+  // Sentence-start plural noun: "Characters gain..." (location grants from
+  // locationScopeRewrite). Lowercase first char then check for "characters"/
+  // "items"/etc. as plural subject.
+  if (/^[A-Z]/.test(target) && target.endsWith("s") && !target.includes("each ") && !target.includes("this ")) {
+    return base;
+  }
   return third;
 }
 
@@ -2223,7 +2350,21 @@ function renderStatChange(e: Json): string {
       && (e.strength === 0 || e.willpower === 0 || e.lore === 0)) {
     return "";
   }
-  const tgt = renderTarget(e.target ?? {});
+  let tgt = renderTarget(e.target ?? {});
+  // Stat-change targets prefer singular "Each opposing X" wording, not the
+  // bulk-action "all opposing X" form (Someone Will Lose His Head
+  // "Each opposing character gets -2 {S}", Fix-It Felix "Each of your
+  // characters gets..."). Swap "all opposing X(s)" → "each opposing X" with
+  // the trailing plural stripped where simple. Action-form effects
+  // (banish/return/exert) keep using "all opposing X" via renderTarget.
+  if (tgt.startsWith("all opposing ")) {
+    const rest = tgt.slice("all opposing ".length);
+    // Strip trailing 's' on the head noun ("characters" → "character",
+    // "items" → "item"). Multi-word filters like "characters with cost 2 or
+    // less" need only the head noun depluralized.
+    const singular = rest.replace(/^([a-z]+)s\b/, "$1");
+    tgt = `each opposing ${singular}`;
+  }
   const bits: string[] = [];
   // modify_stat uses stat + amount. amount can be a number OR a DynamicAmount
   // object (count-filter for "+N for each X" patterns — Mr. Incredible Super
@@ -2315,6 +2456,30 @@ function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
         && !e.followUpEffects?.length
         && !e.asPutDamage) {
       return `This character enters play with ${e.amount} damage`;
+    }
+    // "May enter play exerted to <reward>" idiom: enters_play trigger +
+    // single sequential effect with isMay + costEffects=[exert this] +
+    // rewardEffects. Oracle wording is "This character may enter play
+    // exerted to <reward>" (Lord Dingwall FIGHTIN' TALK; Lord Macintosh
+    // CHARGING BOAR; many Brave-set ENTRY-payoff designs). Without this
+    // shape the renderer falls through to "When you play this character,
+    // you may exert this character to ..." which scores poorly.
+    if (e?.type === "sequential"
+        && e.isMay
+        && Array.isArray(e.costEffects) && e.costEffects.length === 1
+        && e.costEffects[0]?.type === "exert"
+        && e.costEffects[0]?.target?.type === "this"
+        && Array.isArray(e.rewardEffects) && e.rewardEffects.length >= 1) {
+      const reward = (e.rewardEffects as Json[]).map(renderEffect).filter(Boolean).join(", and ");
+      // Player-active "give X Y" idiom — when the reward is a `grant_keyword`
+      // (or stat buff), oracle wording uses "give chosen character Y" rather
+      // than "chosen character gains Y" because the controller is the
+      // grammatical subject of the cost-payment. Rewrite "X gains Y" → "give
+      // X Y" and "X gets +N {S}" → "give X +N {S}".
+      const rewritten = reward
+        .replace(/^chosen ([\w\s]+?) gains /, "give chosen $1 ")
+        .replace(/^chosen ([\w\s]+?) gets /, "give chosen $1 ");
+      return `This character may enter play exerted to ${rewritten}`;
     }
   }
   let head = renderTrigger(ab.trigger ?? {});
@@ -2836,8 +3001,12 @@ function normalize(s: string): string {
   for (const [re, repl] of SYNONYMS) out = out.replace(re, repl);
   // Strip punctuation. Angle brackets included so oracle "<Rush>" matches
   // rendered "Rush" — Lorcana wraps keyword references in angle brackets;
-  // our renderer emits the bare word.
-  out = out.replace(/[.,;:!?\-—'"`<>]/g, " ");
+  // our renderer emits the bare word. Includes Unicode smart quotes
+  // (U+2018-U+201D) so oracle smart-quoted text matches rendered ASCII
+  // quotes — without these, granted-ability rulesText like
+  // "Characters gain "{E} — Draw a card" while here" splits "draw" into
+  // an unmatchable "draw" + leading-quote token, costing 0.20 similarity.
+  out = out.replace(/[.,;:!?\-—'"`<>‘’“”]/g, " ");
   // Collapse whitespace.
   out = out.replace(/\s+/g, " ").trim();
   return out;
