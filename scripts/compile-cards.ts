@@ -705,6 +705,21 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^banish chosen character/i,
     build: () => ({ type: "banish", target: chosenCharacter() }),
   },
+  // "Banish all characters." — board wipe. 3× recurrence (Be Prepared set 1
+  // #128, Raging Storm set 11 #28 + reprints). target.type:"all" with
+  // character filter; no owner restriction so it banishes both players'
+  // characters.
+  {
+    name: "banish_all_characters",
+    pattern: /^banish all characters/i,
+    build: () => ({
+      type: "banish",
+      target: {
+        type: "all",
+        filter: { zone: "play", cardType: ["character"] },
+      },
+    }),
+  },
   {
     name: "banish_chosen_item_may",
     pattern: /^you may banish chosen item/i,
@@ -791,6 +806,31 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "exert_chosen_character",
     pattern: /^exert chosen character/i,
     build: () => ({ type: "exert", target: chosenCharacter() }),
+  },
+  // "Exert up to N chosen characters. They can't ready at the start of their
+  // next turn." — multi-target exert with isUpTo + followUp cant_action ready
+  // (end_of_owner_next_turn). 3× recurrence (Elsa Spirit of Winter set 1 #42
+  // + alt-art #207, set 9 reprint DEEP FREEZE).
+  {
+    name: "exert_up_to_n_chosen_cant_ready_next_turn",
+    pattern: /^exert up to (\d+) chosen characters\. They can'?t ready at the start of their next turn/i,
+    build: (m) => ({
+      type: "exert",
+      target: {
+        type: "chosen",
+        filter: { zone: "play", cardType: ["character"] },
+        count: parseInt(m[1], 10),
+      },
+      isUpTo: true,
+      followUpEffects: [
+        {
+          type: "cant_action",
+          action: "ready",
+          target: { type: "this" },
+          duration: "end_of_owner_next_turn",
+        },
+      ],
+    }),
   },
   {
     name: "ready_this_character_may",
@@ -947,6 +987,23 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "deal_damage",
       amount: n(m[1]),
       target: chosenCharacter({ damaged: true }),
+    }),
+  },
+  // "you may deal N damage to chosen damaged character" — may variant.
+  // 3× recurrence (Ed Laughing Hyena set 5 #74 CAUSE A PANIC, Cheshire
+  // Cat Perplexing Feline set 7 #91 MAD GRIN, March Hare Hare-Brained
+  // Eccentric set 8 #91 LIGHT THE CANDLES). Note baseline uses
+  // `isUpTo: false` not `isMay: true` — but isMay matches semantics
+  // ('may' is the player choice; isUpTo would let the engine pick 0..N
+  // damage). Use isMay for the may-prompt, omit isUpTo (false default).
+  {
+    name: "deal_damage_may_n_damaged",
+    pattern: /^you may deal (\d+) damage to chosen damaged character/i,
+    build: (m) => ({
+      type: "deal_damage",
+      amount: n(m[1]),
+      target: chosenCharacter({ damaged: true }),
+      isMay: true,
     }),
   },
   // "deal N damage to the challenging character" — triggering_card target
@@ -1108,13 +1165,18 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   // cards. Duration suffix is consumed by the chain parser.
   {
     name: "chosen_character_gets_stat",
-    pattern: /^chosen character gets ([+-]?\d+) \{(S|W|L)\}/i,
-    build: (m) => gainStats(parseInt(m[1], 10), m[2], chosenCharacter()),
+    // Accept ASCII minus (-), Unicode minus (−), and en-dash (–) for the
+    // "gets –N {S}" form. Ravensburger uses U+2013 en-dash for stat penalties
+    // (Distract set 3 #159, Pouncing Practice set 8 #176, Distract set 11
+    // #164 — 3× residual cluster). The plain-stripped – in the
+    // character class lets the existing regex match those cards too.
+    pattern: /^chosen character gets ([+\-–]?\d+) \{(S|W|L)\}/i,
+    build: (m) => gainStats(parseInt(m[1].replace(/[–]/, "-"), 10), m[2], chosenCharacter()),
   },
   {
     name: "chosen_opposing_character_gets_stat",
-    pattern: /^chosen opposing character gets ([+-]?\d+) \{(S|W|L)\}/i,
-    build: (m) => gainStats(parseInt(m[1], 10), m[2], chosenCharacter({ opposing: true })),
+    pattern: /^chosen opposing character gets ([+\-–]?\d+) \{(S|W|L)\}/i,
+    build: (m) => gainStats(parseInt(m[1].replace(/[–]/, "-"), 10), m[2], chosenCharacter({ opposing: true })),
   },
   {
     name: "this_character_gets_stat",
@@ -1517,6 +1579,25 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     name: "return_chosen_character",
     pattern: /^return chosen character to their player['’]s hand/i,
     build: () => ({ type: "return_to_hand", target: chosenCharacter() }),
+  },
+  // "return chosen character, item, or location with cost N or less to their
+  // player's hand" — multi-cardType return with cost filter. 3× recurrence
+  // (Poor Unfortunate Souls set 4 #60 + reprints set 9 #61, Begone! set 10
+  // #61). Multi-cardType filter — character/item/location all eligible.
+  {
+    name: "return_chosen_multi_with_cost",
+    pattern: /^return chosen character, item, or location with cost (\d+) or less to their player['’]s hand/i,
+    build: (m) => ({
+      type: "return_to_hand",
+      target: {
+        type: "chosen",
+        filter: {
+          zone: "play",
+          cardType: ["character", "item", "location"],
+          statComparisons: [{ stat: "cost", op: "lte", value: parseInt(m[1], 10) }],
+        },
+      },
+    }),
   },
   {
     name: "return_chosen_opposing_character",
@@ -3281,6 +3362,36 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
           cardType: ["character"],
           notHasName: statRootedByFear[1].trim(),
         },
+      },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character gets +N {stat} for each card in your hand." — bare
+  // form (no "you have in play" trailing). 3× recurrence (Jafar Keeper
+  // of Secrets set 1 #44 + reprints HIDDEN WONDERS, Marshmallow Terrifying
+  // Snowman set 4 #51 BEHEMOTH). Emits modify_stat_per_count with
+  // countFilter:{owner:self,zone:hand} matching the canonical baseline
+  // shape. Note: the broader statDynamic matcher below requires "you have
+  // in play" trailing, so it doesn't catch this bare wording.
+  const statDynamicPerCardInHand =
+    /^This character gets \+(\d+) \{(S|W|L)\} for each card in your hand\.?$/i.exec(rest);
+  if (statDynamicPerCardInHand) {
+    const stat =
+      statDynamicPerCardInHand[2].toUpperCase() === "S"
+        ? "strength"
+        : statDynamicPerCardInHand[2].toUpperCase() === "W"
+          ? "willpower"
+          : "lore";
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "modify_stat_per_count",
+        stat,
+        perCount: parseInt(statDynamicPerCardInHand[1], 10),
+        countFilter: { owner: { type: "self" }, zone: "hand" },
+        target: { type: "this" },
       },
     };
     if (leadingCondition) ability.condition = leadingCondition;
