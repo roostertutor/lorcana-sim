@@ -513,8 +513,24 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
 
   // ---- Player-state checks --------------------------------------------------
   // "If you have a [filter] in play" — supersedes the legacy single-trait /
-  // single-name forms when the filter is more general.
-  you_control_matching:       (c) => `if you have ${c.filter ? renderFilter(c.filter) : "a character"} in play`,
+  // single-name forms when the filter is more general. Owner-self is
+  // suppressed because "you have" already implies ownership ("if you have a
+  // damaged character in play" not "if you have your damaged character in
+  // play"). hasDamage moves to a trailing "with damage" qualifier matching
+  // oracle wording for self_cost_reduction conditions (Mulan Ready for
+  // Battle NOBLE SPIRIT: "If you have a character in play with damage").
+  you_control_matching:       (c) => {
+    if (!c.filter) return "if you have a character in play";
+    const { hasDamage, ...rest } = c.filter;
+    const filt = renderFilter(rest, { suppressOwnerSelf: true });
+    const trailing = hasDamage ? " with damage" : "";
+    // "other X" gets the contracted article "another X" not "an other X".
+    if (filt.startsWith("other ")) {
+      return `if you have another ${filt.slice("other ".length)} in play${trailing}`;
+    }
+    const article = /^[aeiou]/i.test(filt) ? "an" : "a";
+    return `if you have ${article} ${filt} in play${trailing}`;
+  },
   opponent_controls_matching: (c) => `if an opposing ${c.filter ? renderFilter({ ...c.filter, owner: undefined }) : "character"} is in play`,
   cards_in_hand_gte:          (c) => {
     const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
@@ -709,7 +725,13 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
 };
 
 function stripIfPrefix(s: string): string {
-  return s.replace(/^if\s+/, "");
+  // Some conditions render with a "while " or "if " prefix as a head — when
+  // they're being composed under a containing connector ("unless X", "if X
+  // and Y"), the inner head must be stripped so we don't get "unless while
+  // X" / "if while X" (Treasure Guardian Protector of the Cave WHO DISTURBS
+  // MY SLUMBER? renders `not(this_at_location)` and got "unless while this
+  // character is at a location" before this fix).
+  return s.replace(/^(if|while)\s+/i, "");
 }
 
 function renderCondition(c: Json): string {
@@ -2635,9 +2657,45 @@ function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
 }
 
 function renderStatic(ab: Json, ctx?: { cardType?: string }): string {
+  // Beast Snowfield Troublemaker DYNAMIC MANEUVER: static with
+  // `challenge_damage_prevention` + `this_at_location` condition reads as
+  // a triggered ability in oracle text — "Whenever this character
+  // challenges, if he's at a location, he takes no damage from the
+  // challenge." The static modeling is semantically correct (no extra
+  // listener; checked during challenge resolution) but the printed
+  // wording uses the trigger shape. Special-case this combination.
+  if (ab.effect?.type === "challenge_damage_prevention"
+      && !ab.effect.targetFilter
+      && ab.condition?.type === "this_at_location") {
+    return "Whenever this character challenges, if this character is at a location, this character takes no damage from the challenge";
+  }
+  // Compound cant_action_self merge: oracle wording for two
+  // self-restrictions is "this character can't X or Y" not "this character
+  // can't X and this character can't Y" (Treasure Guardian WHO DISTURBS MY
+  // SLUMBER? "This character can't challenge or quest unless it is at a
+  // location"). Detect the array shape and merge actions.
+  if (Array.isArray(ab.effect)
+      && ab.effect.length === 2
+      && ab.effect.every((e: Json) => e?.type === "cant_action_self")
+      && !ab.effect.some((e: Json) => e?.duration)) {
+    const actions = (ab.effect as Json[]).map((e) => e.action ?? "act").join(" or ");
+    const condBody = ab.condition ? renderCondition(ab.condition) : "";
+    if (condBody.startsWith("unless ")) {
+      return `This character can't ${actions} ${condBody}`;
+    }
+    if (condBody) {
+      return `${cap(condBody)}, this character can't ${actions}`;
+    }
+    return `This character can't ${actions}`;
+  }
   let cond = ab.condition ? renderCondition(ab.condition) : "";
-  // Statics use "While" not "If" for ongoing conditions
-  if (cond.startsWith("if ") || cond.startsWith("If ")) {
+  // Statics use "While" not "If" for ongoing conditions, EXCEPT for
+  // self_cost_reduction (Mulan Ready for Battle NOBLE SPIRIT/FIGHTING
+  // SPIRIT) which is checked at play time — oracle uses "If you have X,
+  // you pay 1 {I} less to play this character." not "While...".
+  const isSelfCostReduction = ab.effect?.type === "self_cost_reduction"
+    || (Array.isArray(ab.effect) && ab.effect.some((e: Json) => e?.type === "self_cost_reduction"));
+  if ((cond.startsWith("if ") || cond.startsWith("If ")) && !isSelfCostReduction) {
     cond = "While " + cond.slice(3);
   }
   // ab.effect can be a single effect object OR an array of effects
@@ -2959,7 +3017,16 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   const types: string[] = Array.isArray(rawTypes) ? rawTypes : rawTypes ? [rawTypes] : [];
   if (types.length === 1) noun = types[0]!;
   else if (types.length === 2) noun = types.join(" or ");
-  else if (types.length > 2) noun = types.slice(0, -1).join(", ") + ", or " + types[types.length - 1];
+  else if (types.length === 3) {
+    // 3-type list spans the non-character complement (action+item+location)
+    // — Lorcana oracle wording is "non-character" (Buzz Lightyear On the
+    // Way SECRET MISSION). Treat the explicit 3-type complement as the
+    // canonical "non-character" idiom.
+    const sorted = [...types].sort();
+    if (sorted.join(",") === "action,item,location") noun = "non-character";
+    else noun = types.slice(0, -1).join(", ") + ", or " + types[types.length - 1];
+  }
+  else if (types.length > 3) noun = types.slice(0, -1).join(", ") + ", or " + types[types.length - 1];
   // No cardType filter → generic "card"
   // Song actions should render as "song" not "Song action"
   if (f.hasTrait === "Song" && noun === "action") noun = "song";
