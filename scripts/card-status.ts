@@ -137,6 +137,59 @@ function buildEffectFieldMap(source: string): Map<string, Set<string>> {
 const EFFECT_FIELD_MAP = buildEffectFieldMap(typesSource);
 
 /**
+ * Per-condition-type field whitelist, parsed from the inline `Condition` union.
+ *
+ * Unlike effects (declared as `export interface XxxEffect { type: "yyy"; ... }`),
+ * Condition members are inline shapes:
+ * `| { type: "characters_here_gte"; amount: number; player?: PlayerTarget; op?: ... }`
+ * — so buildEffectFieldMap doesn't see them. This walker brace-balances each
+ * member and pulls out its declared field names.
+ *
+ * Catches the silent-typo class on conditions that the CardFilter check missed.
+ * Concrete bug it caught: Andy's Room - Home Base ANDY'S FAVORITE used
+ * `characters_here_gte` with `op: "=="` to encode "only 1 character here", but
+ * the engine type didn't declare `op`, so the reducer ignored it and evaluated
+ * `count >= 1` — firing for any non-zero count, not just 1. Adding `op` to the
+ * type fixed the bug; this audit makes the same class fail loudly next time.
+ */
+function buildInlineUnionFieldMap(source: string, unionName: string): Map<string, Set<string>> {
+  const block = extractUnionBlock(source, unionName);
+  const map = new Map<string, Set<string>>();
+  if (!block) return map;
+  const re = /\{\s*type:\s*"([a-z_][a-z_0-9]*)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(block)) !== null) {
+    const typeLit = m[1]!;
+    const braceStart = block.indexOf("{", m.index);
+    if (braceStart < 0) continue;
+    let depth = 1;
+    let j = braceStart + 1;
+    while (j < block.length && depth > 0) {
+      const ch = block[j];
+      if (ch === "{") depth++;
+      else if (ch === "}") depth--;
+      if (depth === 0) break;
+      j++;
+    }
+    if (j >= block.length) break;
+    const body = block
+      .slice(braceStart + 1, j)
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/[^\n]*/g, "");
+    const fields = new Set<string>();
+    for (const fm of body.matchAll(/(?:^|[\s;,])([a-zA-Z_][a-zA-Z0-9_]*)\??:\s/g)) {
+      if (fm[1]! !== "type") fields.add(fm[1]!);
+    }
+    const existing = map.get(typeLit);
+    if (existing) for (const f of fields) existing.add(f);
+    else map.set(typeLit, fields);
+    re.lastIndex = j + 1;
+  }
+  return map;
+}
+const CONDITION_FIELD_MAP = buildInlineUnionFieldMap(typesSource, "Condition");
+
+/**
  * Whitelist of valid static-ability `effect.type` discriminators.
  *
  * Derived from the `StaticEffect` union in types/index.ts — each union member
@@ -296,23 +349,28 @@ function validateCardFields(card: any): FieldError[] {
   function walkCondition(c: any, path: string) {
     if (!c || typeof c !== "object") return;
     checkType(c, path);
-    // Per-condition-type field whitelist for the count-style condition
-    // primitives. The interface declares `minimum?: number` but JSON authors
-    // sometimes write `minCount`/`min`/`count` — silent typo, evaluator falls
-    // through to the default of 1 and the condition fires sooner than oracle.
-    // Caught Mickey Mouse Amber Champion FRIENDLY CHORUS ("…2 or more other
-    // Amber characters in play, this character gains Singer 8") shipping with
-    // minCount:2 — Mickey would gain Singer 8 with even 1 other Amber.
-    if (c.type === "you_control_matching" || c.type === "opponent_controls_matching") {
-      const allowed = new Set(["type", "filter", "minimum"]);
-      for (const key of Object.keys(c)) {
-        if (!allowed.has(key)) {
-          errors.push({
-            path,
-            field: key,
-            value: JSON.stringify(c[key]),
-            validValues: `not a field on ${c.type} — likely a typo (allowed: ${[...allowed].join(", ")}; common mistake: 'minCount' should be 'minimum')`,
-          });
+    // Per-condition-type field whitelist, derived from the Condition union in
+    // types/index.ts. Catches silent-typo bugs where a JSON author writes a
+    // field the type definition doesn't declare, so the reducer ignores it
+    // and the condition fires per the default. Two bug classes covered:
+    //   - count-style conditions (you_control_matching minimum vs minCount —
+    //     Mickey Mouse Amber Champion FRIENDLY CHORUS shipped with minCount:2,
+    //     Mickey would gain Singer 8 with only 1 other Amber).
+    //   - comparison-op conditions (characters_here_gte op:"==" — Andy's Room
+    //     Home Base ANDY'S FAVORITE; engine ignored op and treated as >=).
+    if (c.type && typeof c.type === "string") {
+      const allowed = CONDITION_FIELD_MAP.get(c.type);
+      if (allowed) {
+        for (const key of Object.keys(c)) {
+          if (key === "type") continue;
+          if (!allowed.has(key)) {
+            errors.push({
+              path,
+              field: key,
+              value: JSON.stringify(c[key]),
+              validValues: `not a field on condition type "${c.type}" — likely a typo (allowed: type, ${[...allowed].sort().join(", ")})`,
+            });
+          }
         }
       }
     }

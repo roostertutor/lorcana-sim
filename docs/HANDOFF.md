@@ -26,6 +26,68 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Engine agent: 8 condition-field-typo bugs surfaced by the 2026-04-30 card-status improvement
+
+The new condition-field validator (`scripts/card-status.ts:CONDITION_FIELD_MAP`,
+landed alongside Andy's Room ANDY'S FAVORITE fix) exposed 8 cards with silent
+field typos on `Condition` shapes — same bug class as the 2026-04 CardFilter
+typo sweep (`maxStrength` → `strengthAtMost` etc.), but on Conditions instead.
+All 8 ship broken: the typo'd field is silently ignored and the condition
+fires per the default.
+
+### Pattern A — `cards_in_zone_gte` with `owner`/`filter` (6 cards)
+
+Type definition (`packages/engine/src/types/index.ts:2830`):
+```ts
+| { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget; cardType?: CardType[] }
+```
+
+The engine reads `condition.player` and `condition.cardType` only. JSON authors
+wrote `owner` (not in type) and `filter: { hasDamage, hasTrait, isExerted, ... }`
+(rich CardFilter, but type only accepts an inline `cardType[]` array). Both
+silently ignored — condition reduces to "N or more cards in zone" with no
+filtering, so each card's flavor restriction is missing in play.
+
+Affected (run `pnpm card-status --category invalid-field --verbose` for live list):
+- The Colonel - Old Sheepdog (set-8/#17) — `filter: { cardType, hasTrait: "Puppy" }`
+- Queen of Hearts - Haughty Monarch (set-8/#105) — `filter: { cardType, hasDamage: true }`. Oracle: "5 or more characters **with damage** in play, this character gets +3 {L}." Currently fires with 5+ undamaged characters.
+- Jock - Attentive Uncle (set-8/#112) — `filter: { cardType, excludeSelf: true }`
+- Cri-Kee - Part of the Team (set-8/#131) — `filter: { cardType, isExerted, excludeSelf }`
+- The Coachman - Greedy Deceiver (set-8/#140) — `filter: { cardType, isExerted }`
+- Elinor - Renowned Diplomat (set-12/#86) — `filter: { cardType, isExerted }`
+
+Fix path: extend `cards_in_zone_gte` type to accept a `filter?: CardFilter`
+and update the reducer (`packages/engine/src/utils/index.ts:1049`) to apply
+it. Then rename `owner` → `player` in the 6 JSONs. Add a regression test per
+shape variant (with-damage, with-trait, exerted, excludeSelf).
+
+### Pattern B — `this_has_damage` with `amount` threshold (2 cards, 1 reprint)
+
+Type definition: `| { type: "this_has_damage" }` — zero fields.
+
+Luisa Madrigal - Confident Climber (set-12/#60 + #227 promo reprint), Oracle:
+"…if this character has **3 or more** damage, move all damage from this
+character to chosen opposing character." JSON uses
+`{ type: "this_has_damage", amount: 3 }` — `amount` is silently ignored, so
+the condition fires for ANY damage (including 1).
+
+Same fix shape as Andy's Room: extend type with `amount?: number; op?: ...`
+defaults `amount: 1, op: ">="`, update reducer to compare `inst.damage` per
+the op, render decompiler appropriately. Or add a parallel `this_damage_gte`
+type. The `op` route is more reusable.
+
+### Why the audit caught these now and not before
+
+Before 2026-04-30, `card-status` validated CardFilter fields against the
+interface but didn't validate Condition fields the same way. The Andy's Room
+ANDY'S FAVORITE bug ("only 1 character" silently encoded as `op: "=="` on a
+type with no `op` field) prompted the audit improvement, which surfaced these
+8 latent cases. All ship-broken in production but in narrow board states, so
+the bugs likely went unnoticed during play testing — exactly the failure mode
+this audit class targets.
+
+---
+
 ## ~~Engine agent: add `sourceInstanceId` to `lastRevealedHand` state~~ DONE 2026-04-24
 
 Engine state shape extended; `reveal_hand` / `look_at_hand` now persist

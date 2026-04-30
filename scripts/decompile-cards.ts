@@ -438,7 +438,18 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   this_has_damage: () => "if this character has damage",
   this_location_has_damaged_character: () => "if this location has a damaged character at it",
   this_location_has_character_with_trait: (c) => `if this location has a ${c.trait ?? "?"} character at it`,
-  characters_here_gte: (c) => `if you have ${c.amount ?? 0} or more characters here`,
+  characters_here_gte: (c) => {
+    const n = c.amount ?? 0;
+    const op = c.op ?? ">=";
+    switch (op) {
+      case ">=": return `if you have ${n} or more characters here`;
+      case "==": return `if you have only ${n} character${n === 1 ? "" : "s"} here`;
+      case ">": return `if you have more than ${n} characters here`;
+      case "<=": return `if you have ${n} or fewer characters here`;
+      case "<": return `if you have fewer than ${n} characters here`;
+      default: return `if you have ${n} or more characters here`;
+    }
+  },
 
   // Player-state comparisons
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,

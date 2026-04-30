@@ -2853,9 +2853,15 @@ export type Condition =
    *  Used by Skull Rock Isolated Fortress SAFE HAVEN ("if you have a Pirate character here"). */
   | { type: "this_location_has_character_with_trait"; trait: string }
   /** True if the number of characters (of `player`, default any) at this source
-   *  location is >= `amount`. Used by Pride Lands Jungle Oasis
-   *  ("While you have 3 or more characters here, …"). */
-  | { type: "characters_here_gte"; amount: number; player?: PlayerTarget }
+   *  location compares to `amount` per `op` (default ">="). Used for "While you
+   *  have N or more characters here, …" (default) — Pride Lands Jungle Oasis;
+   *  also "While you have only 1 character here, …" (op "==") — Andy's Room. */
+  | {
+      type: "characters_here_gte";
+      amount: number;
+      player?: PlayerTarget;
+      op?: ">=" | "==" | ">" | "<=" | "<";
+    }
   | { type: "this_has_cards_under" }
   /** CRD 8.4.2: True if the controller has at least one card in play matching
    *  `filter`. Used for "While you have a character or location in play with a

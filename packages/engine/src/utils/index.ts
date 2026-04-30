@@ -1095,8 +1095,10 @@ export function evaluateCondition(
       return inst ? !!inst.atLocationInstanceId : false;
     }
     case "characters_here_gte": {
-      // CRD 5.6: "N or more characters here" — count characters at the source
-      // location, optionally filtered by owner.
+      // CRD 5.6: count characters at the source location, optionally filtered
+      // by owner, then compare to `amount` via `op` (default ">=").
+      // Default ">=" handles "N or more characters here" (Pride Lands Jungle
+      // Oasis); "==" handles "only N characters here" (Andy's Room).
       const pt = condition.player;
       const wantedOwner = !pt
         ? null
@@ -1111,7 +1113,18 @@ export function evaluateCondition(
         if (def?.cardType !== "character") continue;
         count++;
       }
-      return count >= condition.amount;
+      const op = condition.op ?? ">=";
+      switch (op) {
+        case ">=": return count >= condition.amount;
+        case "==": return count === condition.amount;
+        case ">": return count > condition.amount;
+        case "<=": return count <= condition.amount;
+        case "<": return count < condition.amount;
+        default: {
+          const _exhaustive: never = op;
+          return _exhaustive;
+        }
+      }
     }
     case "this_location_has_character": {
       // True if any character (any owner) is currently at this location.

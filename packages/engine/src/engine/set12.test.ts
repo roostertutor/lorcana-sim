@@ -3112,3 +3112,71 @@ describe("Set 12 — Hamish, Hubert & Harris STAY QUIET + CLEVER TRAP", () => {
   });
 });
 
+// =============================================================================
+// REGRESSION: Andy's Room - Home Base ANDY'S FAVORITE
+// Bug 2026-04-30: condition `characters_here_gte` with `op: "=="` was silently
+// ignored — the field was on the JSON but the engine type didn't declare it
+// and the reducer always evaluated `count >= amount`. Oracle says "While you
+// have only 1 character here, …"; engine fired at 1, 2, 3, … characters.
+//
+// Audit gap: card-status validates CardFilter fields against the interface
+// but didn't validate Condition fields the same way. Same bug class as the
+// 2026-04 CardFilter typo sweep (`maxStrength` → `strengthAtMost` etc.).
+// Fix landed alongside this test extends card-status's field-typo check to
+// Condition shapes — see scripts/card-status.ts.
+// =============================================================================
+describe("Set 12 — Andy's Room Home Base ANDY'S FAVORITE (op '==' on characters_here_gte)", () => {
+  it("condition is true with EXACTLY 1 character at the location", () => {
+    let state = startGame();
+    let locId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "andys-room-home-base", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+
+    const condResult = evaluateCondition(
+      { type: "characters_here_gte", amount: 1, op: "==" },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      locId,
+    );
+    expect(condResult).toBe(true);
+  });
+
+  it("condition is FALSE with 2 characters at the location (oracle: 'only 1')", () => {
+    let state = startGame();
+    let locId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "andys-room-home-base", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+
+    const condResult = evaluateCondition(
+      { type: "characters_here_gte", amount: 1, op: "==" },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      locId,
+    );
+    // Pre-fix this returned true (count >= 1 with 2 characters); oracle requires false.
+    expect(condResult).toBe(false);
+  });
+
+  it("default op (no `op` field) still behaves as '>=' for backward compat", () => {
+    let state = startGame();
+    let locId: string;
+    ({ state, instanceId: locId } = injectCard(state, "player1", "andys-room-home-base", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, atLocationInstanceId: locId }));
+
+    // No op specified — should evaluate as >= 3 (true with 3 characters).
+    const condResult = evaluateCondition(
+      { type: "characters_here_gte", amount: 3 },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      locId,
+    );
+    expect(condResult).toBe(true);
+  });
+});
+
