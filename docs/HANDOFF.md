@@ -26,6 +26,52 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Engine agent: cross-set wiring bugs surfaced by 2026-04-30 decompile sweep
+
+After the renderer-cleanup pass (commits 6c0e68c → f46183b raised avg
+decompile similarity from 0.80 to 0.84), the bottom of the sorted output
+is now mostly real wiring bugs rather than renderer noise. Triaged list:
+
+### Confirmed wiring bugs — fix when prioritized
+
+| Card | Set/# | Bug |
+|------|-------|-----|
+| Mr. Incredible - Super Strong | 12/127 + 226 | ✅ FIXED in f46183b (perMatch:2) |
+| Magica De Spell - The Midas Touch | 3/49 | ALL MINE wired with hardcoded `+2 lore` instead of dynamic "lore equal to the cost of one of your items in play" |
+| Yao - Snow Warrior | 11/73 | OOH, I'M SCARED grants Resist +2 unconditionally — missing "during opponents' turns" turn-gate |
+| The Queen - Jealous Beauty | 7/74 | NO ORDINARY APPLE missing "If any Princess cards were moved this way, gain 4 lore instead" branch |
+| Belle's House - Maurice's Workshop | 3/168 | LABORATORY wired as "next item this turn" (one-time) instead of ongoing while-condition cost reduction |
+| Hades - Looking for a Deal | 10/56 | WHAT D'YA SAY? wired wrong — adds spurious +0 stat effect; also "puts that card on bottom of YOUR deck" should be opponent's deck |
+| Sudden Scare | 10/164 | Missing second sentence: "That player puts the top card of their deck into their inkwell facedown." Currently only the first sentence resolves. |
+| Launchpad - Trusty Sidekick | 11/177 | WHAT DID YOU NEED? wired as triggered `enters_play`; oracle is an activated `{E}` ability with conditional "unless Darkwing Duck" discard |
+| Grumpy - Skeptical Knight | 5/186 | BOON OF RESILIENCE grants Resist +2 unconditionally — missing "while one of your Knight characters is at a location" condition |
+| Alice - Tea Alchemist | 3/35 | CURIOUSER AND CURIOUSER missing "and all other opposing characters with the same name" — currently exerts only the chosen one |
+| Lilo - Escape Artist | 6/2 | NO PLACE I'D RATHER BE rendered as "play a card from your discard" — overly generic; oracle: "you may play her" with `enters play exerted` rider |
+| Like A Bird In the Sky | 12/131 | Missing the "and gains <Evasive>" half — current effect chain stops after the +1 {L} buff |
+| Goliath - Clan Leader | 10/173 | DUSK TO DAWN missing the "discard cards until 2" branch — oracle has both directions (discard if >2, draw if <2); JSON only handles draw |
+| Evil Comes Prepared | 5/128 | Missing "If a Villain character is chosen, gain 1 lore" conditional branch — chosen-Villain check not wired |
+| Elsa's Ice Palace - Place of Solitude | 5/67 | ETERNAL WINTER renders "When you play this character" — but Elsa's Ice Palace is a LOCATION. Trigger likely uses `enters_play` correctly but the renderer says "character" because the wiring may not record cardType=location on the trigger; verify shape. |
+| Rex - Protective Dinosaur | 1/10 | RUN AWAY! oracle: "When THIS CHARACTER is banished, gain 1 lore." Wired filter is too broad (matches any banished owned card). |
+
+### Renderer issues (low priority — JSON is correct)
+
+These score low but the wiring is fine; renderer just doesn't render the
+shape cleanly. Fix when convenient or accept as cosmetic:
+
+- **Bill the Lizard NOTHING TO IT** (8/90) — "while ANOTHER character has damage" → "While you have other character with damage in play" (word order)
+- **Belle Bookworm** (2/71) — "an opponent has no cards" → "one or more opponents have no cards in their hands" (renderer plurality)
+- **Tiana's Palace** (3/34) — "Characters can't be challenged while here" → "all characters here can't be challenged" (style)
+- **Hera Queen of the Gods** (4/76) — multi-static with named-character grants renders fine; oracle has Ward keyword reminder, may benefit from grouping
+- **Aladdin Barreling Through** (10/123) — keyword reminders + ONLY THE BOLD render fine; oracle wording differs slightly
+- **Mor'du Savage Cursed Prince** (12/57) — "exert all" missing "all" prefix; "at the start of your turn" condition not in rendered wording
+- **Zipper Big Helper** (12/150) — `+this character's {W} {S}` for "may add his {W} to another's {S}" — works semantically, awkward render
+- **Wreck-It Ralph Demolition Dude** (5/104) — "for each 1 damage on him" → "equal to the damage on them" (semantic match, different phrasing)
+- **Fa Zhou Mulan's Father** (4/105) — "She can't quest" rendered as "they can't quest" (pronoun; correct)
+- **Light the Fuse** (8/149) — "Deal 1 damage to chosen character for each exerted character" → "deal damage equal to the number of your exerted characters to chosen character" (semantic match, awkward render)
+- **Diablo Devoted Herald** (4/70) — alt-cost shift renders as "Shift 0 {I}" — needs to read shiftDiscardCost / altShiftCost
+
+---
+
 ## Engine agent: Syndrome - Out for Revenge `play OR shift` branch missing
 
 Set 12 #172 GOT ME MONOLOGUING! oracle: "Whenever this character quests,
