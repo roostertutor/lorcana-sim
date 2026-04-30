@@ -2311,6 +2311,10 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   if (f.excludeSelf) bits.push("other");
   // Stats / cost / keyword adjectives go BEFORE the noun
   if (f.isExerted) bits.push("exerted");
+  // Lorcana idiom: "damaged character" (adjective prefix), not "character with damage".
+  // Cheshire Cat From the Shadows WICKED SMILE, Queen of Hearts COUNT OFF!,
+  // Ed Hysterical Partygoer ROWDY GUEST, etc.
+  if (f.hasDamage) bits.push("damaged");
   if (f.hasKeyword) bits.push(`${cap(f.hasKeyword)}`);
   if (f.hasTrait) bits.push(f.hasTrait);
   if (f.hasAnyTrait?.length) bits.push(f.hasAnyTrait.join(" or "));
@@ -2341,7 +2345,8 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   if (Array.isArray(f.statComparisons)) {
     for (const c of f.statComparisons) bits.push(renderStatComparison(c));
   }
-  if (f.hasDamage) bits.push("with damage");
+  // hasDamage now prefixed as "damaged" adjective (above) — was "with damage"
+  // postpositional, but Lorcana oracles consistently use the adjective form.
   // Tug-of-War: "each opposing character without Evasive".
   if (f.lacksKeyword) bits.push(`without ${cap(f.lacksKeyword)}`);
   // Hades Double Dealer: play a character "with the same name as the
