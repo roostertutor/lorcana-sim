@@ -3082,7 +3082,7 @@ function resolveDynamicAmount(
 /** Effect types whose `condition` field is a gating predicate ("if X, do
  *  this effect"). Listed explicitly because some effects (self_replacement)
  *  use `condition` as a branch selector with different semantics. */
-const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card", "grant_keyword", "deal_damage", "discard_from_hand"]);
+const CONDITION_GATED_EFFECTS = new Set<string>(["draw", "gain_lore", "lose_lore", "move_damage", "play_card", "grant_keyword", "deal_damage", "discard_from_hand", "can_challenge_ready"]);
 
 export function applyEffect(
   state: GameState,
@@ -4369,6 +4369,59 @@ export function applyEffect(
       }
       if (effect.target.type === "all") {
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const targetId of targets) {
+          state = addTimedEffect(state, targetId, timedEffect);
+        }
+        return state;
+      }
+      return state;
+    }
+
+    case "can_challenge_ready": {
+      // Action-effect form: grant a TIMED can_challenge_ready to the target.
+      // Used by One Last Hope "If a Hero character is chosen, they can also
+      // challenge ready characters this turn." The validator already checks
+      // attacker.timedEffects for type:"can_challenge_ready" (alongside the
+      // permanent static modifier), so this branch just pushes onto the
+      // target instance's timedEffects with the requested duration.
+      // (The static-effect form is handled in gameModifiers.ts and lives in
+      // modifiers.canChallengeReady — that path is for permanent grants on
+      // the source's own ability list.)
+      const dur = (effect as any).duration as import("../types/index.js").EffectDuration | undefined;
+      if (!dur) return state; // missing duration → no-op (use static form instead)
+      const timedEffect: TimedEffect = {
+        type: "can_challenge_ready",
+        amount: 0,
+        expiresAt: dur,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      };
+      const tgt = effect.target;
+      if (tgt?.type === "this") {
+        return addTimedEffect(state, sourceInstanceId, timedEffect);
+      }
+      if (tgt?.type === "last_resolved_target") {
+        const id = state.lastResolvedTarget?.instanceId;
+        if (!id) return state;
+        return addTimedEffect(state, id, timedEffect);
+      }
+      if (tgt?.type === "chosen") {
+        const validTargets = findChosenTargets(state, tgt.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state;
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a character that can challenge ready characters this turn."),
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
+      if (tgt?.type === "all") {
+        const targets = findValidTargets(state, tgt.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           state = addTimedEffect(state, targetId, timedEffect);
         }

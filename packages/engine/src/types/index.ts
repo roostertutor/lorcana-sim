@@ -2287,10 +2287,24 @@ export interface GrantShiftSelfStatic {
   value: number;
 }
 
-/** This character can challenge ready (non-exerted) characters. */
+/** This character can challenge ready (non-exerted) characters. Used both
+ *  as a static (permanent on the source while in play — Captain Hook Newly
+ *  Promoted, Gizmoduck Suited Up) and as a TIMED action effect ("this turn"
+ *  on a chosen target — One Last Hope Hero clause). When `duration` is set,
+ *  the effect routes through applyEffect's case branch and pushes a
+ *  TimedEffect{type:"can_challenge_ready"} onto the target's timedEffects;
+ *  the validator reads both that timedEffects entry AND the permanent
+ *  modifiers.canChallengeReady map. */
 export interface CanChallengeReadyStatic {
   type: "can_challenge_ready";
   target: CardTarget;
+  /** Optional duration for timed grants (One Last Hope Hero clause). When
+   *  unset, the effect is static and lives in modifiers.canChallengeReady. */
+  duration?: EffectDuration;
+  /** Optional gating condition. Used to express "if a Hero character is
+   *  chosen" via last_resolved_target_has_trait. Honored by
+   *  CONDITION_GATED_EFFECTS in reducer.ts. */
+  condition?: Condition;
   /** Optional defender restriction. Gizmoduck Suited Up: only damaged ready
    *  defenders. Darkwing Duck Cool Under Pressure: only Villains. When unset,
    *  the override applies to any ready defender. */

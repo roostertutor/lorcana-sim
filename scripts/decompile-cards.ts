@@ -1712,9 +1712,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `whenever ${from} would be dealt damage, put that damage on this character instead`;
   },
 
-  // "This character can challenge ready characters."
+  // "This character can challenge ready characters." — used as a static
+  // (permanent) and now also as a timed action effect when `duration` is
+  // set (One Last Hope Hero clause: "they can also challenge ready
+  // characters this turn"). Render the duration when present.
   can_challenge_ready: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
+    const d = dur(e);
+    if (d) return `${tgt} can also challenge ready characters${d}`;
     return `${tgt} can challenge ready characters`;
   },
 

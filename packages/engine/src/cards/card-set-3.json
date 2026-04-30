@@ -2967,10 +2967,33 @@
         },
         "effects": [
           {
-            "type": "gain_lore",
-            "amount": 2,
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
+              {
+                "type": "gain_lore",
+                "amount": {
+                  "type": "stat_ref",
+                  "from": "target",
+                  "property": "cost"
+                },
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "condition": {},
             "target": {
-              "type": "self"
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
             }
           }
         ]

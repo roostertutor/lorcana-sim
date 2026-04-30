@@ -12401,6 +12401,17 @@
           }
         },
         "duration": "until_caster_next_turn"
+      },
+      {
+        "type": "can_challenge_ready",
+        "target": {
+          "type": "last_resolved_target"
+        },
+        "duration": "this_turn",
+        "condition": {
+          "type": "last_resolved_target_has_trait",
+          "trait": "Hero"
+        }
       }
     ],
     "_imageSource": "ravensburger",
