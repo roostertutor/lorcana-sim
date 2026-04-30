@@ -275,13 +275,16 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     if (t.filter?.owner?.type === "self") return "Whenever one of your other characters is banished in a challenge";
     if (t.filter?.excludeSelf) return "Whenever another character is banished in a challenge";
     // Ursula's Lair Eye of the Storm SLIPPERY HALLS: location-scoped filter
-    // (atLocation: "this") → "Whenever a character is banished in a
-    // challenge while here".
-    if (t.filter?.atLocation === "this") return "Whenever a character is banished in a challenge while here";
-    // Self-banish-in-challenge (Merlin Completing His Research LEGACY OF
-    // LEARNING): oracle wording is "When this character is banished in a
-    // challenge" not "When this character is challenged and banished".
-    return "When this character is banished in a challenge";
+    // (atLocation: "this") → "Whenever a character is challenged and
+    // banished while here" (Kuzco's Palace CITY WALLS, Ursula's Lair).
+    if (t.filter?.atLocation === "this") return "Whenever a character is challenged and banished while here";
+    // Self-banish-in-challenge: oracle wording is split — older sets use
+    // "When this character is challenged and banished" (Cheshire Cat Not
+    // All There, Helga Sinclair Vengeful Partner) while newer sets use
+    // "When this character is banished in a challenge" (Merlin Completing
+    // His Research LEGACY OF LEARNING). Default to the older majority
+    // form; the rare newer phrasing scores ~0.06 lower in tradeoff.
+    return "When this character is challenged and banished";
   },
   banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
@@ -2610,7 +2613,18 @@ function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
-  const body = effects.map(renderEffect).filter(Boolean).join(", and ");
+  let body = effects.map(renderEffect).filter(Boolean).join(", and ");
+  // Trigger-context pronoun rewrite: when the trigger is challenge-related
+  // (`banished_in_challenge`, `is_challenged`, `banished_other_in_challenge`),
+  // the "triggering character" pronoun in effect bodies refers specifically
+  // to the *challenger*, not a generic actor. Oracle wording is consistently
+  // "the challenging character" (Cheshire Cat Not All There LOSE SOMETHING?,
+  // Helga Sinclair Vengeful Partner NOTHING PERSONAL, Kuzco's Palace CITY
+  // WALLS). Rewrite the rendered body to swap the pronoun.
+  const trigOn = ab.trigger?.on;
+  if (trigOn === "banished_in_challenge" || trigOn === "is_challenged" || trigOn === "banished_other_in_challenge") {
+    body = body.replace(/the triggering character/g, "the challenging character");
+  }
   // oncePerTurn prefix: "Once per turn, whenever X, Y" (Taffyta Muttonfudge).
   // When condition is "during your turn", merge to "Once during your turn,"
   // to match oracle wording (Seven Dwarfs' Mine, Zootopia Police HQ).
