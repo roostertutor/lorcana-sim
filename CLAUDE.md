@@ -151,6 +151,8 @@ These three docs partition the "what's next" surface. Knowing where an item belo
 
 Reversing this order ("write proposal → grep if challenged") is what produces hallucinated precedents. The 2026-04-29 set 12 wiring proposal shipped a precedent table citing five cards from training-data recall — three of the five (Mother Knows Best, Madam Mim, Aurora set-5) didn't actually exist or didn't match the claimed mechanic. The rule was already in this file; it was treated as advice instead of procedure.
 
+**The "partial-citation confabulation" failure mode.** A citation only protects against confabulation if **every** part of the card-claim is read from the same data, not just the parts that are easy to copy. The 2026-04-30 cross-set sweep had decompile output that literally said `set-9/197 One Last Hope` — the card name was right there next to the set/number. The HANDOFF entry I wrote said `Stand By Me (9/197)` — the set/number was copied verbatim from the output, but the card name was filled in from training-data recall and never verified. Result: the entry referenced a card that doesn't exist; the user had to manually correct it to "One Last Hope." The set/number citation made the entry *look* anchored, but the anchor was dragging a confabulated name. Procedural fix: when copying a citation from tool output, **copy the entire line, not the parts you can identify by context**. If you generate any part of the card-claim from memory, the whole claim is suspect and you should re-grep.
+
 **Compliant vs non-compliant phrasing:**
 
 ❌ Non-compliant — bare card name from recall:
