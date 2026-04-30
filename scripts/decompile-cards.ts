@@ -129,7 +129,13 @@ function renderCard(card: CardJSON): string {
         : altShift.type;
       parts.push(`Shift: ${headPhrase} (You may ${costPhrase} to play this on top of one of your characters named ${shiftNames}.)`);
     } else if (card.shiftCost !== undefined) {
-      parts.push(`Shift ${card.shiftCost} (You may pay ${card.shiftCost} {I} to play this on top of one of your characters named ${shiftNames}.)`);
+      // Lorcana shift print convention split: sets 1-7 print "<Shift> N"
+      // without trailing {I}, sets 8+ print "<Shift> N {I}". Match the
+      // card's set so vanilla-shift cards score correctly in both
+      // conventions (Li Shang set 11 has {I}, Basil set 2 doesn't).
+      const setNum = parseInt(card.setId ?? "1", 10);
+      const headInk = setNum >= 8 ? " {I}" : "";
+      parts.push(`Shift ${card.shiftCost}${headInk} (You may pay ${card.shiftCost} {I} to play this on top of one of your characters named ${shiftNames}.)`);
     }
   }
 
@@ -2076,7 +2082,41 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
           }
         }
       }
+      // Dinner Bell YOU KNOW WHAT HAPPENS: draw stat_ref(target.damage) +
+      // banish(last_resolved_target). Oracle: "Draw cards equal to the
+      // damage on chosen character of yours, then banish them." Detect
+      // the draw+banish-chain shape and inline.
+      if (altList.length === 2) {
+        const [first, second] = altList;
+        const isStatRefDraw = first?.type === "draw"
+          && typeof first.amount === "object"
+          && first.amount?.type === "stat_ref"
+          && first.amount.from === "target"
+          && first.amount.property === "damage";
+        const isBanishLastTarget = second?.type === "banish"
+          && second.target?.type === "last_resolved_target";
+        if (isStatRefDraw && isBanishLastTarget) {
+          return `draw cards equal to the damage on ${tgt}, then banish them`;
+        }
+      }
       return alt ? `choose ${tgt} — ${alt}` : `choose ${tgt}`;
+    }
+    // Condition (has `type` field) vs CardFilter (no type field) — when
+    // the condition is a game-state check (Terror That Flaps in the Night:
+    // `has_character_named` "If you have a character named Darkwing Duck
+    // in play"), render it as a condition and emit oracle wording without
+    // the "If a X is chosen" filter-on-target form.
+    const isStateCondition = e.condition && typeof e.condition === "object" && typeof e.condition.type === "string";
+    if (isStateCondition) {
+      const condText = renderCondition(e.condition);
+      // Seven Dwarfs' Mine / Winter Camp Medical Tent: triggering_card
+      // target uses "If they're a Knight, X instead" form.
+      if (e.target.type === "triggering_card") {
+        return `${def}. ${cap(condText)}, ${alt} instead`;
+      }
+      // Default: "Deal 2 damage to chosen X. If <state-cond>, deal 3 instead."
+      const tgtMain = `${def.replace(/this character/, tgt)}`;
+      return `${tgtMain}. ${cap(condText)}, ${alt} instead`;
     }
     const cond = e.condition ? renderFilter(e.condition) : "matching";
     // Seven Dwarfs' Mine / Winter Camp Medical Tent: when target is
@@ -2536,8 +2576,9 @@ function renderStatChange(e: Json): string {
   // No-op-chooser pattern: gain_stats with all stats 0 is used to surface a
   // chooser without actually changing stats (Hades Looking for a Deal
   // WHAT D'YA SAY? — the +0 {S} pins last_resolved_target for the
-  // opponent_may_pay_to_avoid that follows). Suppress rendering so the
-  // "+0 {S} this turn" clause doesn't pollute the oracle comparison.
+  // opponent_may_pay_to_avoid that follows). Render as "you may choose X"
+  // since semantically that's what's happening — the chooser surface is
+  // the user-visible effect of this no-op.
   if (e.type === "gain_stats"
       && (e.strength === 0 || e.strength === undefined)
       && (e.willpower === 0 || e.willpower === undefined)
@@ -2545,6 +2586,13 @@ function renderStatChange(e: Json): string {
       && !e.strengthDynamic && !e.willpowerDynamic && !e.loreDynamic
       && !e.followUpEffects?.length
       && (e.strength === 0 || e.willpower === 0 || e.lore === 0)) {
+    if (e.target?.type === "chosen") {
+      const tgt = renderTarget(e.target);
+      // Drop "chosen " prefix and add "you may choose X" wrapper.
+      const stripped = tgt.replace(/^chosen /, "").replace(/^any number of chosen /, "any number of ");
+      const article = /^[aeiou]/i.test(stripped) ? "an" : "a";
+      return `you may choose ${article} ${stripped}`;
+    }
     return "";
   }
   let tgt = renderTarget(e.target ?? {});
