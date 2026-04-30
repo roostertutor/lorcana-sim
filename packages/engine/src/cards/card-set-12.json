@@ -11026,7 +11026,7 @@
         "effects": [
           {
             "type": "move_damage",
-            "amount": 99,
+            "amount": "all",
             "isMay": true,
             "source": {
               "type": "chosen",
@@ -11060,7 +11060,7 @@
         "effects": [
           {
             "type": "remove_damage",
-            "amount": 99,
+            "amount": "all",
             "isMay": true,
             "target": {
               "type": "this"
@@ -11160,7 +11160,7 @@
         "effects": [
           {
             "type": "remove_damage",
-            "amount": 99,
+            "amount": "all",
             "isMay": true,
             "target": {
               "type": "chosen",
@@ -14618,7 +14618,9 @@
     "abilities": [
       {
         "type": "static",
-        "activeZones": ["hand"],
+        "activeZones": [
+          "hand"
+        ],
         "effect": {
           "type": "grant_play_for_free_self"
         },
@@ -15830,7 +15832,7 @@
         "effects": [
           {
             "type": "remove_damage",
-            "amount": 99,
+            "amount": "all",
             "isMay": true,
             "target": {
               "type": "chosen",

@@ -1148,7 +1148,7 @@
         "effects": [
           {
             "type": "remove_damage",
-            "amount": 99,
+            "amount": "all",
             "isMay": true,
             "target": {
               "type": "chosen",

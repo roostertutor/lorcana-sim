@@ -3314,9 +3314,11 @@ export function applyEffect(
       }
       if (effect.target.type === "this") {
         const instance = getInstance(state, sourceInstanceId);
-        const actualRemoved = Math.min(effect.amount, instance.damage);
+        // amount can be number or "all" (remove every damage counter).
+        const requested = effect.amount === "all" ? instance.damage : effect.amount;
+        const actualRemoved = Math.min(requested, instance.damage);
         state = updateInstance(state, sourceInstanceId, {
-          damage: Math.max(0, instance.damage - effect.amount),
+          damage: Math.max(0, instance.damage - requested),
         });
         if (actualRemoved > 0) {
           state = markRemovedDamageThisTurn(state, controllingPlayerId);
@@ -3355,9 +3357,10 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         for (const targetId of targets) {
           const inst = getInstance(state, targetId);
-          const actualRemoved = Math.min(effect.amount, inst.damage);
+          const requested = effect.amount === "all" ? inst.damage : effect.amount;
+          const actualRemoved = Math.min(requested, inst.damage);
           state = updateInstance(state, targetId, {
-            damage: Math.max(0, inst.damage - effect.amount),
+            damage: Math.max(0, inst.damage - requested),
           });
           if (actualRemoved > 0) {
             state = markRemovedDamageThisTurn(state, controllingPlayerId);
@@ -8041,9 +8044,11 @@ function applyEffectToTarget(
         return state;
       }
       const instance = getInstance(state, targetInstanceId);
+      // amount can be number or "all" (remove every counter).
+      const requestedRemove = effect.amount === "all" ? instance.damage : effect.amount;
       // CRD "up to N": in interactive mode, let the player choose how much to remove
       if (effect.isUpTo && state.interactive && instance.damage > 0) {
-        const maxHeal = Math.min(effect.amount, instance.damage);
+        const maxHeal = Math.min(requestedRemove, instance.damage);
         if (maxHeal > 0) {
           // Snapshot target for the choose_amount handler
           const ref = makeResolvedRef(state, definitions, targetInstanceId);
@@ -8063,7 +8068,7 @@ function applyEffectToTarget(
           };
         }
       }
-      const actualRemoved = Math.min(effect.amount, instance.damage);
+      const actualRemoved = Math.min(requestedRemove, instance.damage);
       state = updateInstance(state, targetInstanceId, {
         damage: instance.damage - actualRemoved,
       });
@@ -8398,7 +8403,12 @@ function applyEffectToTarget(
           if (ref.instanceId === targetInstanceId) continue;
           const src = state.cards[ref.instanceId];
           if (!src || src.damage <= 0) continue;
-          const moveAmt = Math.min(effect.amount, src.damage);
+          // amount can be number (move N counters per source) or "all" (move
+          // every counter from each source). The legacy 99 magic-number
+          // idiom ends up clamped to src.damage by Math.min, but "all" is
+          // explicit — capture it cleanly.
+          const requested = effect.amount === "all" ? src.damage : effect.amount;
+          const moveAmt = Math.min(requested, src.damage);
           if (moveAmt <= 0) continue;
           state = updateInstance(state, src.instanceId, { damage: src.damage - moveAmt });
           if (!dstImmune) {
@@ -8439,7 +8449,8 @@ function applyEffectToTarget(
         const src = state.cards[effect._resolvedSource.instanceId];
         const dst = state.cards[targetInstanceId];
         if (!src || !dst) return state;
-        const maxMove = Math.min(effect.amount, src.damage);
+        const requested = effect.amount === "all" ? src.damage : effect.amount;
+        const maxMove = Math.min(requested, src.damage);
         if (maxMove <= 0) return state;
         // CRD "up to N": in interactive mode, let the player choose how many to move
         if (effect.isUpTo && state.interactive && maxMove > 0) {
@@ -8462,7 +8473,7 @@ function applyEffectToTarget(
             },
           };
         }
-        let moveAmt = Math.min(effect.amount, src.damage);
+        let moveAmt = Math.min(requested, src.damage);
         // CRD 1.9.1.5: "move" counts as "take damage" — check damage prevention on destination
         const dstModifiers = getGameModifiers(state, definitions);
         if (hasStaticDamagePrevention(dst, dstModifiers, false) || findTimedDamagePreventionIdx(dst, false) >= 0) {

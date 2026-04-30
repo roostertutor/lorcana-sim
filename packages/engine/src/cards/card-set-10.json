@@ -4017,6 +4017,22 @@
             ]
           }
         }
+      },
+      {
+        "type": "move_damage",
+        "amount": "all",
+        "source": {
+          "type": "all_damaged",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "destination": {
+          "type": "last_resolved_target"
+        }
       }
     ],
     "_imageSource": "ravensburger",

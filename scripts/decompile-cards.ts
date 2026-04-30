@@ -807,7 +807,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return base;
   },
   remove_damage:  (e) => {
-    const base = `${maybe(e)}remove ${up(e)}${typeof e.amount === "number" ? e.amount : renderAmount(e.amount)} damage from ${renderTarget(e.target ?? {})}`;
+    const amt = e.amount === "all" ? "all" : (typeof e.amount === "number" ? e.amount : renderAmount(e.amount));
+    const base = `${maybe(e)}remove ${up(e)}${amt} damage from ${renderTarget(e.target ?? {})}`;
     // followUpEffects apply to the same chosen target (Penny Bolt's Person
     // ENDURING LOYALTY: "... and they gain Resist +1"). Render the "they"-
     // pronoun shape by rewriting each followUp's "this character" references
@@ -826,7 +827,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // CardJSON shape varies: legacy uses `from`/`to`, newer uses `source`/`destination`.
     const from = e.from ?? e.source ?? {};
     const to = e.to ?? e.destination ?? {};
-    return `${maybe(e)}move ${up(e)}${e.amount ?? 1} damage from ${renderTarget(from)} to ${renderTarget(to)}`;
+    const amt = e.amount === "all" ? "all" : (e.amount ?? 1);
+    return `${maybe(e)}move ${up(e)}${amt} damage from ${renderTarget(from)} to ${renderTarget(to)}`;
   },
 
   banish: (e) => {
@@ -1615,7 +1617,23 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const tgt = renderTarget(e.target ?? { type: "this" });
     if (e.attackerFilter) {
       const af = renderFilter(e.attackerFilter);
-      // "Characters with cost 3 or less" — use filter as qualifier, drop generic "card" noun
+      // Two phrasings:
+      //   - Postpositional qualifier ("with cost 3 or less", "named X"):
+      //     "Characters with cost 3 or less can't challenge..."
+      //   - Adjective prefix ("damaged", "exerted", "Hero"):
+      //     "Damaged characters can't challenge..." (Ed Hysterical Partygoer
+      //     ROWDY GUEST). Detect by checking if the rendered filter starts
+      //     with one of the known adjective prefixes — if so, swap "card" →
+      //     "characters" and capitalize the prefix.
+      const adjectivePrefixes = ["damaged", "exerted", "ready"];
+      const firstWord = af.split(" ")[0] ?? "";
+      if (adjectivePrefixes.includes(firstWord) && /\bcard\b/.test(af)) {
+        // "damaged card" → "Damaged characters"
+        const swapped = af.replace(/\bcard\b/, "characters");
+        const capped = swapped.charAt(0).toUpperCase() + swapped.slice(1);
+        return `${capped} can't challenge ${tgt}`;
+      }
+      // Postpositional path — original behavior.
       const qualifier = af.replace(/^card /, "").replace(/^cards /, "");
       return `Characters ${qualifier} can't challenge ${tgt}`;
     }

@@ -775,7 +775,11 @@ export interface DealDamageEffect {
 
 export interface RemoveDamageEffect {
   type: "remove_damage";
-  amount: number;
+  /** Numeric: remove exactly N damage (capped at target.damage). "all":
+   *  remove every damage counter. Replaces the legacy `amount: 99` magic-
+   *  number idiom that was used pre-2026-04 (Baymax FUNCTIONALITY IMPROVED,
+   *  Mrs. Incredible HOLD FAST, et al.). */
+  amount: number | "all";
   target: CardTarget;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
   isUpTo?: boolean;
@@ -897,7 +901,11 @@ export interface GrantCostReductionEffect {
  */
 export interface MoveDamageEffect {
   type: "move_damage";
-  amount: number;
+  /** Numeric: move exactly N (capped at source.damage). "all": move every
+   *  damage counter on the source(s) — Can't Hold It Back Anymore, Luisa
+   *  Madrigal I CAN TAKE IT. Replaces the legacy `amount: 99` magic-number
+   *  idiom that was used pre-2026-04. */
+  amount: number | "all";
   /** "up to N" — engine moves min(N, source.damage) */
   isUpTo?: boolean;
   /** Source character (must have damage). For "all_damaged", loops over each
