@@ -93,6 +93,31 @@ function renderCard(card: CardJSON): string {
     }
   }
 
+  // Card-level Shift reminder. The renderKeywordWithReminder for "shift" is
+  // skipped (the bare keyword ability doesn't know the card's name), so we
+  // emit the full reminder here using card.shiftCost / altShiftCost + the
+  // card's name(s). Without this, vanilla shift cards (Li Shang Valiant
+  // Leader, Flotsam & Jetsam Entangling Eels) score 0 — empty rendered text.
+  if (card.cardType === "character") {
+    // Determine shift reminder format. altShiftCost (discard-based) takes
+    // precedence over numeric shiftCost when both are set.
+    const altShift = (card as any).altShiftCost;
+    const shiftNames = card.alternateNames && card.alternateNames.length > 0
+      ? card.alternateNames.join(" or ")
+      : card.name;
+    if (altShift) {
+      const costPhrase = altShift.type === "discard"
+        ? `discard ${altShift.amount === 1 ? "an" : altShift.amount} ${altShift.amount === 1 ? "action card" : `cards`}`
+        : altShift.type;
+      const headPhrase = altShift.type === "discard"
+        ? `Discard ${altShift.amount === 1 ? "an action card" : `${altShift.amount} cards`}`
+        : altShift.type;
+      parts.push(`Shift: ${headPhrase} (You may ${costPhrase} to play this on top of one of your characters named ${shiftNames}.)`);
+    } else if (card.shiftCost !== undefined) {
+      parts.push(`Shift ${card.shiftCost} (You may pay ${card.shiftCost} {I} to play this on top of one of your characters named ${shiftNames}.)`);
+    }
+  }
+
   // Dual-name characters: Flotsam & Jetsam, Turbo - Royal Hack. The card
   // "counts as being named X" for Shift / name-matching purposes.
   if (card.alternateNames && card.alternateNames.length > 0) {
@@ -1572,11 +1597,26 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   action_restriction: (e) => {
     const verb = e.restricts === "sing" ? "exert to sing songs"
       : e.restricts === "be_challenged" ? "be challenged"
+      : e.restricts === "play" ? "play"
       : e.restricts ?? "act";
     if (e.filter) {
-      const who = renderFilter(e.filter);
-      const targetSide = e.affectedPlayer?.type === "opponent" ? " your characters" : "";
-      return `${who} can't ${verb}${targetSide}`;
+      // Prepend "opposing" if affectedPlayer is opponent and the filter
+      // doesn't already say "opposing" (via owner:opponent). Vincenzo
+      // Santorini NEUTRALIZE: filter=items, affectedPlayer=opponent →
+      // "Opposing items can't ready".
+      let who = renderFilter(e.filter);
+      const fOwner = e.filter?.owner?.type;
+      if (e.affectedPlayer?.type === "opponent" && fOwner !== "opponent") {
+        who = `Opposing ${who}`;
+      }
+      // "challenge" is the only verb that takes a target-side suffix
+      // (challenges are relational). Other verbs (ready/quest/sing/play)
+      // don't — pre-fix this renderer was emitting "your characters" on
+      // them, producing nonsense like "item can't ready your characters".
+      const challengeSuffix = (e.restricts === "challenge" && e.affectedPlayer?.type === "opponent")
+        ? " your characters"
+        : "";
+      return `${pluralizeFilter(who)} can't ${verb}${challengeSuffix}`;
     }
     // No filter — check affectedPlayer for "opposing characters can't X"
     if (e.affectedPlayer?.type === "opponent") return `opposing characters can't ${verb}`;
