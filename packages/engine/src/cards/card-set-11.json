@@ -6674,8 +6674,14 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "",
+        "storyName": "EASY TO MISS",
         "rulesText": "While there's a character with Evasive here, this location gains Evasive.",
+        "condition": {
+          "type": "this_location_has_character",
+          "filter": {
+            "hasKeyword": "evasive"
+          }
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "evasive",

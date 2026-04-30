@@ -1176,10 +1176,19 @@ export function evaluateCondition(
       }
     }
     case "this_location_has_character": {
-      // True if any character (any owner) is currently at this location.
-      // Used by Belle's House - Maurice's Workshop ("If you have a character here, items cost 1 less").
+      // True if any character (any owner) matching `filter` (if set) is
+      // currently at this location. Belle's House Maurice's Workshop uses
+      // no filter ("If you have a character here"). Game Preserve EASY TO
+      // MISS uses filter:{hasKeyword:"evasive"} for "While there's a
+      // character with Evasive here".
       for (const c of Object.values(state.cards)) {
-        if (c.atLocationInstanceId === sourceInstanceId) return true;
+        if (c.atLocationInstanceId !== sourceInstanceId) continue;
+        const def = definitions[c.definitionId];
+        if (!def || def.cardType !== "character") continue;
+        if (condition.filter) {
+          if (!matchesFilter(c, def, condition.filter, state, controllingPlayerId, sourceInstanceId, definitions)) continue;
+        }
+        return true;
       }
       return false;
     }

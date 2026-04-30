@@ -9685,14 +9685,23 @@
         "type": "static",
         "storyName": "WILD RIDE",
         "rulesText": "While 2 or more characters of yours are exerted, this character gets +2 {S} and gains Evasive.",
-        "effect": {
-          "type": "modify_stat",
-          "target": {
-            "type": "this"
+        "effect": [
+          {
+            "type": "modify_stat",
+            "target": {
+              "type": "this"
+            },
+            "stat": "strength",
+            "amount": 2
           },
-          "stat": "strength",
-          "amount": 2
-        },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "this"
+            }
+          }
+        ],
         "condition": {
           "type": "cards_in_zone_gte",
           "amount": 2,
@@ -9707,10 +9716,6 @@
             "isExerted": true
           }
         }
-      },
-      {
-        "type": "keyword",
-        "keyword": "reckless"
       }
     ],
     "setId": "8",

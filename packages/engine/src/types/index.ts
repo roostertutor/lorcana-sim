@@ -2901,7 +2901,12 @@ export type Condition =
       op?: ">=" | "==" | ">" | "<=" | "<";
     }
   | { type: "this_at_location" }
-  | { type: "this_location_has_character" }
+  /** True if any character matching `filter` (default: any character) is at
+   *  this source location. Game Preserve EASY TO MISS uses
+   *  filter:{hasKeyword:"evasive"} for "While there's a character with
+   *  Evasive here". Without filter, matches any character regardless of
+   *  owner/keyword/etc. */
+  | { type: "this_location_has_character"; filter?: CardFilter }
   /** True if any own character with the given trait is at this location.
    *  Used by Skull Rock Isolated Fortress SAFE HAVEN ("if you have a Pirate character here"). */
   | { type: "this_location_has_character_with_trait"; trait: string }
