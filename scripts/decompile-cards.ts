@@ -144,10 +144,27 @@ function renderCard(card: CardJSON): string {
   }
 
   // Dual-name characters: Flotsam & Jetsam, Turbo - Royal Hack. The card
-  // "counts as being named X" for Shift / name-matching purposes.
+  // "counts as being named X" for Shift / name-matching purposes. Oracle
+  // prints this clause two ways depending on the card:
+  //   - Parenthetical reminder text (Flotsam & Jetsam Entangling Eels:
+  //     "(This character counts as being named both Flotsam and Jetsam.)")
+  //   - Bare named-ability body (Turbo - Royal Hack GAME JUMP: "This
+  //     character also counts as being named King Candy for <Shift>.")
+  // Detect by scanning rulesText for a paren-wrapped occurrence of the
+  // clause; mirror the oracle structure so normalize()'s paren-stripping
+  // treats both sides equally (otherwise dual-name tokens get stripped
+  // from oracle but kept in rendered, or vice versa).
   if (card.alternateNames && card.alternateNames.length > 0) {
     const names = card.alternateNames.join(" and ");
-    parts.push(`This character counts as being named ${names}`);
+    const both = card.alternateNames.length === 2 ? "both " : "";
+    const paren = /\([^)]*counts as being named[^)]*\)/i.test(card.rulesText ?? "");
+    if (paren) {
+      parts.push(`(This character counts as being named ${both}${names}.)`);
+    } else {
+      // Turbo-style: the "also ... for <Shift>" body is part of a named
+      // ability (GAME JUMP). Render bare so tokens survive normalize.
+      parts.push(`This character also counts as being named ${names} for Shift`);
+    }
   }
 
   // Play restrictions ("you can't play this character unless ...") are
