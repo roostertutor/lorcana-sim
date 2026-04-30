@@ -53,12 +53,12 @@ items resolved across commits f46183b, f19eeab, 0856a20.
 | Rex - Protective Dinosaur | 12/10 | ✅ FIXED 0856a20 — was correctly wired (filter:isSelf); renderer now emits "When this character is banished" for isSelf:true |
 | Goliath - Clan Leader | 10/173 | ✅ FIXED — was correctly wired (fill_hand_to handles both directions); renderer now emits both branches |
 
-### Remaining — need new engine primitives (out of scope for steady-state wiring)
+### Resolved (2026-04-30 follow-up — user pointed out existing precedents)
 
-| Card | Set/# | Issue |
+| Card | Set/# | Resolution |
 |------|-------|-----|
-| Magica De Spell - The Midas Touch | 3/49 | ALL MINE: "gain lore equal to cost of one of your items" — needs new dynamic-amount primitive that surfaces a chooser then reads chosen card's cost. Currently hardcoded `+2 lore`. |
-| Stand By Me | 9/197 | Same conditional-bonus class as Evil Comes Prepared, but the bonus is "they can also challenge ready characters this turn" — needs a timed `grant_can_challenge_ready` effect (or grant_activated_ability_timed with a ready-anytime ability). Currently missing the bonus entirely. |
+| Magica De Spell - The Midas Touch | 3/49 | ✅ FIXED ae9291f — Lucky Dime pattern (self_replacement + stat_ref from:target property:cost, item filter). User flagged: "should be like Lucky Dime except just passed a different value." |
+| One Last Hope | 4/197 + 9/197 + 9/222 | ✅ FIXED ae9291f — all 3 reprints (same id) wired identically with the Hero clause now. Added action-effect form of can_challenge_ready with optional duration + condition. User flagged: set-9/197 was actually One Last Hope (not Stand By Me as I mislabeled), and set-4/197 is the original printing. |
 
 ### Renderer issues (low priority — JSON is correct)
 
