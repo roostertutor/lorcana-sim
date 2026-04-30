@@ -26,6 +26,34 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Engine agent: Syndrome - Out for Revenge `play OR shift` branch missing
+
+Set 12 #172 GOT ME MONOLOGUING! oracle: "Whenever this character quests,
+return a Robot character card from your discard to your hand. Then, you
+may **play or shift** a Robot character with cost 8 or less for free."
+
+Current wiring (`card-set-12.json:12569-12586`) only implements the **play**
+branch via `play_card` with `isMay: true, sourceZone: "hand"`. The
+**shift** branch — paying the shift cost on top of an existing Robot in
+play — is silently missing. Affects Syndrome itself (set-12/#172) and the
+foil reprint (set-12/#239 area, around line 17500).
+
+No engine primitive currently models "play OR shift for free." Two
+shapes worth considering:
+1. Extend `play_card` with `allowShift?: boolean` so it surfaces both
+   options when active. Cleanest if shift-onto integrates into the
+   existing play_card chooser.
+2. New `play_or_shift_card` effect that wraps both alternatives in a
+   `choose` combinator. More verbose JSON but no engine refactor.
+
+No precedent — `grep -rn "play or shift" packages/engine/src/cards/` returns
+only this card. Likely a one-card mechanic; option 2 may be sufficient.
+
+Not blocking — the play-from-hand half works. Players miss the shift
+option entirely until this is resolved.
+
+---
+
 ## Engine agent: 8 condition-field-typo bugs surfaced by the 2026-04-30 card-status improvement
 
 The new condition-field validator (`scripts/card-status.ts:CONDITION_FIELD_MAP`,

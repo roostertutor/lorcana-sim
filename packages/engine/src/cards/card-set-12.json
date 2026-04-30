@@ -1875,12 +1875,21 @@
     ],
     "abilities": [
       {
-        "type": "static",
-        "effect": {
-          "type": "enter_play_exerted_self"
-        },
+        "type": "triggered",
         "storyName": "LONG JOURNEY",
-        "rulesText": "This character may enter play exerted."
+        "rulesText": "This character may enter play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
       },
       {
         "type": "triggered",
@@ -14103,11 +14112,6 @@
         },
         "storyName": "REGROUP",
         "rulesText": "During your turn, whenever another character is banished in a challenge, you may ready chosen Super character. If you do, they can’t quest for the rest of this turn."
-      },
-      {
-        "type": "keyword",
-        "keyword": "resist",
-        "value": 1
       }
     ],
     "setId": "12",
@@ -14604,6 +14608,7 @@
     "abilities": [
       {
         "type": "static",
+        "activeZones": ["hand"],
         "effect": {
           "type": "grant_play_for_free_self"
         },

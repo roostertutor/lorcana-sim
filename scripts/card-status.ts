@@ -530,6 +530,22 @@ function validateCardFields(card: any): FieldError[] {
           validValues: `not a StaticEffect union member — static-ability processor has no case handler, silent no-op (valid: ${[...VALID_STATIC_EFFECT_TYPES].sort().join(", ")})`,
         });
       }
+      // grant_play_for_free_self MUST have activeZones:["hand"] — the static
+      // grants the hand-card a free-play option, so it has to fire while the
+      // card is in HAND. Without activeZones, the static defaults to ["play"]
+      // and the free-play silently never applies. Caught Club Door WELCOME
+      // BACK, SIR shipping broken (set-12/202).
+      if (ab.type === "static" && ab.effect.type === "grant_play_for_free_self") {
+        const zones = ab.activeZones;
+        if (!Array.isArray(zones) || !zones.includes("hand")) {
+          errors.push({
+            path,
+            field: "activeZones",
+            value: zones === undefined ? "undefined" : JSON.stringify(zones),
+            validValues: `grant_play_for_free_self requires activeZones: ["hand"] — without it the static fires only in play, where the free-play option is meaningless. Add "activeZones": ["hand"] to the ability.`,
+          });
+        }
+      }
     }
   }
 
