@@ -190,6 +190,22 @@ function buildInlineUnionFieldMap(source: string, unionName: string): Map<string
 const CONDITION_FIELD_MAP = buildInlineUnionFieldMap(typesSource, "Condition");
 
 /**
+ * Per-trigger-event field whitelist, parsed from the inline TriggerEvent
+ * union. Like Condition, TriggerEvent members are inline shapes:
+ * `| { on: "challenges"; filter?: CardFilter; defenderFilter?: CardFilter }`
+ *
+ * Catches typos where fields land on the trigger object instead of in
+ * trigger.filter or as a sibling of trigger. Concrete bugs caught:
+ * - Noi - Acrobatic Baby (set-4/119) had `cardType:"action"` and
+ *   `player:{type:"self"}` directly on the card_played trigger instead
+ *   of inside trigger.filter — engine ignored both, ability fired on
+ *   any card play.
+ * - Treasure Mountain Azurite Sea Island (set-6/203 + reprint) had
+ *   `condition` on the trigger object — should be sibling of trigger.
+ */
+const TRIGGER_FIELD_MAP = buildInlineUnionFieldMap(typesSource, "TriggerEvent");
+
+/**
  * Whitelist of valid static-ability `effect.type` discriminators.
  *
  * Derived from the `StaticEffect` union in types/index.ts — each union member
@@ -417,6 +433,26 @@ function validateCardFields(card: any): FieldError[] {
     // Check trigger event name
     if (ab.trigger?.on) {
       checkOn(ab.trigger, path + ".trigger");
+      // Per-trigger-event field whitelist. Catches typos where fields
+      // land directly on the trigger object instead of inside
+      // trigger.filter or as a sibling of trigger (e.g. ability-level
+      // condition mistakenly nested in trigger). Caught Noi Acrobatic
+      // Baby (cardType+player on card_played trigger directly) and
+      // Treasure Mountain (condition on turn_start trigger).
+      const allowedTriggerFields = TRIGGER_FIELD_MAP.get(ab.trigger.on);
+      if (allowedTriggerFields) {
+        for (const key of Object.keys(ab.trigger)) {
+          if (key === "on") continue;
+          if (!allowedTriggerFields.has(key)) {
+            errors.push({
+              path: `${path}.trigger`,
+              field: key,
+              value: typeof ab.trigger[key] === "object" ? JSON.stringify(ab.trigger[key]) : String(ab.trigger[key]),
+              validValues: `not a field on trigger event "${ab.trigger.on}" — likely a typo (allowed: on, ${[...allowedTriggerFields].sort().join(", ")})`,
+            });
+          }
+        }
+      }
     }
     // Validate fields on the trigger's CardFilter (if any). Triggers carry
     // their filter at ab.trigger.filter (not under an effect), so the

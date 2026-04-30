@@ -13271,9 +13271,6 @@
         "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
         "trigger": {
           "on": "turn_start",
-          "condition": {
-            "type": "is_your_turn"
-          },
           "player": {
             "type": "self"
           }
@@ -14627,9 +14624,6 @@
         "rulesText": "At the start of your turn, deal damage to chosen character or location equal to the number of characters here.",
         "trigger": {
           "on": "turn_start",
-          "condition": {
-            "type": "is_your_turn"
-          },
           "player": {
             "type": "self"
           }
