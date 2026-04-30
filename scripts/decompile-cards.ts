@@ -1190,19 +1190,34 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   exert: (e) => {
     const upTo = e.isUpTo ? "up to " : "";
     const count = e.count && e.count > 1 ? `${e.count} ` : "";
+    let base: string;
     if (e.target?.chooser === "target_player") {
       const which = (e.target?.filter as Json | undefined)?.isExerted === false ? "ready " : "";
-      return `${maybe(e)}each opponent chooses and exerts one of their ${which}characters`;
+      base = `${maybe(e)}each opponent chooses and exerts one of their ${which}characters`;
+    } else {
+      // Action-effect "exert all" — oracle includes "all" prefix even when the
+      // filter scope is "your" (Mor'du Savage Cursed Prince FEROCIOUS ROAR:
+      // "exert all your characters not named Mor'du"). renderTarget drops
+      // "all" for self-owned filters because static-grant phrasing is
+      // "Your characters gain X" (no "all"). Restore "all" for action exerts.
+      const allPrefix = e.target?.type === "all" ? "all " : "";
+      base = `${maybe(e)}exert ${upTo}${count}${allPrefix}${renderTarget(e.target ?? {})}`;
     }
-    // Action-effect "exert all" — oracle includes "all" prefix even when the
-    // filter scope is "your" (Mor'du Savage Cursed Prince FEROCIOUS ROAR:
-    // "exert all your characters not named Mor'du"). renderTarget drops
-    // "all" for self-owned filters because static-grant phrasing is
-    // "Your characters gain X" (no "all"). Restore "all" for action exerts.
-    const allPrefix = e.target?.type === "all" ? "all " : "";
-    const base = `${maybe(e)}exert ${upTo}${count}${allPrefix}${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
-      const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
+      // followUpEffects attach to the chosen target ("Those characters can't
+      // ready at the start of their next turn" — Ursula's Plan, where
+      // target:"this" inside followUp refers to the chosen target, not the
+      // ability source). Rewrite "this character" → "those characters" /
+      // "they" so the follow-up reads as a continuation of the chooser
+      // pronoun. For target_player chooser the chosen subject is plural
+      // ("each opponent's chosen X" → "those characters").
+      const isPluralChooser = e.target?.chooser === "target_player";
+      const followUp = e.followUpEffects.map((f: Json) => {
+        const r = renderEffect(rewriteFollowUpThisToPronoun(f));
+        return isPluralChooser
+          ? r.replace(/^they /, "those characters ")
+          : r;
+      }).join(". ");
       return `${base}. ${followUp}`;
     }
     return base;
