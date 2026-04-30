@@ -179,7 +179,14 @@ function renderCard(card: CardJSON): string {
     }
     parts.push(sentenceCap(renderAbility(ab, { cardType: card.cardType })));
   }
-  // Action / song bodies live on actionEffects.
+  // Action / song bodies live on actionEffects. Each effect renders as its
+  // own sentence by default (period-joined) which matches oracle wording
+  // for most multi-step action cards ("Banish chosen character. Gain 2
+  // lore."). For sequenced patterns where oracle uses ", then" to connect
+  // (Dangerous Plan, We Don't Talk About Bruno: "Return X, then that
+  // player discards a card at random"), we'd need joinEffects but it
+  // breaks the more-common period form, so leave as-is and accept the
+  // ~6 affected cards score in the 0.65-0.75 band.
   for (const eff of card.actionEffects ?? []) {
     parts.push(sentenceCap(renderEffect(eff)));
   }
@@ -892,6 +899,27 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       return `${maybe(e)}the player or players with the most cards in their hand ${chooser}discard ${amt}`;
     }
     if (e.chooser === "target_player") {
+      return `${maybe(e)}choose and discard ${amt}`;
+    }
+    // Random self-discard (Dangerous Plan: "Then, discard a card at
+    // random."). The chooser:"random" idiom skips the "choose and" prefix
+    // because the controller doesn't pick.
+    if (e.chooser === "random") {
+      // target=target_owner means the chosen target's controller is the
+      // discard player ("then that player discards a card at random" —
+      // We Don't Talk About Bruno).
+      if (e.target?.type === "target_owner") {
+        return `${maybe(e)}that player discards ${amt} at random`;
+      }
+      return `${maybe(e)}discard ${amt} at random`;
+    }
+    // Self-discard with no chooser field: Lorcana oracle convention is
+    // "choose and discard a card" because the controller picks which card.
+    // Cobra Bubbles Former CIA THINK ABOUT WHAT'S BEST: "Draw a card, then
+    // choose and discard a card." Without "choose and", we emit
+    // "discard 1 card" which loses 0.10+ similarity per card. Skip when
+    // amount is "all" (Belle Hidden Archer style) — there's nothing to choose.
+    if (e.amount !== "all") {
       return `${maybe(e)}choose and discard ${amt}`;
     }
     return `${maybe(e)}discard ${amt}`;
@@ -2358,6 +2386,46 @@ function up(e: Json): string { return e.isUpTo ? "up to " : ""; }
 function dur(e: Json): string { return e.duration ? " " + renderDuration(e.duration) : ""; }
 function plural(n: number | string): string { return n === 1 ? "" : "s"; }
 
+/** Join an effect list into Lorcana-idiomatic prose. Default separator is
+ *  ", and "; when the next effect follows a draw + self-discard pattern
+ *  (Cobra Bubbles Former CIA THINK ABOUT WHAT'S BEST: "Draw a card, then
+ *  choose and discard a card."), use "then" instead of "and" because the
+ *  second clause is a sequenced action ("draw THEN discard" not "draw AND
+ *  discard"). Also handles the deal_damage → deal_damage and the
+ *  draw_card → choose_discard patterns. */
+function joinEffects(effects: Json[]): string {
+  const rendered = effects.map(renderEffect).filter(Boolean);
+  if (rendered.length <= 1) return rendered.join(", and ");
+  const out: string[] = [rendered[0]!];
+  for (let i = 1; i < rendered.length; i++) {
+    const prev = effects[i - 1];
+    const curr = effects[i];
+    // "draw, then choose and discard" idiom — Cobra Bubbles Former CIA
+    // THINK ABOUT WHAT'S BEST.
+    const prevIsDraw = prev?.type === "draw";
+    const currIsSelfDiscard = curr?.type === "discard_from_hand"
+      && (!curr.target || curr.target.type === "self");
+    if (prevIsDraw && currIsSelfDiscard) {
+      out.push(`then ${rendered[i]}`);
+      continue;
+    }
+    // "Return chosen character to their player's hand, then that player
+    // discards a card at random" — We Don't Talk About Bruno. Sequencing
+    // marker carries the chooser-relationship (the chosen target's owner
+    // is the discard subject).
+    const prevIsReturn = prev?.type === "return_to_hand";
+    const currIsTargetOwnerDiscard = curr?.type === "discard_from_hand"
+      && curr.target?.type === "target_owner";
+    if (prevIsReturn && currIsTargetOwnerDiscard) {
+      out.push(`then ${rendered[i]}`);
+      continue;
+    }
+    out.push(`and ${rendered[i]}`);
+  }
+  // Re-join with ", " between segments.
+  return out.join(", ");
+}
+
 /** Location-grant scope rewrite (CRD 5.4 / oracle wording).
  *  Static effects on locations targeting `{ type: "all", filter:
  *  { ..., atLocation: "this" }}` print as "Characters gain X while here."
@@ -2624,7 +2692,7 @@ function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
-  let body = effects.map(renderEffect).filter(Boolean).join(", and ");
+  let body = joinEffects(effects);
   // Trigger-context pronoun rewrite: when the trigger is challenge-related
   // (`banished_in_challenge`, `is_challenged`, `banished_other_in_challenge`),
   // the "triggering character" pronoun in effect bodies refers specifically
@@ -2713,7 +2781,7 @@ function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
   }
   const costs = costParts.join(", ");
   const cond = ab.condition ? renderCondition(ab.condition) : "";
-  const body = effects.map(renderEffect).filter(Boolean).join(", and ");
+  const body = joinEffects(effects);
   // oncePerTurn prefix for activated abilities. Pairs with condition:is_your_turn
   // to form "Once during your turn" (Grandmother Willow, Sugar Rush Speedway).
   const oncePrefix = ab.oncePerTurn
