@@ -439,6 +439,10 @@ export interface FillHandToEffect {
    *  discard until they have N"). When true, no draw-up happens for hands
    *  smaller than n. Default false (bidirectional). */
   trimOnly?: boolean;
+  /** Only draw up — no discard-down (Demona Scourge of the Wyvern Clan
+   *  AD SAXUM COMMUTATE: "each player with fewer than 3 cards in their hand
+   *  draws until they have 3"). Mutually exclusive with trimOnly. */
+  drawOnly?: boolean;
 }
 
 /**

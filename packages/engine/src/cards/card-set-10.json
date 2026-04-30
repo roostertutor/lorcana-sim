@@ -3456,7 +3456,7 @@
       {
         "type": "triggered",
         "storyName": "AD SAXUM COMMUTATE",
-        "rulesText": "When you play this character, exert all opposing characters.",
+        "rulesText": "When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3.",
         "trigger": {
           "on": "enters_play"
         },
@@ -3475,6 +3475,14 @@
                 ]
               }
             }
+          },
+          {
+            "type": "fill_hand_to",
+            "target": {
+              "type": "both"
+            },
+            "n": 3,
+            "drawOnly": true
           }
         ]
       },
@@ -4293,7 +4301,7 @@
         "storyName": "DOCTRINA ADDUCERE",
         "rulesText": "During your turn, whenever an opposing character becomes exerted, gain 1 lore.",
         "trigger": {
-          "on": "challenges",
+          "on": "character_exerted",
           "filter": {
             "owner": {
               "type": "opponent"
@@ -15399,7 +15407,7 @@
       {
         "type": "triggered",
         "storyName": "AD SAXUM COMMUTATE",
-        "rulesText": "When you play this character, exert all opposing characters.",
+        "rulesText": "When you play this character, exert all opposing characters. Then, each player with fewer than 3 cards in their hand draws until they have 3.",
         "trigger": {
           "on": "enters_play"
         },
@@ -15418,6 +15426,14 @@
                 ]
               }
             }
+          },
+          {
+            "type": "fill_hand_to",
+            "target": {
+              "type": "both"
+            },
+            "n": 3,
+            "drawOnly": true
           }
         ]
       },

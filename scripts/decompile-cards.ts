@@ -1516,6 +1516,11 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const subject = useThirdPerson ? tgt : "you";
     const verb = useThirdPerson ? "they have" : "you have";
     const n = e.n ?? "?";
+    if (e.drawOnly) {
+      // Demona Wyvern AD SAXUM: "each player with fewer than 3 cards in
+      // their hand draws until they have 3."
+      return `${subject} with fewer than ${n} cards in their hand ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
+    }
     if (e.trimOnly) {
       return `${subject} ${useThirdPerson ? "draws" : "draw"} cards until ${verb} ${n} cards in hand`;
     }

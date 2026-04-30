@@ -3495,7 +3495,7 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "ICY BLAST",
         "rulesText": "Whenever this character quests, chosen opposing character can't ready at the start of their next turn.",
         "trigger": {
           "on": "quests"

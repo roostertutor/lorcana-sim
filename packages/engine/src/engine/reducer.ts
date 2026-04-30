@@ -5022,7 +5022,7 @@ export function applyEffect(
 
       for (const pid of affected) {
         const handSize = getZone(state, pid, "hand").length;
-        if (handSize > effect.n) {
+        if (handSize > effect.n && !effect.drawOnly) {
           const discardCount = handSize - effect.n;
           state = applyEffect(
             state,
