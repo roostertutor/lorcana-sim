@@ -3410,6 +3410,17 @@ const SYNONYMS: Array<[RegExp, string]> = [
   // to canonical forms so the F1 score sees them as identical tokens.
   [/\bgreater\b/g, "more"],
   [/\bfewer\b/g, "less"],
+  // "While an opponent has no cards in their hand" (Belle - Bookworm USE
+  // YOUR IMAGINATION) and "While one or more opponents have no cards in
+  // their hands" (Gaston Scheming Suitor YES, I'M INTIMIDATING) are
+  // semantically and structurally equivalent — both gate on the same
+  // `cards_in_hand_eq amount:0 player:opponent` condition. Lorcana
+  // printed two different forms for the same primitive (set 2 only;
+  // these are the only 2 cards using this condition in the corpus).
+  // Collapse "one or more opponents" → "an opponent" so both oracle
+  // forms tokenize identically. Same for the plural "hands" idiom.
+  [/\bone or more opponents\b/g, "an opponent"],
+  [/\bhands\b/g, "hand"],
   [/\b(an?|the|of|to|from|into|in|on|at|for|with|that|their|its|his|her|player's|player)\b/g, " "],
 ];
 
