@@ -335,6 +335,27 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
 };
 
 function renderTrigger(t: Json): string {
+  // Multi-trigger shape (CRD 6.2.6 / structural fidelity rule): one printed
+  // ability with multiple triggers ("When you play this character and
+  // whenever he quests, …"). Render each sub-trigger and join with "and".
+  // Hiram Flaversham, Ursula Deal Maker QUITE THE BARGAIN, Wreck-It Ralph
+  // BACK ON TRACK, John Silver PICK YOUR FIGHTS, etc.
+  if (Array.isArray(t.anyOf)) {
+    const parts = t.anyOf.map((sub: Json) => {
+      const rendered = renderTrigger(sub);
+      // Strip the leading capital so the joined sentence reads naturally:
+      // "When you play this character and whenever he quests" — only the
+      // first segment keeps its capital.
+      return rendered;
+    });
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0]!;
+    // Lowercase all but the first segment's first letter to make the
+    // conjunction read smoothly.
+    const first = parts[0]!;
+    const rest = parts.slice(1).map(p => p.charAt(0).toLowerCase() + p.slice(1));
+    return [first, ...rest].join(" and ");
+  }
   const ev = t.on ?? t.event ?? "";
   const fn = TRIGGER_RENDERERS[ev];
   return fn ? fn(t) : `[unknown-trigger:${ev}]`;
