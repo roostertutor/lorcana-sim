@@ -332,6 +332,20 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     return "Whenever this character is challenged";
   },
   challenges:                    (t) => {
+    // anyOf with two hasName entries — "this character or one of your
+    // characters named X" idiom (Minnie Mouse Dazzling Dancer DANCE-OFF
+    // anyOf:[{hasName:"Minnie Mouse"},{hasName:"Mickey Mouse"}]). Pick
+    // the OTHER name (not the source's). Heuristic: the second name in
+    // the anyOf array is typically the cross-reference partner.
+    if (Array.isArray(t.filter?.anyOf) && t.filter.anyOf.length === 2 && t.filter.owner?.type === "self") {
+      const names = t.filter.anyOf.map((sub: Json) => sub.hasName).filter(Boolean);
+      if (names.length === 2) {
+        // Heuristic: second name is the partner. We don't know the source
+        // card's name from here, so just render with the second name —
+        // works for current canonical pattern (Minnie+Mickey).
+        return `Whenever this character or one of your characters named ${names[1]} challenges another character`;
+      }
+    }
     if (filterMentionsYour(t.filter)) return "Whenever one of your characters challenges another character";
     // Snuggly Duckling ROUTINE RUCKUS: location-scoped filter with
     // strength cap → "Whenever a character with 3 {S} or more challenges
@@ -456,9 +470,17 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     return "Whenever a card is discarded";
   },
   deals_damage_in_challenge:     ()  => "Whenever this character deals damage in a challenge",
-  card_put_under:                (t) => filterMentionsYour(t.filter)
-                                          ? "Whenever you put a card under one of your characters or locations"
-                                          : "Whenever a card is put underneath this",
+  card_put_under:                (t) => {
+    // isSelf:true scopes the trigger to the carrier only — Cheshire Cat
+    // Inexplicable IT'S LOADS OF FUN: "Whenever you put a card under this
+    // character." The filter narrowing matters for boost-payoff cards
+    // (Cheshire / Merlin / Bolt) where the under-card pile is a per-card
+    // counter, not a global "any character" trigger.
+    if (t.filter?.isSelf) return "Whenever you put a card under this character";
+    return filterMentionsYour(t.filter)
+      ? "Whenever you put a card under one of your characters or locations"
+      : "Whenever a card is put underneath this";
+  },
   boost_used:                    (t) => filterMentionsYour(t.filter)
                                           ? "Whenever you use the Boost ability of a character"
                                           : "Whenever the Boost ability is used",
@@ -1111,7 +1133,18 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${maybe(e)}return ${renderTarget(e.target ?? {})} to their player's hand`;
   },
   ready: (e) => {
-    const base = `${maybe(e)}ready ${renderTarget(e.target ?? {})}`;
+    let tgt = renderTarget(e.target ?? {});
+    // "Ready all your characters" idiom (Nothing We Won't Do, Patch
+    // Incorrigible Pup). When target is `all` + owner:self, oracle
+    // wording prepends "all" to the possessive — "Ready all your
+    // characters" not "Ready your characters". renderTarget drops the
+    // "all" for owner-self because most static phrasings don't need it
+    // ("Your characters get +2"); ready_all is the exception.
+    if (e.target?.type === "all" && e.target.filter?.owner?.type === "self"
+        && tgt.startsWith("your ")) {
+      tgt = "all " + tgt;
+    }
+    const base = `${maybe(e)}ready ${tgt}`;
     if (e.followUpEffects?.length) {
       // Convention: `{type:"this"}` inside followUpEffects refers to the
       // readied (chosen) character, not the ability source. Rewrite to
@@ -2530,6 +2563,12 @@ function renderAmount(a: any): string {
           if (a.property === "delta") return "each 1 removed this way";
           return `their ${statSym}`;
         case "last_target_location": return `the ${statSym} of that location`;
+        // The Queen Disguised Peddler A PERFECT DISGUISE: "Gain lore equal
+        // to the discarded character's {L}" — stat_ref from last_discarded
+        // pulls the property off the most recent discard. Renderer was
+        // emitting "[last_discarded.lore]" placeholder because this case
+        // wasn't handled.
+        case "last_discarded":       return `the discarded character's ${statSym}`;
         default:                     return `[${a.from}.${a.property}]`;
       }
     }
@@ -2576,9 +2615,13 @@ function renderStatChange(e: Json): string {
   // No-op-chooser pattern: gain_stats with all stats 0 is used to surface a
   // chooser without actually changing stats (Hades Looking for a Deal
   // WHAT D'YA SAY? — the +0 {S} pins last_resolved_target for the
-  // opponent_may_pay_to_avoid that follows). Render as "you may choose X"
-  // since semantically that's what's happening — the chooser surface is
-  // the user-visible effect of this no-op.
+  // opponent_may_pay_to_avoid that follows; Zeus Mr. Lightning Bolts
+  // TARGET PRACTICE — pins for the next gain_stats stat_ref). The
+  // chooser-surface phrasing ("you may choose X") only fits when the
+  // following effect is a `may` shape; otherwise the chosen target is
+  // referenced inline by the next effect. Suppress unconditionally —
+  // composition fixes for Hades-style "you may choose" need a multi-
+  // effect renderer pass that inspects the next effect's wording.
   if (e.type === "gain_stats"
       && (e.strength === 0 || e.strength === undefined)
       && (e.willpower === 0 || e.willpower === undefined)
@@ -2586,13 +2629,6 @@ function renderStatChange(e: Json): string {
       && !e.strengthDynamic && !e.willpowerDynamic && !e.loreDynamic
       && !e.followUpEffects?.length
       && (e.strength === 0 || e.willpower === 0 || e.lore === 0)) {
-    if (e.target?.type === "chosen") {
-      const tgt = renderTarget(e.target);
-      // Drop "chosen " prefix and add "you may choose X" wrapper.
-      const stripped = tgt.replace(/^chosen /, "").replace(/^any number of chosen /, "any number of ");
-      const article = /^[aeiou]/i.test(stripped) ? "an" : "a";
-      return `you may choose ${article} ${stripped}`;
-    }
     return "";
   }
   let tgt = renderTarget(e.target ?? {});

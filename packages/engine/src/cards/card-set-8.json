@@ -12067,11 +12067,9 @@
         "amount": 3,
         "isUpTo": true,
         "target": {
-          "type": "all",
+          "type": "chosen",
+          "count": "any",
           "filter": {
-            "owner": {
-              "type": "self"
-            },
             "zone": "play",
             "cardType": [
               "character"
