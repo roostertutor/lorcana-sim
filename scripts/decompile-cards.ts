@@ -1721,6 +1721,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       // ROOTED BY FEAR: filter=characters not named Mor'du, affectedPlayer=
       // self → "Your characters not named Mor'du can't ready".
       let who = renderFilter(e.filter);
+      // For restricts:"challenge"/"quest", the filter implicitly applies to
+      // characters (only characters challenge or quest). When the filter
+      // lacks an explicit cardType, swap the default "card" noun for
+      // "character" so we don't render "Opposing cards with cost 2 or less
+      // can't challenge" (Gantu Galactic Federation Captain UNDER ARREST).
+      if ((e.restricts === "challenge" || e.restricts === "quest") && !e.filter.cardType) {
+        who = who.replace(/\bcards?\b/, "character");
+      }
       const fOwner = e.filter?.owner?.type;
       if (e.affectedPlayer?.type === "opponent" && fOwner !== "opponent") {
         who = `Opposing ${who}`;
@@ -1788,34 +1796,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   cant_be_challenged: (e) => {
     const tgt = renderTarget(e.target ?? { type: "this" });
     if (e.attackerFilter) {
+      // Strip cardType:character from the filter copy so we don't render
+      // "Pirate character" (we'll add "characters" suffix ourselves).
+      // Pluralize the resulting filter render and capitalize the first
+      // letter. Cases:
+      //   - filter: { cardType:[character] } → "Characters" (with no
+      //     qualifier following) — but we need "with cost N" or whatever.
+      //   - filter: { cardType:[character], hasTrait:"Pirate" } → "Pirate
+      //     characters can't challenge" (Captain Amelia DRIVELING GALOOTS).
+      //   - filter: { cardType:[character], statComparisons:[cost lte 2] } →
+      //     "Characters with cost 2 or less can't challenge" (Gantu Galactic
+      //     Federation Captain UNDER ARREST).
+      //   - filter: { hasDamage:true } → "Damaged characters can't challenge"
+      //     (Ed Hysterical Partygoer ROWDY GUEST).
       const af = renderFilter(e.attackerFilter);
-      // Two phrasings:
-      //   - Postpositional qualifier ("with cost 3 or less", "named X"):
-      //     "Characters with cost 3 or less can't challenge..."
-      //   - Adjective prefix ("damaged", "exerted", "Hero"):
-      //     "Damaged characters can't challenge..." (Ed Hysterical Partygoer
-      //     ROWDY GUEST). Detect by checking if the rendered filter starts
-      //     with one of the known adjective prefixes — if so, swap "card" →
-      //     "characters" and capitalize the prefix.
-      const adjectivePrefixes = ["damaged", "exerted", "ready"];
-      const firstWord = af.split(" ")[0] ?? "";
-      if (adjectivePrefixes.includes(firstWord) && /\bcard\b/.test(af)) {
-        // "damaged card" → "Damaged characters"
-        const swapped = af.replace(/\bcard\b/, "characters");
-        const capped = swapped.charAt(0).toUpperCase() + swapped.slice(1);
-        return `${capped} can't challenge ${tgt}`;
-      }
-      // Postpositional path — original behavior. Strip the bare "card"/
-      // "cards"/"character"/"characters" noun from the filter render so we
-      // don't double-noun ("Characters character with cost 2 or less" —
-      // Club Door COOL CATS ONLY). The "Characters " prefix supplies the
-      // noun; the filter contributes the qualifier only.
-      const qualifier = af
-        .replace(/^card /, "")
-        .replace(/^cards /, "")
-        .replace(/^character /, "")
-        .replace(/^characters /, "");
-      return `Characters ${qualifier} can't challenge ${tgt}`;
+      // Replace "card"/"cards" or "character"/"characters" noun with the
+      // plural "characters", then capitalize.
+      const swapped = af.replace(/\bcards?\b/, "characters").replace(/\bcharacter\b/, "characters");
+      const capped = swapped.charAt(0).toUpperCase() + swapped.slice(1);
+      return `${capped} can't challenge ${tgt}`;
     }
     return `${tgt} can't be challenged`;
   },
