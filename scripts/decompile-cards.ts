@@ -862,10 +862,26 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       : e.action ?? "act";
     const d = dur(e);
     // "They can't ready at the start of their next turn" is more natural
+    let base: string;
     if (e.action === "ready" && e.duration === "end_of_owner_next_turn") {
-      return `${tgt} can't ready at the start of their next turn`;
+      base = `${tgt} can't ready at the start of their next turn`;
+    } else {
+      base = `${tgt} can't ${action}${d}`;
     }
-    return `${tgt} can't ${action}${d}`;
+    // followUpEffects apply to the same chosen target. Ariel - Curious Traveler
+    // FAMILIAR GROUND: "chosen opposing character can't challenge AND must
+    // quest during their next turn if able". The follow-up is a
+    // must_quest_if_able with target:last_resolved_target referring to the
+    // same character as the cant_action target. Render with "and they ..."
+    // pronoun to read smoothly.
+    if (e.followUpEffects?.length) {
+      const fu = (e.followUpEffects as any[]).map((f) => {
+        const rendered = renderEffect(rewriteFollowUpThisToPronoun(f));
+        return rendered;
+      }).join(" and ");
+      return `${base} and ${fu}`;
+    }
+    return base;
   },
   // Self-restriction variant — same shape as cant_action but always targets
   // this character. Used by Maui - Whale ("This character can't ready at the
@@ -2119,7 +2135,10 @@ function renderPlayerFilter(f: Json | undefined): string {
 function rewriteFollowUpThisToPronoun(eff: Json): Json {
   if (!eff || typeof eff !== "object") return eff;
   const clone: Json = { ...eff };
-  if (clone.target?.type === "this") {
+  // "this" inside followUpEffects refers to the parent's chosen target, not
+  // the ability source. "last_resolved_target" similarly refers to whatever
+  // the parent effect just resolved. Both render naturally as "they".
+  if (clone.target?.type === "this" || clone.target?.type === "last_resolved_target") {
     clone.target = { type: "__pronoun_they" };
   }
   return clone;
