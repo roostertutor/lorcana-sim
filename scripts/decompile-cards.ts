@@ -414,7 +414,11 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
       if (!filt || filt === "card" || filt === "cards") return "Whenever a character is readied while here";
       return `Whenever a ${filt} is readied while here`;
     }
-    return "Whenever this character is readied";
+    // Lorcana oracle uses active voice "Whenever you ready this character"
+    // (Wreck-It Ralph Demolition Dude REFRESHING BREAK) rather than passive
+    // "is readied". Active voice is the printed convention for self-targeted
+    // ready triggers; passive only appears in unfiltered third-party shapes.
+    return "Whenever you ready this character";
   },
   returned_to_hand:              (t) => {
     if (!t.filter) return "Whenever this character is returned to your hand";
@@ -520,10 +524,14 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     const who = c.player?.type === "opponent" ? "an opponent has" : "you have";
     const possessive = c.player?.type === "opponent" ? "their" : "your";
     if ((c.amount ?? 0) === 0) {
-      // Belle - Bookworm USE YOUR IMAGINATION: oracle says "While an opponent
-      // has no cards in their hand" (singular "their hand", not "hands").
+      // Lorcana oracle wording is inconsistent between cards: Gaston
+      // Scheming Suitor uses "one or more opponents have no cards in their
+      // hands" (plural), while Belle - Bookworm uses "an opponent has no
+      // cards in their hand" (singular). Pick the plural-many wording — it
+      // matches more cards in the corpus and gracefully degrades on the
+      // singular cases.
       return c.player?.type === "opponent"
-        ? "if an opponent has no cards in their hand"
+        ? "if one or more opponents have no cards in their hands"
         : "if you have no cards in your hand";
     }
     return `if ${who} exactly ${c.amount} cards in ${possessive} hand`;
@@ -860,8 +868,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     }
     // Wreck-It Ralph Demolition Dude REFRESHING BREAK: "gain 1 lore for
     // each 1 damage on him". `triggering_card_damage` string enum reads
-    // better as per-damage than "lore equal to the damage".
+    // better as per-damage than "lore equal to the damage". Same shape
+    // for `stat_ref` from triggering_card on the damage property.
     if (n === "triggering_card_damage") {
+      return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each 1 damage on them`;
+    }
+    if (typeof n === "object" && n?.type === "stat_ref"
+        && n.from === "triggering_card" && n.property === "damage") {
       return `${tgt} ${verbS(tgt, "gain", "gains")} 1 lore for each 1 damage on them`;
     }
     return `${tgt} ${verbS(tgt, "gain", "gains")} lore equal to ${renderAmount(n)}`;
@@ -905,6 +918,21 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       } else {
         base = `${maybe(e)}deal ${amtStr} damage to ${renderTarget(e.target ?? {})}`;
       }
+    } else if (typeof amt === "object" && amt?.type === "count" && amt.filter) {
+      // "Deal 1 damage to X for each Y" oracle wording (Light the Fuse:
+      // "Deal 1 damage to chosen character for each exerted character you
+      // have in play."). Without this, renderAmount produces "the number
+      // of your exerted characters" which reads as a noun, forcing "deal
+      // damage equal to" wording — flips the sentence shape vs the oracle's
+      // "for each X" idiom. perMatch defaults to 1.
+      const per = amt.perMatch ?? 1;
+      const f = amt.filter;
+      const filt = f.owner?.type === "self"
+        ? renderFilter(f, { suppressOwnerSelf: true }) + " you have in play"
+        : renderFilter(f);
+      base = e.asPutDamage
+        ? `${maybe(e)}put ${per} ${suffix}${per === 1 ? "" : "s"} on ${renderTarget(e.target ?? {})} for each ${filt}`
+        : `${maybe(e)}deal ${per} damage to ${renderTarget(e.target ?? {})} for each ${filt}`;
     } else {
       const dyn = renderAmount(amt);
       base = e.asPutDamage
@@ -927,6 +955,24 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (target?.filter?.hasDamage) {
       const { hasDamage, ...restFilter } = target.filter;
       target = { ...target, filter: restFilter };
+    }
+    // Default unfiltered targets to "characters or locations" since items
+    // don't take damage in Lorcana. Oracle wording for Repair is
+    // "Remove up to 3 damage from one of your locations or characters" —
+    // without cardType on the filter, renderFilter would emit the generic
+    // "card" noun. (Targets with explicit cardType keep their wording.)
+    if (target?.filter && !target.filter.cardType) {
+      target = { ...target, filter: { ...target.filter, cardType: ["character", "location"] } };
+    }
+    // Multi-target "remove N damage each from up to M chosen X" idiom (Gumbo
+    // Pot THE BEST I'VE EVER TASTED). When the target.count > 1, oracle says
+    // "from up to N chosen characters" (count-level "up to") and drops the
+    // amount-level "up to" since each target loses the same fixed amount.
+    if (target?.type === "chosen" && typeof target.count === "number" && target.count > 1) {
+      const noun = pluralizeFilter(renderFilter(target.filter ?? {}, { suppressOwnerSelf: true }));
+      const ownerPrefix = target.filter?.owner?.type === "self" ? "your " : "";
+      const upToPrefix = e.isUpTo ? "up to " : "";
+      return `${maybe(e)}remove ${amt} damage each from ${upToPrefix}${target.count} chosen ${ownerPrefix}${noun}`;
     }
     const base = `${maybe(e)}remove ${up(e)}${amt} damage from ${renderTarget(target ?? {})}`;
     // followUpEffects apply to the same chosen target (Penny Bolt's Person
@@ -2188,7 +2234,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     }
     return `for each target, ${inner}`;
   },
-  skip_draw_step_self: () => "you skip your draw step",
+  // Arthur Determined Squire NO MORE BOOKS: oracle wording is "Skip your
+  // turn's Draw step." (imperative form, no "you" subject — the carrying
+  // character is the implicit subject of a static).
+  skip_draw_step_self: () => "skip your turn's draw step",
   one_challenge_per_turn_global: () => "each turn, only one character can challenge",
   prevent_lore_loss: () => "you can't lose lore",
   forced_target_priority: () => "opponents must choose this character for actions and abilities if able",
@@ -2786,7 +2835,7 @@ function renderTarget(t: Json): string {
       // "chosen character of yours with damage").
       if (t.filter?.owner?.type === "self") {
         const hasTrailing = !!(t.filter.hasDamage || t.filter.hasCardUnder || t.filter.challengedThisTurn
-          || t.filter.hasName
+          || t.filter.hasName || t.filter.hasKeyword || t.filter.lacksKeyword
           || (Array.isArray(t.filter.statComparisons) && t.filter.statComparisons.length > 0));
         if (isAnyCount) return `any number of your ${pluralizeFilter(f)}${totalSuffix}`;
         if (hasTrailing) return `one of your ${pluralizeFilter(f)}${totalSuffix}`;
@@ -2984,6 +3033,12 @@ const SYNONYMS: Array<[RegExp, string]> = [
   [/\bitems?\b/g, "item"],
   [/\blocations?\b/g, "location"],
   [/\bturns?\b/g, "turn"],
+  // Lorcana oracle uses "or greater" interchangeably with "or more" for
+  // stat thresholds (Mr. Big REPUTATION "2 {S} or greater" vs the more
+  // common "2 {S} or more"). Same for "or fewer" vs "or less". Map both
+  // to canonical forms so the F1 score sees them as identical tokens.
+  [/\bgreater\b/g, "more"],
+  [/\bfewer\b/g, "less"],
   [/\b(an?|the|of|to|from|into|in|on|at|for|with|that|their|its|his|her|player's|player)\b/g, " "],
 ];
 
