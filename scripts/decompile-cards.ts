@@ -506,6 +506,18 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     // Raging Rat NOTHING CAN STAND IN MY WAY). Positive phrasing matches
     // the oracle better than the awkward "unless this character has no damage".
     if (c.condition?.type === "this_has_no_damage") return "while this character has damage";
+    // not(played_this_turn) → "if you didn't play X this turn" matching
+    // oracle wording (Golden Harp Enchanter of the Land STOLEN AWAY:
+    // "At the end of your turn, if you didn't play a song this turn,
+    // banish this character"). The default "unless you've played" reads
+    // less naturally for end-of-turn punisher conditions.
+    if (c.condition?.type === "played_this_turn") {
+      const inner = c.condition;
+      const amt = inner.amount ?? 1;
+      const filt = inner.filter ? renderFilter(inner.filter) : "card";
+      if (amt === 1) return `if you didn't play a ${filt} this turn`;
+      return `if you didn't play ${amt} or more ${filt}${filt.endsWith("s") ? "" : "s"} this turn`;
+    }
     return "unless " + stripIfPrefix(renderCondition(c.condition ?? {}));
   },
 
@@ -1228,15 +1240,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (e.amount === 99) {
       return `you may play ${pluralizeFilter(filt)} for free`;
     }
-    // Owl Island TEAMWORK: "For each character you have here, you pay 1
-    // {I} less for the first action you play each turn." Count-filter
-    // dynamic amount reads as "For each X, you pay N {I} less for Y".
+    // Two count-filter forms:
+    //   - Zero to Hero (action card): "Count the number of characters you
+    //     have in play. You pay that amount of {I} less for the next
+    //     character you play this turn." Action-form count-filter cost
+    //     reductions use this oracle wording (one-shot, "next X").
+    //   - Owl Island TEAMWORK (static on a location): "For each character
+    //     you have here, you pay 1 {I} less for the first action you play
+    //     each turn." Static-form count-filter is ongoing per-turn.
+    // Distinguish by atLocation:"this" on the count filter (only static
+    // location-scoped count emits the per-turn ongoing form).
     if (typeof e.amount === "object" && e.amount?.type === "count" && e.amount.filter) {
       const cntFilter = e.amount.filter;
       const cntPhrase = cntFilter.owner?.type === "self"
         ? renderFilter(cntFilter, { suppressOwnerSelf: true })
         : renderFilter(cntFilter);
-      return `For each ${cntPhrase}, you pay 1 {I} less for the first ${filt} you play each turn`;
+      if (cntFilter.atLocation === "this") {
+        return `For each ${cntPhrase}, you pay 1 {I} less for the first ${filt} you play each turn`;
+      }
+      return `Count the number of ${pluralizeFilter(cntPhrase)} you have in play. You pay that amount of {I} less for the next ${filt} you play this turn`;
     }
     const amt = typeof e.amount === "number" ? `${e.amount}` : typeof e.amount === "object" ? renderAmount(e.amount) : `${e.amount ?? "?"}`;
     // Yokai Intellectual Schemer INNOVATE: shift-scoped static cost reduction
@@ -2993,6 +3015,16 @@ function renderStatComparison(c: Json): string {
          : `the discarded card's ${property}`)
     : `${from}.${property}`;
   const offsetPhrase = offset === 0 ? "" : offset > 0 ? ` +${offset}` : ` ${offset}`;
+  // "up to N more than X" idiom — when offset > 0 and op="lte", oracle
+  // wording is "with cost up to N more than the banished character" (Retro
+  // Evolution Device TURN INTO DINOSAUR), not "equal to or less than X +N".
+  // Strip the trailing "'s cost" possessive when the property already
+  // matches the stat axis ("the banished character's cost" → "the banished
+  // character") to avoid the awkward "the banished character's cost up to".
+  if (c.op === "lte" && offset > 0 && c.stat === "cost") {
+    const refTrim = refPhrase.replace(/'s cost$/, "");
+    return `with cost up to ${offset} more than ${refTrim}`;
+  }
   // "cost equal to or less than X" / "{S} equal to or less than X" wording
   // matches most in-game oracle text for the dynamic cases.
   const opDynamic = c.op === "lte" ? "equal to or less than"
