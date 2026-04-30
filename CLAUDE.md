@@ -16,8 +16,8 @@ playable sandbox exists as a thin UI layer over the engine.
 - **server** — done (core). Hono + Supabase. Anti-cheat state filtering, per-format ELO (bo1/bo3 × core/infinity), Bo1/Bo3 match format, token auto-refresh, action logging for clone trainer. Remaining: Railway deploy, OAuth. See `docs/MULTIPLAYER.md`.
 - **ui** — done. React + Vite, react-router-dom, 7 screens, responsive (mobile/tablet/desktop). Multiplayer: lobby, reconnection (localStorage), shareable lobby links (`/lobby/:code`). See `docs/UI_PENDING_MECHANICS.md` for unvisualized mechanics.
 - **sandbox** — done. Interactive game board vs bot with replay + undo, DnD, alt-cost shift picker, card injector with qty/zone/player/set controls, HMR session persistence + quick save/load. Visual state: keyword icon badges, exerted rotation, damage counter, drying overlay, active-effects pill, card-state status icons, stat delta badges. See `docs/GUI_TEST_CARDS.md` for the verified-mechanic checklist, `docs/GAME_BOARD.md` for layout notes.
-- **cards** — **2326 named-ability cards wired + 539 vanillas = 2865/2865.** All of sets 1–12 + promos (P1, P2, P3, cp, DIS, D23). Set 12 fully wired as of 2026-04-23. Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
-- **gaps** — **5 fits-grammar stubs remaining in set 12** (Hamish/Hubert/Harris #50, Mickey Mouse #52, Super Relocation Program #63, Inner Strength #129, Mirabel Madrigal #142). 0 partial, 0 invalid-fields, 0 known approximations.
+- **cards** — **2353 named-ability cards wired + 543 vanillas = 2896/2896.** All of sets 1–12 + promos (P1, P2, P3, cp, DIS, D23, C1, C2). Set 12 fully wired as of 2026-04-23; remaining 5 fits-grammar stubs cleared in commit b212204 (2026-04-29). Promo sets auto-synced from main sets via `scripts/sync-promo-reprints.ts`.
+- **gaps** — **0 stubs, 0 partial, 0 invalid-fields, 0 fidelity-violations, 0 known approximations.**
 
 ## Quick Reference
 
@@ -80,16 +80,16 @@ Run whenever Ravensburger adds cards to the API (typically same day as app relea
 
 ## Audits
 
-Four scripts triangulate data quality; three (`card-status`, `audit-cards`, `decompile-cards`) are text-shape checks; the fourth (`audit-dead-primitives`) does reachability analysis over runtime state. The approximation-annotation sweep is now a plain grep (see "No-op stubs" below) — there's no dedicated script.
+Two scripts cover steady-state card-data quality. Run both after wiring a set or fixing a card; they cost <30s combined.
 
 | Script | Covers | What it misses |
 |---|---|---|
-| `pnpm card-status` | JSON field validation: every `type`/`on` discriminator checked against `types/index.ts` unions; every CardFilter field checked against the `CardFilter` interface. Catches typos that silently no-op (`start_of_turn` vs `turn_start`, `maxStrength` vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`, `name` vs `hasName`). Extracts valid names dynamically from `types/index.ts` so it stays in sync. | Required-field structural checks (e.g. `action_restriction` requires `affectedPlayer` — missing it crashes at runtime, passes audit). |
-| `pnpm audit-cards` | Card data drift: scalar fields, static-effect-type mismatches, keyword drops. Run after re-import. | Engine-internal wiring correctness. |
-| `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. |
-| `pnpm audit-dead-primitives` | Emit-vs-read reachability on StaticEffect primitives: every `modifiers.<field>` write in `gameModifiers.ts` must have at least one reader across engine+simulator+analytics+cli+ui. Catches the Hidden Inkcaster class of bug — case handler exists and populates a modifier field, but no consumer ever reads it, so the static silently no-ops. | Runtime correctness of the readers themselves (wrong variable, off-by-one). |
+| `pnpm card-status` | JSON field validation: every `type`/`on` discriminator checked against `types/index.ts` unions; every CardFilter field checked against the `CardFilter` interface. Catches typos that silently no-op (`start_of_turn` vs `turn_start`, `maxStrength` vs `strengthAtMost`, `inkColor` vs `inkColors`, `hasCardsUnder` vs `hasCardUnder`, `notId` vs `excludeSelf`, `name` vs `hasName`). Also runs the structural-fidelity check (one printed ability = one JSON ability — see "Structural fidelity to printed text" below). Extracts valid names dynamically from `types/index.ts` so it stays in sync. | Required-field structural checks (e.g. `action_restriction` requires `affectedPlayer` — missing it crashes at runtime, passes audit). |
+| `pnpm decompile-cards` | Authoritative semantic check: renders JSON ability back to English, similarity-scores against oracle text. The bottom of the sorted output is the bug list — stubs, wrong-trigger wiring, missing conditional branches, per-instance-vs-player-wide targeting, wrong destination zones, etc. Also catches the keyword-in-text-but-not-in-abilities class (oracle has the keyword, rendered text doesn't → score drops). Run `pnpm decompile-cards --set 001` for one set. | Handler-body runtime bugs (wrong variable names, off-by-one in reducers). Only tests or live play catch those. The renderer itself isn't faithful to oracle 100% — average score across all wired cards is ~0.80; treat the *bottom* as bug list, not the absolute score. |
 
-**What no audit catches:** required-field structural validation, semantic correctness (e.g. `triggering_card` vs `last_resolved_target` picking the wrong one), and runtime-handler bugs. Those need the decompiler-diff sweep, tests, or hands-on play.
+**What no audit catches:** required-field structural validation, semantic correctness (e.g. `triggering_card` vs `last_resolved_target` picking the wrong one), runtime-handler bugs, and reader-side bugs in static effects (Hidden Inkcaster class — case handler populates a modifier field with no consumer reading it). Those need tests, the decompiler-diff sweep, or hands-on play. **Discipline rule:** when adding a new static primitive or modifier field, write a test that asserts the modifier's effect is observable — otherwise it's a Hidden Inkcaster waiting to happen.
+
+**Archived audits** (in `scripts/archive/`, not in steady-state flow): `audit-card-data.ts` (keyword-mention drift — bootstrap-era, redundant with decompile-cards), `audit-dead-primitives.ts` (Hidden Inkcaster reachability — fires <1×/year, redundant with the discipline rule above). Pull from archive if a class of bug starts shipping that needs them.
 
 ## Docs (read on demand)
 
@@ -162,7 +162,7 @@ Grep-finding a `case "X":` label doesn't prove the handler works. Before claimin
 2. Read the handler body end-to-end and trace the data flow.
 3. Run the card in the UI / simulator.
 
-Three of the four audit scripts (`card-status`, `audit-cards`, `decompile-cards`) are text-shape checks — they miss runtime-handler bugs like wrong variable names in RNG calls (Fred Giant-Sized shipped broken because the text-level checks passed). `audit-dead-primitives` is reachability-only and also misses reader-side runtime bugs.
+Both audit scripts (`card-status`, `decompile-cards`) are text-shape checks — they miss runtime-handler bugs like wrong variable names in RNG calls (Fred Giant-Sized shipped broken because the text-level checks passed).
 
 ### Package boundaries — never cross
 ```

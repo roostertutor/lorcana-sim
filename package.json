@@ -17,9 +17,6 @@
     "import-cards-lorcast": "tsx scripts/import-cards-lorcast.ts",
     "sync-reprints": "tsx scripts/sync-promo-reprints.ts",
     "find-precedent": "tsx scripts/find-precedent.ts",
-    "backfill-source-manual": "tsx scripts/backfill-source-manual.ts",
-    "audit-cards": "tsx scripts/audit-card-data.ts",
-    "audit-dead-primitives": "tsx scripts/audit-dead-primitives.ts",
     "sync-images-rav": "tsx scripts/sync-images-rav.ts",
     "sync-images-lorcast": "tsx scripts/sync-images-lorcast.ts",
     "sync-images-manual": "tsx scripts/sync-images-manual.ts",
@@ -27,7 +24,6 @@
     "publish-image-manifest": "tsx scripts/publish-image-manifest.ts",
     "catalog": "tsx scripts/catalog-primitives.ts > docs/ENGINE_PRIMITIVES.md",
     "decompile-cards": "tsx scripts/decompile-cards.ts",
-    "compile-cards": "tsx scripts/compile-cards.ts",
     "train-mirror": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/train-mirror.ts",
     "card-status": "tsx --tsconfig scripts/tsconfig.scripts.json scripts/card-status.ts"
   },

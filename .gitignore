@@ -48,6 +48,9 @@ tmp
 docs/ENGINE_PRIMITIVES.md
 packages/engine/src/cards/.effect-counts.json
 
+# One-shot evaluation scratch (script in scripts/archive/, decision captured in CLAUDE.md)
+experiments/
+
 # Diagnostic output from `pnpm decompile-cards --all --json`
 decompile.json
 decompile-all.json

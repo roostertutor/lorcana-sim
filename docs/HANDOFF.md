@@ -367,43 +367,6 @@ that action, and the ability expires at turn end.
 
 ---
 
-## Engine agent: Lorcast importer stub extraction only captures first line
-
-Discovered while adding compiler patterns in commit `7eaac30`. The Lorcast
-importer at `scripts/import-cards-lorcast.ts` populates
-`CardDefinition._namedAbilityStubs` from the Lorcast API's `text` field —
-but for multi-line abilities, only the first line (the banner + preamble)
-lands in the stub's `rulesText`; subsequent lines (bullet lists, clause
-continuations) are lost.
-
-Concrete case: Jack-jack Parr — Incredible Potential (set 12 #121) has:
-```
-WEIRD THINGS ARE HAPPENING At the start of your turn, you may put the
-top card of your deck into your discard.
-If its card type is:
-• character, this character gets +2 {S} this turn.
-• action or item, this character gets +2 {L} this turn.
-• location, banish chosen character.
-```
-Stub's `rulesText` only contains the first sentence. The reverse compiler
-(`scripts/compile-cards.ts`) receives just the preamble and can only match
-the "you may put top card into discard" pattern — misses the 3-way switch
-despite a dedicated matcher existing for the full oracle.
-
-Impact: compiler auto-wire misses multi-line abilities until the stub
-extraction is fixed. The card wiring itself was unaffected (manually wired
-against the full oracle). This is a compiler-coverage limitation, not a
-runtime bug.
-
-Fix location: `scripts/import-cards-lorcast.ts` — the regex that extracts
-named abilities stops at a newline. Should consume lines until the next
-story-name banner (all-caps line at start) or end of text.
-
-Non-urgent: affects auto-wiring coverage for future multi-line Lorcast
-pre-release cards. Manual wiring still works.
-
----
-
 ## Engine agent: possible follow-up — expand resolveTargetAndApply coverage
 
 The 2026-04-21 zone-move helper consolidation landed — `resolveTargetAndApply`
@@ -445,46 +408,6 @@ sits in one file ready to be expanded.
 
 **Do not** edit the normalizer or card JSONs. The rulesText shape is fixed;
 the UI just needs to parse and render it.
-
----
-
-## Engine agent: expand reverse compiler coverage + add apply flow
-
-The reverse compiler exists (`scripts/compile-cards.ts`) and currently
-auto-matches ~31.8% of named ability shapes on the sets 1-11 baseline.
-`pnpm compile-cards` runs the baseline; `--apply --set N` is scaffolded
-but the dry-run + confirmation gate isn't wired end-to-end yet.
-
-Two items remain (verified open 2026-04-25; matcher cleanup + playRestrictions-
-prefix handling have since shipped):
-
-1. **Recursive inner-ability compilation** for `grant_triggered_ability_*`
-   patterns: currently emits `{ type: "triggered", _inner_oracle: "..." }`
-   as a placeholder. Should recursively invoke the compiler's triggered-
-   ability grammar on the quoted inner text.
-2. **End-to-end apply gate**: `pnpm compile-cards --set N --apply` writes
-   abilities to card JSONs but needs a dry-run diff view + user confirmation
-   before committing. Decompiler-roundtrip confidence gate (≥0.85) already
-   exists; just needs the human-in-the-loop confirmation step.
-
-Decompiler renderer coverage is the upstream bottleneck — for a compile to
-score ≥0.85 via decompile round-trip, the decompiler must know how to
-render the JSON it just emitted. Every renderer gap is a compile false-
-negative. `pnpm decompile-cards` with no filter shows the worst-50 tail —
-the renderer/wiring bug mixture lives there.
-
-Practical caveats:
-- Oracle text drift between sources (curly vs straight apostrophes handled
-  by normalizer; `{L}`/`{S}` symbols sometimes dropped by Lorcast).
-- Card name normalization ("Daisy Duck" vs "this character" references).
-- Precedence: most-specific patterns first. ORDER MATTERS — Jack-jack's
-  reveal_top_switch_3way_type must come before the shorter put_top_cards_
-  into_discard matcher (already documented in compile-cards.ts).
-- Conservative thresholds — better to under-wire (leave for human) than
-  silently miswire. Never auto-wire below 0.85 similarity.
-
-Re-run `pnpm compile-cards` baseline before committing to a coverage % —
-the percentage may have shifted since 31.8%.
 
 ---
 

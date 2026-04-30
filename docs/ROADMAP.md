@@ -561,11 +561,10 @@ Everything else — parallel, no blocking dependencies
 
 #### 6a. Card implementation ✅
 
-**2146/2146 named-ability cards + 506 vanillas = 2652/2652 (100%) complete.**
-All sets 1–11 + promos (P1, P2, P3, cp, DIS, D23) fully implemented.
+**2326/2326 named-ability cards + 539 vanillas = 2865/2865 (100%) complete.**
+All sets 1–12 + promos (P1, P2, P3, cp, DIS, D23) fully implemented.
 0 stubs, 0 partial, 0 invalid fields, 0 known approximations.
-Four audit scripts (`card-status`, `audit-lorcast`, `audit-approximations`,
-`decompile-cards`) all report clean.
+Two audit scripts (`card-status`, `decompile-cards`) report clean.
 
 #### 6b. Engine gaps ✅
 

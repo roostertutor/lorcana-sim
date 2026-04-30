@@ -178,14 +178,11 @@ Example: The Bayou's ability name in Ravensburger's data is incorrect,
 so we locked the Lorcast-sourced version. Any importer skips locked
 cards regardless of tier.
 
-**Re-tagging legacy data** — `pnpm backfill-source-manual` stamps
-`_source: "manual"` on any card lacking the field, intended as step 1 of
-a provenance audit:
-1. `pnpm backfill-source-manual` — mark everything "manual"
-2. `pnpm import-cards` — Ravensburger upgrades what it covers to tier 2
-3. `pnpm import-cards-lorcast` — Lorcast upgrades remaining gaps to tier 1
-4. `grep '"_source": "manual"'` — anything still "manual" has no
-   upstream provenance; review and either fix or accept as bespoke.
+**Re-tagging legacy data** — the one-time backfill ran in 2026-04 and is
+preserved at `scripts/archive/backfill-source-manual.ts`. All extant cards
+now carry `_source`. If a future migration introduces new untracked cards,
+the recipe (manual → ravensburger upgrade → lorcast upgrade → grep for
+remaining "manual" entries) is in that archived script's header.
 
 ### Lorcast API as the fallback (promos, D23, DIS)
 `https://api.lorcast.com/v0` — Ravensburger's API returns empty for the
