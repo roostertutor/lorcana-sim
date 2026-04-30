@@ -278,7 +278,10 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     // (atLocation: "this") → "Whenever a character is banished in a
     // challenge while here".
     if (t.filter?.atLocation === "this") return "Whenever a character is banished in a challenge while here";
-    return "When this character is challenged and banished";
+    // Self-banish-in-challenge (Merlin Completing His Research LEGACY OF
+    // LEARNING): oracle wording is "When this character is banished in a
+    // challenge" not "When this character is challenged and banished".
+    return "When this character is banished in a challenge";
   },
   banished_other_in_challenge:   (t) => t.filter ? `Whenever this character banishes ${renderFilter(t.filter)} in a challenge` : "Whenever this character banishes another character in a challenge",
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
@@ -582,12 +585,31 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     return `if you have ${n} or more ${adj}characters in play`;
   },
   opponent_has_more_cards_in_hand:  () => "if an opponent has more cards in their hand than you",
-  self_has_more_than_each_opponent: (c) => `if you have more ${c.metric ?? "cards"} than each opponent`,
+  // self_has_more_than_each_opponent — oracle phrasing depends on metric.
+  // Metrics like strength_in_play / characters_in_play render as
+  // "a character in play with more {S} than each opposing character"
+  // (Flynn Rider Frenemy NARROW ADVANTAGE) — the comparison is over the
+  // best of yours vs each opponent's best, not raw aggregate. Render
+  // metric-specific oracle wording rather than the raw enum string.
+  self_has_more_than_each_opponent: (c) => {
+    const m = c.metric ?? "cards";
+    if (m === "strength_in_play") return "if you have a character in play with more {S} than each opposing character";
+    if (m === "characters_in_play") return "if you have more characters in play than each opponent";
+    if (m === "items_in_play") return "if you have more items in play than each opponent";
+    if (m === "cards_in_inkwell") return "if you have more cards in your inkwell than each opponent";
+    if (m === "lore") return "if you have more lore than each opponent";
+    return `if you have more ${m} than each opponent`;
+  },
   your_first_turn_as_underdog: () => "if this is your first turn and you're not the first player",
 
   // ---- This-card-state checks ----------------------------------------------
   this_has_no_damage:         () => "if this character has no damage",
-  this_has_cards_under:       () => "if this character has cards under it",
+  // Oracle uses singular "a card under him" / "had a card under them" —
+  // the condition fires for 1+ cards under, but printed wording uses
+  // singular indefinite article (Merlin Completing His Research LEGACY OF
+  // LEARNING: "if he had a card under him, draw 2 cards"). Past-tense
+  // "had" matches the moment-of-banish snapshot semantics.
+  this_has_cards_under:       () => "if this character had a card under them",
   this_at_location:           () => "while this character is at a location",
   this_location_has_character: (c) => {
     if (c.filter) {
