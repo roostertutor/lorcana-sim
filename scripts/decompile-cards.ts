@@ -2402,9 +2402,26 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         .replace(/\bchosen ([a-z]+) of yours\b/g, "chosen $1")
         // "put X into" verb-agrees with the singular "each player" subject.
         .replace(/\bput ([a-z ]+) into their\b/g, `${verbS_put} $1 into their`);
-    const inner = Array.isArray(e.effects)
+    let inner = Array.isArray(e.effects)
       ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
+    // The Return of Hercules: "Each player may reveal a character card from
+    // their hand and play it for free." Wired as `each_player isMay` →
+    // single inner `play_card sourceZone:"hand"`. The play_card renderer
+    // emits "play <filter> for free" — Lorcana oracle wraps this with the
+    // "reveal a X card from their hand and play it" idiom whenever a card
+    // from a private zone surfaces via play. Apply the rewrite when the
+    // inner is a hand-source play (the only consumer in the corpus is
+    // TROH; the rewrite is a no-op for unrelated each_player effects).
+    if (Array.isArray(e.effects)
+        && e.effects.length === 1
+        && e.effects[0]?.type === "play_card"
+        && e.effects[0]?.sourceZone === "hand") {
+      const filt = (e.effects[0] as Json).filter;
+      const types: string[] = Array.isArray(filt?.cardType) ? filt.cardType : filt?.cardType ? [filt.cardType] : [];
+      const cardWord = types.length === 1 ? `${types[0]} card` : "card";
+      inner = `reveal a ${cardWord} from their hand and play it for free`;
+    }
     // scope:"chosen_subset" — Beyond the Horizon BHC: "Choose any number of
     // players. They discard their hands and draw 3 cards each." The caster
     // picks the subset; the chosen players ("they", plural) run the inner
