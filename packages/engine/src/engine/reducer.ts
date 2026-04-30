@@ -5010,9 +5010,20 @@ export function applyEffect(
       return state;
     }
 
-    case "fill_hand_to": {
-      // Goliath - Clan Leader: normalize each affected player's hand to `n`.
-      // Discard down or draw up depending on current hand size.
+    case "fill_hand_to":
+    case "discard_until":
+    case "draw_until": {
+      // Three primitives share this code path:
+      // - discard_until: trim down (Prince John's Mirror, Goliath first half)
+      // - draw_until: draw up (Demona Wyvern, Goliath second half)
+      // - fill_hand_to: deprecated bidirectional — still functional via
+      //   trimOnly/drawOnly flags. Defaults to bidirectional when neither set.
+      const allowDiscard =
+        effect.type === "discard_until" ||
+        (effect.type === "fill_hand_to" && !effect.drawOnly);
+      const allowDraw =
+        effect.type === "draw_until" ||
+        (effect.type === "fill_hand_to" && !effect.trimOnly);
       const affected: PlayerID[] = [];
       if (effect.target.type === "self") affected.push(controllingPlayerId);
       else if (effect.target.type === "opponent") affected.push(getOpponent(controllingPlayerId));
@@ -5022,7 +5033,7 @@ export function applyEffect(
 
       for (const pid of affected) {
         const handSize = getZone(state, pid, "hand").length;
-        if (handSize > effect.n && !effect.drawOnly) {
+        if (handSize > effect.n && allowDiscard) {
           const discardCount = handSize - effect.n;
           state = applyEffect(
             state,
@@ -5034,7 +5045,7 @@ export function applyEffect(
             triggeringCardInstanceId,
           );
           if (state.pendingChoice) return state;
-        } else if (handSize < effect.n && !effect.trimOnly) {
+        } else if (handSize < effect.n && allowDraw) {
           const drawCount = effect.n - handSize;
           state = applyDraw(state, pid, drawCount, events, definitions);
         }

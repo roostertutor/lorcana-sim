@@ -1524,23 +1524,35 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // Without trimOnly (Goliath Clan Leader DUSK TO DAWN) the effect ALSO
   // discards-down when the target has more than N — render both branches
   // so the oracle comparison reflects the full mechanic.
+  // Prince John's Mirror A FEELING OF POWER, Goliath Clan Leader DUSK TO
+  // DAWN (first half): "if they have more than N cards in their hand, they
+  // choose and discard until they have N."
+  discard_until: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const useThirdPerson = tgt !== "you";
+    const subject = useThirdPerson ? tgt : "you";
+    const verb = useThirdPerson ? "they have" : "you have";
+    const n = e.n ?? "?";
+    return `if ${verb} more than ${n} cards in their hand, ${subject} ${useThirdPerson ? "chooses" : "choose"} and ${useThirdPerson ? "discards" : "discard"} cards until ${verb} ${n}`;
+  },
+  // Demona Wyvern AD SAXUM, Goliath Clan Leader DUSK TO DAWN (second half):
+  // "each player with fewer than N cards in their hand draws until they have N."
+  draw_until: (e) => {
+    const tgt = renderTarget(e.target ?? {});
+    const useThirdPerson = tgt !== "you";
+    const subject = useThirdPerson ? tgt : "you";
+    const verb = useThirdPerson ? "they have" : "you have";
+    const n = e.n ?? "?";
+    return `if ${verb} fewer than ${n} cards in their hand, ${subject} ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
+  },
+  // Deprecated bidirectional form. Kept for backward-compat parsing of any
+  // legacy JSON; new cards should use discard_until or draw_until.
   fill_hand_to: (e) => {
     const tgt = renderTarget(e.target ?? {});
     const useThirdPerson = tgt !== "you";
     const subject = useThirdPerson ? tgt : "you";
     const verb = useThirdPerson ? "they have" : "you have";
     const n = e.n ?? "?";
-    if (e.drawOnly) {
-      // Demona Wyvern AD SAXUM: "each player with fewer than 3 cards in
-      // their hand draws until they have 3."
-      return `${subject} with fewer than ${n} cards in their hand ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
-    }
-    if (e.trimOnly) {
-      return `${subject} ${useThirdPerson ? "draws" : "draw"} cards until ${verb} ${n} cards in hand`;
-    }
-    // Bidirectional: discard down OR draw up. Goliath Clan Leader DUSK TO DAWN
-    // oracle: "if they have more than N, they choose and discard cards until
-    // they have N. If they have fewer than N, they draw until they have N."
     return `if ${verb} more than ${n} cards in hand, ${subject} ${useThirdPerson ? "chooses" : "choose"} and ${useThirdPerson ? "discards" : "discard"} cards until ${verb} ${n}. If ${verb} fewer than ${n} cards in hand, ${subject} ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
   },
 

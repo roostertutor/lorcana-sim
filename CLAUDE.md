@@ -225,6 +225,13 @@ Naming the wrong one breaks the effect: `end_of_owner_next_turn` on a self-cast 
 ### `banished_other_in_challenge` turn condition
 Abilities saying "during your turn" on `banished_other_in_challenge` need `"condition": { "type": "is_your_turn" }` — otherwise they fire on the opponent's turn during mutual banishment (both characters banished at once). Later-set cards without the "during your turn" wording correctly omit this condition.
 
+### `discard_until` / `draw_until` — one direction per effect (CRD 5.2.8 fidelity)
+Cards with bidirectional "discard-down OR draw-up" oracle text (Goliath Clan Leader DUSK TO DAWN: *"if they have more than 2 cards…they discard until they have 2. If they have fewer than 2…they draw until they have 2."*) wire as TWO sequential effects — `discard_until` (Prince John's Mirror shape, the discard half) and `draw_until` (Demona Wyvern AD SAXUM shape, the draw half). One unidirectional primitive per oracle clause.
+
+`fill_hand_to` is the deprecated bidirectional ancestor — kept as a type for backward parsing, but new cards should always use `discard_until` / `draw_until`. Naming reflects the action: each primitive does one thing, matches one printed clause, and reads naturally in isolation.
+
+Same principle applies more broadly: when oracle says "If X, do A. If Y, do B," wire it as two effects, not one combined effect with both branches inlined.
+
 ### Dual-container DnD / ref ID collision (UI)
 Never render the same React component with the same ID in two sibling containers toggled by `md:hidden` / `hidden md:flex`. dnd-kit and ref maps expect each ID once — the hidden container overwrites the visible one, causing `getBoundingClientRect` to return `{0,0}`. Use a single container with responsive Tailwind classes:
 ```tsx

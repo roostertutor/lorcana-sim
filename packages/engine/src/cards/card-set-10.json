@@ -3477,12 +3477,11 @@
             }
           },
           {
-            "type": "fill_hand_to",
+            "type": "draw_until",
             "target": {
               "type": "both"
             },
-            "n": 3,
-            "drawOnly": true
+            "n": 3
           }
         ]
       },
@@ -11587,7 +11586,14 @@
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
-            "type": "fill_hand_to",
+            "type": "discard_until",
+            "target": {
+              "type": "active_player"
+            },
+            "n": 2
+          },
+          {
+            "type": "draw_until",
             "target": {
               "type": "active_player"
             },
@@ -15428,12 +15434,11 @@
             }
           },
           {
-            "type": "fill_hand_to",
+            "type": "draw_until",
             "target": {
               "type": "both"
             },
-            "n": 3,
-            "drawOnly": true
+            "n": 3
           }
         ]
       },
@@ -16335,7 +16340,14 @@
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
-            "type": "fill_hand_to",
+            "type": "discard_until",
+            "target": {
+              "type": "active_player"
+            },
+            "n": 2
+          },
+          {
+            "type": "draw_until",
             "target": {
               "type": "active_player"
             },

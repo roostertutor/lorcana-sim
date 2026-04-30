@@ -299,6 +299,8 @@ export type Effect =
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
   | FillHandToEffect
+  | DiscardUntilEffect
+  | DrawUntilEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
@@ -429,20 +431,41 @@ export interface EachTargetEffect {
  * they have N." Single effect that applies to each affected player and goes
  * either direction based on current hand size.
  */
+/**
+ * @deprecated Use DiscardUntilEffect (trimOnly:true) or DrawUntilEffect
+ * (drawOnly:true) instead. fill_hand_to was originally bidirectional but
+ * cards always wire one direction per effect — separate primitives read
+ * cleaner and align with the oracle's "if X / If Y" structure (CRD 5.2.8
+ * fidelity rule). See CLAUDE.md "fill_hand_to convention" for rationale.
+ */
 export interface FillHandToEffect {
   type: "fill_hand_to";
-  /** Whose hand to normalize. "self" / "opponent" / "both". */
   target: PlayerTarget;
-  /** Target hand size after normalization. */
   n: number;
-  /** Only trim down (Prince John's Mirror — "if they have more than N, they
-   *  discard until they have N"). When true, no draw-up happens for hands
-   *  smaller than n. Default false (bidirectional). */
   trimOnly?: boolean;
-  /** Only draw up — no discard-down (Demona Scourge of the Wyvern Clan
-   *  AD SAXUM COMMUTATE: "each player with fewer than 3 cards in their hand
-   *  draws until they have 3"). Mutually exclusive with trimOnly. */
   drawOnly?: boolean;
+}
+
+/** Prince John's Mirror A FEELING OF POWER, Goliath Clan Leader DUSK TO
+ *  DAWN (first half): "if they have more than N cards in their hand, they
+ *  choose and discard until they have N." If handSize <= n, fizzles.
+ *  Replaces fill_hand_to with trimOnly:true. */
+export interface DiscardUntilEffect {
+  type: "discard_until";
+  /** Whose hand to trim. */
+  target: PlayerTarget;
+  /** Target hand size — discard down to N. */
+  n: number;
+}
+
+/** Demona Wyvern AD SAXUM COMMUTATE, Goliath Clan Leader DUSK TO DAWN
+ *  (second half): "each player with fewer than N cards in their hand draws
+ *  until they have N." If handSize >= n, fizzles. Replaces fill_hand_to
+ *  with drawOnly:true. */
+export interface DrawUntilEffect {
+  type: "draw_until";
+  target: PlayerTarget;
+  n: number;
 }
 
 /**

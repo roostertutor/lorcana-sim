@@ -6356,12 +6356,11 @@
         "rulesText": "At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
         "effects": [
           {
-            "type": "fill_hand_to",
+            "type": "discard_until",
             "target": {
               "type": "opponent"
             },
-            "n": 3,
-            "trimOnly": true
+            "n": 3
           }
         ]
       }
