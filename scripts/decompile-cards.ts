@@ -669,6 +669,8 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // Time to Go!: "If that character had a card under them, draw 3 cards
   // instead." Reads state.lastBanishedCardsUnderCount.
   last_banished_had_cards_under: () => "if that character had a card under them",
+  // Ink Amplifier ENERGY CAPTURE: "if it's the second card they've drawn this turn"
+  triggering_player_draws_this_turn_eq: (c) => `if it's the ${c.amount === 2 ? "second" : c.amount === 1 ? "first" : c.amount === 3 ? "third" : `${c.amount}th`} card they've drawn this turn`,
 
   // Player-state comparisons
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
@@ -851,8 +853,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${tgt} ${verbS(tgt, "lose", "loses")} lore equal to ${renderAmount(n)}`;
   },
   prevent_lore_gain: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    return `${tgt} can't gain lore${dur(e)}`;
+    // Read affectedPlayer (used by Peter Pan Never Land Prankster CAN'T
+    // TAKE A JOKE) OR fall back to target (legacy shape).
+    const player = e.affectedPlayer ?? e.target ?? {};
+    const subj = player.type === "opponent" ? "each opposing player"
+      : player.type === "both" ? "each player"
+      : player.type === "self" ? "you"
+      : renderTarget(player);
+    return `${subj} can't gain lore${dur(e)}`;
   },
 
   deal_damage: (e) => {
@@ -1741,11 +1749,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each card under ${tgt === "this character" ? "them" : tgt}`;
     }
     const cf = e.countFilter;
+    // Owner-aware "where" phrase. Default is "you have in play".
+    // For opponent zones: "in opponents' hands" (Sisu Emboldened Warrior
+    // SURGE OF POWER), "in your opponents' discards", etc.
+    const isOpp = cf?.owner?.type === "opponent";
     let where = "you have in play";
-    if (cf?.zone === "hand") where = "in your hand";
-    else if (cf?.zone === "discard") where = "in your discard";
-    else if (cf?.zone === "inkwell") where = "in your inkwell";
-    const filt = cf ? renderFilter(cf) : "card";
+    if (cf?.zone === "hand") where = isOpp ? "in opponents' hands" : "in your hand";
+    else if (cf?.zone === "discard") where = isOpp ? "in opponents' discards" : "in your discard";
+    else if (cf?.zone === "inkwell") where = isOpp ? "in opponents' inkwells" : "in your inkwell";
+    else if (isOpp) where = "an opponent has in play";
+    // For owner-only filters (no other discriminators), the natural English
+    // is "for each card in opponents' hands" (no need to render the noun).
+    // Detect this and emit "card" as a generic count noun.
+    const cfCopy = cf ? { ...cf } : undefined;
+    if (cfCopy) {
+      delete cfCopy.owner;
+      delete cfCopy.zone;
+    }
+    const remainingKeys = cfCopy ? Object.keys(cfCopy).filter(k => cfCopy[k] !== undefined) : [];
+    const filt = remainingKeys.length === 0 ? "card" : (cf ? renderFilter(cf, { suppressOwnerSelf: true }) : "card");
     return `${tgt} ${verbS(tgt, "get", "gets")} +${per} ${stat} for each ${filt} ${where}`;
   },
 
@@ -1898,6 +1920,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // character had any name." — Morph / Zurg pattern. Self-only, no fields.
   mimicry_target_self: () =>
     "you may play any character with Shift on this character as if this character had any name",
+
+  // Candy Drift / She's Your Person: install a delayed-trigger on a
+  // chosen target. firesAt:"end_of_turn" + attachTo:"last_resolved_target"
+  // → "At the end of your turn, banish them." (the target is the chosen
+  // character from the previous effect).
+  create_delayed_trigger: (e) => {
+    const when = e.firesAt === "end_of_turn" ? "At the end of your turn"
+      : e.firesAt === "start_of_next_turn" ? "At the start of your next turn"
+      : `At ${e.firesAt}`;
+    const body = (e.effects ?? []).map((f: Json) => {
+      // Inside delayed-trigger effects, `target: this` refers to the attached
+      // target (typically last_resolved_target — the chosen character).
+      const rewritten = f?.target?.type === "this" && e.attachTo === "last_resolved_target"
+        ? { ...f, target: { type: "__pronoun_they" } }
+        : f;
+      return renderEffect(rewritten);
+    }).join(" and ");
+    return `${when}, ${body}`;
+  },
 
   // Action cards installing a one-turn trigger ("Whenever ... this turn, ...")
   create_floating_trigger: (e) => {
@@ -2502,6 +2543,24 @@ function renderTarget(t: Json): string {
       return "that character";
     case "from_last_discarded":
       return "that discarded card";
+    case "all_damaged": {
+      // Everybody's Got a Weakness, Can't Hold It Back Anymore: "from each
+      // damaged character you have in play".
+      const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
+      // Force "damaged" prefix since hasDamage is implicit in all_damaged.
+      const filt = /\bdamaged\b/.test(f) ? f : `damaged ${f}`;
+      return t.filter?.owner?.type === "self" || !t.filter?.owner
+        ? `each ${filt} you have in play`
+        : `each opposing ${filt}`;
+    }
+    case "last_song_singers":
+      // Alma Madrigal, Sebastian Court Composer: refers to characters that
+      // just sang the triggering song.
+      return "the characters that sang the song";
+    case "target_owner":
+      // Glean: "banish chosen item. ITS PLAYER gains 2 lore." Refers to
+      // the controller of the previously-chosen target.
+      return "that card's player";
     case "chosen": {
       const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
       // "any" sentinel or legacy 99 → "any number of" wording (Ever as Before,
