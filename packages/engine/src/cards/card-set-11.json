@@ -8937,10 +8937,13 @@
     "abilities": [
       {
         "type": "triggered",
-        "storyName": "",
+        "storyName": "SNOWBALL STANDOFF",
         "rulesText": "Whenever a character here challenges another character, gain 1 lore.",
         "trigger": {
-          "on": "challenges"
+          "on": "challenges",
+          "filter": {
+            "atLocation": "this"
+          }
         },
         "effects": [
           {

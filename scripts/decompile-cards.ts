@@ -200,7 +200,7 @@ function renderAbility(ab: Json, ctx?: { cardType?: string }): string {
     case "activated":
       return renderActivated(ab, ctx);
     case "static":
-      return renderStatic(ab);
+      return renderStatic(ab, ctx);
     case "replacement":
       return `[replacement] ${renderEffect(ab.effect ?? {})}`;
     default:
@@ -261,9 +261,15 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     if (t.filter?.atLocation === "this") {
       const { atLocation, ...rest } = t.filter;
       const filt = renderFilter(rest);
-      // Empty/wildcard filter → "character" (only characters get challenged).
       if (!filt || filt === "card" || filt === "cards") return "Whenever a character is challenged while here";
       return `Whenever a ${filt} is challenged while here`;
+    }
+    // Tiana Restaurant Owner SPECIAL RESERVATION: filter:{owner:self} →
+    // "Whenever a character of yours is challenged" / "one of your
+    // characters". Required so the trigger fires on any of the controller's
+    // characters, not just on the source.
+    if (t.filter?.owner?.type === "self") {
+      return "Whenever a character of yours is challenged";
     }
     return "Whenever this character is challenged";
   },
@@ -500,7 +506,15 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   this_has_no_damage:         () => "if this character has no damage",
   this_has_cards_under:       () => "if this character has cards under it",
   this_at_location:           () => "while this character is at a location",
-  this_location_has_character: () => "if this location has a character at it",
+  this_location_has_character: (c) => {
+    if (c.filter) {
+      // Game Preserve EASY TO MISS: filter:{hasKeyword:"evasive"} →
+      // "if there's a character with Evasive here".
+      const filt = renderFilter(c.filter);
+      return `if there's a ${filt} here`;
+    }
+    return "if you have a character here";
+  },
   played_via_shift:           () => "if this character was played via Shift",
   triggering_card_played_via_shift: () => "if you used Shift to play them",
   played_via_sing:            () => "if a character sang this song",
@@ -2261,7 +2275,7 @@ function renderActivated(ab: Json, ctx?: { cardType?: string }): string {
   return `${oncePrefix}${costs} — ${body}`;
 }
 
-function renderStatic(ab: Json): string {
+function renderStatic(ab: Json, ctx?: { cardType?: string }): string {
   let cond = ab.condition ? renderCondition(ab.condition) : "";
   // Statics use "While" not "If" for ongoing conditions
   if (cond.startsWith("if ") || cond.startsWith("If ")) {
@@ -2292,6 +2306,16 @@ function renderStatic(ab: Json): string {
     body = eff.map(renderEffOrOngoing).filter((s) => s && !s.startsWith("[empty")).join(" and ");
   } else {
     body = renderEffOrOngoing(eff);
+  }
+  // Substitute "this character" → "this location" / "this item" when the
+  // source's cardType warrants. Game Preserve EASY TO MISS, Elsa's Ice Palace
+  // ETERNAL WINTER, etc. Mirrors the same substitution in renderTriggered.
+  if (ctx?.cardType === "location") {
+    body = body.replace(/this character/g, "this location");
+    cond = cond.replace(/this character/g, "this location");
+  } else if (ctx?.cardType === "item") {
+    body = body.replace(/this character/g, "this item");
+    cond = cond.replace(/this character/g, "this item");
   }
   if (cond) return `${cap(cond)}, ${body}`;
   return body;
