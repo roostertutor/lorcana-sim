@@ -9303,6 +9303,7 @@
           "stat": "strength",
           "amount": {
             "type": "count",
+            "perMatch": 2,
             "filter": {
               "cardType": [
                 "character"
@@ -17157,6 +17158,7 @@
           "stat": "strength",
           "amount": {
             "type": "count",
+            "perMatch": 2,
             "filter": {
               "cardType": [
                 "character"

@@ -108,10 +108,21 @@ function renderCard(card: CardJSON): string {
   }
 
   for (const ab of card.abilities ?? []) {
-    // Skip all bare keyword abilities — these are printed as icons/badges on
-    // the physical card, not in the rules text box. The oracle rulesText only
-    // contains named abilities (STORY_NAME ...) and their descriptions.
-    if (ab.type === "keyword") continue;
+    // Keyword abilities render as "<Keyword> (reminder)" since the oracle
+    // rulesText DOES include the keyword + its reminder text. Without this,
+    // cards like Hera Queen of the Gods (inherent <Ward> + named statics)
+    // and Aladdin Barreling Through (<Boost> + <Reckless> + ONLY THE BOLD)
+    // score 0.55-0.60 because half their oracle text is missing from rendered.
+    //
+    // Skip shift / sing_together keywords — those are rendered earlier from
+    // card-level fields (shiftCost, singTogetherCost) which carry the actual
+    // target-name and cost info; the bare keyword ability is duplicate.
+    if (ab.type === "keyword") {
+      const kw = (ab.keyword ?? "").toLowerCase();
+      if (kw === "shift" || kw === "sing_together") continue;
+      parts.push(renderKeywordWithReminder(ab));
+      continue;
+    }
     parts.push(renderAbility(ab, { cardType: card.cardType }));
   }
   // Action / song bodies live on actionEffects.
@@ -120,6 +131,39 @@ function renderCard(card: CardJSON): string {
   }
 
   return parts.filter(Boolean).join(". ") + (parts.length ? "." : "");
+}
+
+/** Render a keyword ability with its reminder text — matches Lorcana oracle
+ *  rulesText format "<Keyword> (reminder text.)" or "<Keyword +N> (reminder.)".
+ *  Mirrors the printed reminder text so decompile-score reflects the full
+ *  oracle text content, not just the keyword name. */
+function renderKeywordWithReminder(ab: Json): string {
+  const kw = (ab.keyword ?? "").toLowerCase();
+  const v = ab.value;
+  const valueDisplay = v !== undefined ? ` +${v}` : "";
+  const head = kw === "shift" || kw === "singer" || kw === "sing together" || kw === "boost"
+    ? `${cap(kw)} ${v ?? ""}`.trim()
+    : `${cap(kw)}${valueDisplay}`;
+  // Reminder-text dictionary keyed by lowercase keyword.
+  const reminders: Record<string, string | ((v?: number) => string)> = {
+    ward: "Opponents can't choose this character except to challenge.",
+    evasive: "Only characters with Evasive can challenge this character.",
+    rush: "This character can challenge the turn they're played.",
+    bodyguard: "This character may enter play exerted. An opposing character who challenges one of your characters must choose one with Bodyguard if able.",
+    reckless: "This character can't quest and must challenge each turn if able.",
+    support: "Whenever this character quests, you may add their {S} to another chosen character's {S} this turn.",
+    vanish: "When an opponent chooses this character for an action, banish them.",
+    alert: "This character can challenge ready characters.",
+    resist: (n) => `Damage dealt to this character is reduced by ${n ?? 1}.`,
+    challenger: (n) => `While challenging, this character gets +${n ?? 1} {S}.`,
+    singer: (n) => `This character counts as cost ${n ?? 1} to sing songs.`,
+    shift: (n) => `You may pay ${n ?? 0} {I} to play this on top of one of your characters with the same name.`,
+    boost: (n) => `Once during your turn, you may pay ${n ?? 0} {I} to put the top card of your deck facedown under this character.`,
+    "sing together": (n) => `Any number of your or your teammates' characters with total cost ${n ?? 0} or more may {E} to sing this song for free.`,
+  };
+  const r = reminders[kw];
+  const reminder = typeof r === "function" ? r(v) : r;
+  return reminder ? `${head} (${reminder})` : head;
 }
 
 function renderAbility(ab: Json, ctx?: { cardType?: string }): string {
@@ -1892,11 +1936,23 @@ function verbS(target: string, base: string, third: string): string {
 function renderStatChange(e: Json): string {
   const tgt = renderTarget(e.target ?? {});
   const bits: string[] = [];
-  // modify_stat uses stat + amount
+  // modify_stat uses stat + amount. amount can be a number OR a DynamicAmount
+  // object (count-filter for "+N for each X" patterns — Mr. Incredible Super
+  // Strong "this character gets +2 {S} for each other character you have in
+  // play"; without this branch, the renderer emitted "[object Object]").
   if (e.stat && e.amount !== undefined) {
     const sym = e.stat === "lore" ? "{L}" : e.stat === "willpower" ? "{W}" : "{S}";
     const val = e.amount;
-    bits.push(`${signed(val)} ${sym}`);
+    if (typeof val === "object" && val !== null && val.type === "count" && val.filter) {
+      const perMatch = val.perMatch ?? 1;
+      const f = val.filter;
+      const filt = f.owner?.type === "self"
+        ? renderFilter(f, { suppressOwnerSelf: true }) + " you have in play"
+        : renderFilter(f);
+      bits.push(`+${perMatch} ${sym} for each ${filt}`);
+    } else {
+      bits.push(`${signed(val)} ${sym}`);
+    }
   }
   // gain_stats uses individual stat fields
   if (e.strength !== undefined) bits.push(`${signed(e.strength)} {S}`);
@@ -2412,8 +2468,10 @@ function normalize(s: string): string {
   else out = out.replace(/[()]/g, " ");
   // Strip story-name leading caps (rare in rulesText).
   for (const [re, repl] of SYNONYMS) out = out.replace(re, repl);
-  // Strip punctuation.
-  out = out.replace(/[.,;:!?\-—'"`]/g, " ");
+  // Strip punctuation. Angle brackets included so oracle "<Rush>" matches
+  // rendered "Rush" — Lorcana wraps keyword references in angle brackets;
+  // our renderer emits the bare word.
+  out = out.replace(/[.,;:!?\-—'"`<>]/g, " ");
   // Collapse whitespace.
   out = out.replace(/\s+/g, " ").trim();
   return out;
@@ -2510,10 +2568,9 @@ function main() {
     if (!oracle) continue;
 
     const rendered = renderCard(card);
-    // Skip keyword-only cards (Vanish, Alert) whose rendered output is empty
-    // because we skip keyword abilities. The oracle IS the keyword reminder text
-    // but there's nothing to compare against — scoring 0.0 is misleading.
-    if (!rendered.replace(/\./g, "").trim() && card.abilities?.every((a: any) => a.type === "keyword")) continue;
+    // (Pre-2026-04-30 we skipped keyword-only cards because the renderer
+    // emitted nothing. Now keyword abilities render with reminder text via
+    // renderKeywordWithReminder, so they score normally.)
     const score = similarity(oracle, rendered);
     rows.push({
       setId: card.setId,
