@@ -2369,7 +2369,24 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   opponent_may_pay_to_avoid: (e) => {
     const accept = renderEffect(e.acceptEffect ?? {});
     const reject = renderEffect(e.rejectEffect ?? {});
-    return `${reject} unless opposing player ${accept}`;
+    // Subject phrasing depends on the rejectEffect's referent:
+    //   - rejectEffect.target = triggering_card (Tiana Restaurant Owner
+    //     SPECIAL RESERVATION): "unless their player pays 3 {I}" — refers
+    //     to the triggering character's player, oracle uses "their".
+    //   - otherwise (Hades Looking for a Deal — chooser-pinned
+    //     last_resolved_target): "unless that character's player puts that
+    //     card on the bottom of their deck" — refers to the chosen
+    //     character's player.
+    const refIsTriggering = e.rejectEffect?.target?.type === "triggering_card";
+    const subject = refIsTriggering ? "their player" : "that character's player";
+    let acceptFixed = accept
+      .replace(/^put /, "puts ")
+      .replace(/^pay /, "pays ")
+      .replace(/^banish /, "banishes ")
+      .replace(/^discard /, "discards ")
+      .replace(/\byour deck\b/, "their deck")
+      .replace(/\bthat character\b/, "that card");
+    return `${reject} unless ${subject} ${acceptFixed}`;
   },
   each_player: (e) => {
     // The inner effects run with the iteration player as "self" — rewrite
@@ -2575,19 +2592,59 @@ function plural(n: number | string): string { return n === 1 ? "" : "s"; }
  *  discard"). Also handles the deal_damage → deal_damage and the
  *  draw_card → choose_discard patterns. */
 function joinEffects(effects: Json[]): string {
-  const rendered = effects.map(renderEffect).filter(Boolean);
+  // Pair detection pre-pass: collapse [no-op-chooser gain_stats, opponent_may_
+  // pay_to_avoid] into a single "you may choose X. If you do, <body>" render
+  // BEFORE the empty-filter step (the no-op chooser renders to "" which would
+  // otherwise drop it from the output). Hades Looking for a Deal WHAT D'YA
+  // SAY?: "you may choose an opposing character. If you do, draw 2 cards
+  // unless that character's player puts that card on the bottom of their
+  // deck."
+  const isNoOpChooser = (e: Json | undefined): boolean =>
+    !!e
+    && e.type === "gain_stats"
+    && (e.strength === 0 || e.strength === undefined)
+    && (e.willpower === 0 || e.willpower === undefined)
+    && (e.lore === 0 || e.lore === undefined)
+    && !e.strengthDynamic && !e.willpowerDynamic && !e.loreDynamic
+    && !e.followUpEffects?.length
+    && (e.strength === 0 || e.willpower === 0 || e.lore === 0)
+    && e.target?.type === "chosen";
+  const expanded: { rendered: string; effect: Json | undefined }[] = [];
+  let i = 0;
+  while (i < effects.length) {
+    const curr = effects[i];
+    const next = effects[i + 1];
+    if (isNoOpChooser(curr) && next?.type === "opponent_may_pay_to_avoid") {
+      // Render the chooser surface as "you may choose X" + ". If you do, " +
+      // the opponent_may_pay_to_avoid body. Skip filter-out of empty.
+      const filt = (curr as Json).target?.filter;
+      const filtPhrase = filt ? renderFilter(filt) : "character";
+      const article = /^[aeiou]/i.test(filtPhrase) ? "an" : "a";
+      // Render the inner opp_may_pay_to_avoid normally then prefix.
+      const body = renderEffect(next);
+      expanded.push({
+        rendered: `you may choose ${article} ${filtPhrase}. If you do, ${body}`,
+        effect: undefined,  // stops sequencing rules from re-applying
+      });
+      i += 2;
+      continue;
+    }
+    expanded.push({ rendered: renderEffect(curr ?? {}), effect: curr });
+    i++;
+  }
+  const rendered = expanded.filter(x => x.rendered).map(x => x.rendered);
   if (rendered.length <= 1) return rendered.join(", and ");
   const out: string[] = [rendered[0]!];
-  for (let i = 1; i < rendered.length; i++) {
-    const prev = effects[i - 1];
-    const curr = effects[i];
+  for (let j = 1; j < rendered.length; j++) {
+    const prev = expanded[j - 1]?.effect;
+    const curr = expanded[j]?.effect;
     // "draw, then choose and discard" idiom — Cobra Bubbles Former CIA
     // THINK ABOUT WHAT'S BEST.
     const prevIsDraw = prev?.type === "draw";
     const currIsSelfDiscard = curr?.type === "discard_from_hand"
       && (!curr.target || curr.target.type === "self");
     if (prevIsDraw && currIsSelfDiscard) {
-      out.push(`then ${rendered[i]}`);
+      out.push(`then ${rendered[j]}`);
       continue;
     }
     // "Return chosen character to their player's hand, then that player
@@ -2598,10 +2655,10 @@ function joinEffects(effects: Json[]): string {
     const currIsTargetOwnerDiscard = curr?.type === "discard_from_hand"
       && curr.target?.type === "target_owner";
     if (prevIsReturn && currIsTargetOwnerDiscard) {
-      out.push(`then ${rendered[i]}`);
+      out.push(`then ${rendered[j]}`);
       continue;
     }
-    out.push(`and ${rendered[i]}`);
+    out.push(`and ${rendered[j]}`);
   }
   // Re-join with ", " between segments.
   return out.join(", ");
@@ -3493,8 +3550,11 @@ function normalize(s: string): string {
   // your deck.\nHONOR TO THE ANCESTORS Whenever..."). Match per-paragraph.
   let pre = s.split(/\n+/).map((para) => {
     // Match ALL-CAPS run: each token is uppercase letters/digits/apostrophes/
-    // spaces/dashes; stop at the first lowercase letter.
-    const m = para.match(/^([A-Z][A-Z0-9 '!?\-,]*?)\s+([A-Z][a-z(])/);
+    // spaces/dashes; stop at the first lowercase letter. Includes Unicode
+    // smart quotes (U+2018 ' / U+2019 ') which Lorcana uses in storyNames
+    // like "WHAT D'YA SAY?" (Hades Looking for a Deal) and "I'M
+    // INTIMIDATING" (Gaston Scheming Suitor).
+    const m = para.match(/^([A-Z][A-Z0-9 '!?\-,‘’]*?)\s+([A-Z][a-z(])/);
     if (m && m[1].split(/\s+/).filter(Boolean).length >= 2) {
       // First group is the storyName, but only strip if it's >=2 words to
       // avoid eating short legitimate prefixes like "I'M" or "GO".
