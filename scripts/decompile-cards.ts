@@ -1600,26 +1600,31 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // Without trimOnly (Goliath Clan Leader DUSK TO DAWN) the effect ALSO
   // discards-down when the target has more than N — render both branches
   // so the oracle comparison reflects the full mechanic.
+  // Verb agreement: "each player draws" (singular) but "they choose / they
+  // discard" (plural; "they" takes plural verb form even for a single
+  // antecedent). Map per-target subject to its verb shape.
   // Prince John's Mirror A FEELING OF POWER, Goliath Clan Leader DUSK TO
   // DAWN (first half): "if they have more than N cards in their hand, they
   // choose and discard until they have N."
   discard_until: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    const useThirdPerson = tgt !== "you";
-    const subject = useThirdPerson ? tgt : "you";
-    const verb = useThirdPerson ? "they have" : "you have";
+    const subject = tgt === "you" ? "you" : tgt;
+    const haveVerb = tgt === "you" ? "you have" : "they have";
+    // "they" + "each player" both take "choose"/"discard" (no -s) since
+    // "they" is grammatically plural and "each player draws" only takes -s
+    // on draw via the each_player path. Use bare verbs for both.
     const n = e.n ?? "?";
-    return `if ${verb} more than ${n} cards in their hand, ${subject} ${useThirdPerson ? "chooses" : "choose"} and ${useThirdPerson ? "discards" : "discard"} cards until ${verb} ${n}`;
+    return `if ${haveVerb} more than ${n} cards in their hand, ${subject} choose and discard cards until ${haveVerb} ${n}`;
   },
   // Demona Wyvern AD SAXUM, Goliath Clan Leader DUSK TO DAWN (second half):
   // "each player with fewer than N cards in their hand draws until they have N."
   draw_until: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    const useThirdPerson = tgt !== "you";
-    const subject = useThirdPerson ? tgt : "you";
-    const verb = useThirdPerson ? "they have" : "you have";
+    const subject = tgt === "you" ? "you" : tgt;
+    const haveVerb = tgt === "you" ? "you have" : "they have";
+    const drawVerb = tgt === "each player" ? "draws" : "draw";
     const n = e.n ?? "?";
-    return `if ${verb} fewer than ${n} cards in their hand, ${subject} ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
+    return `if ${haveVerb} fewer than ${n} cards in their hand, ${subject} ${drawVerb} until ${haveVerb} ${n}`;
   },
   // Deprecated bidirectional form. Kept for backward-compat parsing of any
   // legacy JSON; new cards should use discard_until or draw_until.

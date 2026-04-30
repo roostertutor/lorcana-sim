@@ -7153,7 +7153,12 @@
           "amount": 2
         },
         "condition": {
-          "type": "a_character_was_banished_in_challenge_this_turn"
+          "type": "character_was_banished_this_turn",
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
         }
       }
     ],
