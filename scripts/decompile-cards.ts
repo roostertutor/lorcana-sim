@@ -1707,6 +1707,19 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // damaged from challenges this turn").
   damage_prevention_timed: (e) => {
     const tgt = renderTarget(e.target ?? {});
+    // charges:1 + timed = "next time" replacement-effect (CRD 6.5). The
+    // prevention is one-shot — fires once on the next damage incident
+    // within the duration window. Rapunzel Ready for Adventure ACT OF
+    // KINDNESS: "until the start of your next turn, the next time they
+    // would be dealt damage they take no damage instead." Oracle puts
+    // the duration FIRST then the body — distinct from the standard
+    // body-then-duration form ("X can't be damaged this turn").
+    if (e.charges === 1) {
+      const durationPrefix = e.duration ? renderDuration(e.duration) : "";
+      return durationPrefix
+        ? `${durationPrefix}, the next time ${tgt} would be dealt damage ${tgt} takes no damage instead`
+        : `the next time ${tgt} would be dealt damage ${tgt} takes no damage instead`;
+    }
     if (e.source === "challenge") return `${tgt} can't be damaged from challenges${dur(e)}`;
     return `${tgt} can't be damaged${dur(e)}`;
   },
@@ -2882,6 +2895,20 @@ function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
   const trigOn = ab.trigger?.on;
   if (trigOn === "banished_in_challenge" || trigOn === "is_challenged" || trigOn === "banished_other_in_challenge") {
     body = body.replace(/the triggering character/g, "the challenging character");
+  }
+  // chosen_for_support filter:owner:self — the triggering character is one
+  // of the controller's characters; oracle pronouns it as "they/them"
+  // (Rapunzel Ready for Adventure ACT OF KINDNESS, Prince Phillip Gallant
+  // Defender BEST DEFENSE). Rewrite "the triggering character" → "they"
+  // when the trigger is owner-self chosen_for_support. Verb-S de-agreement
+  // follows: rewrite "they takes" → "they take" / "they gains" → "they
+  // gain" since "they" is plural-form.
+  if (trigOn === "chosen_for_support" && ab.trigger?.filter?.owner?.type === "self") {
+    body = body
+      .replace(/the triggering character/g, "they")
+      .replace(/\bthey takes\b/g, "they take")
+      .replace(/\bthey gains\b/g, "they gain")
+      .replace(/\bthey gets\b/g, "they get");
   }
   // oncePerTurn prefix: "Once per turn, whenever X, Y" (Taffyta Muttonfudge).
   // When condition is "during your turn", merge to "Once during your turn,"
