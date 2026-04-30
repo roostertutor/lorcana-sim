@@ -89,7 +89,11 @@ function renderCard(card: CardJSON): string {
     if (card.singTogetherCost !== undefined && card.rulesText?.includes("Sing Together")) {
       parts.push(`Sing Together ${card.singTogetherCost} (Any number of your or your teammates' characters with total cost ${card.singTogetherCost} or more may {E} to sing this song for free.)`);
     } else {
-      parts.push(`(A character with cost ${card.cost} or more can {E} to sing this song for free.)`);
+      // Set 3 uniquely uses "play this song for free" wording in oracle —
+      // 11 of 12 song reminders in set 3 use "play"; all other sets use
+      // "sing". Set-detect the wording so the reminder line matches.
+      const verb = card.setId === "3" ? "play" : "sing";
+      parts.push(`(A character with cost ${card.cost} or more can {E} to ${verb} this song for free.)`);
     }
   }
 

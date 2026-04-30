@@ -5880,6 +5880,9 @@
         "target": {
           "type": "chosen",
           "filter": {
+            "owner": {
+              "type": "self"
+            },
             "zone": "play",
             "cardType": [
               "character"
