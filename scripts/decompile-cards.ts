@@ -171,7 +171,7 @@ function renderAbility(ab: Json, ctx?: { cardType?: string }): string {
     case "keyword":
       return ab.value !== undefined ? `${cap(ab.keyword)} +${ab.value}` : cap(ab.keyword);
     case "triggered":
-      return renderTriggered(ab);
+      return renderTriggered(ab, ctx);
     case "activated":
       return renderActivated(ab, ctx);
     case "static":
@@ -205,6 +205,9 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   leaves_play:                   ()  => "When this character leaves play",
   is_banished:                   (t) => {
     if (!t.filter) return "When this character is banished";
+    // isSelf:true scopes the trigger to the carrying character only — Rex
+    // Protective Dinosaur RUN AWAY! "when THIS character is banished".
+    if (t.filter.isSelf) return "When this character is banished";
     // "one of your OTHER characters is banished" — excludeSelf means the
     // ability carrier is excluded. Drop excludeSelf from renderFilter so
     // we don't double-count "other".
@@ -1028,6 +1031,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // redundant second phrase by returning empty — the effect still runs in
     // the engine.
     if (e.target?.type === "last_resolved_target") return "";
+    // target:"this" with sourceZone — Lilo Escape Artist NO PLACE I'D RATHER
+    // BE: "you may play her" (the source card itself, from discard, exerted).
+    // Render as "you may play her/him/this character" — pronoun choice
+    // depends on the card text but "her" is a reasonable default for the
+    // first such case; switch to "this character" for the generic version
+    // since pronoun selection isn't tracked.
+    if (e.target?.type === "this") {
+      const enterExClause = e.enterExerted ? " and she enters play exerted" : "";
+      const sz = e.sourceZone === "discard" ? " from your discard" : "";
+      return `${maybe(e)}play this character${sz}${enterExClause}`;
+    }
     const costClause = e.cost === "normal" ? "" : " for free";
     // sourceZone qualifier (hand is the unstated default; discard/under are
     // meaningful). Under-self (Black Cauldron RISE AND JOIN ME!) reads as
@@ -2052,7 +2066,7 @@ function renderStatChange(e: Json): string {
 // Triggered / activated / static wrappers — small dispatchers around the
 // pattern tables above.
 // -----------------------------------------------------------------------------
-function renderTriggered(ab: Json): string {
+function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
   // Enter-play-with-damage pattern: enters_play trigger + single
   // deal_damage target:this with a fixed number. Oracle phrasing is
   // "This character enters play with N damage." (Mulan - Injured Soldier,
@@ -2068,7 +2082,16 @@ function renderTriggered(ab: Json): string {
       return `This character enters play with ${e.amount} damage`;
     }
   }
-  const head = renderTrigger(ab.trigger ?? {});
+  let head = renderTrigger(ab.trigger ?? {});
+  // Substitute "this character" → "this location" / "this item" when the
+  // ability's source is a location/item. Elsa's Ice Palace ETERNAL WINTER:
+  // oracle says "When you play this LOCATION..." but the trigger renderer
+  // emits "this character" generically.
+  if (ctx?.cardType === "location") {
+    head = head.replace(/this character/g, "this location");
+  } else if (ctx?.cardType === "item") {
+    head = head.replace(/this character/g, "this item");
+  }
   const cond = ab.condition ? renderCondition(ab.condition) : "";
   // Filter empty renderings so chained effects (e.g. peek_and_set_target
   // → play_for_free with last_resolved_target) don't produce ". ." artifacts.
