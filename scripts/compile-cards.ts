@@ -516,6 +516,15 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
     pattern: /^draw a card/i,
     build: () => ({ type: "draw", amount: 1, target: { type: "self" } }),
   },
+  // "Chosen player draws N cards" — Sing Together song bodies often surface
+  // this targeted-draw form (Second Star to the Right set 4 #61 + reprints,
+  // 3× recurrence). Distinct from "draw N cards" (target:self) — here the
+  // caster picks any player; engine resolves to chosen via PlayerTarget.
+  {
+    name: "draw_n_chosen_player",
+    pattern: /^chosen player draws (\d+) cards?/i,
+    build: (m) => ({ type: "draw", amount: n(m[1]), target: { type: "chosen" } }),
+  },
 
   // ============= LORE ========================================================
   {
@@ -535,6 +544,18 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       type: "each_player",
       scope: "opponents",
       effects: [{ type: "lose_lore", amount: n(m[1]), target: { type: "self" } }],
+    }),
+  },
+  // "Chosen opponent loses N lore" — single-target opponent lore drain.
+  // 3× recurrence (A Pirate's Life set 4 #128 + reprints, Thievery set 6
+  // #128). Distinct from each_opponent: targets ONE chosen opponent.
+  {
+    name: "lose_lore_chosen_opponent",
+    pattern: /^chosen opponent loses (\d+) lore/i,
+    build: (m) => ({
+      type: "lose_lore",
+      amount: n(m[1]),
+      target: { type: "opponent" },
     }),
   },
 
@@ -1505,6 +1526,25 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
       target: chosenCharacter({ opposing: true }),
     }),
   },
+  // "return another chosen character of yours to your hand" — owner-self
+  // chosen with excludeSelf. Used as a "to-B" reward in the Madam Mim
+  // CHASING THE RABBIT 'A or B' choice (set 2 #46) where 'A' is banish-self.
+  {
+    name: "return_another_chosen_yours_to_hand",
+    pattern: /^return another chosen character of yours to your hand/i,
+    build: () => ({
+      type: "return_to_hand",
+      target: {
+        type: "chosen",
+        filter: {
+          owner: { type: "self" },
+          zone: "play",
+          cardType: ["character"],
+          excludeSelf: true,
+        },
+      },
+    }),
+  },
   // Return a character from your discard. "return a character card from your
   // discard to your hand"
   {
@@ -2013,6 +2053,17 @@ const EFFECT_MATCHERS: Matcher<Json>[] = [
   {
     name: "banish_this_item_or_char",
     pattern: /^banish this (?:item|character|location)/i,
+    build: () => ({ type: "banish", target: { type: "this" } }),
+  },
+  // "banish her/him/it/them" — pronoun referring back to the source. Used
+  // inline in effect chains (where parseEffectChain doesn't apply the
+  // leading-condition-aware pronoun normalization that compileAbility does).
+  // Madam Mim Fox CHASING THE RABBIT (set 2 #46): "When you play this
+  // character, banish her or return another chosen character of yours to
+  // your hand." — needs banish-pronoun → target:this so tryAorB can split.
+  {
+    name: "banish_pronoun",
+    pattern: /^banish (?:her|him|it|them)\b/i,
     build: () => ({ type: "banish", target: { type: "this" } }),
   },
   // "banish another chosen character of yours"
@@ -3141,6 +3192,70 @@ export function compileAbility(text: string, ctx: { cardType: string }): Compile
     const ability: Json = {
       type: "static",
       effect: { type: "cant_action_self", action: statCantAction[1].toLowerCase() },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "This character can't {E} to sing songs." — sing-restriction static.
+  // 3× recurrence (Ariel On Human Legs set 1 #1 VOICELESS, Ulf Mime set 5
+  // #73 SILENT PERFORMANCE, Dopey Drawn to Music set 12 #38 TONGUE-TIED).
+  // Engine: cant_action_self with action: "sing".
+  const statCantSing = /^This character can'?t \{E\} to sing songs\.?$/i.exec(rest);
+  if (statCantSing) {
+    const ability: Json = {
+      type: "static",
+      effect: { type: "cant_action_self", action: "sing" },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "While being challenged, this character gets +N {S/W/L}." — transient
+  // self-buff that activates only while this character is the defender of
+  // a challenge. 3× recurrence (Enchantress Unexpected Judge set 2 #80 +
+  // reprints TRUE FORM, Flora Good Fairy set 5 #75 FIDDLE FADDLE).
+  // Engine: gets_stat_while_being_challenged static.
+  const statWhileChallenged =
+    /^While being challenged, this character gets \+(\d+) \{(S|W|L)\}\.?$/i.exec(rest);
+  if (statWhileChallenged) {
+    const stat =
+      statWhileChallenged[2].toUpperCase() === "S"
+        ? "strength"
+        : statWhileChallenged[2].toUpperCase() === "W"
+          ? "willpower"
+          : "lore";
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "gets_stat_while_being_challenged",
+        stat,
+        amount: parseInt(statWhileChallenged[1], 10),
+      },
+    };
+    if (leadingCondition) ability.condition = leadingCondition;
+    return { ability, unmatched: "" };
+  }
+
+  // "Whenever he/she/it/they challenges a <Trait> character, this character
+  // takes no damage from the challenge." — defender-side challenge damage
+  // prevention with attacker-target filter. 4× recurrence (Rafiki Mystical
+  // Fighter set 3 #54 ANCIENT SKILLS, Peter Pan Pirate's Bane set 3 #120 +
+  // reprints YOU'RE NEXT!). Engine: challenge_damage_prevention with
+  // targetFilter on the challenged character's traits.
+  // Note: oracle uses pronoun ('he challenges') not 'this character
+  // challenges' — accept the pronoun forms inline.
+  const statTakesNoChallengeDmg =
+    /^Whenever (?:he|she|it|they|this character) challenges (?:a|an) ([A-Z][a-zA-Z]*) character, this character takes no damage from the challenge\.?$/i.exec(
+      rest,
+    );
+  if (statTakesNoChallengeDmg) {
+    const ability: Json = {
+      type: "static",
+      effect: {
+        type: "challenge_damage_prevention",
+        targetFilter: { hasTrait: statTakesNoChallengeDmg[1] },
+      },
     };
     if (leadingCondition) ability.condition = leadingCondition;
     return { ability, unmatched: "" };
