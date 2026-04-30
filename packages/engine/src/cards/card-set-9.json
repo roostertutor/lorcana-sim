@@ -1686,10 +1686,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 7
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -1744,10 +1740,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 8
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -3904,10 +3896,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 10
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -6256,10 +6244,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 8
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -8469,10 +8453,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 9
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -8599,10 +8579,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 6
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -10785,10 +10761,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 8
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -13150,10 +13122,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 10
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -14721,10 +14689,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 8
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",
@@ -15412,10 +15376,6 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 9
-      },
-      {
-        "type": "keyword",
-        "keyword": "sing together"
       }
     ],
     "setId": "9",

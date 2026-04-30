@@ -644,6 +644,9 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
 
   // Trait-on-last-resolved-target: "If a Villain character is chosen, ..."
   last_resolved_target_has_trait: (c) => `if a ${c.trait ?? "?"} character is chosen`,
+  // Time to Go!: "If that character had a card under them, draw 3 cards
+  // instead." Reads state.lastBanishedCardsUnderCount.
+  last_banished_had_cards_under: () => "if that character had a card under them",
 
   // Player-state comparisons
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
@@ -2360,12 +2363,23 @@ function renderStatic(ab: Json, ctx?: { cardType?: string }): string {
   // Substitute "this character" → "this location" / "this item" when the
   // source's cardType warrants. Game Preserve EASY TO MISS, Elsa's Ice Palace
   // ETERNAL WINTER, etc. Mirrors the same substitution in renderTriggered.
+  // Excludes double-quoted regions — granted activated/triggered abilities
+  // contain inner "this character" references that point to the grantee, not
+  // the source. Bad-Anon Villain Support Center: oracle 'Villain characters
+  // gain "{E}, 3 {I} — Play a character with the same name as this character
+  // for free" while here.' — the inner "this character" must stay because it
+  // refers to the granted Villain.
+  const subOutsideQuotes = (text: string, replacement: string): string => {
+    return text.split(/("[^"]*")/).map((seg, i) =>
+      i % 2 === 0 ? seg.replace(/this character/g, replacement) : seg
+    ).join("");
+  };
   if (ctx?.cardType === "location") {
-    body = body.replace(/this character/g, "this location");
-    cond = cond.replace(/this character/g, "this location");
+    body = subOutsideQuotes(body, "this location");
+    cond = subOutsideQuotes(cond, "this location");
   } else if (ctx?.cardType === "item") {
-    body = body.replace(/this character/g, "this item");
-    cond = cond.replace(/this character/g, "this item");
+    body = subOutsideQuotes(body, "this item");
+    cond = subOutsideQuotes(cond, "this item");
   }
   if (cond) return `${cap(cond)}, ${body}`;
   return body;
