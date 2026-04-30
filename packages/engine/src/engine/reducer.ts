@@ -1695,6 +1695,16 @@ function applyBoostCard(
         boostedThisTurn: true,
       },
     },
+    // Mulan Standing Her Ground FLOWING BLADE: player-wide put-under flag.
+    // Set on the boosting player so the condition fires for ANY of their
+    // characters this turn, not just the recipient.
+    players: {
+      ...state.players,
+      [playerId]: {
+        ...state.players[playerId],
+        youPutCardUnderThisTurn: true,
+      },
+    },
     zones: {
       ...state.zones,
       [playerId]: {
@@ -1951,6 +1961,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
+        youPutCardUnderThisTurn: false,
         banishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
@@ -1970,6 +1981,7 @@ function performTurnTransition(
         opposingCharsBanishedInChallengeThisTurn: 0,
         cardsPutIntoDiscardThisTurn: 0,
         youRemovedDamageThisTurn: false,
+        youPutCardUnderThisTurn: false,
         banishedThisTurn: [],
         timedGrantedActivatedAbilities: [],
       },
@@ -3874,6 +3886,17 @@ export function applyEffect(
             ...sourceInst,
             cardsUnder: [...sourceInst.cardsUnder, topId],
             cardsPutUnderThisTurn: (sourceInst.cardsPutUnderThisTurn ?? 0) + 1,
+          },
+        },
+        // Mulan Standing Her Ground FLOWING BLADE: player-wide put-under
+        // flag. Set on the SOURCE's owner — for `put_top_card_under` effects
+        // (Cheshire Cat, Bambi), the source is the receiving character so
+        // its owner is the player crediting the put-under event.
+        players: {
+          ...state.players,
+          [owner]: {
+            ...state.players[owner],
+            youPutCardUnderThisTurn: true,
           },
         },
         zones: {

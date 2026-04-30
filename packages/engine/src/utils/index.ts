@@ -1018,6 +1018,12 @@ export function evaluateCondition(
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;
     }
+    case "you_put_card_under_this_turn": {
+      // Player-wide check — true if the controller put a card under any of
+      // their characters or locations this turn (Boost or put_top_card_under).
+      // Mulan Standing Her Ground FLOWING BLADE.
+      return !!state.players[controllingPlayerId]?.youPutCardUnderThisTurn;
+    }
     case "last_banished_had_cards_under": {
       // CRD snapshot: lastBanishedCardsUnderCount is captured at banish time
       // before leave-play cleanup wipes cardsUnder on the instance.

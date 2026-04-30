@@ -3072,6 +3072,12 @@ export type Condition =
   /** Set 11 (Willie the Giant Ghost of Christmas Present): true when this
    *  source instance has had at least one card placed under it this turn. */
   | { type: "this_had_card_put_under_this_turn" }
+  /** Player-wide variant: true if YOU put a card under any of your characters
+   *  or locations this turn (Boost or put_top_card_under). Distinct from
+   *  `this_had_card_put_under_this_turn` which is per-instance — Mulan
+   *  Standing Her Ground FLOWING BLADE benefits from any of your put-under
+   *  events, not just hers. Reads PlayerState.youPutCardUnderThisTurn. */
+  | { type: "you_put_card_under_this_turn" }
   /** Set 10 (Time to Go!): "If that character had a card under them, draw
    *  3 cards instead." True iff state.lastBanishedCardsUnderCount > 0.
    *  Use immediately after a banish step so the snapshot is fresh. */
@@ -3647,6 +3653,15 @@ export interface PlayerState {
    *  Used by Julieta's Arepas THAT DID THE TRICK activated ability.
    *  Cleared at PASS_TURN. Mirror of aCharacterWasDamagedThisTurn. */
   youRemovedDamageThisTurn?: boolean;
+  /** True if THIS player put a card under one of their characters or
+   *  locations this turn (Boost keyword payment OR put_top_card_under
+   *  effects like Cheshire Cat Inexplicable, Bambi Ethereal Fawn).
+   *  Player-wide flag — distinct from the per-instance `cardsPutUnderThisTurn`
+   *  counter which only tracks the recipient character. Used by Mulan
+   *  Standing Her Ground FLOWING BLADE: "if you've put a card under one of
+   *  your characters or locations this turn, this character takes no damage
+   *  from challenges." Cleared at PASS_TURN. */
+  youPutCardUnderThisTurn?: boolean;
   /** InstanceIds of characters banished from THIS player's play zone this
    *  turn. Appended on the banish path (reason: "banished"). Instances persist
    *  in state.cards after banish (zone flips to "discard"), so the

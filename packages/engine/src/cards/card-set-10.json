@@ -8447,7 +8447,7 @@
               "type": "is_your_turn"
             },
             {
-              "type": "this_had_card_put_under_this_turn"
+              "type": "you_put_card_under_this_turn"
             }
           ]
         }
@@ -14531,7 +14531,7 @@
               "type": "is_your_turn"
             },
             {
-              "type": "this_had_card_put_under_this_turn"
+              "type": "you_put_card_under_this_turn"
             }
           ]
         }

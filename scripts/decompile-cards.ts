@@ -716,6 +716,9 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // ---- This-card-stat checks ------------------------------------------------
   self_stat_gte:              (c) => `if this character's ${c.stat ?? "strength"} is ${c.amount ?? 0} or more`,
   this_had_card_put_under_this_turn: () => "if a card was put under this character this turn",
+  // Mulan Standing Her Ground FLOWING BLADE: player-wide variant — "if
+  // you've put a card under one of your characters or locations this turn".
+  you_put_card_under_this_turn: () => "if you've put a card under one of your characters or locations this turn",
   this_location_has_exerted_character: () => "if you have an exerted character here",
 
   // ---- Turn-history checks --------------------------------------------------
