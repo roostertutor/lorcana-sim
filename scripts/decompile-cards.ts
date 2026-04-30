@@ -823,9 +823,10 @@ const COST_RENDERERS: Record<string, Renderer> = {
   banish_self:        (_c, ctx) => `Banish this ${ctx?.cardType === "item" ? "item" : "character"}`,
   discard:            (c) => {
     const amt = c.amount ?? 1;
-    // Cost-side discard is implicitly from own hand; "your" / zone:hand on
-    // the filter read redundantly (Half Hexwell Crown A PERILOUS POWER:
-    // "Discard a card" — not "discard a your card from your hand").
+    // Cost-side discard: oracle convention is mostly "Choose and discard a
+    // card" (The Wardrobe Perceptive Friend, Cobra Bubbles inner) but
+    // some older cards use just "Discard a card" (Half Hexwell Crown).
+    // Use the majority form.
     const filterNoOwnerZone = c.filter ? { ...c.filter, zone: undefined } : undefined;
     const filt = filterNoOwnerZone ? renderFilter(filterNoOwnerZone, { suppressOwnerSelf: true }) : "card";
     if (amt === 1) return `Choose and discard a ${filt}`;
@@ -1071,12 +1072,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       const { hasDamage, ...restFilter } = target.filter;
       target = { ...target, filter: restFilter };
     }
-    // Default unfiltered targets to "characters or locations" since items
-    // don't take damage in Lorcana. Oracle wording for Repair is
-    // "Remove up to 3 damage from one of your locations or characters" —
-    // without cardType on the filter, renderFilter would emit the generic
-    // "card" noun. (Targets with explicit cardType keep their wording.)
-    if (target?.filter && !target.filter.cardType) {
+    // Default unfiltered single targets to "characters or locations" —
+    // Repair: "Remove up to 3 damage from one of your locations or
+    // characters." Skip when target is multi (count>1) because oracle
+    // for multi-target damage removal usually says just "characters"
+    // (Gumbo Pot THE BEST I'VE EVER TASTED: "up to 2 chosen characters").
+    const isMultiTarget = target?.type === "chosen" && typeof target.count === "number" && target.count > 1;
+    if (target?.filter && !target.filter.cardType && !isMultiTarget) {
       target = { ...target, filter: { ...target.filter, cardType: ["character", "location"] } };
     }
     // Multi-target "remove N damage each from up to M chosen X" idiom (Gumbo
@@ -1084,7 +1086,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // "from up to N chosen characters" (count-level "up to") and drops the
     // amount-level "up to" since each target loses the same fixed amount.
     if (target?.type === "chosen" && typeof target.count === "number" && target.count > 1) {
-      const noun = pluralizeFilter(renderFilter(target.filter ?? {}, { suppressOwnerSelf: true }));
+      // Default multi-target cardType to ["character"] — items don't take
+      // damage and Lorcana oracle for multi-target damage removal uses
+      // singular cardType ("up to 2 chosen characters").
+      const filtForRender = target.filter?.cardType
+        ? target.filter
+        : { ...target.filter, cardType: ["character"] };
+      const noun = pluralizeFilter(renderFilter(filtForRender, { suppressOwnerSelf: true }));
       const ownerPrefix = target.filter?.owner?.type === "self" ? "your " : "";
       const upToPrefix = e.isUpTo ? "up to " : "";
       return `${maybe(e)}remove ${amt} damage each from ${upToPrefix}${target.count} chosen ${ownerPrefix}${noun}`;
