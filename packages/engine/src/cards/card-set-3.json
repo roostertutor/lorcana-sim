@@ -8102,6 +8102,23 @@
             ]
           }
         }
+      },
+      {
+        "type": "cant_action",
+        "action": "quest",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "this_turn"
       }
     ],
     "_imageSource": "ravensburger",

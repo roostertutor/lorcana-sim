@@ -1570,6 +1570,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   all_hand_inkable: () => "All cards in your hand count as having {IW}",
   grant_triggered_ability: (e) => {
     const tgt = renderTarget(e.target ?? {});
+    // Render the inner ability text inside quotes so the oracle comparison
+    // sees the full granted text. Megara Secret Keeper I'LL BE FINE: oracle
+    // says 'and gains "Whenever this character is challenged, each opponent
+    // chooses and discards a card."'.
+    if (e.ability) {
+      const inner = renderAbility(e.ability);
+      return `${tgt} ${verbS(tgt, "gain", "gains")} "${inner}"`;
+    }
     return `${tgt} gain a triggered ability`;
   },
   global_move_cost_reduction: (e) => `you pay ${e.amount ?? 1} {I} less to move your characters to a location`,
