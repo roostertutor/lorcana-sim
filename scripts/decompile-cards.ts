@@ -411,7 +411,13 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
     }
     return `Whenever one of your ${pluralizeFilter(renderFilter(t.filter))} is returned to your hand`;
   },
-  cards_discarded:               ()  => "Whenever a card is discarded",
+  cards_discarded:               (t) => {
+    // Prince John I SENTENCE YOU: "Whenever your opponent discards 1 or
+    // more cards" — trigger has player:opponent.
+    if (t.player?.type === "opponent") return "Whenever your opponent discards 1 or more cards";
+    if (t.player?.type === "self") return "Whenever you discard 1 or more cards";
+    return "Whenever a card is discarded";
+  },
   deals_damage_in_challenge:     ()  => "Whenever this character deals damage in a challenge",
   card_put_under:                (t) => filterMentionsYour(t.filter)
                                           ? "Whenever you put a card under one of your characters or locations"
@@ -1430,7 +1436,9 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // Standing Her Ground FLOWING BLADE, Dodge).
     if (e.source === "non_challenge") return `${tgt} can't be dealt damage unless they're being challenged`;
     if (e.source === "challenge") return `${tgt} can't be damaged from challenges`;
-    return `${tgt} can't be damaged`;
+    // Default: no source qualifier means "can't be dealt damage" (Baloo
+    // Ol' Iron Paws FIGHT LIKE A BEAR uses this oracle wording).
+    return `${tgt} can't be dealt damage`;
   },
   // Turn-scoped variant (Noi Acrobatic Baby "this character can't be
   // damaged from challenges this turn").
@@ -1707,14 +1715,17 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       : e.restricts === "play" ? "play"
       : e.restricts ?? "act";
     if (e.filter) {
-      // Prepend "opposing" if affectedPlayer is opponent and the filter
-      // doesn't already say "opposing" (via owner:opponent). Vincenzo
-      // Santorini NEUTRALIZE: filter=items, affectedPlayer=opponent →
-      // "Opposing items can't ready".
+      // Prepend "opposing" / "your" prefix if filter doesn't already include
+      // ownership. Vincenzo Santorini NEUTRALIZE: filter=items, affectedPlayer=
+      // opponent → "Opposing items can't ready". Mor'du Savage Cursed Prince
+      // ROOTED BY FEAR: filter=characters not named Mor'du, affectedPlayer=
+      // self → "Your characters not named Mor'du can't ready".
       let who = renderFilter(e.filter);
       const fOwner = e.filter?.owner?.type;
       if (e.affectedPlayer?.type === "opponent" && fOwner !== "opponent") {
         who = `Opposing ${who}`;
+      } else if (e.affectedPlayer?.type === "self" && fOwner !== "self") {
+        who = `Your ${who}`;
       }
       // "challenge" is the only verb that takes a target-side suffix
       // (challenges are relational). Other verbs (ready/quest/sing/play)
@@ -2659,7 +2670,7 @@ function renderStatComparison(c: Json): string {
   const property: string = v.property ?? c.stat;
   const offset: number = v.offset ?? 0;
   const refPhrase = from === "last_resolved_source"
-      ? (property === "cost" ? "the exerted character's cost"
+      ? (property === "cost" ? "the banished character's cost"
          : property === "strength" ? "this character's {S} at the time it was resolved"
          : `that character's ${property === "willpower" ? "{W}" : property === "lore" ? "{L}" : property}`)
     : from === "last_banished_source"
