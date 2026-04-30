@@ -26,32 +26,39 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## Engine agent: cross-set wiring bugs surfaced by 2026-04-30 decompile sweep
+## ~~Engine agent: cross-set wiring bugs surfaced by 2026-04-30 decompile sweep~~ ✅ MOSTLY DONE 2026-04-30
 
 After the renderer-cleanup pass (commits 6c0e68c → f46183b raised avg
 decompile similarity from 0.80 to 0.84), the bottom of the sorted output
-is now mostly real wiring bugs rather than renderer noise. Triaged list:
+is now mostly real wiring bugs rather than renderer noise. 13 of 15
+items resolved across commits f46183b, f19eeab, 0856a20.
 
-### Confirmed wiring bugs — fix when prioritized
+### Resolved
 
-| Card | Set/# | Bug |
+| Card | Set/# | Resolution |
 |------|-------|-----|
-| Mr. Incredible - Super Strong | 12/127 + 226 | ✅ FIXED in f46183b (perMatch:2) |
-| Magica De Spell - The Midas Touch | 3/49 | ALL MINE wired with hardcoded `+2 lore` instead of dynamic "lore equal to the cost of one of your items in play" |
-| Yao - Snow Warrior | 11/73 | OOH, I'M SCARED grants Resist +2 unconditionally — missing "during opponents' turns" turn-gate |
-| The Queen - Jealous Beauty | 7/74 | NO ORDINARY APPLE missing "If any Princess cards were moved this way, gain 4 lore instead" branch |
-| Belle's House - Maurice's Workshop | 3/168 | LABORATORY wired as "next item this turn" (one-time) instead of ongoing while-condition cost reduction |
-| Hades - Looking for a Deal | 10/56 | WHAT D'YA SAY? wired wrong — adds spurious +0 stat effect; also "puts that card on bottom of YOUR deck" should be opponent's deck |
-| Sudden Scare | 10/164 | Missing second sentence: "That player puts the top card of their deck into their inkwell facedown." Currently only the first sentence resolves. |
-| Launchpad - Trusty Sidekick | 11/177 | WHAT DID YOU NEED? wired as triggered `enters_play`; oracle is an activated `{E}` ability with conditional "unless Darkwing Duck" discard |
-| Grumpy - Skeptical Knight | 5/186 | BOON OF RESILIENCE grants Resist +2 unconditionally — missing "while one of your Knight characters is at a location" condition |
-| Alice - Tea Alchemist | 3/35 | CURIOUSER AND CURIOUSER missing "and all other opposing characters with the same name" — currently exerts only the chosen one |
-| Lilo - Escape Artist | 6/2 | NO PLACE I'D RATHER BE rendered as "play a card from your discard" — overly generic; oracle: "you may play her" with `enters play exerted` rider |
-| Like A Bird In the Sky | 12/131 | Missing the "and gains <Evasive>" half — current effect chain stops after the +1 {L} buff |
-| Goliath - Clan Leader | 10/173 | DUSK TO DAWN missing the "discard cards until 2" branch — oracle has both directions (discard if >2, draw if <2); JSON only handles draw |
-| Evil Comes Prepared | 5/128 | Missing "If a Villain character is chosen, gain 1 lore" conditional branch — chosen-Villain check not wired |
-| Elsa's Ice Palace - Place of Solitude | 5/67 | ETERNAL WINTER renders "When you play this character" — but Elsa's Ice Palace is a LOCATION. Trigger likely uses `enters_play` correctly but the renderer says "character" because the wiring may not record cardType=location on the trigger; verify shape. |
-| Rex - Protective Dinosaur | 1/10 | RUN AWAY! oracle: "When THIS CHARACTER is banished, gain 1 lore." Wired filter is too broad (matches any banished owned card). |
+| Mr. Incredible - Super Strong | 12/127 + 226 | ✅ FIXED f46183b — added perMatch:2 |
+| Yao - Snow Warrior | 11/73 | ✅ FIXED f19eeab — added not(is_your_turn) condition |
+| Sudden Scare | 10/164 | ✅ FIXED f19eeab — added 2nd put_into_inkwell with target:opponent, fromZone:deck |
+| Launchpad - Trusty Sidekick | 11/177 | ✅ FIXED f19eeab — rewrote as activated {E}, added discard condition support |
+| Alice - Tea Alchemist | 3/35 | ✅ FIXED f19eeab — added second exert with nameFromLastResolvedTarget filter |
+| Like A Bird In the Sky | 12/131 | ✅ FIXED f19eeab — added grant_keyword:evasive on last_resolved_target |
+| Evil Comes Prepared | 5/128 | ✅ FIXED f19eeab — fixed followUp target + added new condition last_resolved_target_has_trait |
+| The Queen - Jealous Beauty | 7/74 | ✅ FIXED — was correctly wired (gainLoreBase/Bonus/bonusFilter); renderer now emits the bonus clause |
+| Grumpy - Skeptical Knight | 5/186 | ✅ FIXED — was correctly wired (atLocation:"any"); renderer now emits "at a location" qualifier |
+| Belle's House - Maurice's Workshop | 3/168 | ✅ FIXED — was correctly wired (cost_reduction static); renderer now emits ongoing phrasing for static cost_reduction |
+| Hades - Looking for a Deal | 10/56 | ✅ FIXED — was correctly wired (gain_stats +0 is a no-op chooser); renderer now suppresses all-zero stat clauses |
+| Lilo - Escape Artist | 6/2 | ✅ FIXED 0856a20 — was correctly wired (target:this); renderer now emits "play this character from your discard" |
+| Elsa's Ice Palace - Place of Solitude | 5/67 | ✅ FIXED 0856a20 — was correctly wired; renderer now substitutes "this location" via cardType ctx |
+| Rex - Protective Dinosaur | 12/10 | ✅ FIXED 0856a20 — was correctly wired (filter:isSelf); renderer now emits "When this character is banished" for isSelf:true |
+| Goliath - Clan Leader | 10/173 | ✅ FIXED — was correctly wired (fill_hand_to handles both directions); renderer now emits both branches |
+
+### Remaining — need new engine primitives (out of scope for steady-state wiring)
+
+| Card | Set/# | Issue |
+|------|-------|-----|
+| Magica De Spell - The Midas Touch | 3/49 | ALL MINE: "gain lore equal to cost of one of your items" — needs new dynamic-amount primitive that surfaces a chooser then reads chosen card's cost. Currently hardcoded `+2 lore`. |
+| Stand By Me | 9/197 | Same conditional-bonus class as Evil Comes Prepared, but the bonus is "they can also challenge ready characters this turn" — needs a timed `grant_can_challenge_ready` effect (or grant_activated_ability_timed with a ready-anytime ability). Currently missing the bonus entirely. |
 
 ### Renderer issues (low priority — JSON is correct)
 
