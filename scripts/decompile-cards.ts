@@ -1385,7 +1385,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (sz === "discard") {
       return `${maybe(e)}play ${filter} from your discard${costClause}${kwClause}${banishClause}`;
     }
-    return `${maybe(e)}play ${filter}${costClause}${kwClause}${banishClause}`;
+    // Multi-zone source (Prince John Gold Lover BEAUTIFUL, LOVELY TAXES:
+    // sourceZone: ["hand", "discard"] → "Play an item from your hand or
+    // discard"). Render as a disjunction of the listed zones.
+    if (Array.isArray(sz) && sz.length > 1) {
+      const zones = sz.map((z) => z === "discard" ? "discard" : z === "hand" ? "hand" : z).join(" or ");
+      const exClause = e.enterExerted ? ", exerted" : "";
+      return `${maybe(e)}play ${filter} from your ${zones}${costClause}${exClause}${kwClause}${banishClause}`;
+    }
+    const enterExClause = e.enterExerted ? ", exerted" : "";
+    return `${maybe(e)}play ${filter}${costClause}${enterExClause}${kwClause}${banishClause}`;
   },
 
   look_at_top: (e) => {
@@ -1421,6 +1430,14 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
             : rest === "bottom" ? " and the rest on the bottom of your deck"
             : "";
           return `${base}. Put one into your inkwell facedown and exerted${restSuffix}`;
+        }
+        if (pickDest === "discard" && count === 1) {
+          // Mad Hatter Eccentric Host WE'LL HAVE TO LOOK INTO THIS:
+          // "Put it on top of their deck or into their discard." Look at
+          // top 1 of chosen player's deck → choose top-of-deck or discard
+          // as the destination.
+          const deckPossessive = e.target?.type === "chosen" ? "their" : "your";
+          return `${base}. Put it on top of ${deckPossessive} deck or into ${deckPossessive} discard`;
         }
         // pickDestination "hand" (default)
         if (maxPick === 1) {
@@ -3066,12 +3083,20 @@ function renderTarget(t: Json): string {
     case "from_last_discarded":
       return "that discarded card";
     case "all_damaged": {
-      // Everybody's Got a Weakness, Can't Hold It Back Anymore: "from each
-      // damaged character you have in play".
+      // Owner-self/none: "each damaged character you have in play"
+      // (Everybody's Got a Weakness). No-owner filter (both players'
+      // characters): "all other characters" (Can't Hold It Back Anymore:
+      // "Move all damage counters from all other characters to that
+      // character"). Distinguish by explicit owner field.
       const f = t.filter ? renderFilter(t.filter, { suppressOwnerSelf: true }) : "character";
       // Force "damaged" prefix since hasDamage is implicit in all_damaged.
       const filt = /\bdamaged\b/.test(f) ? f : `damaged ${f}`;
-      return t.filter?.owner?.type === "self" || !t.filter?.owner
+      if (!t.filter?.owner) {
+        // No owner = all players. Oracle "all other characters" since the
+        // chosen target ("that character") is excluded by definition.
+        return `all other ${filt}s`;
+      }
+      return t.filter?.owner?.type === "self"
         ? `each ${filt} you have in play`
         : `each opposing ${filt}`;
     }
