@@ -183,9 +183,28 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   banishes_in_challenge:         ()  => "Whenever this character banishes another character in a challenge",
   // Legacy spelling alias.
   banished_other:                ()  => "Whenever this character banishes another character in a challenge",
-  is_challenged:                 ()  => "Whenever this character is challenged",
+  is_challenged:                 (t) => {
+    // Pizza Planet HEAVILY GUARDED: location-scoped is_challenged →
+    // "Whenever a character is challenged while here".
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      // Empty/wildcard filter → "character" (only characters get challenged).
+      if (!filt || filt === "card" || filt === "cards") return "Whenever a character is challenged while here";
+      return `Whenever a ${filt} is challenged while here`;
+    }
+    return "Whenever this character is challenged";
+  },
   // Legacy spelling alias.
-  challenged:                    ()  => "Whenever this character is challenged",
+  challenged:                    (t) => {
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      if (!filt || filt === "card" || filt === "cards") return "Whenever a character is challenged while here";
+      return `Whenever a ${filt} is challenged while here`;
+    }
+    return "Whenever this character is challenged";
+  },
   challenges:                    (t) => {
     if (filterMentionsYour(t.filter)) return "Whenever one of your characters challenges another character";
     // Snuggly Duckling ROUTINE RUCKUS: location-scoped filter with
@@ -202,9 +221,18 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   challenge_initiated:           (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters challenges another character"
                                           : "Whenever this character challenges another character",
-  quests:                        (t) => filterMentionsYour(t.filter)
-                                          ? "Whenever one of your characters quests"
-                                          : "Whenever this character quests",
+  quests:                        (t) => {
+    if (filterMentionsYour(t.filter)) return "Whenever one of your characters quests";
+    // Skull Rock SAFE HAVEN, Pride Lands cards, etc.: location-scoped quests →
+    // "Whenever a character quests while here".
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      if (!filt || filt === "card" || filt === "cards") return "Whenever a character quests while here";
+      return `Whenever a ${filt} quests while here`;
+    }
+    return "Whenever this character quests";
+  },
   sings:                         (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters sings a song"
                                           : "Whenever this character sings a song",
@@ -250,10 +278,37 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
   },
   // item_played: DELETED — collapsed to card_played with cardType filter
   card_put_into_inkwell:                    ()  => "Whenever you put a card into your inkwell",
-  moves_to_location:             ()  => "Whenever this character moves to a location",
-  damage_dealt_to:               ()  => "Whenever damage is dealt to this character",
+  moves_to_location:             (t) => {
+    // Ring of Stones PART THE VEIL: location-scoped → "Whenever a character
+    // moves here". Filter says "the moving character ends up at THIS source
+    // location"; render that as "here".
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      if (!filt || filt === "card" || filt === "cards") return "Whenever a character moves here";
+      return `Whenever a ${filt} moves here`;
+    }
+    return "Whenever this character moves to a location";
+  },
+  damage_dealt_to:               (t) => {
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      if (!filt || filt === "card" || filt === "cards") return "Whenever damage is dealt to a character while here";
+      return `Whenever damage is dealt to a ${filt} while here`;
+    }
+    return "Whenever damage is dealt to this character";
+  },
   damage_removed_from:           (t) => t.filter?.owner?.type === "self" ? "Whenever you remove 1 or more damage from one of your characters" : "Whenever damage is removed from this character",
-  readied:                       ()  => "Whenever this character is readied",
+  readied:                       (t) => {
+    if (t.filter?.atLocation === "this") {
+      const { atLocation, ...rest } = t.filter;
+      const filt = renderFilter(rest);
+      if (!filt || filt === "card" || filt === "cards") return "Whenever a character is readied while here";
+      return `Whenever a ${filt} is readied while here`;
+    }
+    return "Whenever this character is readied";
+  },
   returned_to_hand:              (t) => {
     if (!t.filter) return "Whenever this character is returned to your hand";
     // Maleficent's Staff BACK, FOOLS!: "Whenever one of your opponents'
