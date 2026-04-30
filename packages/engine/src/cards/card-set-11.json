@@ -13387,7 +13387,7 @@
         "storyName": "EVIL VANQUISHED",
         "rulesText": "During your turn, whenever an opposing Villain character is banished, you may ready a character here. If you do, they can't quest for the rest of this turn.",
         "trigger": {
-          "on": "banished_other_in_challenge",
+          "on": "is_banished",
           "filter": {
             "owner": {
               "type": "opponent"

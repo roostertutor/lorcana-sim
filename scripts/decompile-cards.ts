@@ -2219,13 +2219,17 @@ function renderStatic(ab: Json): string {
   // Lead Detective "Alert + Resist +2", etc.). Render each and join.
   const eff = ab.effect;
   // Special case: cost_reduction in a static context is ONGOING ("you pay 1
-  // less to play items"), not one-time ("for the next item this turn").
-  // Belle's House Maurice's Workshop LABORATORY uses the static cost_reduction
-  // shape — same primitive, different temporal scope based on parent context.
+  // less to play items") UNLESS the parent ability is oncePerTurn — then
+  // it's "once during your turn, you pay 1 {I} less for the NEXT X you play
+  // this turn" (Grandmother Willow SMOOTH THE WAY). Belle's House Maurice's
+  // Workshop LABORATORY uses the ongoing form (no oncePerTurn).
   const renderEffOrOngoing = (e: Json): string => {
     if (e?.type === "cost_reduction" && typeof e.amount === "number" && e.amount !== 99) {
       const filterNoOwner = e.filter ? { ...e.filter, owner: undefined } : undefined;
       const filt = filterNoOwner ? renderFilter(filterNoOwner, { suppressOwnerSelf: true }) : "card";
+      if (ab.oncePerTurn) {
+        return `you pay ${e.amount} {I} less for the next ${filt} you play this turn`;
+      }
       return `you pay ${e.amount} {I} less to play ${pluralizeFilter(filt)}`;
     }
     return renderEffect(e ?? {});
