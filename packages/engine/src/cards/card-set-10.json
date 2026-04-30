@@ -13333,18 +13333,35 @@
         },
         "effects": [
           {
-            "type": "deal_damage",
-            "amount": 2,
+            "type": "sequential",
             "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              },
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
               }
-            }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         ]
       }

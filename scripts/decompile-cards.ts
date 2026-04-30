@@ -506,7 +506,29 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     }
     return `if ${who} exactly ${c.amount} cards in ${possessive} hand`;
   },
-  cards_in_zone_gte:          (c) => `if you have ${c.amount ?? 0} or more cards in your ${c.zone ?? "zone"}`,
+  cards_in_zone_gte: (c) => {
+    const n = c.amount ?? 0;
+    const zone = c.zone ?? "zone";
+    const owner = c.player?.type === "opponent" ? "an opponent has" : "you have";
+    // filter (rich form) takes precedence over inline cardType (legacy).
+    const f = c.filter;
+    if (f) {
+      // Build natural-English phrasing matching oracle:
+      //   - Queen of Hearts COUNT OFF! "5 or more characters with damage in play"
+      //   - Coachman WILD RIDE "2 or more characters of yours are exerted"
+      //   - Colonel Old Sheepdog "3 or more Puppy characters in play"
+      const filt = renderFilter(f, { suppressOwnerSelf: true });
+      const plural = pluralizeFilter(filt);
+      const zonePhrase = zone === "play" ? "in play" : `in ${owner === "you have" ? "your" : "their"} ${zone}`;
+      return `if there are ${n} or more ${plural} ${zonePhrase}`;
+    }
+    if (c.cardType?.length) {
+      const types = c.cardType.join(" or ");
+      const zonePhrase = zone === "play" ? "in play" : `in ${owner === "you have" ? "your" : "their"} ${zone}`;
+      return `if ${owner} ${n} or more ${types}s ${zonePhrase}`;
+    }
+    return `if ${owner} ${n} or more cards in ${owner === "you have" ? "your" : "their"} ${zone}`;
+  },
   characters_in_play_gte:     (c) => {
     const n = c.amount ?? 0;
     const adj = c.excludeSelf ? "other " : "";
@@ -1750,8 +1772,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         const capped = swapped.charAt(0).toUpperCase() + swapped.slice(1);
         return `${capped} can't challenge ${tgt}`;
       }
-      // Postpositional path — original behavior.
-      const qualifier = af.replace(/^card /, "").replace(/^cards /, "");
+      // Postpositional path — original behavior. Strip the bare "card"/
+      // "cards"/"character"/"characters" noun from the filter render so we
+      // don't double-noun ("Characters character with cost 2 or less" —
+      // Club Door COOL CATS ONLY). The "Characters " prefix supplies the
+      // noun; the filter contributes the qualifier only.
+      const qualifier = af
+        .replace(/^card /, "")
+        .replace(/^cards /, "")
+        .replace(/^character /, "")
+        .replace(/^characters /, "");
       return `Characters ${qualifier} can't challenge ${tgt}`;
     }
     return `${tgt} can't be challenged`;
