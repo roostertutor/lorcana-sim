@@ -996,6 +996,18 @@ export function evaluateCondition(
       // quests (the current questing source isn't yet counted).
       return (state.players[controllingPlayerId].charactersQuestedThisTurn ?? 0) === 0;
     }
+    case "last_resolved_target_has_trait": {
+      // Evil Comes Prepared "If a Villain character is chosen, gain 1 lore."
+      // Reads state.lastResolvedTarget — must be invoked AFTER an effect that
+      // sets it (chosen-target effects do this when resolved).
+      const lrt = state.lastResolvedTarget;
+      if (!lrt || !lrt.instanceId) return false;
+      const inst = state.cards[lrt.instanceId];
+      if (!inst) return false;
+      const def = definitions[inst.definitionId];
+      if (!def) return false;
+      return Array.isArray(def.traits) && def.traits.includes(condition.trait);
+    }
     case "this_had_card_put_under_this_turn": {
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;

@@ -4581,8 +4581,14 @@
     "abilities": [
       {
         "type": "static",
-        "storyName": "",
+        "storyName": "OOH, I'M SCARED",
         "rulesText": "During opponents' turns, this character gains Resist +2.",
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
         "effect": {
           "type": "grant_keyword",
           "keyword": "resist",
@@ -11548,12 +11554,14 @@
     ],
     "abilities": [
       {
-        "type": "triggered",
-        "storyName": "",
-        "rulesText": "When you play this character, draw a card, then choose and discard a card.",
-        "trigger": {
-          "on": "enters_play"
-        },
+        "type": "activated",
+        "storyName": "WHAT DID YOU NEED?",
+        "rulesText": "{E} — Draw a card. Then, choose and discard a card unless you have a character named Darkwing Duck in play.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
         "effects": [
           {
             "type": "draw",
@@ -11568,7 +11576,17 @@
             "target": {
               "type": "self"
             },
-            "chooser": "target_player"
+            "chooser": "target_player",
+            "condition": {
+              "type": "not",
+              "condition": {
+                "type": "has_character_named",
+                "name": "Darkwing Duck",
+                "player": {
+                  "type": "self"
+                }
+              }
+            }
           }
         ]
       }

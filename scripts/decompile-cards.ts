@@ -583,6 +583,9 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     }
   },
 
+  // Trait-on-last-resolved-target: "If a Villain character is chosen, ..."
+  last_resolved_target_has_trait: (c) => `if a ${c.trait ?? "?"} character is chosen`,
+
   // Player-state comparisons
   opponent_has_lore_gte: (c) => `if an opponent has ${c.amount ?? 0} or more lore`,
   opponent_has_more_than_self: (c) => `if an opponent has more ${c.metric ?? "cards"} than you`,
@@ -1463,12 +1466,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
 
   // "Draw cards until you have N in hand" — Prince John's Mirror.
   // `trimOnly: true` means it only fires when the target's hand is below N.
+  // Without trimOnly (Goliath Clan Leader DUSK TO DAWN) the effect ALSO
+  // discards-down when the target has more than N — render both branches
+  // so the oracle comparison reflects the full mechanic.
   fill_hand_to: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    // "they" (active_player) takes singular-verb agreement same as "each
-    // player" — both render as third-person singular here.
     const useThirdPerson = tgt !== "you";
-    return `${useThirdPerson ? tgt + " draws" : "you draw"} cards until ${useThirdPerson ? "they have" : "you have"} ${e.n ?? "?"} cards in hand`;
+    const subject = useThirdPerson ? tgt : "you";
+    const verb = useThirdPerson ? "they have" : "you have";
+    const n = e.n ?? "?";
+    if (e.trimOnly) {
+      return `${subject} ${useThirdPerson ? "draws" : "draw"} cards until ${verb} ${n} cards in hand`;
+    }
+    // Bidirectional: discard down OR draw up. Goliath Clan Leader DUSK TO DAWN
+    // oracle: "if they have more than N, they choose and discard cards until
+    // they have N. If they have fewer than N, they draw until they have N."
+    return `if ${verb} more than ${n} cards in hand, ${subject} ${useThirdPerson ? "chooses" : "choose"} and ${useThirdPerson ? "discards" : "discard"} cards until ${verb} ${n}. If ${verb} fewer than ${n} cards in hand, ${subject} ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
   },
 
   // Superseded by self_replacement (target omitted → state-based condition
@@ -1788,7 +1801,20 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   restrict_remembered_target_action: (e) => `remembered target can't ${e.action ?? "act"}`,
   banish_item: (e) => `${maybe(e)}banish ${renderTarget(e.target ?? {})}`,
   sing_cost_bonus_here: (e) => `characters here count as having +${e.amount ?? 0} cost to sing songs`,
-  choose_n_from_opponent_discard_to_bottom: (e) => `choose ${e.count ?? "?"} cards from opponent's discard and put them on the bottom of their deck`,
+  choose_n_from_opponent_discard_to_bottom: (e) => {
+    const base = `choose ${e.count ?? "?"} cards from chosen opponent's discard and put them on the bottom of their deck`;
+    // The Queen Jealous Beauty NO ORDINARY APPLE: "...to gain 3 lore. If any
+    // Princess cards were moved this way, gain 4 lore instead."
+    if (e.gainLoreBase !== undefined) {
+      const baseLore = ` to gain ${e.gainLoreBase} lore`;
+      if (e.gainLoreBonus !== undefined && e.bonusFilter) {
+        const filt = renderFilter(e.bonusFilter);
+        return `${base}${baseLore}. If any ${filt} cards were moved this way, gain ${e.gainLoreBonus} lore instead`;
+      }
+      return `${base}${baseLore}`;
+    }
+    return base;
+  },
   gets_stat_while_challenging: (e) => `your characters get +${e.strength ?? 0} {S} while challenging ${e.defenderFilter ? renderFilter(e.defenderFilter) : "a character"}${dur(e)}`,
   grant_extra_ink_play: (e) => `you may play ${e.amount ?? 1} additional ink this turn`,
   put_self_under_target: (e) => `put this card under ${e.filter ? renderFilter(e.filter) : "a character"}`,
@@ -1934,6 +1960,20 @@ function verbS(target: string, base: string, third: string): string {
 }
 
 function renderStatChange(e: Json): string {
+  // No-op-chooser pattern: gain_stats with all stats 0 is used to surface a
+  // chooser without actually changing stats (Hades Looking for a Deal
+  // WHAT D'YA SAY? — the +0 {S} pins last_resolved_target for the
+  // opponent_may_pay_to_avoid that follows). Suppress rendering so the
+  // "+0 {S} this turn" clause doesn't pollute the oracle comparison.
+  if (e.type === "gain_stats"
+      && (e.strength === 0 || e.strength === undefined)
+      && (e.willpower === 0 || e.willpower === undefined)
+      && (e.lore === 0 || e.lore === undefined)
+      && !e.strengthDynamic && !e.willpowerDynamic && !e.loreDynamic
+      && !e.followUpEffects?.length
+      && (e.strength === 0 || e.willpower === 0 || e.lore === 0)) {
+    return "";
+  }
   const tgt = renderTarget(e.target ?? {});
   const bits: string[] = [];
   // modify_stat uses stat + amount. amount can be a number OR a DynamicAmount
@@ -2132,11 +2172,23 @@ function renderStatic(ab: Json): string {
   // (compound static — Hidden Cove "+1 S and +1 W while here", Judy Hopps
   // Lead Detective "Alert + Resist +2", etc.). Render each and join.
   const eff = ab.effect;
+  // Special case: cost_reduction in a static context is ONGOING ("you pay 1
+  // less to play items"), not one-time ("for the next item this turn").
+  // Belle's House Maurice's Workshop LABORATORY uses the static cost_reduction
+  // shape — same primitive, different temporal scope based on parent context.
+  const renderEffOrOngoing = (e: Json): string => {
+    if (e?.type === "cost_reduction" && typeof e.amount === "number" && e.amount !== 99) {
+      const filterNoOwner = e.filter ? { ...e.filter, owner: undefined } : undefined;
+      const filt = filterNoOwner ? renderFilter(filterNoOwner, { suppressOwnerSelf: true }) : "card";
+      return `you pay ${e.amount} {I} less to play ${pluralizeFilter(filt)}`;
+    }
+    return renderEffect(e ?? {});
+  };
   let body: string;
   if (Array.isArray(eff)) {
-    body = eff.map(renderEffect).filter((s) => s && !s.startsWith("[empty")).join(" and ");
+    body = eff.map(renderEffOrOngoing).filter((s) => s && !s.startsWith("[empty")).join(" and ");
   } else {
-    body = renderEffect(eff ?? {});
+    body = renderEffOrOngoing(eff);
   }
   if (cond) return `${cap(cond)}, ${body}`;
   return body;
@@ -2417,8 +2469,11 @@ function renderFilter(f: Json, opts?: { suppressOwnerSelf?: boolean }): string {
   // Zone qualifier (for "card from your hand/discard")
   const zone = Array.isArray(f.zone) ? f.zone[0] : f.zone;
   if (zone && zone !== "play") bits.push(`from your ${zone}`);
-  // atLocation
+  // atLocation. "this" → "here" (the source location); "any" → "at a location"
+  // (Grumpy Skeptical Knight BOON OF RESILIENCE filter: knights "at a location"
+  // — the WHILE-at-a-location condition is encoded as a target-filter restriction).
   if (f.atLocation === "this") bits.push("here");
+  else if (f.atLocation === "any") bits.push("at a location");
   return bits.join(" ");
 }
 

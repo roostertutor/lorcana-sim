@@ -2036,6 +2036,22 @@
                 ]
               }
             }
+          },
+          {
+            "type": "exert",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "nameFromLastResolvedTarget": true
+              }
+            }
           }
         ]
       }

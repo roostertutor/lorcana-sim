@@ -9624,7 +9624,16 @@
             ]
           }
         },
-        "lore": 1
+        "lore": 1,
+        "duration": "until_caster_next_turn"
+      },
+      {
+        "type": "grant_keyword",
+        "keyword": "evasive",
+        "target": {
+          "type": "last_resolved_target"
+        },
+        "duration": "until_caster_next_turn"
       }
     ],
     "_imageSource": "ravensburger",

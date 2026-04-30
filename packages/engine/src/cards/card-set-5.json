@@ -8355,20 +8355,22 @@
             "type": "cant_action",
             "action": "quest",
             "target": {
-              "type": "chosen",
-              "filter": {
-                "owner": {
-                  "type": "self"
-                },
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ]
-              }
+              "type": "last_resolved_target"
             },
             "duration": "end_of_turn"
           }
         ]
+      },
+      {
+        "type": "gain_lore",
+        "amount": 1,
+        "target": {
+          "type": "self"
+        },
+        "condition": {
+          "type": "last_resolved_target_has_trait",
+          "trait": "Villain"
+        }
       }
     ],
     "_imageSource": "ravensburger",

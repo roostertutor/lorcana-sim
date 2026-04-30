@@ -1611,6 +1611,12 @@ export interface DiscardEffect {
    * If set and no card in hand matches, the effect fizzles per CRD 1.7.7.
    */
   filter?: CardFilter;
+  /** Optional gating condition. Used by Launchpad - Trusty Sidekick WHAT DID
+   *  YOU NEED? "...choose and discard a card UNLESS you have a character named
+   *  Darkwing Duck in play" — wired as a `not(has_character_named)` condition
+   *  so the discard is skipped when the unless-clause holds. Honored by
+   *  CONDITION_GATED_EFFECTS in reducer.ts. */
+  condition?: Condition;
 }
 
 // ConditionalOnTargetEffect → SelfReplacementEffect (with `target` set).
@@ -3020,7 +3026,12 @@ export type Condition =
   /** Isabela Madrigal Golden Child: "if no other character has quested this
    *  turn". True iff the controller's charactersQuestedThisTurn count is 0
    *  OR the only quester is the source itself. */
-  | { type: "no_other_character_quested_this_turn" };
+  | { type: "no_other_character_quested_this_turn" }
+  /** Evil Comes Prepared (set-5/128), Stand By Me (set-9/197), and similar
+   *  "if a [Trait] character is chosen" conditional-bonus actions. True iff
+   *  state.lastResolvedTarget points to a card whose definition has the named
+   *  trait. Used post-choose to gate a bonus effect on the picked card. */
+  | { type: "last_resolved_target_has_trait"; trait: string };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 

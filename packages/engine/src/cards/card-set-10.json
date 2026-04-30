@@ -10939,6 +10939,14 @@
             ]
           }
         }
+      },
+      {
+        "type": "put_into_inkwell",
+        "enterExerted": true,
+        "fromZone": "deck",
+        "target": {
+          "type": "opponent"
+        }
       }
     ],
     "_imageSource": "ravensburger",
@@ -14752,6 +14760,14 @@
               "character"
             ]
           }
+        }
+      },
+      {
+        "type": "put_into_inkwell",
+        "enterExerted": true,
+        "fromZone": "deck",
+        "target": {
+          "type": "opponent"
         }
       }
     ],
