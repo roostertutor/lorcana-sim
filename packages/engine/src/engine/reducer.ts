@@ -8398,6 +8398,22 @@ function applyEffectToTarget(
         if (player.availableInk < cardCost) return state;
         state = updatePlayerInk(state, controllingPlayerId, -cardCost);
       }
+      // CRD reveal-on-play: when `revealed: true`, emit a card_revealed event
+      // for the chosen instance just before the zone transition. Captures the
+      // controller's public commitment for cards played from a private zone
+      // outside their normal main-phase action structure (The Return of
+      // Hercules — non-active player plays a chosen character from hand
+      // during the action's resolution). The event makes the card identity
+      // visible to the UI/log and is future-proof for any "watches off-
+      // timing plays" trigger Lorcana might introduce.
+      if (effect.revealed) {
+        events.push({
+          type: "card_revealed",
+          instanceId: targetInstanceId,
+          playerId: controllingPlayerId,
+          sourceInstanceId,
+        });
+      }
       // Move to play via zoneTransition (fires enters_play, card_played triggers).
       // Note: actions resolve their effects on play and then return to discard via the
       // normal play-card path; play_for_free skips that path, so songs/actions handled

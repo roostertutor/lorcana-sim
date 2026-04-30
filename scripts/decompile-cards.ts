@@ -2405,18 +2405,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     let inner = Array.isArray(e.effects)
       ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
-    // The Return of Hercules: "Each player may reveal a character card from
-    // their hand and play it for free." Wired as `each_player isMay` →
-    // single inner `play_card sourceZone:"hand"`. The play_card renderer
-    // emits "play <filter> for free" — Lorcana oracle wraps this with the
-    // "reveal a X card from their hand and play it" idiom whenever a card
-    // from a private zone surfaces via play. Apply the rewrite when the
-    // inner is a hand-source play (the only consumer in the corpus is
-    // TROH; the rewrite is a no-op for unrelated each_player effects).
+    // CRD reveal-on-play: when the inner is a single `play_card` with
+    // `revealed: true`, oracle uses the "reveal a X card from their hand and
+    // play it for free" idiom (The Return of Hercules — non-active player
+    // plays a chosen character from a private zone outside the normal
+    // main-phase action structure). The flag is the source of truth — it
+    // documents the CRD timing-exception semantic in the wiring.
     if (Array.isArray(e.effects)
         && e.effects.length === 1
         && e.effects[0]?.type === "play_card"
-        && e.effects[0]?.sourceZone === "hand") {
+        && e.effects[0]?.revealed === true) {
       const filt = (e.effects[0] as Json).filter;
       const types: string[] = Array.isArray(filt?.cardType) ? filt.cardType : filt?.cardType ? [filt.cardType] : [];
       const cardWord = types.length === 1 ? `${types[0]} card` : "card";

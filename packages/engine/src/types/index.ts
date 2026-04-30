@@ -1722,6 +1722,28 @@ export interface PlayCardEffect {
    *  character for free." Effect fizzles silently when false (the may-play
    *  branch never surfaces). */
   condition?: Condition;
+  /**
+   * CRD timing-exception marker — Lorcana oracle uses the "reveal X and play
+   * it" idiom whenever a card is played from a private zone (hand) outside
+   * the controller's normal main-phase action structure. The reveal is the
+   * controller's public commitment to which card from the private zone
+   * they're playing. The Return of Hercules ("Each player may reveal a
+   * character card from their hand and play it for free.") is the only card
+   * in the corpus with this shape — non-active players play during the
+   * action's resolution, which is a CRD timing exception.
+   *
+   * When `true`, the engine emits a `card_revealed` GameEvent for the chosen
+   * instance just before the zone transition (hand → play). The event is
+   * UI/log-visible today; future-proof for a "watches off-timing plays"
+   * trigger if Lorcana ever introduces one.
+   *
+   * Distinct from random-deck-reveal-with-conditional cards (Mulan
+   * Reflecting, Mufasa Betrayed Leader, Let's Get Dangerous) which use
+   * `reveal_top_conditional` — those reveal a random top card and play it
+   * conditionally, a different mechanism with its own existing reveal-event
+   * emission.
+   */
+  revealed?: boolean;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */

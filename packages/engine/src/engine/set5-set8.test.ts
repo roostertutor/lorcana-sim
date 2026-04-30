@@ -866,6 +866,70 @@ describe("§7 Set 7 — The Return of Hercules (CRD 4.3.3.2 cleanup after each_p
     expect(getZone(state, "player1", "play")).not.toContain(actionId);
     expect(state.pendingActionInstanceId).toBeUndefined();
   });
+
+  it("emits card_revealed GameEvent for each chosen character (revealed:true)", () => {
+    // CRD reveal-on-play: TROH's wiring carries `revealed: true` on the inner
+    // play_card. Each player iteration that ACCEPTS the may-prompt and picks
+    // a card from hand should fire a card_revealed event for the chosen
+    // instance — captures the public commitment at the moment of choice,
+    // before the zone transition to play.
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+
+    let actionId: string, p1CharId: string, p2CharId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "the-return-of-hercules", "hand"));
+    ({ state, instanceId: p1CharId } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: p2CharId } = injectCard(state, "player2", "mickey-mouse-true-friend", "hand"));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    const allEvents: typeof r.events = [...r.events];
+
+    // Walk to the active player's may-prompt → accept → chooser surfaces.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    allEvents.push(...r.events);
+
+    // Active player picks Mickey from their hand.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId, choice: [p1CharId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    allEvents.push(...r.events);
+
+    // Player 2's may-prompt → accept → pick.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId, choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    allEvents.push(...r.events);
+
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: state.pendingChoice!.choosingPlayerId, choice: [p2CharId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    allEvents.push(...r.events);
+
+    // Both characters should now be in play.
+    expect(state.cards[p1CharId]!.zone).toBe("play");
+    expect(state.cards[p2CharId]!.zone).toBe("play");
+
+    // Two card_revealed events — one per chosen instance, citing the
+    // controller (the player whose hand it came from) and the source action.
+    const reveals = allEvents.filter((e): e is Extract<typeof allEvents[number], { type: "card_revealed" }> =>
+      e.type === "card_revealed" && (e.instanceId === p1CharId || e.instanceId === p2CharId)
+    );
+    expect(reveals).toHaveLength(2);
+    const p1Reveal = reveals.find(e => e.instanceId === p1CharId)!;
+    const p2Reveal = reveals.find(e => e.instanceId === p2CharId)!;
+    expect(p1Reveal.playerId).toBe("player1");
+    expect(p2Reveal.playerId).toBe("player2");
+    expect(p1Reveal.sourceInstanceId).toBe(actionId);
+    expect(p2Reveal.sourceInstanceId).toBe(actionId);
+  });
 });
 
 describe("§7 Set 7 — Tramp Street-Smart Dog HOW'S PICKINGS? (discard 'that many')", () => {
