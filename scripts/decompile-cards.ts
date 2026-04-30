@@ -2197,35 +2197,46 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // The inner effects run with the iteration player as "self" — rewrite
     // first-person wording to third-person so "you lose 1 lore" becomes
     // "they lose 1 lore" when appearing under an each_player wrapper.
+    // When `isMay` is set, the each_player emits "each player MAY <inner>"
+    // — `may` is a modal verb that takes the BASE form, not -s. So under
+    // isMay, skip the verb-S agreement (Amethyst Chromicon AMETHYST LIGHT:
+    // "Each player may draw a card" not "Each player may draws a card").
+    const verbS = e.isMay ? "draw" : "draws";
+    const verbS_lose = e.isMay ? "lose" : "loses";
+    const verbS_gain = e.isMay ? "gain" : "gains";
+    const verbS_choose_discard_token = (n: string) => e.isMay
+      ? `choose and discard ${n} card${n === "1" ? "" : "s"}`
+      : `chooses and discards ${n} card${n === "1" ? "" : "s"}`;
+    const verbS_put = e.isMay ? "put" : "puts";
     const rewriteInnerPerspective = (s: string): string =>
       s
         // Oracle wording for "each X: Y" in Lorcana is third-person-singular
         // ("each opponent loses 2 lore", not "each opponent: they lose 2 lore").
         // Rewrite "you VERB" → "VERBs" for common verbs that appear under
         // each_player bodies via target:self inner effects.
-        .replace(/\byou draw\b/g, "draws")
-        .replace(/\byou lose\b/g, "loses")
-        .replace(/\byou gain\b/g, "gains")
+        .replace(/\byou draw\b/g, verbS)
+        .replace(/\byou lose\b/g, verbS_lose)
+        .replace(/\byou gain\b/g, verbS_gain)
         // Self-target effects render bare verbs ("draw a card", "may draw")
         // without "you" subject — under each_player, prepend verb-S.
         // Show Me More! (each_player → draw target:self) was producing
         // "each player draw 3 cards" missing the verb-S.
-        .replace(/^draw\b/g, "draws")
-        .replace(/(\b(?:and|then|or)\s+)draw\b/g, "$1draws")
+        .replace(/^draw\b/g, verbS)
+        .replace(/(\b(?:and|then|or)\s+)draw\b/g, `$1${verbS}`)
         .replace(/\byour hand\b/g, "their hand")
         .replace(/\byour deck\b/g, "their deck")
         .replace(/\byour inkwell\b/g, "their inkwell")
         // "discard N card(s)" becomes "chooses and discards N card(s)" —
         // under each_player the iteration player picks their own discard
         // (matches oracle wording: "each opponent chooses and discards").
-        .replace(/\bdiscard (\d+) cards?\b/g, (_, n) => `chooses and discards ${n} card${n === "1" ? "" : "s"}`)
-        .replace(/\bdiscard their hand\b/g, "discards their hand")
+        .replace(/\bdiscard (\d+) cards?\b/g, (_, n) => verbS_choose_discard_token(n))
+        .replace(/\bdiscard their hand\b/g, e.isMay ? "discard their hand" : "discards their hand")
         // "chosen X of yours" → "chosen X" under each_player (no longer the
         // caster's own — each iteration owns its picks). Falling Down the
         // Rabbit Hole: "chooses one of their characters".
         .replace(/\bchosen ([a-z]+) of yours\b/g, "chosen $1")
         // "put X into" verb-agrees with the singular "each player" subject.
-        .replace(/\bput ([a-z ]+) into their\b/g, "puts $1 into their");
+        .replace(/\bput ([a-z ]+) into their\b/g, `${verbS_put} $1 into their`);
     const inner = Array.isArray(e.effects)
       ? rewriteInnerPerspective(e.effects.map(renderEffect).join(" and "))
       : "[no effects]";
@@ -3178,7 +3189,27 @@ const SYNONYMS: Array<[RegExp, string]> = [
 ];
 
 function normalize(s: string): string {
-  let out = s.toLowerCase();
+  // Strip story-name leading ALL-CAPS — Lorcana prints abilities with bold
+  // ALL-CAPS story names ("NONE OF YOUR POWERS ARE WORKING This character
+  // enters play exerted." → "This character enters play exerted."). Our
+  // renderer omits storyNames entirely, so leaving them in the scored
+  // oracle just adds non-matchable tokens. Strip the leading run of
+  // CAPS/punctuation tokens up to the first word that's NOT all-caps.
+  // Also handle multi-paragraph rulesText: storyNames appear after
+  // newlines too (Mulan Reflecting "...Otherwise, put it on the top of
+  // your deck.\nHONOR TO THE ANCESTORS Whenever..."). Match per-paragraph.
+  let pre = s.split(/\n+/).map((para) => {
+    // Match ALL-CAPS run: each token is uppercase letters/digits/apostrophes/
+    // spaces/dashes; stop at the first lowercase letter.
+    const m = para.match(/^([A-Z][A-Z0-9 '!?\-,]*?)\s+([A-Z][a-z(])/);
+    if (m && m[1].split(/\s+/).filter(Boolean).length >= 2) {
+      // First group is the storyName, but only strip if it's >=2 words to
+      // avoid eating short legitimate prefixes like "I'M" or "GO".
+      return m[2] + para.slice(m[0].length);
+    }
+    return para;
+  }).join("\n");
+  let out = pre.toLowerCase();
   // Strip parenthetical reminder text (keyword reminders, sing-cost reminders)
   // — but ONLY if there's substantive content outside the parens. Cards whose
   // entire oracle text IS a parenthetical (Flotsam & Jetsam Entangling Eels:
@@ -3187,7 +3218,6 @@ function normalize(s: string): string {
   const stripped = out.replace(/\([^)]*\)/g, " ").trim();
   if (stripped.length > 0) out = out.replace(/\([^)]*\)/g, " ");
   else out = out.replace(/[()]/g, " ");
-  // Strip story-name leading caps (rare in rulesText).
   for (const [re, repl] of SYNONYMS) out = out.replace(re, repl);
   // Strip punctuation. Angle brackets included so oracle "<Rush>" matches
   // rendered "Rush" — Lorcana wraps keyword references in angle brackets;
