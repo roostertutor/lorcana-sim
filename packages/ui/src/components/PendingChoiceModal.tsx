@@ -90,12 +90,23 @@ export default function PendingChoiceModal({
   // State for choose_amount picker (must be top-level per rules of hooks)
   const [chooseAmountValue, setChooseAmountValue] = React.useState(0);
   const chooseAmountMax = (pendingChoice as any).max ?? 0;
+  // State for choose_players_subset picker (Beyond the Horizon). Selection
+  // is a PlayerID[] of players the caster is including in the chosen subset.
+  // Empty subset is valid per CRD 6.1.4 ("any number of players"), so we do
+  // NOT default-include all selectable players; the caster opts each in.
+  const [playersSubsetSelection, setPlayersSubsetSelection] = React.useState<PlayerID[]>([]);
   // Local alias matches the previous variable name so existing branches
   // don't need rewrites. Source of truth is now the GUI setting (prop).
   const displayMode = cardDisplayMode;
   React.useEffect(() => {
     if (pendingChoice.type === "choose_amount") {
       setChooseAmountValue((pendingChoice as any).max ?? 0);
+    }
+    if (pendingChoice.type === "choose_players_subset") {
+      // Reset to empty subset whenever a new players-subset prompt opens.
+      // CRD 6.1.4 allows the empty subset; defaulting to "no one selected"
+      // forces the caster to opt each player in deliberately.
+      setPlayersSubsetSelection([]);
     }
   }, [pendingChoice]);
 
@@ -952,6 +963,75 @@ export default function PendingChoiceModal({
                 </button>
               )}
             </div>
+          </StickyFooter>
+        </div>
+      );
+    }
+
+    // CRD 6.1.4 "any number of players" — caster picks a subset of the game's
+    // players (currently only Beyond the Horizon, set 8/202). Multi-checkbox
+    // toggle over `selectablePlayerIds`; the empty subset is a valid choice
+    // (the prompt is `optional: true`), so the Confirm button stays enabled
+    // with zero selections. Self/opponent coloring mirrors the choose_player
+    // branch above for visual consistency.
+    if (pendingChoice.type === "choose_players_subset") {
+      const selectable = (pendingChoice.selectablePlayerIds ?? []) as PlayerID[];
+      const labelFor = (pid: PlayerID): string => (pid === myId ? "You" : "Opponent");
+      const colorFor = (pid: PlayerID, selected: boolean): string => {
+        if (selected) {
+          return pid === myId
+            ? "bg-indigo-700 hover:bg-indigo-600 ring-2 ring-indigo-300"
+            : "bg-red-800 hover:bg-red-700 ring-2 ring-red-300";
+        }
+        return "bg-gray-800 hover:bg-gray-700 border border-gray-600";
+      };
+      const toggle = (pid: PlayerID) => {
+        setPlayersSubsetSelection((prev) =>
+          prev.includes(pid) ? prev.filter((p) => p !== pid) : [...prev, pid],
+        );
+      };
+      return (
+        <div className="space-y-3">
+          <div>
+            <div className="text-yellow-300 text-sm font-medium">{pendingChoice.prompt}</div>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">
+              {playersSubsetSelection.length === 0
+                ? "No players selected (valid)"
+                : `${playersSubsetSelection.length} player(s) selected`}
+            </div>
+          </div>
+          {contextHints.length > 0 && (
+            <div className="text-[10px] text-gray-500">{contextHints.join(" · ")}</div>
+          )}
+          <div className="flex flex-col gap-2">
+            {selectable.map((pid) => {
+              const selected = playersSubsetSelection.includes(pid);
+              return (
+                <button
+                  key={pid}
+                  className={`px-4 py-3 text-sm text-white rounded-lg font-bold transition-colors shadow-lg ${colorFor(pid, selected)} active:scale-[0.98] flex items-center gap-3`}
+                  onClick={() => toggle(pid)}
+                  aria-pressed={selected}
+                >
+                  <span
+                    className={`shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center text-[12px] leading-none ${
+                      selected ? "bg-white border-white text-gray-900" : "border-gray-400"
+                    }`}
+                  >
+                    {selected ? "✓" : ""}
+                  </span>
+                  <span>{labelFor(pid)}</span>
+                </button>
+              );
+            })}
+          </div>
+          <StickyFooter>
+            <button
+              className="w-full px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-medium transition-colors"
+              onClick={() => onResolveChoice(playersSubsetSelection)}
+            >
+              Confirm ({playersSubsetSelection.length})
+            </button>
           </StickyFooter>
         </div>
       );

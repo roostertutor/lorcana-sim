@@ -13728,34 +13728,24 @@
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set8/202_7edb0afeac7601de92f0193be2fec6450545207f.jpg",
     "actionEffects": [
       {
-        "type": "discard_from_hand",
-        "amount": "all",
-        "target": {
-          "type": "opponent"
-        },
-        "chooser": "target_player"
-      },
-      {
-        "type": "draw",
-        "amount": 3,
-        "target": {
-          "type": "opponent"
-        }
-      },
-      {
-        "type": "discard_from_hand",
-        "amount": "all",
-        "target": {
-          "type": "self"
-        },
-        "chooser": "target_player"
-      },
-      {
-        "type": "draw",
-        "amount": 3,
-        "target": {
-          "type": "self"
-        }
+        "type": "each_player",
+        "scope": "chosen_subset",
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": "all",
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "draw",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "singTogetherCost": 7,
