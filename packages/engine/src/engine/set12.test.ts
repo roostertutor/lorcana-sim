@@ -3180,3 +3180,149 @@ describe("Set 12 — Andy's Room Home Base ANDY'S FAVORITE (op '==' on character
   });
 });
 
+// =============================================================================
+// REGRESSION: cards_in_zone_gte with `filter: CardFilter` (rich form)
+// Bug 2026-04-30: 6 cards (Colonel, Queen of Hearts, Jock, Cri-Kee, Coachman,
+// Elinor) used `filter: { hasDamage / hasTrait / isExerted / excludeSelf }` on
+// `cards_in_zone_gte`, but the type only declared `cardType?: CardType[]`. The
+// reducer ignored `filter`, so e.g. Queen of Hearts COUNT OFF! ("5 or more
+// characters with damage") fired with 5+ undamaged characters too. 5 of those
+// also used `owner` instead of `player` (CardFilter typo on a Condition that
+// uses `player`). Fix landed alongside this test extends the type with
+// `filter?: CardFilter`, the reducer applies it via matchesFilter, and the
+// JSONs are renamed owner→player.
+// =============================================================================
+describe("Set 8 — Queen of Hearts COUNT OFF! (cards_in_zone_gte filter:hasDamage)", () => {
+  it("condition is FALSE with 5 characters in play, NONE damaged (oracle: '5 with damage')", () => {
+    let state = startGame();
+    let qohId: string;
+    ({ state, instanceId: qohId } = injectCard(state, "player1", "queen-of-hearts-haughty-monarch", "play", { isDrying: false }));
+    // Add 5 undamaged characters (above the threshold by raw count)
+    for (let i = 0; i < 5; i++) {
+      ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 0 }));
+    }
+
+    const condResult = evaluateCondition(
+      {
+        type: "cards_in_zone_gte",
+        zone: "play",
+        amount: 5,
+        player: { type: "self" },
+        filter: { cardType: ["character"], hasDamage: true },
+      },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      qohId,
+    );
+    // Pre-fix this returned true (count >= 5 ignoring hasDamage). Oracle requires false.
+    expect(condResult).toBe(false);
+  });
+
+  it("condition is TRUE with 5 damaged characters in play", () => {
+    let state = startGame();
+    let qohId: string;
+    ({ state, instanceId: qohId } = injectCard(state, "player1", "queen-of-hearts-haughty-monarch", "play", { isDrying: false }));
+    for (let i = 0; i < 5; i++) {
+      ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
+    }
+
+    const condResult = evaluateCondition(
+      {
+        type: "cards_in_zone_gte",
+        zone: "play",
+        amount: 5,
+        player: { type: "self" },
+        filter: { cardType: ["character"], hasDamage: true },
+      },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      qohId,
+    );
+    expect(condResult).toBe(true);
+  });
+
+  it("legacy inline `cardType` form still works (backward compat)", () => {
+    let state = startGame();
+    let mickeyId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // 3 items in play
+    for (let i = 0; i < 3; i++) {
+      ({ state } = injectCard(state, "player1", "pawpsicle", "play", { isDrying: false }));
+    }
+
+    const condResult = evaluateCondition(
+      {
+        type: "cards_in_zone_gte",
+        zone: "play",
+        amount: 3,
+        player: { type: "self" },
+        cardType: ["item"],
+      },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      mickeyId,
+    );
+    expect(condResult).toBe(true);
+  });
+});
+
+// =============================================================================
+// REGRESSION: Luisa Madrigal Confident Climber I CAN TAKE IT
+// Bug 2026-04-30: this_has_damage condition with `amount: 3` was silently
+// ignored (type didn't declare amount). Oracle: "if this character has 3 or
+// more damage, move all damage from this character to chosen opposing
+// character." Pre-fix engine fired at any damage (>= 1), so Luisa would
+// transfer 1 damage to opponent instead of waiting for 3+. Fix extends
+// this_has_damage type with amount/op.
+// =============================================================================
+describe("Set 12 — Luisa Madrigal I CAN TAKE IT (this_has_damage with amount threshold)", () => {
+  it("condition is FALSE with 1 damage when amount: 3 required", () => {
+    let state = startGame();
+    let luisaId: string;
+    ({ state, instanceId: luisaId } = injectCard(state, "player1", "luisa-madrigal-confident-climber", "play", { isDrying: false, damage: 1 }));
+
+    const condResult = evaluateCondition(
+      { type: "this_has_damage", amount: 3 },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      luisaId,
+    );
+    // Pre-fix this returned true (damage > 0 ignored amount). Oracle requires false.
+    expect(condResult).toBe(false);
+  });
+
+  it("condition is TRUE with exactly 3 damage when amount: 3 required", () => {
+    let state = startGame();
+    let luisaId: string;
+    ({ state, instanceId: luisaId } = injectCard(state, "player1", "luisa-madrigal-confident-climber", "play", { isDrying: false, damage: 3 }));
+
+    const condResult = evaluateCondition(
+      { type: "this_has_damage", amount: 3 },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      luisaId,
+    );
+    expect(condResult).toBe(true);
+  });
+
+  it("default this_has_damage (no amount) behaves as 'any damage' for backward compat", () => {
+    let state = startGame();
+    let charId: string;
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 1 }));
+
+    const condResult = evaluateCondition(
+      { type: "this_has_damage" },
+      state,
+      CARD_DEFINITIONS,
+      "player1",
+      charId,
+    );
+    expect(condResult).toBe(true);
+  });
+});
+

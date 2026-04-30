@@ -1050,6 +1050,23 @@ export function evaluateCondition(
       const targetPlayer = condition.player.type === "self" ? controllingPlayerId
         : condition.player.type === "opponent" ? opponent : controllingPlayerId;
       const zoneCards = getZone(state, targetPlayer, condition.zone);
+      // filter > cardType > unfiltered. `filter` is the rich CardFilter form
+      // (hasDamage, hasTrait, isExerted, excludeSelf, etc.); `cardType` is a
+      // legacy shortcut kept for backward compat.
+      if (condition.filter) {
+        const f = condition.filter;
+        let count = 0;
+        for (const id of zoneCards) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def) continue;
+          if (matchesFilter(inst, def, f, state, controllingPlayerId, sourceInstanceId, definitions)) {
+            count++;
+          }
+        }
+        return count >= condition.amount;
+      }
       if (condition.cardType) {
         // Filter by card type (e.g., only count items)
         const matchingCount = zoneCards.filter(id => {
@@ -1088,7 +1105,21 @@ export function evaluateCondition(
     }
     case "this_has_damage": {
       const inst = state.cards[sourceInstanceId];
-      return inst ? inst.damage > 0 : false;
+      if (!inst) return false;
+      // Default: "any damage" (amount=1, op=">=")
+      const amount = condition.amount ?? 1;
+      const op = condition.op ?? ">=";
+      switch (op) {
+        case ">=": return inst.damage >= amount;
+        case "==": return inst.damage === amount;
+        case ">": return inst.damage > amount;
+        case "<=": return inst.damage <= amount;
+        case "<": return inst.damage < amount;
+        default: {
+          const _exhaustive: never = op;
+          return _exhaustive;
+        }
+      }
     }
     case "this_at_location": {
       const inst = state.cards[sourceInstanceId];

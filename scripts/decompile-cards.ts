@@ -435,7 +435,19 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   },
 
   // Stat / location / state checks
-  this_has_damage: () => "if this character has damage",
+  this_has_damage: (c) => {
+    const n = c.amount ?? 1;
+    const op = c.op ?? ">=";
+    if (n === 1 && op === ">=") return "if this character has damage";
+    switch (op) {
+      case ">=": return `if this character has ${n} or more damage`;
+      case "==": return `if this character has exactly ${n} damage`;
+      case ">": return `if this character has more than ${n} damage`;
+      case "<=": return `if this character has ${n} or less damage`;
+      case "<": return `if this character has less than ${n} damage`;
+      default: return `if this character has ${n} or more damage`;
+    }
+  },
   this_location_has_damaged_character: () => "if this location has a damaged character at it",
   this_location_has_character_with_trait: (c) => `if this location has a ${c.trait ?? "?"} character at it`,
   characters_here_gte: (c) => {

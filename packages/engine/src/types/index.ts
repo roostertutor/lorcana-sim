@@ -2827,7 +2827,20 @@ export type Condition =
   | { type: "opponent_has_more_cards_in_hand" }
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
-  | { type: "cards_in_zone_gte"; zone: ZoneName; amount: number; player: PlayerTarget; cardType?: CardType[] }
+  /** True if the count of cards in `zone` for `player` (matching `filter` if
+   *  present, else `cardType` array if present, else any) is >= `amount`.
+   *  `filter` is the rich form (full CardFilter — `hasDamage`, `hasTrait`,
+   *  `isExerted`, `excludeSelf`, etc. — used by Queen of Hearts COUNT OFF! and
+   *  similar). `cardType` is a legacy shortcut kept for backward compat with
+   *  pre-2026-04-30 cards. If both are present, `filter` wins. */
+  | {
+      type: "cards_in_zone_gte";
+      zone: ZoneName;
+      amount: number;
+      player: PlayerTarget;
+      cardType?: CardType[];
+      filter?: CardFilter;
+    }
   | { type: "self_stat_gte"; stat: "strength" | "willpower" | "lore"; amount: number }
   | { type: "compound_and"; conditions: Condition[] }
   | { type: "compound_or"; conditions: Condition[] }
@@ -2846,7 +2859,15 @@ export type Condition =
    *  - `{amount: 2, op: "=="}` → Minnie Wide-Eyed Diver "second action" exact match */
   | { type: "played_this_turn"; amount: number; op?: ">=" | "=="; filter?: CardFilter }
   | { type: "this_has_no_damage" }
-  | { type: "this_has_damage" }
+  /** True if this character has damage. Defaults to "any damage" (`amount: 1,
+   *  op: ">="`); cards needing a threshold like Luisa Madrigal Confident
+   *  Climber I CAN TAKE IT ("if this character has 3 or more damage") set
+   *  `amount: 3, op: ">="`. */
+  | {
+      type: "this_has_damage";
+      amount?: number;
+      op?: ">=" | "==" | ">" | "<=" | "<";
+    }
   | { type: "this_at_location" }
   | { type: "this_location_has_character" }
   /** True if any own character with the given trait is at this location.

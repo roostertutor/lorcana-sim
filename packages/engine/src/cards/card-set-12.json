@@ -6181,7 +6181,7 @@
           "type": "cards_in_zone_gte",
           "amount": 3,
           "zone": "play",
-          "owner": {
+          "player": {
             "type": "self"
           },
           "filter": {
