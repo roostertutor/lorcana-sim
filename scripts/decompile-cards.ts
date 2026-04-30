@@ -106,11 +106,26 @@ function renderCard(card: CardJSON): string {
       ? card.alternateNames.join(" or ")
       : card.name;
     if (altShift) {
-      const costPhrase = altShift.type === "discard"
-        ? `discard ${altShift.amount === 1 ? "an" : altShift.amount} ${altShift.amount === 1 ? "action card" : `cards`}`
-        : altShift.type;
+      // Read the discard filter to determine card-type wording. Olaf Carrot
+      // Enthusiast filter:{cardType:["item"]} → "an item card". Diablo
+      // Devoted Herald filter:{cardType:["action"]} → "an action card".
+      // Default to "card" for unfiltered discards.
+      let cardWord = "card";
+      const f = altShift.filter;
+      if (f) {
+        const types = Array.isArray(f.cardType) ? f.cardType : f.cardType ? [f.cardType] : [];
+        if (types.length === 1) cardWord = `${types[0]} card`;
+        if (f.hasTrait === "Song" && types[0] === "action") cardWord = "song card";
+      }
+      const article = altShift.amount === 1
+        ? (/^[aeiou]/i.test(cardWord) ? "an" : "a")
+        : altShift.amount;
+      const plural = altShift.amount === 1 ? cardWord : `${cardWord}s`;
       const headPhrase = altShift.type === "discard"
-        ? `Discard ${altShift.amount === 1 ? "an action card" : `${altShift.amount} cards`}`
+        ? `Discard ${article} ${plural}`
+        : altShift.type;
+      const costPhrase = altShift.type === "discard"
+        ? `discard ${article} ${plural}`
         : altShift.type;
       parts.push(`Shift: ${headPhrase} (You may ${costPhrase} to play this on top of one of your characters named ${shiftNames}.)`);
     } else if (card.shiftCost !== undefined) {
@@ -540,7 +555,7 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
   // ---- This-card-stat checks ------------------------------------------------
   self_stat_gte:              (c) => `if this character's ${c.stat ?? "strength"} is ${c.amount ?? 0} or more`,
   this_had_card_put_under_this_turn: () => "if a card was put under this character this turn",
-  this_location_has_exerted_character: () => "if this location has an exerted character at it",
+  this_location_has_exerted_character: () => "if you have an exerted character here",
 
   // ---- Turn-history checks --------------------------------------------------
   no_challenges_this_turn:    () => "if no characters have challenged this turn",
@@ -610,8 +625,10 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
       default: return `if this character has ${n} or more damage`;
     }
   },
-  this_location_has_damaged_character: () => "if this location has a damaged character at it",
-  this_location_has_character_with_trait: (c) => `if this location has a ${c.trait ?? "?"} character at it`,
+  // Oracle wording for location-bound conditions uses "here" not "at it":
+  // "if you have a damaged character here", "if you have a Pirate character here".
+  this_location_has_damaged_character: () => "if you have a damaged character here",
+  this_location_has_character_with_trait: (c) => `if you have a ${c.trait ?? "?"} character here`,
   characters_here_gte: (c) => {
     const n = c.amount ?? 0;
     const op = c.op ?? ">=";
@@ -847,7 +864,16 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   remove_damage:  (e) => {
     const amt = e.amount === "all" ? "all" : (typeof e.amount === "number" ? e.amount : renderAmount(e.amount));
-    const base = `${maybe(e)}remove ${up(e)}${amt} damage from ${renderTarget(e.target ?? {})}`;
+    // Suppress hasDamage:true from the target filter — remove_damage requires
+    // the target to be damaged anyway, so oracle text doesn't repeat
+    // "damaged character" (Jasmine Heir of Agrabah, Repair, Rapunzel Sunshine
+    // all say just "chosen character" not "chosen damaged character").
+    let target = e.target;
+    if (target?.filter?.hasDamage) {
+      const { hasDamage, ...restFilter } = target.filter;
+      target = { ...target, filter: restFilter };
+    }
+    const base = `${maybe(e)}remove ${up(e)}${amt} damage from ${renderTarget(target ?? {})}`;
     // followUpEffects apply to the same chosen target (Penny Bolt's Person
     // ENDURING LOYALTY: "... and they gain Resist +1"). Render the "they"-
     // pronoun shape by rewriting each followUp's "this character" references
@@ -909,7 +935,13 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       const which = (e.target?.filter as Json | undefined)?.isExerted === false ? "ready " : "";
       return `${maybe(e)}each opponent chooses and exerts one of their ${which}characters`;
     }
-    const base = `${maybe(e)}exert ${upTo}${count}${renderTarget(e.target ?? {})}`;
+    // Action-effect "exert all" — oracle includes "all" prefix even when the
+    // filter scope is "your" (Mor'du Savage Cursed Prince FEROCIOUS ROAR:
+    // "exert all your characters not named Mor'du"). renderTarget drops
+    // "all" for self-owned filters because static-grant phrasing is
+    // "Your characters gain X" (no "all"). Restore "all" for action exerts.
+    const allPrefix = e.target?.type === "all" ? "all " : "";
+    const base = `${maybe(e)}exert ${upTo}${count}${allPrefix}${renderTarget(e.target ?? {})}`;
     if (e.followUpEffects?.length) {
       const followUp = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
       return `${base}. ${followUp}`;
@@ -992,6 +1024,9 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     // In Lorcana, "move" always means "move to a location", so render that
     // explicitly so the rendered text matches the oracle wording.
     if (e.action === "move") return `this character can't move to locations${dur(e)}${unlockSuffix}`;
+    // Sing: oracle is consistently "can't {E} to sing songs" (Ulf Mime
+    // SILENT PERFORMANCE, Ariel On Human Legs VOICELESS).
+    if (e.action === "sing") return `this character can't {E} to sing songs${dur(e)}${unlockSuffix}`;
     return `this character can't ${e.action ?? "act"}${dur(e)}${unlockSuffix}`;
   },
 
@@ -1986,8 +2021,11 @@ function renderEffect(e: Json): string {
   const body = fn ? fn(e) : `[unknown:${e.type}]`;
   // Effect-level condition: "If [condition], [effect]" (Marching Off to Battle,
   // Enigmatic Inkcaster, etc.). The condition wraps the effect so the renderer
-  // doesn't drop the conditional gating.
-  if (e.condition) {
+  // doesn't drop the conditional gating. Skip for self_replacement and
+  // play_card — they handle their own condition routing internally and
+  // self_replacement uses `condition: {}` as a "no-condition" sentinel meaning
+  // "always trigger the instead path" (Lucky Dime, Magica De Spell, Dinner Bell).
+  if (e.condition && e.condition.type && e.type !== "self_replacement") {
     const cond = renderCondition(e.condition);
     const stripped = cond.startsWith("if ") || cond.startsWith("If ") ? cond.slice(3) : cond;
     return `if ${stripped}, ${body}`;
