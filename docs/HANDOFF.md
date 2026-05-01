@@ -4,6 +4,96 @@ Items flagged by one session for another to pick up.
 
 Last reorganized: 2026-04-25 (5 DONE items deleted, 7 parked-decision items moved to `docs/BACKLOG.md`).
 
+## Runbook: new CRD revision arrives — diff snapshot & update tracker
+
+**Trigger:** Ravensburger publishes a new Comprehensive Rules PDF (any agent
+notices, or the user drops a new file into `docs/`).
+
+**Owner:** any agent (engine-expert preferred since most rule changes affect
+the engine layer; reducer.ts citations and `CONDITION_GATED_EFFECTS` are
+common targets).
+
+**Why this exists:** the CRD is a living document. Side-by-side PDF
+comparison is unworkable for a 100+ page rulebook. We keep a committed
+plain-text snapshot (`docs/CRD_SNAPSHOT.txt`) so revisions become a
+line-level git diff. Pipeline shipped 2026-05-01 (commit `a769cd5`).
+
+**Pieces (all in tree):**
+- `scripts/snapshot-crd.ts` — converts the latest
+  `docs/Disney-Lorcana-Comprehensive-Rules-*.pdf` to text via
+  `pdftotext -layout`. Self-documenting header captures source PDF,
+  detected version, effective date, snapshot timestamp, line count.
+- `docs/CRD_SNAPSHOT.txt` — current snapshot of v2.0.1 (Effective Feb 5,
+  2026), 2173 lines. Replaced wholesale on each revision.
+- `docs/CRD_TRACKER.md` — top-of-file "Diffing a new CRD revision" section
+  documents the workflow inline. The body of the tracker is the rule-by-rule
+  status map; that's what gets updated based on the diff.
+- `pnpm snapshot-crd` — package.json shortcut.
+
+**Workflow when a new CRD drops:**
+
+1. **Drop the new PDF** into `docs/` with the canonical filename pattern
+   `Disney-Lorcana-Comprehensive-Rules-<MMDDYY>-EN-Edited.pdf`. The
+   snapshot script picks the lexicographically-latest filename, so date-
+   suffixed names sort correctly. Keep or delete the old PDF — either
+   works.
+
+2. **Regenerate the snapshot:**
+   ```bash
+   pnpm snapshot-crd
+   ```
+   Requires the `pdftotext` binary (Poppler / Glyph & Cog — included in
+   mingw64; macOS: `brew install poppler`; Linux: `apt install
+   poppler-utils`). The script prints version, effective date, line
+   count, and the diff command on stdout.
+
+3. **Review the diff:**
+   ```bash
+   git diff docs/CRD_SNAPSHOT.txt
+   ```
+   The `-layout` flag preserves columns/indentation, so section numbers
+   and nested rule numbering stay aligned across revisions — every
+   changed rule shows up as a line-level diff with its section context.
+   Walk top-to-bottom and categorize each change:
+
+   | Diff type | Action |
+   |---|---|
+   | New rule | Add a row to `CRD_TRACKER.md` under the right section |
+   | Wording revision | Update the existing row's `Quote` column; re-evaluate `Status` if engine semantics may have shifted |
+   | Status reclassification (errata) | Flip the engine row to `🐛` until reimplemented; ship a fix; flip back to `✅` |
+   | Renumbering | Search `packages/engine/src/` for the old citation (e.g. `// CRD 8.9.1`), update to the new number |
+
+4. **Update the version line** at the top of `CRD_TRACKER.md` (line 2):
+   `# Disney Lorcana Comprehensive Rules v<NEW> (Effective <DATE>)`.
+   If anything in `CLAUDE.md` → "Critical bug patterns" cites a moved
+   rule number, update there too.
+
+5. **Commit both** the new PDF and the regenerated snapshot together so
+   the diff history shows the source-of-truth swap atomically. Suggested
+   commit message format:
+   ```
+   chore(crd): snapshot v<NEW> (Effective <DATE>) + tracker updates
+
+   Drops PDF → regenerated docs/CRD_SNAPSHOT.txt. Tracker changes:
+   - <section X.Y>: <what changed>
+   - ...
+   ```
+
+**Header lines** (prefixed with `#`) in CRD_SNAPSHOT.txt document
+provenance; they produce a one-line diff if you re-snapshot the same PDF
+on a new day. That's intentional — they let you read the snapshot
+standalone. Use `git checkout docs/CRD_SNAPSHOT.txt` to discard a
+spurious re-snapshot if the PDF didn't actually change.
+
+**Sanity check after the swap:**
+- `pnpm test` — engine tests should still pass (most rules don't have
+  test coverage, but new bugs in renumbered citations would surface as
+  test failures if a test referenced a moved rule by number).
+- `grep -rn "CRD <OLD-NUMBER>" packages/engine/src/` — verify no stale
+  citations to renumbered rules remain.
+
+---
+
 ## Companion docs
 
 | Doc | Purpose | When something belongs here vs HANDOFF |
