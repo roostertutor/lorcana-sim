@@ -8066,8 +8066,7 @@
                 "zone": "play",
                 "cardType": [
                   "character"
-                ],
-                "hasDamage": true
+                ]
               }
             }
           }

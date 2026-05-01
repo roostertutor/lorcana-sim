@@ -1333,4 +1333,71 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(valid).toContain(mickeyId);
     expect(valid).not.toContain(mauiId);
   });
+
+  // ===========================================================================
+  // Dinner Bell YOU KNOW WHAT HAPPENS: "{E}, 2 {I} — Draw cards equal to the
+  // damage on chosen character of yours, then banish them." Oracle does NOT
+  // restrict the choice to damaged characters — the wording allows the caster
+  // to pick any of their characters (and draw 0 if undamaged). The wiring's
+  // filter previously had hasDamage:true, gate-ing the activation entirely
+  // when the caster had no damaged characters; this drift from the printed
+  // text is now removed so the wiring matches oracle exactly.
+  // ===========================================================================
+  it("Dinner Bell allows choosing any of your characters (CRD-faithful — undamaged is legal)", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    state = giveInk(state, "player1", 5);
+    let bellId: string, charId: string;
+    ({ state, instanceId: bellId } = injectCard(state, "player1", "dinner-bell", "play"));
+    // No damage on the character — printed wording allows choosing them
+    // anyway; draw resolves to 0 because stat_ref reads .damage = 0.
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    const handBefore = getZone(state, "player1", "hand").length;
+    const dischargeBefore = getZone(state, "player1", "discard").length;
+
+    // Activate Dinner Bell.
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: bellId, abilityIndex: 0 } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // The undamaged Mickey IS a valid target (no hasDamage gate).
+    expect((state.pendingChoice as any).validTargets).toContain(charId);
+
+    // Pick the undamaged character.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Draws 0 cards (target had 0 damage), banishes the chosen character.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore);
+    expect(getZone(state, "player1", "discard").length).toBe(dischargeBefore + 1);
+    expect(state.cards[charId]!.zone).toBe("discard");
+  });
+
+  it("Dinner Bell on a damaged character: draws cards equal to damage, banishes target", () => {
+    let state = startGame();
+    state.currentPlayer = "player1";
+    state = giveInk(state, "player1", 5);
+    let bellId: string, charId: string;
+    ({ state, instanceId: bellId } = injectCard(state, "player1", "dinner-bell", "play"));
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    // Pre-damage Mickey by 2 (his willpower is 3 — damage<willpower keeps him
+    // alive past CRD 1.8 game state check). Activating Dinner Bell while
+    // damage>=willpower would CRD-banish him before the chooser surfaces.
+    state = { ...state, cards: { ...state.cards, [charId]: { ...state.cards[charId]!, damage: 2 } } };
+
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: bellId, abilityIndex: 0 } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [charId] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Draws 2 cards (damage == 2), banishes the chosen character.
+    expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
+    expect(state.cards[charId]!.zone).toBe("discard");
+  });
 });

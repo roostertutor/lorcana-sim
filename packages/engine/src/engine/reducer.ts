@@ -8772,12 +8772,36 @@ function applyEffectToTarget(
       // Player-targeted effects appearing inside a target-resolved combinator
       // (notably `self_replacement` instead/effect branches) reach this path
       // because the combinator dispatches all branch effects via
-      // applyEffectToTarget. `draw` doesn't act on `targetInstanceId` — defer
-      // to the canonical applyEffect handler. Caught by Super Relocation
-      // Program (set-12/63): "Return chosen character of yours to your hand.
-      // If you returned a Hero character this way, draw 2 cards." Pre-fix,
-      // the conditional draw silently no-opped.
-      return applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
+      // applyEffectToTarget. `draw` itself doesn't act on the chosen target,
+      // but its `amount` may be a stat_ref keyed off `target` (Dinner Bell
+      // YOU KNOW WHAT HAPPENS — "Draw cards equal to the damage on chosen
+      // character of yours"). Resolve the amount HERE with targetInstanceId
+      // in scope, then dispatch via applyDraw directly so the canonical
+      // resolveDynamicAmount call inside applyEffect's draw branch (which
+      // passes targetInstanceId=undefined) doesn't lose the reference.
+      // Caught by Super Relocation Program (set-12/63): "Return chosen
+      // character of yours to your hand. If you returned a Hero character
+      // this way, draw 2 cards." (numeric amount, no stat_ref — works
+      // either way.)
+      if (effect.untilHandSize !== undefined) {
+        // Until-hand-size doesn't depend on targetInstanceId — defer.
+        return applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
+      }
+      const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
+      if (amount <= 0) return state;
+      const tgtPlayer = effect.target.type === "opponent"
+        ? getOpponent(controllingPlayerId)
+        : effect.target.type === "target_owner"
+          ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
+          : effect.target.type === "both"
+            ? null  // handled separately below
+            : controllingPlayerId;
+      if (tgtPlayer === null) {
+        state = applyDraw(state, controllingPlayerId, amount, events, definitions);
+        state = applyDraw(state, getOpponent(controllingPlayerId), amount, events, definitions);
+        return state;
+      }
+      return applyDraw(state, tgtPlayer, amount, events, definitions);
     }
     default:
       return state;

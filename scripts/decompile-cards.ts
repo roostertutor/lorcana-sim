@@ -3550,11 +3550,16 @@ function normalize(s: string): string {
   // your deck.\nHONOR TO THE ANCESTORS Whenever..."). Match per-paragraph.
   let pre = s.split(/\n+/).map((para) => {
     // Match ALL-CAPS run: each token is uppercase letters/digits/apostrophes/
-    // spaces/dashes; stop at the first lowercase letter. Includes Unicode
+    // spaces/dashes; stop at the first body-start indicator. Includes Unicode
     // smart quotes (U+2018 ' / U+2019 ') which Lorcana uses in storyNames
     // like "WHAT D'YA SAY?" (Hades Looking for a Deal) and "I'M
-    // INTIMIDATING" (Gaston Scheming Suitor).
-    const m = para.match(/^([A-Z][A-Z0-9 '!?\-,‘’]*?)\s+([A-Z][a-z(])/);
+    // INTIMIDATING" (Gaston Scheming Suitor). Body-start indicators:
+    //   - Capital letter + lowercase / open-paren (sentence-case bodies)
+    //   - Cost glyph "{" (cost notations like "{E}", "{I}" — Dinner Bell
+    //     YOU KNOW WHAT HAPPENS, Shere Khan WILD RAGE, Half Hexwell Crown
+    //     AN UNEXPECTED FIND, all begin with a cost glyph)
+    //   - Digit (cost shorthand like "1 {I}" — Shere Khan WILD RAGE)
+    const m = para.match(/^([A-Z][A-Z0-9 '!?\-,‘’]*?)\s+([A-Z][a-z(]|\{|[0-9])/);
     if (m && m[1].split(/\s+/).filter(Boolean).length >= 2) {
       // First group is the storyName, but only strip if it's >=2 words to
       // avoid eating short legitimate prefixes like "I'M" or "GO".
