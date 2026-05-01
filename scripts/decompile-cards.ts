@@ -691,7 +691,13 @@ const CONDITION_RENDERERS: Record<string, Renderer> = {
     }
     return "if you have a character here";
   },
-  played_via_shift:           () => "if this character was played via Shift",
+  // Active-voice oracle wording — "if you used Shift to play this character"
+  // (Basil Great Mouse Detective THERE'S ALWAYS A CHANCE, Mulan Elite Archer,
+  // Stitch Alien Buccaneer, Mickey Mouse Musketeer Captain, etc.). Lorcana
+  // sometimes pronouns this as "her"/"him" based on the character's gender;
+  // we use the gender-neutral "this character" since the engine doesn't
+  // track pronouns.
+  played_via_shift:           () => "if you used Shift to play this character",
   triggering_card_played_via_shift: () => "if you used Shift to play them",
   played_via_sing:            () => "if a character sang this song",
   triggering_card_played_via_sing: () => "if it was sung",
@@ -2980,6 +2986,13 @@ function renderTriggered(ab: Json, ctx?: { cardType?: string }): string {
     }
     return `${cap(cond)}, ${oncePrefix}${headLower}, ${body}`;
   }
+  // (enters_play + played_via_shift) cards mostly use the standard "When
+  // you play this character, if you used Shift to play her, <body>" order
+  // (Mulan Elite Archer STRAIGHT SHOOTER, Stitch Alien Buccaneer READY FOR
+  // ACTION, Mickey Musketeer Captain MUSKETEERS UNITED). Basil Great Mouse
+  // Detective THERE'S ALWAYS A CHANCE is the lone outlier with reversed
+  // clause order — accept the 0.04 similarity gap on Basil rather than
+  // regressing the majority by emitting his order globally.
   if (cond) return `${oncePrefix}${head}, ${cond}, ${body}`;
   return `${oncePrefix}${head}, ${body}`;
 }
