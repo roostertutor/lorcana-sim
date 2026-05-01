@@ -3552,7 +3552,19 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_b6575c40d3ee497d5c5ba9b017b8f49091a15cde.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_1ebcbfb76cb2da430a14c561bf641c98f955b10b.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/50_1ebcbfb76cb2da430a14c561bf641c98f955b10b.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STAY QUIET",
+        "rulesText": "This character may enter play exerted.",
+        "raw": "STAY QUIET This character may enter play exerted."
+      },
+      {
+        "storyName": "CLEVER TRAP",
+        "rulesText": "At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn.",
+        "raw": "CLEVER TRAP At the end of your turn, if this character is exerted, chosen opposing character can’t ready at the start of their next turn."
+      }
+    ]
   },
   {
     "id": "elinor-bespelled-queen",
@@ -3654,7 +3666,14 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_9b12dfd77f22c83c11604d28fb207a3441fb1305.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_2a01318d41d0080eec83ba9656bb2905ac89779d.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/52_2a01318d41d0080eec83ba9656bb2905ac89779d.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "LIGHTING THE WAY",
+        "rulesText": "Whenever this character quests, if you played another character this turn, you may draw a card.",
+        "raw": "LIGHTING THE WAY Whenever this character quests, if you played another character this turn, you may draw a card."
+      }
+    ]
   },
   {
     "id": "mirage-super-recruiter",
@@ -10269,7 +10288,14 @@
     "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_3990733aacbcc52abeefd31bb6407ce16ff78a21.jpg",
     "foilType": "silver",
-    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_bd7cddd92a89c411f03ad37086fbee96732ec670.jpg"
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/142_bd7cddd92a89c411f03ad37086fbee96732ec670.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THIS WILL HELP",
+        "rulesText": "When you play this character, remove up to 2 damage from chosen character.",
+        "raw": "THIS WILL HELP When you play this character, remove up to 2 damage from chosen character."
+      }
+    ]
   },
   {
     "id": "syndrome-evil-inventor",
@@ -16875,18 +16901,29 @@
     ]
   },
   {
-    "id": "the-familys-scattered",
+    "id": "the-family-scattered",
     "name": "The Family Scattered",
     "fullName": "The Family Scattered",
-    "_sourceLock": true,
     "cardType": "action",
     "inkColors": [
       "emerald"
     ],
     "cost": 8,
-    "inkable": true,
+    "inkable": false,
     "traits": [],
     "abilities": [],
+    "setId": "12",
+    "number": 231,
+    "rarity": "enchanted",
+    "_source": "ravensburger",
+    "_ravensburgerId": 2946,
+    "rulesText": "Chosen opponent chooses 3 of their characters and returns one of those cards to their hand, puts one on the bottom of their deck, and puts one on the top of their deck.",
+    "imageUrl": "https://api.lorcana.ravensburger.com/images/en/set12/231_41d6911b0b18f984aca7940542c94eefe91d0c6a.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/231_85cc33bbfc5d52cec979a1d3a729d5753211eca0.jpg",
+    "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set12/231_6ac7ff528f48b1c5974346d0704b1a102fb73c5b.jpg",
+    "foilTopLayer": "metallic_hot_foil",
+    "hotFoilColor": "#d9a36d",
     "actionEffects": [
       {
         "type": "return_to_hand",
@@ -16941,12 +16978,6 @@
         }
       }
     ],
-    "setId": "12",
-    "number": 231,
-    "rarity": "enchanted",
-    "_source": "lorcast",
-    "rulesText": "Chosen opponent chooses 3 of their characters and returns one of those cards to their hand, puts one on the bottom of their deck, and puts one on the top of their deck.",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/231_ae7ab678cd49ec50_normal.jpg",
     "_imageSource": "lorcast",
     "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_c4e66047e01c49f4bedb6c185d0af90a.avif?1776301804"
   },

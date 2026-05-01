@@ -936,43 +936,49 @@ describe("Set 12 — Dangerous Plan (draw 2, discard random 1)", () => {
   });
 });
 
-describe("Set 12 — The Family Scattered / The Family's Scattered (opponent 3-way partition)", () => {
-  // #97 is Ravensburger super_rare (uninkable). #231 is Lorcast enchanted alt-art
-  // (inkable). Same oracle text, separate CardDefinitions by repo convention.
-  // Both wire the opponent-partition flow via 3 sequential effects with
+describe("Set 12 — The Family Scattered (opponent 3-way partition)", () => {
+  // Two printings share the slug `the-family-scattered`: #97 super_rare
+  // (uninkable) and #231 enchanted alt-art. Per buildDefinitions convention
+  // they merge into a single CardDefinition with the alt-art surfaced via
+  // variants[]. Oracle text is identical; both print as the same card.
+  // Wires the opponent-partition flow via 3 sequential actionEffects with
   // chooser: "target_player":
   //   1. return_to_hand (opponent's choice) — one char to opponent's hand
   //   2. put_card_on_bottom_of_deck from:play position:bottom
   //   3. put_card_on_bottom_of_deck from:play position:top
   // Each effect surfaces a fresh pendingChoice to the opposing player.
-  for (const [id, label] of [
-    ["the-family-scattered", "#97 Ravensburger super_rare"],
-    ["the-familys-scattered", "#231 Lorcast enchanted alt-art"],
-  ] as const) {
-    it(`${id} (${label}): actionEffects chain 3 opponent-chosen zone moves`, () => {
-      const def = CARD_DEFINITIONS[id];
-      expect(def).toBeDefined();
-      const effects = (def as any).actionEffects;
-      expect(effects).toHaveLength(3);
+  it("the-family-scattered: actionEffects chain 3 opponent-chosen zone moves", () => {
+    const def = CARD_DEFINITIONS["the-family-scattered"];
+    expect(def).toBeDefined();
+    const effects = (def as any).actionEffects;
+    expect(effects).toHaveLength(3);
 
-      // 1. return_to_hand
-      expect(effects[0].type).toBe("return_to_hand");
-      expect(effects[0].target.chooser).toBe("target_player");
-      expect(effects[0].target.filter.owner.type).toBe("self");
+    // 1. return_to_hand
+    expect(effects[0].type).toBe("return_to_hand");
+    expect(effects[0].target.chooser).toBe("target_player");
+    expect(effects[0].target.filter.owner.type).toBe("self");
 
-      // 2. put on bottom of deck
-      expect(effects[1].type).toBe("put_card_on_bottom_of_deck");
-      expect(effects[1].from).toBe("play");
-      expect(effects[1].position).toBe("bottom");
-      expect(effects[1].target.chooser).toBe("target_player");
+    // 2. put on bottom of deck
+    expect(effects[1].type).toBe("put_card_on_bottom_of_deck");
+    expect(effects[1].from).toBe("play");
+    expect(effects[1].position).toBe("bottom");
+    expect(effects[1].target.chooser).toBe("target_player");
 
-      // 3. put on top of deck
-      expect(effects[2].type).toBe("put_card_on_bottom_of_deck");
-      expect(effects[2].from).toBe("play");
-      expect(effects[2].position).toBe("top");
-      expect(effects[2].target.chooser).toBe("target_player");
-    });
-  }
+    // 3. put on top of deck
+    expect(effects[2].type).toBe("put_card_on_bottom_of_deck");
+    expect(effects[2].from).toBe("play");
+    expect(effects[2].position).toBe("top");
+    expect(effects[2].target.chooser).toBe("target_player");
+  });
+
+  it("the-family-scattered: enchanted alt-art surfaces via variants[]", () => {
+    const def = CARD_DEFINITIONS["the-family-scattered"];
+    expect(def).toBeDefined();
+    const variants = (def as any).variants ?? [];
+    // #97 super_rare (canonical) + #231 enchanted alt-art share the slug.
+    const hasEnchanted = variants.some((v: any) => v.type === "enchanted" && v.number === 231);
+    expect(hasEnchanted).toBe(true);
+  });
 
   it("with only 1 opposing character: returns it to hand, the two deck-placement effects fizzle (CRD 1.7.7)", () => {
     // Oracle: "Chosen opponent chooses 3 of their characters and returns one
