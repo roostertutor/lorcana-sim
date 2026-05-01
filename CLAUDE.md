@@ -29,6 +29,7 @@ pnpm dev                              # UI at localhost:5173
 pnpm import-cards                     # fetch all sets + promos from Ravensburger API
 pnpm learn                            # train RL policy (see --help)
 pnpm find-precedent "<substring>"     # grep card precedents — REQUIRED before citing any card by name (see "Card-claim discipline" below)
+pnpm snapshot-crd                     # regenerate docs/CRD_SNAPSHOT.txt from the latest CRD PDF (run after dropping a new revision; diff workflow in docs/CRD_TRACKER.md)
 ```
 
 Card data source hierarchy: **`ravensburger` > `lorcast` > `manual`** — each card

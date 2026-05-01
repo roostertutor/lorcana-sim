@@ -11,6 +11,66 @@
 
 ---
 
+## Diffing a new CRD revision
+
+The CRD is a living document — Ravensburger publishes revisions periodically.
+We keep two committed artifacts to make rules-revision review tractable:
+
+  - `docs/Disney-Lorcana-Comprehensive-Rules-<DATE>-EN-Edited.pdf` — the PDF
+    Ravensburger ships. Replaced wholesale on each revision.
+  - `docs/CRD_SNAPSHOT.txt` — `pdftotext -layout` output of the PDF, with a
+    self-documenting header (source PDF name, version, effective date,
+    snapshot timestamp). Committed so `git diff` shows every line that
+    changed across revisions.
+
+**Workflow when a new CRD drops:**
+
+1. **Drop the new PDF** into `docs/`. Filename pattern:
+   `Disney-Lorcana-Comprehensive-Rules-<MMDDYY>-EN-Edited.pdf`. The script
+   picks the lexicographically latest by filename, so date-suffixed names
+   sort correctly. Optionally delete the old PDF.
+
+2. **Regenerate the snapshot:**
+   ```bash
+   pnpm snapshot-crd
+   ```
+   Writes `docs/CRD_SNAPSHOT.txt` with the new version's text. Requires the
+   `pdftotext` binary (Poppler / Glyph & Cog — included in mingw64; macOS:
+   `brew install poppler`; Linux: `apt install poppler-utils`).
+
+3. **Review the diff:**
+   ```bash
+   git diff docs/CRD_SNAPSHOT.txt
+   ```
+   Every changed rule shows up as a line-level diff, with section numbers
+   preserved (the `-layout` flag keeps columns/indentation stable across
+   revisions). Walk top-to-bottom and categorize each change:
+   - **New rule** → Add a row to this tracker under the right section.
+   - **Wording revision** → Update the existing row's `Quote` column;
+     re-evaluate `Status` if the change might break an existing engine
+     implementation.
+   - **Status reclassification** (Ravensburger errata changing how a rule
+     resolves) → Flip the engine row to `🐛` until the implementation is
+     re-aligned, then ship a fix and flip back to `✅`.
+   - **Renumbering** → Update rule citations in `packages/engine/src/`
+     comments (search-and-replace) and in card-status / decompile docs.
+
+4. **Update the header line** at the top of this file with the new version
+   number and effective date. Bump the version cite in `CLAUDE.md` if
+   anything in the "Critical bug patterns" section references a specific
+   rule number that moved.
+
+5. **Commit both** the new PDF and the regenerated snapshot together so the
+   diff history shows the source-of-truth swap atomically.
+
+The snapshot's header lines (prefixed with `#`) document provenance —
+they're stable across revisions only when the source PDF actually changes,
+so re-running `snapshot-crd` against the same PDF on a new day produces a
+single one-line header diff that's easy to ignore (or `git checkout` if
+you want to keep the original snapshot timestamp).
+
+---
+
 ## 1. CONCEPTS
 
 ### 1.1 General
