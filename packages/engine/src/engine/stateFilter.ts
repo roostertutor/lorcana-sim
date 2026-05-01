@@ -21,7 +21,7 @@
  * (count + isExerted) and partially hidden (identity) per CRD 4.1.4.
  */
 
-import type { GameState, GameLogEntry, PlayerID, CardInstance, ResolvedRef, ZoneName } from "@lorcana-sim/engine"
+import type { GameState, GameLogEntry, PlayerID, CardInstance, ResolvedRef, ZoneName } from "../types/index.js"
 
 /**
  * A `ResolvedRef` snapshot leaks a card's identity through its typed `name` +

@@ -1,8 +1,8 @@
 import { Hono } from "hono"
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine"
+import { filterStateForPlayer } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
 import { processAction, getGame, resignGame, getGameHistory, getGameActions, getGameReplay } from "../services/gameService.js"
-import { filterStateForPlayer } from "../services/stateFilter.js"
 
 const game = new Hono<{ Variables: { userId: string } }>()
 

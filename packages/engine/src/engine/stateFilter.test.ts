@@ -13,7 +13,7 @@
 // =============================================================================
 
 import { describe, it, expect } from "vitest"
-import type { GameState, GameLogEntry, ResolvedRef, CardInstance } from "@lorcana-sim/engine"
+import type { GameState, GameLogEntry, ResolvedRef, CardInstance } from "../types/index.js"
 import { filterStateForPlayer } from "./stateFilter.js"
 
 /**

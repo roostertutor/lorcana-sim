@@ -33,6 +33,7 @@ export { applyAction, getAllLegalActions, checkWinConditions, getLoreThreshold }
 export type { WinResult } from "./engine/reducer.js";
 export { createGame, parseDecklist, serializeDecklist } from "./engine/initializer.js";
 export type { GameConfig, DeckEntry } from "./engine/initializer.js";
+export { filterStateForPlayer } from "./engine/stateFilter.js";
 
 // Utilities
 export {
