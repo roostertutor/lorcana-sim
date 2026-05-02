@@ -229,6 +229,43 @@ Out of scope until those trigger: explicit replay search, replay tagging, replay
 
 ---
 
+## Engine agent: opening hands drawn before play/draw decision violates CRD 2.1.3 → 2.2 ordering
+
+**Symptom (user-reported 2026-05-01):** When the choose-play-order modal is up, both players can already see their opening hand. Per CRD 2.1.3 (set-up) → 2.2 (drawing opening hands), the play/draw decision happens FIRST, then each player draws 7. Today the engine deals hands at game-start before showing the modal, which means:
+- The decision-maker can scout their own hand before deciding play vs draw (small competitive impact — knowing your hand should not influence play/draw under CRD ordering).
+- The non-decision-maker watches the modal with a full hand visible, suggesting the game has already "started."
+- A latent reveal vector via replay reconstruction — the pre-modal state has hands populated and would surface in any neutral-perspective public replay scrub at step 0.
+
+**Bug location:** `packages/engine/src/engine/initializer.ts:248-289`. `createGame` calls `dealOpeningHands(state, handSize)` at line 249, then sets the `choose_play_order` PendingChoice at line 279-286. Order is reversed from CRD.
+
+**Fix path:**
+
+1. **Remove the `dealOpeningHands` call from `createGame`** (`initializer.ts:249`). Initial state should have `zones.player1.hand = []` and `zones.player2.hand = []`. Also drop the opening-hand log-stamping block at `:251-274` — that gets stamped AFTER the deal, which now moves.
+
+2. **Deal hands inside the `choose_play_order` resolution branch in the reducer** (`reducer.ts:2262-2272`). After setting `firstPlayerId` and `currentPlayer` (lines 2267-2271) but BEFORE the `phase: "mulligan_p1"` block (lines 2286-2294):
+   - Call `dealOpeningHands(state, handSize)` (export it from `initializer.ts` if not already). `handSize` needs plumbing — engine currently doesn't carry it past `createGame`. Cleanest: stamp `_handSize: number` on initial state in `createGame` (similar to how `_matchScore` lives on state), then read it in the resolve path.
+   - Stamp the per-player opening-hand log entries (the block currently at `initializer.ts:251-274`).
+   - Build `mulliganHandIds` from `state.zones[startingPlayerId].hand` AFTER the deal, not before (currently line 2285).
+
+3. **Update test helpers** (`engine/test-helpers.ts`). Tests that bypass via `injectCard` and set up their own hand state are unaffected. Tests that call `startGame()` and expect hands populated immediately should be updated — preferred fix: have `startGame` resolve `choose_play_order` automatically (most tests don't care about the play/draw decision; they want a started game with hands). Tests specifically about the play-order flow can opt into the unresolved state via a flag.
+
+4. **Update CRD citation comments**. `initializer.ts:276-278` already cites CRD 2.1.3.2 / 2.2.2 — keep them, just move the citation with the relocated logic.
+
+**Out of scope:**
+- Mulligan ordering (CRD 2.2.2) is already correct — starting player mulligans first.
+- The "starting player coin flip" is server-side (assigns `chooserPlayerId`); engine doesn't need to change there.
+
+**Server impact:** None. Engine's `createGame` is called server-side with `interactive: true` and flows continue; the only change is the first state stored in `games.state` has empty hands until the chooser resolves their pick. Server's `filterStateForPlayer` already handles empty hand zones correctly.
+
+**UI impact:** None for the choose_play_order modal (already gates input). The hand strips in `GameBoard.tsx:2319` already render the "Empty hand" fallback for empty zones, so they'll show that placeholder until the modal resolves. The replay banner / scrubber's step 0 will now correctly show "no hands yet" → "hands drawn" transition matching the play-order resolution moment.
+
+**Regression test (one new test, `reducer.test.ts`):**
+- Immediately after `createGame` returns: assert `state.zones.player1.hand.length === 0 && state.zones.player2.hand.length === 0`.
+- After resolving `choose_play_order` with `"first"`: assert both hands have length 7.
+- After resolution: assert per-player `card_drawn` opening-hand log entries appear at this step, not at game-start.
+
+---
+
 ## Engine agent: 8 condition-field-typo bugs surfaced by the 2026-04-30 card-status improvement
 
 The new condition-field validator (`scripts/card-status.ts:CONDITION_FIELD_MAP`,
