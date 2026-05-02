@@ -1681,8 +1681,13 @@ export interface PlayCardEffect {
   isMay?: boolean;
   /** Keywords to grant to the played character (e.g. Rush from Gruesome and Grim) */
   grantKeywords?: Keyword[];
-  /** If true, banish the played character at end of turn (e.g. Gruesome and Grim) */
-  banishAtEndOfTurn?: boolean;
+  // banishAtEndOfTurn: REMOVED 2026-05-02. The 3 cards using this flag
+  // (Gruesome and Grim song, Madam Mim - Rival of Merlin GRUESOME AND GRIM,
+  // Set 11 SPECIAL SUMMONS) now wire the banish via a sibling
+  // `create_delayed_trigger` effect with attachTo: "last_resolved_target",
+  // matching Candy Drift's precedent. This collapses the dedicated
+  // pendingEndOfTurnBanish state queue into the general delayedTriggers
+  // machinery — same mechanic, one less primitive.
   /**
    * After the play resolves (and any post-resolution discard for actions),
    * put the played card on the bottom of its owner's deck.
@@ -3801,8 +3806,12 @@ export interface GameState {
    */
   globalTimedEffects?: GlobalTimedEffect[];
 
-  /** Cards to banish at end of turn (e.g., Gruesome and Grim, Madam Mim - Rival of Merlin) */
-  pendingEndOfTurnBanish?: string[];
+  // pendingEndOfTurnBanish: REMOVED 2026-05-02. Folded into the general
+  // `delayedTriggers` queue. The 3 cards that used the dedicated state field
+  // (Gruesome and Grim song, Madam Mim - Rival of Merlin GRUESOME AND GRIM,
+  // Set 11 SPECIAL SUMMONS) now express the banish via a sibling
+  // `create_delayed_trigger` effect — same mechanic, same firesAt: "end_of_turn"
+  // dispatch in PASS_TURN, no special-case state field.
 
   /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
   lastEffectResult?: number;
@@ -4213,7 +4222,8 @@ export type GameLogEntryType =
  *                    a `deal_damage` effect or an item's damage trigger).
  * - `banish_effect` — banish from a card effect (Be Prepared, banish_chosen
  *                    targets, banish_self costs, alt-shift banish costs,
- *                    pendingEndOfTurnBanish from Gruesome and Grim / Madam Mim).
+ *                    delayed_trigger end-of-turn banishes — Gruesome and Grim,
+ *                    Madam Mim - Rival of Merlin, Set 11 SPECIAL SUMMONS, Candy Drift).
  * - `gsc_cleanup`  — reserved for any non-damage GSC banish path we discover
  *                    (currently unused; kept as a future-proof variant).
  */

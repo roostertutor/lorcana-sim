@@ -2885,8 +2885,20 @@
             },
             "grantKeywords": [
               "rush"
-            ],
-            "banishAtEndOfTurn": true
+            ]
+          },
+          {
+            "type": "create_delayed_trigger",
+            "firesAt": "end_of_turn",
+            "attachTo": "last_resolved_target",
+            "effects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         ]
       }
@@ -3845,8 +3857,20 @@
         },
         "grantKeywords": [
           "rush"
-        ],
-        "banishAtEndOfTurn": true
+        ]
+      },
+      {
+        "type": "create_delayed_trigger",
+        "firesAt": "end_of_turn",
+        "attachTo": "last_resolved_target",
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
       }
     ],
     "_imageSource": "ravensburger",

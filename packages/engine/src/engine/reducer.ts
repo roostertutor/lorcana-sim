@@ -1862,16 +1862,11 @@ function applyPassTurn(
     type: "turn_end",
   });
 
-  // Banish cards queued for end-of-turn removal (Gruesome and Grim, Madam Mim)
-  if (state.pendingEndOfTurnBanish?.length) {
-    for (const id of state.pendingEndOfTurnBanish) {
-      const inst = state.cards[id];
-      if (inst && inst.zone === "play") {
-        state = banishCard(state, id, definitions, events);
-      }
-    }
-    state = { ...state, pendingEndOfTurnBanish: [] };
-  }
+  // pendingEndOfTurnBanish walker REMOVED 2026-05-02 — the 3 cards using it
+  // (Gruesome and Grim song / Madam Mim - Rival of Merlin GRUESOME AND GRIM /
+  // Set 11 SPECIAL SUMMONS) now schedule their end-of-turn banish via the
+  // general `create_delayed_trigger` machinery below, matching Candy Drift's
+  // precedent. Same mechanic, one less state field + one less walker.
 
   // CRD 6.2.7.2: Resolve delayed triggers that fire at end of turn
   if (state.delayedTriggers?.length) {
@@ -8452,11 +8447,10 @@ function applyEffectToTarget(
           grantedKeywords: [...playedInst.grantedKeywords, ...effect.grantKeywords],
         });
       }
-      // Queue for end-of-turn banishment (Gruesome and Grim / Madam Mim)
-      if (effect.banishAtEndOfTurn) {
-        const existing = state.pendingEndOfTurnBanish ?? [];
-        state = { ...state, pendingEndOfTurnBanish: [...existing, targetInstanceId] };
-      }
+      // banishAtEndOfTurn branch REMOVED 2026-05-02 — see PASS_TURN comment
+      // and PlayCardEffect type comment. Cards now express the end-of-turn
+      // banish via a sibling create_delayed_trigger effect after this play_card.
+
       // CRD: "...then put it on the bottom of your deck" (Ursula - Deceiver of All).
       // For actions: bypass the normal post-resolution discard and route to bottom of deck instead.
       // For characters: they're now in play; this would be unusual but supported.

@@ -1458,19 +1458,21 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const sz = e.sourceZone;
     const filter = e.filter ? renderFilter(e.filter) : "a card";
     const plural = filter.endsWith("s") ? filter : `${filter}s`;
-    // Mystical Inkcaster: grantKeywords + banishAtEndOfTurn add post-clauses
-    // — "They gain Rush. At the end of your turn, banish them."
+    // Mystical Inkcaster: grantKeywords adds "They gain Rush" post-clause.
+    // The "At the end of your turn, banish them" clause is no longer rendered
+    // here — cards that need it now wire a sibling create_delayed_trigger
+    // effect after this play_card, which renders via its own renderer
+    // (decompile-cards.ts:create_delayed_trigger). Migrated 2026-05-02 to
+    // collapse the dedicated banishAtEndOfTurn flag into the general delayed-
+    // trigger machinery.
     const kwClause = e.grantKeywords?.length
       ? `. They gain ${(e.grantKeywords as string[]).map((k) => cap(k)).join(" and ")}`
       : "";
-    const banishClause = e.banishAtEndOfTurn
-      ? ". At the end of your turn, banish them"
-      : "";
     if (sz === "under") {
-      return `${maybe(e)}this turn, you may play ${plural} from under this item${costClause}${kwClause}${banishClause}`;
+      return `${maybe(e)}this turn, you may play ${plural} from under this item${costClause}${kwClause}`;
     }
     if (sz === "discard") {
-      return `${maybe(e)}play ${filter} from your discard${costClause}${kwClause}${banishClause}`;
+      return `${maybe(e)}play ${filter} from your discard${costClause}${kwClause}`;
     }
     // Multi-zone source (Prince John Gold Lover BEAUTIFUL, LOVELY TAXES:
     // sourceZone: ["hand", "discard"] → "Play an item from your hand or
@@ -1478,10 +1480,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     if (Array.isArray(sz) && sz.length > 1) {
       const zones = sz.map((z) => z === "discard" ? "discard" : z === "hand" ? "hand" : z).join(" or ");
       const exClause = e.enterExerted ? ", exerted" : "";
-      return `${maybe(e)}play ${filter} from your ${zones}${costClause}${exClause}${kwClause}${banishClause}`;
+      return `${maybe(e)}play ${filter} from your ${zones}${costClause}${exClause}${kwClause}`;
     }
     const enterExClause = e.enterExerted ? ", exerted" : "";
-    return `${maybe(e)}play ${filter}${costClause}${enterExClause}${kwClause}${banishClause}`;
+    return `${maybe(e)}play ${filter}${costClause}${enterExClause}${kwClause}`;
   },
 
   look_at_top: (e) => {
