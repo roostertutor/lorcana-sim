@@ -13676,7 +13676,7 @@
           {
             "type": "draw",
             "amount": 3,
-            "untilHandSize": 3,
+            "until": 3,
             "target": {
               "type": "self"
             }
@@ -15338,7 +15338,7 @@
           {
             "type": "draw",
             "amount": 3,
-            "untilHandSize": 3,
+            "until": 3,
             "target": {
               "type": "self"
             }

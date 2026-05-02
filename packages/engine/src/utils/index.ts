@@ -11,6 +11,7 @@ import type {
   GameState,
   Keyword,
   PlayerID,
+  PlayerTarget,
   ResolvedRef,
   RestrictedAction,
   ZoneName,
@@ -712,6 +713,61 @@ export function isMainPhase(state: GameState, playerId: PlayerID): boolean {
 /** Get the opposing player's ID */
 export function getOpponent(playerId: PlayerID): PlayerID {
   return playerId === "player1" ? "player2" : "player1";
+}
+
+/**
+ * Resolve a PlayerTarget down to the concrete list of affected PlayerIDs.
+ * Shared by player-targeting effects (`draw`, `discard_from_hand`, etc.) so
+ * the dispatch table only needs to be maintained in one place.
+ *
+ * Handles every PlayerTarget variant EXCEPT `"chosen"` — that one requires
+ * surfacing a `choose_player` PendingChoice, which only the reducer can do.
+ * Callers must check `target.type === "chosen"` themselves and surface the
+ * choice BEFORE calling this helper (see DrawEffect / DiscardEffect cases
+ * in reducer.ts for the canonical pattern).
+ *
+ * Returns an empty array for `chosen` (defensive — caller should never reach
+ * this path) and for any unrecognized variant. Empty result causes the
+ * downstream dispatch loop to no-op gracefully (CRD 1.7.7 fizzle behavior).
+ */
+export function resolvePlayerTarget(
+  target: PlayerTarget,
+  state: GameState,
+  controllingPlayerId: PlayerID,
+): PlayerID[] {
+  switch (target.type) {
+    case "self":
+      return [controllingPlayerId];
+    case "opponent":
+      return [getOpponent(controllingPlayerId)];
+    case "both":
+      return ["player1", "player2"];
+    case "active_player":
+      return [state.currentPlayer];
+    case "choosing_player":
+      // Resolves to whoever is currently being prompted. In effect-resolution
+      // context, that's the controller (the player executing the ability).
+      // Distinct from `self` only inside `each_player.scope: "chosen_subset"`
+      // resolution where it'd refer to the prompted picker — handled by that
+      // combinator separately, not this helper.
+      return [controllingPlayerId];
+    case "target_owner":
+      return [(state.lastResolvedTarget?.ownerId as PlayerID | undefined) ?? controllingPlayerId];
+    case "players_with_most_cards_in_hand": {
+      // Search for Clues style — tie expands to both players.
+      const p1 = state.zones.player1.hand.length;
+      const p2 = state.zones.player2.hand.length;
+      const max = Math.max(p1, p2);
+      const out: PlayerID[] = [];
+      if (p1 === max) out.push("player1");
+      if (p2 === max) out.push("player2");
+      return out;
+    }
+    case "chosen":
+      // Caller must surface choose_player BEFORE calling this helper.
+      // Returning [] makes any accidental call a clean no-op.
+      return [];
+  }
 }
 
 /** Count total ink available (inkwell cards) */

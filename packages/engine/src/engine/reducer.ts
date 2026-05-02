@@ -51,6 +51,7 @@ import {
   makeResolvedRef,
   matchesFilter,
   moveCard,
+  resolvePlayerTarget,
   updateInstance,
 } from "../utils/index.js";
 import { cloneRng, rngNextInt } from "../utils/seededRng.js";
@@ -3186,23 +3187,23 @@ export function applyEffect(
   }
   switch (effect.type) {
     case "draw": {
-      // "Draw until you have N in hand" — resolve target hand size, compute
-      // delta, draw that many. Natural no-op when already at target.
-      if (effect.untilHandSize !== undefined) {
-        const resolvePlayer = (): PlayerID =>
-          effect.target.type === "opponent"
-            ? getOpponent(controllingPlayerId)
-            : effect.target.type === "target_owner"
-              ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
-              : controllingPlayerId;
-        const drawPlayers: PlayerID[] =
-          effect.target.type === "both"
-            ? [controllingPlayerId, getOpponent(controllingPlayerId)]
-            : [resolvePlayer()];
-        const targetSize =
-          effect.untilHandSize === "match_opponent_hand"
-            ? state.zones[getOpponent(controllingPlayerId)].hand.length
-            : effect.untilHandSize;
+      // Chosen player — controller picks any player (Second Star to the Right etc.)
+      // Surface BEFORE the player-target resolver, since `chosen` requires a
+      // pendingChoice and the resolver returns [] for it.
+      if (effect.target.type === "chosen") {
+        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
+      }
+      const drawPlayers = resolvePlayerTarget(effect.target, state, controllingPlayerId);
+
+      // "Draw until you have N in hand" — resolve threshold, compute delta
+      // per affected player, draw that many. Natural no-op when already at
+      // or above the threshold. `until` accepts a literal number or a
+      // DynamicAmount (count-filter form for "match opponent's hand"-style
+      // cards: { type:"count", filter:{ owner:"opponent", zone:"hand" } }).
+      if (effect.until !== undefined) {
+        const targetSize = typeof effect.until === "number"
+          ? effect.until
+          : resolveDynamicAmount(effect.until, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
         for (const p of drawPlayers) {
           const currentHand = state.zones[p].hand.length;
           const delta = targetSize - currentHand;
@@ -3210,24 +3211,13 @@ export function applyEffect(
         }
         return state;
       }
+
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
       if (amount <= 0) return state;
-      if (effect.target.type === "both") {
-        state = applyDraw(state, controllingPlayerId, amount, events, definitions);
-        state = applyDraw(state, getOpponent(controllingPlayerId), amount, events, definitions);
-        return state;
+      for (const p of drawPlayers) {
+        state = applyDraw(state, p, amount, events, definitions);
       }
-      // Chosen player — controller picks any player (Second Star to the Right etc.)
-      if (effect.target.type === "chosen") {
-        return surfaceChoosePlayer(state, effect, controllingPlayerId, sourceInstanceId, definitions, events);
-      }
-      const targetPlayer =
-        effect.target.type === "opponent"
-          ? getOpponent(controllingPlayerId)
-          : effect.target.type === "target_owner"
-            ? (state.lastResolvedTarget?.ownerId ?? controllingPlayerId)
-            : controllingPlayerId;
-      return applyDraw(state, targetPlayer, amount, events, definitions);
+      return state;
     }
 
     case "reveal_hand":
@@ -5092,48 +5082,11 @@ export function applyEffect(
       return state;
     }
 
-    case "fill_hand_to":
-    case "discard_until":
-    case "draw_until": {
-      // Three primitives share this code path:
-      // - discard_until: trim down (Prince John's Mirror, Goliath first half)
-      // - draw_until: draw up (Demona Wyvern, Goliath second half)
-      // - fill_hand_to: deprecated bidirectional — still functional via
-      //   trimOnly/drawOnly flags. Defaults to bidirectional when neither set.
-      const allowDiscard =
-        effect.type === "discard_until" ||
-        (effect.type === "fill_hand_to" && !effect.drawOnly);
-      const allowDraw =
-        effect.type === "draw_until" ||
-        (effect.type === "fill_hand_to" && !effect.trimOnly);
-      const affected: PlayerID[] = [];
-      if (effect.target.type === "self") affected.push(controllingPlayerId);
-      else if (effect.target.type === "opponent") affected.push(getOpponent(controllingPlayerId));
-      else if (effect.target.type === "both") affected.push("player1", "player2");
-      else if (effect.target.type === "active_player") affected.push(state.currentPlayer);
-      else affected.push(controllingPlayerId);
-
-      for (const pid of affected) {
-        const handSize = getZone(state, pid, "hand").length;
-        if (handSize > effect.n && allowDiscard) {
-          const discardCount = handSize - effect.n;
-          state = applyEffect(
-            state,
-            { type: "discard_from_hand", target: { type: "self" }, amount: discardCount, chooser: "target_player" } as Effect,
-            sourceInstanceId,
-            pid,
-            definitions,
-            events,
-            triggeringCardInstanceId,
-          );
-          if (state.pendingChoice) return state;
-        } else if (handSize < effect.n && allowDraw) {
-          const drawCount = effect.n - handSize;
-          state = applyDraw(state, pid, drawCount, events, definitions);
-        }
-      }
-      return state;
-    }
+    // fill_hand_to / discard_until / draw_until: COLLAPSED 2026-05-02 into
+    // the `until` field on DrawEffect / DiscardEffect. See the `case "draw":`
+    // and `case "discard_from_hand":` branches above — both check
+    // `effect.until !== undefined` and dispatch through the same shared
+    // resolvePlayerTarget helper that this joint handler used to replicate.
 
     case "grant_activated_ability_timed": {
       // Food Fight! et al — push a turn-scoped grant onto the controller.
@@ -5548,25 +5501,33 @@ export function applyEffect(
     }
 
     case "discard_from_hand": {
-      const players: PlayerID[] = [];
-      if (effect.target.type === "self") players.push(controllingPlayerId);
-      else if (effect.target.type === "opponent") players.push(getOpponent(controllingPlayerId));
-      else if (effect.target.type === "both") players.push("player1", "player2");
-      // "that player" — the owner of the last resolved target (We Don't Talk About Bruno:
-      // "return chosen character to their player's hand, then THAT PLAYER discards")
-      else if (effect.target.type === "target_owner") {
-        const ownerId = state.lastResolvedTarget?.ownerId;
-        if (ownerId) players.push(ownerId as PlayerID);
-        else players.push(getOpponent(controllingPlayerId)); // fallback
-      }
-      // Search for Clues: expand to every player whose hand size equals the
-      // max (tie → both players each discard 2).
-      else if (effect.target.type === "players_with_most_cards_in_hand") {
-        const p1Hand = getZone(state, "player1", "hand").length;
-        const p2Hand = getZone(state, "player2", "hand").length;
-        const maxHand = Math.max(p1Hand, p2Hand);
-        if (p1Hand === maxHand) players.push("player1");
-        if (p2Hand === maxHand) players.push("player2");
+      const players = resolvePlayerTarget(effect.target, state, controllingPlayerId);
+
+      // "Discard until you have N in hand" — replaces the legacy
+      // `discard_until` primitive (deleted 2026-05-02). For each affected
+      // player, compute `max(0, handSize - until)` cards to discard; chooser
+      // defaults to "target_player" semantics ("they discard until they
+      // have N"). If the hand is already at or below N, fizzles per CRD 1.7.7.
+      if (effect.until !== undefined) {
+        const threshold = typeof effect.until === "number"
+          ? effect.until
+          : resolveDynamicAmount(effect.until, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
+        for (const pid of players) {
+          const handSize = getZone(state, pid, "hand").length;
+          if (handSize <= threshold) continue;
+          const discardCount = handSize - threshold;
+          state = applyEffect(
+            state,
+            { type: "discard_from_hand", target: { type: "self" }, amount: discardCount, chooser: "target_player" } as Effect,
+            sourceInstanceId,
+            pid,
+            definitions,
+            events,
+            triggeringCardInstanceId,
+          );
+          if (state.pendingChoice) return state;
+        }
+        return state;
       }
 
       const discardMods = getGameModifiers(state, definitions);
@@ -8811,8 +8772,10 @@ function applyEffectToTarget(
       // character of yours to your hand. If you returned a Hero character
       // this way, draw 2 cards." (numeric amount, no stat_ref — works
       // either way.)
-      if (effect.untilHandSize !== undefined) {
-        // Until-hand-size doesn't depend on targetInstanceId — defer.
+      if (effect.until !== undefined) {
+        // `until` doesn't depend on targetInstanceId — defer to the canonical
+        // draw branch in applyEffect, which handles the count-filter form +
+        // PlayerTarget reach via resolvePlayerTarget.
         return applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);

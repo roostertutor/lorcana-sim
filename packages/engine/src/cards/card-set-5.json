@@ -5359,7 +5359,15 @@
             "target": {
               "type": "self"
             },
-            "untilHandSize": "match_opponent_hand",
+            "until": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "hand"
+              }
+            },
             "isMay": true
           }
         ]
@@ -6308,7 +6316,15 @@
         "target": {
           "type": "self"
         },
-        "untilHandSize": "match_opponent_hand"
+        "until": {
+          "type": "count",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "hand"
+          }
+        }
       }
     ],
     "_imageSource": "ravensburger",
@@ -6356,11 +6372,13 @@
         "rulesText": "At the end of each opponent's turn, if they have more than 3 cards in their hand, they discard until they have 3 cards in their hand.",
         "effects": [
           {
-            "type": "discard_until",
+            "type": "discard_from_hand",
+            "amount": 0,
             "target": {
               "type": "opponent"
             },
-            "n": 3
+            "chooser": "target_player",
+            "until": 3
           }
         ]
       }
@@ -13693,7 +13711,15 @@
             "target": {
               "type": "self"
             },
-            "untilHandSize": "match_opponent_hand",
+            "until": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "hand"
+              }
+            },
             "isMay": true
           }
         ]

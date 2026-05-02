@@ -1274,10 +1274,11 @@ const NEW_TYPE_PATTERNS: [RegExp, string][] = [
   [/\bprevent .{0,30}damage\b/i, "damage-prevention"],
   // Damage removal prevention (Vision Slab: "damage counters can't be removed")
   [/\bdamage counters can'?t be removed\b/i, "damage-removal-prevention"],
-  // "Discard until they have N" / "draw until you have N" — trim hand
-  // (trim-hand removed: fill_hand_to.trimOnly implemented.)
-  // (draw-to-n removed: DrawEffect.untilHandSize implemented — matched as
-  //  fits-grammar via the "draw..until" pattern below.)
+  // "Discard until they have N" / "draw until you have N" — trim/draw to N
+  // (trim-hand removed: DiscardEffect.until implemented as of 2026-05-02,
+  //  superseding the legacy fill_hand_to.trimOnly + discard_until primitives.)
+  // (draw-to-n removed: DrawEffect.until implemented as of 2026-05-02,
+  //  superseding the legacy untilHandSize sentinel field + draw_until primitive.)
   // (put-top-cards-into-discard removed: implemented; matched as fits-grammar below.)
   // (put-on-bottom removed: put_card_on_bottom_of_deck Effect implemented; matched
   //  by FITS_GRAMMAR_PATTERNS below.)

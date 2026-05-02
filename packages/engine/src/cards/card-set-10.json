@@ -3477,11 +3477,12 @@
             }
           },
           {
-            "type": "draw_until",
+            "type": "draw",
+            "amount": 0,
             "target": {
               "type": "both"
             },
-            "n": 3
+            "until": 3
           }
         ]
       },
@@ -11591,18 +11592,21 @@
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
-            "type": "discard_until",
+            "type": "discard_from_hand",
+            "amount": 0,
             "target": {
               "type": "active_player"
             },
-            "n": 2
+            "chooser": "target_player",
+            "until": 2
           },
           {
-            "type": "draw_until",
+            "type": "draw",
+            "amount": 0,
             "target": {
               "type": "active_player"
             },
-            "n": 2
+            "until": 2
           }
         ]
       },
@@ -15456,11 +15460,12 @@
             }
           },
           {
-            "type": "draw_until",
+            "type": "draw",
+            "amount": 0,
             "target": {
               "type": "both"
             },
-            "n": 3
+            "until": 3
           }
         ]
       },
@@ -16362,18 +16367,21 @@
         "rulesText": "At the end of each player's turn, if they have more than 2 cards in their hand, they choose and discard cards until they have 2. If they have fewer than 2 cards in their hand, they draw until they have 2.",
         "effects": [
           {
-            "type": "discard_until",
+            "type": "discard_from_hand",
+            "amount": 0,
             "target": {
               "type": "active_player"
             },
-            "n": 2
+            "chooser": "target_player",
+            "until": 2
           },
           {
-            "type": "draw_until",
+            "type": "draw",
+            "amount": 0,
             "target": {
               "type": "active_player"
             },
-            "n": 2
+            "until": 2
           }
         ]
       },

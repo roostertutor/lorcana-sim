@@ -3434,7 +3434,7 @@
             "target": {
               "type": "self"
             },
-            "untilHandSize": 3
+            "until": 3
           }
         ]
       }
@@ -13737,7 +13737,7 @@
             "target": {
               "type": "self"
             },
-            "untilHandSize": 3
+            "until": 3
           }
         ]
       }

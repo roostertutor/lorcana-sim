@@ -580,7 +580,7 @@ describe("§5 Set 5 — three-mechanic batch (reveal_hand, draw-to-n, per-count 
     expect(ev.cardInstanceIds).toEqual(handBefore);
   });
 
-  it("draw until N: untilHandSize draws delta only, no draw when already at target", () => {
+  it("draw until N: until draws delta only, no draw when already at target", () => {
     let state = startGame();
     // Clear player1's hand to a known size via emptyDeck? Simpler: count delta.
     const startHand = getZone(state, "player1", "hand").length;
@@ -588,7 +588,7 @@ describe("§5 Set 5 — three-mechanic batch (reveal_hand, draw-to-n, per-count 
     const events: any[] = [];
     const r1 = applyEffect(
       state,
-      { type: "draw", amount: 0, target: { type: "self" }, untilHandSize: startHand + 3 } as any,
+      { type: "draw", amount: 0, target: { type: "self" }, until: startHand + 3 } as any,
       "src",
       "player1",
       CARD_DEFINITIONS,
@@ -598,13 +598,74 @@ describe("§5 Set 5 — three-mechanic batch (reveal_hand, draw-to-n, per-count 
     // Already at target — no more draws.
     const r2 = applyEffect(
       r1,
-      { type: "draw", amount: 0, target: { type: "self" }, untilHandSize: startHand + 3 } as any,
+      { type: "draw", amount: 0, target: { type: "self" }, until: startHand + 3 } as any,
       "src",
       "player1",
       CARD_DEFINITIONS,
       events,
     );
     expect(getZone(r2, "player1", "hand").length).toBe(startHand + 3);
+  });
+
+  it("draw until N: count-filter for opponent's hand size (replaces match_opponent_hand sentinel)", () => {
+    // Replaces the legacy `untilHandSize: "match_opponent_hand"` shape used
+    // by Clarabelle KEEP IN STEP and Remember Who You Are. The count-filter
+    // form is the live-stat replacement: count cards owned by opponent in
+    // their hand zone, draw to match.
+    let state = startGame();
+    // Force player2's hand to a higher count by injecting cards.
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+    // Bump p2 hand to p2HandBefore + 3 via injectCard (deterministic).
+    for (let i = 0; i < 3; i++) {
+      ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "hand"));
+    }
+    const targetSize = getZone(state, "player2", "hand").length; // p2HandBefore + 3
+    expect(targetSize).toBe(p2HandBefore + 3);
+
+    const events: any[] = [];
+    const after = applyEffect(
+      state,
+      {
+        type: "draw",
+        amount: 0,
+        target: { type: "self" },
+        until: { type: "count", filter: { owner: { type: "opponent" }, zone: "hand" } },
+      } as any,
+      "src",
+      "player1",
+      CARD_DEFINITIONS,
+      events,
+    );
+    expect(getZone(after, "player1", "hand").length).toBe(targetSize);
+  });
+
+  it("discard_from_hand until N: trims down to N, fizzles when already at or below", () => {
+    // Replaces the legacy `discard_until` primitive (Prince John's Mirror,
+    // Goliath DUSK TO DAWN first half). When hand is above N, discards down
+    // to N; when at or below, no-ops.
+    let state = startGame();
+    const p1HandBefore = getZone(state, "player1", "hand").length;
+    expect(p1HandBefore).toBeGreaterThan(3); // baseline: 7
+    const events: any[] = [];
+    const after = applyEffect(
+      state,
+      {
+        type: "discard_from_hand",
+        amount: 0,
+        target: { type: "self" },
+        chooser: "target_player",
+        until: 3,
+      } as any,
+      "src",
+      "player1",
+      CARD_DEFINITIONS,
+      events,
+    );
+    // Surfaces a choose_discard pendingChoice for the affected player to pick
+    // which cards to keep — assert the count and the choosing player.
+    expect(after.pendingChoice?.type).toBe("choose_discard");
+    expect(after.pendingChoice?.choosingPlayerId).toBe("player1");
+    expect((after.pendingChoice as any).count).toBe(p1HandBefore - 3);
   });
 
   it("per-count self_cost_reduction: Kristoff pays 1 less per song in discard", () => {

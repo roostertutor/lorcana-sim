@@ -298,9 +298,6 @@ export type Effect =
   | RestrictPlayEffect
   | EachOpponentMayDiscardThenRewardEffect
   | GrantActivatedAbilityTimedEffect
-  | FillHandToEffect
-  | DiscardUntilEffect
-  | DrawUntilEffect
   | OpponentMayPayToAvoidEffect
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
@@ -431,49 +428,14 @@ export interface EachTargetEffect {
 // OpponentMayPayToAvoidEffect. Hades now uses a no-op chooser (sets
 // lastResolvedTarget) → opponent_may_pay_to_avoid chain. See commit history.
 
-/**
- * Goliath - Clan Leader (Set 10): "At the end of each player's turn, if they
- * have more than N cards in their hand, they choose and discard cards until
- * they have N. If they have fewer than N cards in their hand, they draw until
- * they have N." Single effect that applies to each affected player and goes
- * either direction based on current hand size.
- */
-/**
- * @deprecated Use DiscardUntilEffect (trimOnly:true) or DrawUntilEffect
- * (drawOnly:true) instead. fill_hand_to was originally bidirectional but
- * cards always wire one direction per effect — separate primitives read
- * cleaner and align with the oracle's "if X / If Y" structure (CRD 5.2.8
- * fidelity rule). See CLAUDE.md "fill_hand_to convention" for rationale.
- */
-export interface FillHandToEffect {
-  type: "fill_hand_to";
-  target: PlayerTarget;
-  n: number;
-  trimOnly?: boolean;
-  drawOnly?: boolean;
-}
-
-/** Prince John's Mirror A FEELING OF POWER, Goliath Clan Leader DUSK TO
- *  DAWN (first half): "if they have more than N cards in their hand, they
- *  choose and discard until they have N." If handSize <= n, fizzles.
- *  Replaces fill_hand_to with trimOnly:true. */
-export interface DiscardUntilEffect {
-  type: "discard_until";
-  /** Whose hand to trim. */
-  target: PlayerTarget;
-  /** Target hand size — discard down to N. */
-  n: number;
-}
-
-/** Demona Wyvern AD SAXUM COMMUTATE, Goliath Clan Leader DUSK TO DAWN
- *  (second half): "each player with fewer than N cards in their hand draws
- *  until they have N." If handSize >= n, fizzles. Replaces fill_hand_to
- *  with drawOnly:true. */
-export interface DrawUntilEffect {
-  type: "draw_until";
-  target: PlayerTarget;
-  n: number;
-}
+// fill_hand_to / discard_until / draw_until: COLLAPSED 2026-05-02 into the
+// `until` field on DrawEffect / DiscardEffect. One printed verb maps to one
+// primitive with an optional dynamic threshold, removing three sibling types
+// and the three-discriminator joint reducer handler. See DrawEffect.until /
+// DiscardEffect.until JSDoc below for the migrated shapes:
+//   - "draw until N"      → draw + until: N (or DynamicAmount)
+//   - "discard until N"   → discard_from_hand + until: N + chooser: target_player
+//   - "fill hand to N"    → no live cards used this; deleted outright
 
 /**
  * Food Fight!, Donald Duck Coin Collector, Walk the Plank!: "Your [matching]
@@ -763,19 +725,24 @@ export interface DrawEffect {
   condition?: Condition;
   /**
    * "Draw cards until you have N cards in your hand" (Yzma Conniving Chemist,
-   * Desperate Plan) / "until you have the same number as chosen opponent"
-   * (Clarabelle Light on Her Hooves, Remember Who You Are).
+   * Desperate Plan, Demona AD SAXUM, Goliath DUSK TO DAWN second half) /
+   * "until you have the same number as chosen opponent" (Clarabelle Light on
+   * Her Hooves, Remember Who You Are).
    *
-   * When set, `amount` is ignored and the engine draws cards until the target
-   * player's hand size reaches the resolved value. If the hand is already at
-   * or above the target, no cards are drawn (natural no-op — no guard needed).
+   * When set, `amount` is ignored and the engine draws cards until each
+   * affected player's hand size reaches the resolved value. If the hand is
+   * already at or above the target, no cards are drawn (natural no-op).
    *
    *  - number: literal target hand size.
-   *  - "match_opponent_hand": draw until the target's hand matches the
-   *    controller's opponent's hand size (used for "same number as opponent"
-   *    wording). Opponent is resolved as the controller's opponent in 2P.
+   *  - DynamicAmount: late-resolved threshold. For "same number as opponent"
+   *    use `{ type: "count", filter: { owner: { type: "opponent" }, zone: "hand" } }`
+   *    — the count-filter form composes with existing CardFilter machinery
+   *    instead of a one-off sentinel string.
+   *
+   * Replaces the deleted DrawUntilEffect (`draw_until`) primitive — same
+   * semantics, on the existing draw verb.
    */
-  untilHandSize?: number | "match_opponent_hand";
+  until?: number | DynamicAmount;
 }
 
 export interface DealDamageEffect {
@@ -1659,6 +1626,24 @@ export interface DiscardEffect {
    *  so the discard is skipped when the unless-clause holds. Honored by
    *  CONDITION_GATED_EFFECTS in reducer.ts. */
   condition?: Condition;
+  /**
+   * "Discard until you have N cards in your hand" (Prince John's Mirror A
+   * FEELING OF POWER, Goliath DUSK TO DAWN first half).
+   *
+   * When set, `amount` is ignored and each affected player discards
+   * `max(0, handSize - until)` cards. If the hand is already at or below
+   * the target, no cards are discarded (natural no-op). Defaults `chooser`
+   * to "target_player" semantics — the affected player picks what to discard,
+   * matching the oracle wording "they discard until they have N."
+   *
+   *  - number: literal target hand size.
+   *  - DynamicAmount: late-resolved threshold (count-filter form for
+   *    "match X" style cards — same composition rules as DrawEffect.until).
+   *
+   * Replaces the deleted DiscardUntilEffect (`discard_until`) primitive —
+   * same semantics, on the existing discard verb.
+   */
+  until?: number | DynamicAmount;
 }
 
 // ConditionalOnTargetEffect → SelfReplacementEffect (with `target` set).

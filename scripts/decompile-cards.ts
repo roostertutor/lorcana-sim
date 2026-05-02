@@ -883,15 +883,40 @@ function renderCost(c: Json, ctx?: { cardType?: string }): string {
 // -----------------------------------------------------------------------------
 const EFFECT_RENDERERS: Record<string, Renderer> = {
   draw: (e) => {
-    // `untilHandSize` is a runtime-computed draw count; the literal `amount`
-    // field is a 0 placeholder in that case (Clarabelle / Yzma / Remember Who
-    // You Are pattern). Render the runtime form so it doesn't false-positive
-    // as a "draws 0 cards" stub.
-    if (e.untilHandSize === "match_opponent_hand") {
-      return `${maybe(e)}draw cards until you have the same number as chosen opponent`;
-    }
-    if (typeof e.untilHandSize === "number") {
-      return `${maybe(e)}draw cards until you have ${e.untilHandSize} cards in your hand`;
+    // `until` is a runtime-computed draw count; the literal `amount` field is a
+    // 0 placeholder in that case (Clarabelle / Yzma / Remember Who You Are
+    // pattern, plus the migrated Demona / Goliath cards from the deleted
+    // draw_until primitive). Render the runtime form so it doesn't
+    // false-positive as a "draws 0 cards" stub.
+    if (e.until !== undefined) {
+      // Detect the count-filter "match opponent's hand" shape (replaces the
+      // legacy "match_opponent_hand" sentinel string).
+      const u = e.until;
+      const isOpponentHandCount = typeof u === "object" && u?.type === "count"
+        && u.filter?.zone === "hand" && u.filter?.owner?.type === "opponent";
+      if (isOpponentHandCount) {
+        return `${maybe(e)}draw cards until you have the same number as chosen opponent`;
+      }
+      if (typeof u === "number") {
+        // Subject + pronoun agreement matters here:
+        //   target=both           → "each player draws ... until they have N cards in their hand"
+        //   target=active_player  → "they draw ... until they have N cards in their hand"
+        //   target=self / default → "draw ... until you have N cards in your hand"
+        // The Yzma / Desperate Plan / Set 6 cards all use target=self and the
+        // oracle text uses second-person ("you have N in your hand").
+        const tgt = e.target?.type;
+        if (tgt === "both") {
+          return `each player draws cards until they have ${u} cards in their hand`;
+        }
+        if (tgt === "active_player") {
+          return `they draw cards until they have ${u} cards in their hand`;
+        }
+        return `${maybe(e)}draw cards until you have ${u} cards in your hand`;
+      }
+      // Fallback for arbitrary DynamicAmount thresholds — render the threshold
+      // generically so the renderer doesn't crash on a future shape we haven't
+      // catalogued yet.
+      return `${maybe(e)}draw cards until you have a specific number of cards in your hand`;
     }
     // Subject framing: target=both → "each player draws N", target=opponent → "each opponent draws N".
     // Default (self) keeps the original "draw N cards" phrasing.
@@ -927,6 +952,23 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
+    // `until` is a runtime-computed discard count — render the runtime form
+    // before the standard amount-based phrasing. Mirrors the same shape on
+    // `draw` (replaces the deleted `discard_until` primitive). Subject
+    // agreement: target=opponent → "they have"; target=both → "each player";
+    // target=active_player → "they have" ("at the end of each player's turn,
+    // if they have more than N…"). Default (self) keeps "you have".
+    if (e.until !== undefined) {
+      const u = e.until;
+      const tgt = e.target?.type;
+      const subject = tgt === "both" ? "each player"
+        : tgt === "opponent" ? "they"
+        : tgt === "active_player" ? "they"
+        : "you";
+      const haveVerb = subject === "you" ? "you have" : "they have";
+      const n = typeof u === "number" ? String(u) : "N";
+      return `if ${haveVerb} more than ${n} cards in their hand, ${subject} choose and discard cards until ${haveVerb} ${n}`;
+    }
     const amt = e.amount === "all" ? "their hand" : `${e.amount ?? 1} card${plural(e.amount ?? 1)}`;
     if (e.target?.type === "both") {
       return `${maybe(e)}each player discards ${amt}`;
@@ -1877,47 +1919,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   // CRD must-quest (Reckless-style restriction). Often timed.
   must_quest_if_able: (e) => `${renderTarget(e.target ?? {})} must quest if able${dur(e)}`,
 
-  // "Draw cards until you have N in hand" — Prince John's Mirror.
-  // `trimOnly: true` means it only fires when the target's hand is below N.
-  // Without trimOnly (Goliath Clan Leader DUSK TO DAWN) the effect ALSO
-  // discards-down when the target has more than N — render both branches
-  // so the oracle comparison reflects the full mechanic.
-  // Verb agreement: "each player draws" (singular) but "they choose / they
-  // discard" (plural; "they" takes plural verb form even for a single
-  // antecedent). Map per-target subject to its verb shape.
-  // Prince John's Mirror A FEELING OF POWER, Goliath Clan Leader DUSK TO
-  // DAWN (first half): "if they have more than N cards in their hand, they
-  // choose and discard until they have N."
-  discard_until: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    const subject = tgt === "you" ? "you" : tgt;
-    const haveVerb = tgt === "you" ? "you have" : "they have";
-    // "they" + "each player" both take "choose"/"discard" (no -s) since
-    // "they" is grammatically plural and "each player draws" only takes -s
-    // on draw via the each_player path. Use bare verbs for both.
-    const n = e.n ?? "?";
-    return `if ${haveVerb} more than ${n} cards in their hand, ${subject} choose and discard cards until ${haveVerb} ${n}`;
-  },
-  // Demona Wyvern AD SAXUM, Goliath Clan Leader DUSK TO DAWN (second half):
-  // "each player with fewer than N cards in their hand draws until they have N."
-  draw_until: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    const subject = tgt === "you" ? "you" : tgt;
-    const haveVerb = tgt === "you" ? "you have" : "they have";
-    const drawVerb = tgt === "each player" ? "draws" : "draw";
-    const n = e.n ?? "?";
-    return `if ${haveVerb} fewer than ${n} cards in their hand, ${subject} ${drawVerb} until ${haveVerb} ${n}`;
-  },
-  // Deprecated bidirectional form. Kept for backward-compat parsing of any
-  // legacy JSON; new cards should use discard_until or draw_until.
-  fill_hand_to: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    const useThirdPerson = tgt !== "you";
-    const subject = useThirdPerson ? tgt : "you";
-    const verb = useThirdPerson ? "they have" : "you have";
-    const n = e.n ?? "?";
-    return `if ${verb} more than ${n} cards in hand, ${subject} ${useThirdPerson ? "chooses" : "choose"} and ${useThirdPerson ? "discards" : "discard"} cards until ${verb} ${n}. If ${verb} fewer than ${n} cards in hand, ${subject} ${useThirdPerson ? "draws" : "draw"} until ${verb} ${n}`;
-  },
+  // discard_until / draw_until / fill_hand_to: COLLAPSED 2026-05-02 into the
+  // `until` field on `draw` (renderer above) and `discard_from_hand` (renderer
+  // wired below in the discard_from_hand branch with the until-detection
+  // shortcut). One discriminator per oracle verb instead of three siblings.
 
   // Superseded by self_replacement (target omitted → state-based condition
   // reads state.lastDiscarded). Renderer for the unified primitive below.
