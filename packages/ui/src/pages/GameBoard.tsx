@@ -25,6 +25,8 @@ import {
 } from "@dnd-kit/core";
 import { useGameSession, getSavedSnapshot } from "../hooks/useGameSession.js";
 import type { ReplayData } from "../hooks/useGameSession.js";
+import type { ReplayInput, RemoteReplay } from "../hooks/useReplaySession.js";
+import type { ReplayPerspective, ReplayMeta } from "../lib/serverApi.js";
 import { useReplaySession } from "../hooks/useReplaySession.js";
 import { useBoardDnd, DROP_PLAY_ZONE, DROP_INKWELL, DROP_QUEST, dropCardId } from "../hooks/useBoardDnd.js";
 import { buildLabelMap } from "../utils/buildLabelMap.js";
@@ -123,8 +125,10 @@ interface Props {
     gameId: string;
     myPlayerId: "player1" | "player2";
   };
-  /** Pre-loaded replay data (for multiplayer replay viewer) */
-  initialReplayData?: ReplayData;
+  /** Pre-loaded replay input (sandbox replay reconstruction OR MP server-
+   *  rendered filtered states). The viewer hook accepts either via the
+   *  `ReplayInput` discriminated union — see `useReplaySession.ts`. */
+  initialReplayInput?: ReplayInput;
 }
 
 // --- Lore tracker: visual pips ---
@@ -616,21 +620,48 @@ function UtilityStrip({
   );
 }
 
-export default function GameBoard({ definitions, sandboxMode, initialDeck, opponentDeck, onBack, multiplayerGame, initialReplayData }: Props) {
+/** Translate the server's `ReplayMeta` (per Phase A endpoint shape) into the
+ *  client-side `RemoteReplay` consumed by `useReplaySession`. Pulls out the
+ *  states + winner from the nested `replay` payload, mirrors the metadata
+ *  flat onto the result, and stamps `callerSlot` from the caller's MP
+ *  player slot so the perspective-toggle UI knows which option to default-
+ *  highlight. `myPlayerId` is null for non-player viewers (public-share
+ *  links opened anonymously). */
+function toRemoteReplay(meta: ReplayMeta, myPlayerId: "player1" | "player2" | null): RemoteReplay {
+  const callerSlot = myPlayerId === "player1" ? "p1" : myPlayerId === "player2" ? "p2" : null;
+  return {
+    replayId: meta.id,
+    gameId: meta.gameId,
+    states: meta.replay?.states ?? [],
+    winner: meta.replay?.winner ?? null,
+    turnCount: meta.turnCount,
+    perspective: meta.perspective,
+    isPublic: meta.public,
+    callerIsPlayer: callerSlot != null,
+    callerSlot,
+    p1Username: meta.p1Username,
+    p2Username: meta.p2Username,
+  };
+}
+
+export default function GameBoard({ definitions, sandboxMode, initialDeck, opponentDeck, onBack, multiplayerGame, initialReplayInput }: Props) {
   const session = useGameSession();
 
-  // Replay mode — null = live mode; non-null = reviewing a completed game
-  const [replayData, setReplayData] = useState<ReplayData | null>(initialReplayData ?? null);
-  const replaySession = useReplaySession(replayData, definitions);
+  // Replay mode — null = live mode; non-null = reviewing a completed game.
+  // Discriminated union: { kind: "local" } reconstructs from seed+actions
+  // (sandbox path); { kind: "remote" } indexes into pre-rendered server-
+  // filtered states (MP path, post Phase A anti-cheat fix in commit 937fbb8).
+  const [replayInput, setReplayInput] = useState<ReplayInput | null>(initialReplayInput ?? null);
+  const replaySession = useReplaySession(replayInput, definitions);
 
   // Multiplayer replay — solo mode populates `session.completedGame` from
   // local action history when the game ends, but MP doesn't track action
   // history client-side (server is authoritative). Fetch the saved replay
-  // from the server when an MP game ends so the same Review / Download
-  // affordances work in both modes. `mpReplay` is the MP equivalent of
-  // `session.completedGame`; downstream code reads `completedReplay`
-  // (preferring the local one).
-  const [mpReplay, setMpReplay] = useState<ReplayData | null>(null);
+  // from the server when an MP game ends so the same Review affordance
+  // works in both modes. `mpReplay` is the MP equivalent of
+  // `session.completedGame`. Shape change for Phase A: server returns
+  // `RemoteReplay` (pre-filtered state stream) instead of raw seed+actions.
+  const [mpReplay, setMpReplay] = useState<RemoteReplay | null>(null);
 
   // Rematch wiring (MP end-of-match only). `rematchLobbyId` is fetched once
   // from the server when an MP game ends — it's the parent lobby's UUID,
@@ -1269,9 +1300,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiplayerGame]);
 
-  // MP game-over → fetch the server-side replay so Review / Download in
-  // the victory modal work the same as in solo mode. Server saves the
-  // replay automatically (per a751923) — we just GET /game/:id/replay.
+  // MP game-over → fetch the server-side replay so Review in the victory
+  // modal works the same as in solo mode. Server saves the replay
+  // automatically (per a751923) — we just GET /game/:id/replay. Shape
+  // change for Phase A (commit 937fbb8): server now returns pre-filtered
+  // `states[]` against the caller's perspective by default. We translate
+  // the server `ReplayMeta` into the local `RemoteReplay` shape consumed
+  // by `useReplaySession`.
   // One-shot: gated on `mpReplay` being null so it doesn't refetch on
   // every render. Solo mode never enters this branch (multiplayerGame
   // is undefined).
@@ -1279,20 +1314,102 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     if (!multiplayerGame || !session.gameState?.isGameOver || mpReplay) return;
     let cancelled = false;
     void import("../lib/serverApi.js").then(({ getGameReplay }) =>
-      getGameReplay(multiplayerGame.gameId).then((replay) => {
-        if (cancelled || !replay) return;
-        setMpReplay({
-          seed: replay.seed,
-          p1Deck: replay.p1Deck,
-          p2Deck: replay.p2Deck,
-          actions: replay.actions,
-          winner: replay.winner as PlayerID | null,
-          turnCount: replay.turnCount,
-        });
+      getGameReplay(multiplayerGame.gameId).then((meta) => {
+        if (cancelled || !meta || !meta.replay) return;
+        setMpReplay(toRemoteReplay(meta, multiplayerGame.myPlayerId));
       }),
     );
     return () => { cancelled = true; };
   }, [multiplayerGame, session.gameState?.isGameOver, mpReplay]);
+
+  // Perspective-change handler — refetches the replay from the server with
+  // the requested perspective, then atomically updates both the cached
+  // `mpReplay` (so re-entering Review shows the same view) AND the live
+  // `replayInput` if the user is currently in replay-review mode.
+  //
+  // We always use `getSharedReplay(replayId)` rather than `getGameReplay`
+  // because the public-or-player endpoint covers all access paths the user
+  // can be on (own-game review, public-share viewing, anonymous public).
+  // Server's access matrix (decideReplayAccess) does the gating.
+  //
+  // Pending state isn't tracked — perspective swaps are typically <300ms;
+  // a brief unchanged display is acceptable. Add a loading badge later if
+  // server reconstruction proves slow at scale.
+  const [perspectivePending, setPerspectivePending] = useState(false);
+  // Share-flow state. `shareConfirmOpen` toggles the inline "Are you sure?"
+  // affordance under the Share button (replaces a modal — keeps the game-
+  // over overlay focused). `shareCopiedAt` is a timestamp the toast logic
+  // reads to flash "Link copied!" briefly. `sharePending` debounces during
+  // the PATCH /replay/:id/share round-trip so the user can't double-click.
+  const [shareConfirmOpen, setShareConfirmOpen] = useState(false);
+  const [shareCopiedAt, setShareCopiedAt] = useState<number | null>(null);
+  const [sharePending, setSharePending] = useState(false);
+
+  /** Build the canonical public-share URL for a replay row. The `share/`
+   *  prefix routes to `SharedReplayPage` in App.tsx, which uses the
+   *  public-or-player `/replay/:id` server endpoint (works without auth
+   *  for public replays). */
+  const buildShareUrl = (replayId: string) =>
+    `${window.location.origin}/replay/share/${replayId}`;
+
+  /** Copy the share URL to clipboard and flash the toast. Idempotent —
+   *  re-clicking re-copies and re-flashes. */
+  const copyShareLink = useCallback((replayId: string) => {
+    void navigator.clipboard.writeText(buildShareUrl(replayId)).then(() => {
+      setShareCopiedAt(Date.now());
+      setTimeout(() => setShareCopiedAt((t) => (t === null ? null : (Date.now() - t > 1900 ? null : t))), 2000);
+    });
+  }, []);
+
+  /** Toggle a replay public via PATCH /replay/:id/share. On success,
+   *  updates `mpReplay.isPublic` locally so the Share button label
+   *  updates immediately, AND mirrors into `replayInput` if the user is
+   *  currently in replay-review mode (so the perspective toggle's
+   *  "Spectator" affordance unlocks without a refetch). Auto-copies the
+   *  share URL after going public. */
+  const handleSharePublic = useCallback(async () => {
+    if (!mpReplay || mpReplay.isPublic || sharePending) return;
+    setSharePending(true);
+    try {
+      const { setReplayPublic } = await import("../lib/serverApi.js");
+      const newPublic = await setReplayPublic(mpReplay.replayId, true);
+      if (newPublic !== true) return; // 4xx/5xx — leave UI unchanged
+      const updated: RemoteReplay = { ...mpReplay, isPublic: true };
+      setMpReplay(updated);
+      // Also patch live replayInput if we're currently reviewing this
+      // replay — so the Spectator option in the perspective toggle
+      // unlocks immediately without a perspective re-fetch.
+      setReplayInput((prev) => {
+        if (prev && prev.kind === "remote" && prev.data.replayId === mpReplay.replayId) {
+          return { kind: "remote", data: { ...prev.data, isPublic: true } };
+        }
+        return prev;
+      });
+      copyShareLink(mpReplay.replayId);
+      setShareConfirmOpen(false);
+    } finally {
+      setSharePending(false);
+    }
+  }, [mpReplay, sharePending, copyShareLink]);
+
+  const handlePerspectiveChange = useCallback(async (newPerspective: ReplayPerspective) => {
+    // Only meaningful for remote replays. Local (sandbox) replays don't
+    // have a server-side equivalent to refetch from.
+    if (!replayInput || replayInput.kind !== "remote") return;
+    if (replayInput.data.perspective === newPerspective) return;
+    const replayId = replayInput.data.replayId;
+    setPerspectivePending(true);
+    try {
+      const { getSharedReplay } = await import("../lib/serverApi.js");
+      const meta = await getSharedReplay(replayId, newPerspective);
+      if (!meta || !meta.replay) return;
+      const next = toRemoteReplay(meta, multiplayerGame?.myPlayerId ?? null);
+      setMpReplay(next);
+      setReplayInput({ kind: "remote", data: next });
+    } finally {
+      setPerspectivePending(false);
+    }
+  }, [replayInput, multiplayerGame]);
 
   // MP game-over → fetch the parent lobby id so the Rematch button has a
   // `previousLobbyId` to POST. Lobby id isn't carried on multiplayerGame
@@ -1320,7 +1437,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // already running or if the user is reviewing a replay.
   useEffect(() => {
     if (!onBack || sandboxMode || multiplayerGame) return;
-    if (session.gameState || replayData) return;
+    if (session.gameState || replayInput) return;
     session.startGame({
       player1Deck: initialDeck ?? [],
       // opponentDeck overrides the historical mirror behavior. Falls back
@@ -1332,7 +1449,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       player2IsHuman: false,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.gameState, replayData]);
+  }, [session.gameState, replayInput]);
 
   // Sandbox: restore from sessionStorage (HMR survival) or start fresh
   useEffect(() => {
@@ -1387,7 +1504,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
 
 
   function handleStart() {
-    setReplayData(null);
+    setReplayInput(null);
     const botOption = BOT_OPTIONS.find((b) => b.id === botId) ?? BOT_OPTIONS[0]!;
     session.startGame({
       player1Deck: p1Parse.entries,
@@ -1400,9 +1517,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   }
 
   const handleDownloadReplay = useCallback(() => {
-    // Prefer locally-tracked replay (solo) over server-fetched (MP). They're
-    // structurally identical ReplayData; either works for the JSON export.
-    const data = session.completedGame ?? mpReplay;
+    // Sandbox-only: exports the seed+actions ReplayData JSON, which can
+    // be re-uploaded via the Load-replay file input for full replay.
+    // MP replays don't go through this path — server doesn't expose
+    // seed+actions client-side (Phase A anti-cheat fix), and an export of
+    // the filtered states[] would lock the recipient to the original
+    // viewer's perspective without going through the public-share consent
+    // flow. The Download button is hidden in MP mode (see canDownloadReplay
+    // gate in the game-over modal).
+    const data = session.completedGame;
     if (!data) return;
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: "application/json" });
@@ -1413,7 +1536,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     a.download = `replay_${ts}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [session.completedGame, mpReplay]);
+  }, [session.completedGame]);
 
   const handleUploadReplay = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1423,7 +1546,9 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       try {
         const data = JSON.parse(ev.target?.result as string) as ReplayData;
         if (typeof data.seed !== "number" || !Array.isArray(data.actions) || !Array.isArray(data.p1Deck) || !Array.isArray(data.p2Deck)) return;
-        setReplayData(data);
+        // Uploaded JSON files are sandbox-format (seed+actions+decks). Wrap
+        // as a "local" ReplayInput so the hook reconstructs from seed.
+        setReplayInput({ kind: "local", data });
       } catch {
         // Invalid file — silently ignore
       }
@@ -1500,10 +1625,10 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // =========================================================================
   // SETUP MODE
   // =========================================================================
-  if (!session.gameState && !replayData && (sandboxMode || onBack || !!multiplayerGame)) {
+  if (!session.gameState && !replayInput && (sandboxMode || onBack || !!multiplayerGame)) {
     return null; // waiting for auto-start effect
   }
-  if (!session.gameState && !replayData) {
+  if (!session.gameState && !replayInput) {
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-bold text-amber-400">Play</h2>
@@ -1606,7 +1731,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // In replay mode, show the replay state instead of the live game state.
   // replaySession.state may be null while states are being built — fall back to session.gameState.
   // Cast to GameState: the null guard below prevents any actual null from reaching the render.
-  const gameState = ((replayData ? replaySession.state : null) ?? session.gameState) as GameState;
+  const gameState = ((replayInput ? replaySession.state : null) ?? session.gameState) as GameState;
   // Guard: if we somehow have no state yet (replay still loading), render nothing
   if (!gameState) return null;
 
@@ -2220,10 +2345,103 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
 
 
         {/* Replay mode banner */}
-        {replayData && (
-          <div className="shrink-0 rounded-xl px-3 py-2 flex items-center gap-3 bg-indigo-950/60 border border-indigo-700/40">
+        {replayInput && (
+          <div className="shrink-0 rounded-xl px-3 py-2 flex items-center gap-3 flex-wrap bg-indigo-950/60 border border-indigo-700/40">
             <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider">Replay</span>
             <span className="text-gray-500 text-xs">Turn {replaySession.state?.turnNumber ?? "–"}</span>
+            {/* Privacy chip — shows current public/private status for remote
+                replays. Players see a clickable chip that toggles share state
+                (and copies the link when going public); non-players just see
+                the badge. Sandbox/local replays don't have a public concept. */}
+            {replayInput.kind === "remote" && replayInput.data.callerIsPlayer && (
+              <button
+                className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  replayInput.data.isPublic
+                    ? "bg-emerald-900/40 border-emerald-700/50 text-emerald-300 hover:bg-emerald-900/60"
+                    : "bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                }`}
+                disabled={sharePending}
+                title={replayInput.data.isPublic
+                  ? "Click to copy share link, or use the Game Over modal to revoke"
+                  : "Click to make this replay public and share"}
+                onClick={() => {
+                  if (!mpReplay) return;
+                  if (mpReplay.isPublic) {
+                    copyShareLink(mpReplay.replayId);
+                  } else {
+                    void handleSharePublic();
+                  }
+                }}
+              >
+                {replayInput.data.isPublic
+                  ? (shareCopiedAt ? "Link copied" : "Public · share")
+                  : "Private"}
+              </button>
+            )}
+            {/* Public chip for non-player viewers (no toggle affordance). */}
+            {replayInput.kind === "remote" && !replayInput.data.callerIsPlayer && replayInput.data.isPublic && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-900/40 border border-emerald-700/50 text-emerald-300">
+                Public replay
+              </span>
+            )}
+            {/* Perspective toggle — only meaningful for server-rendered MP
+                replays (kind === "remote"). Sandbox/local replays own all
+                their data so there's nothing to filter. Buttons are
+                affordance-gated:
+                  - "My View" / "Opponent View" labels reflect each player's
+                    username when known; fall back to generic "Player 1" /
+                    "Player 2" otherwise.
+                  - "Spectator" (neutral) only available on public replays
+                    where both players have opted in (replays.public=true).
+                See `handlePerspectiveChange` for the refetch flow. */}
+            {replayInput.kind === "remote" && (() => {
+              const remote = replayInput.data;
+              const p1Label = remote.p1Username ?? "Player 1";
+              const p2Label = remote.p2Username ?? "Player 2";
+              const baseBtn = "px-2 py-1 text-[11px] rounded border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+              const activeStyle = "bg-indigo-700/50 border-indigo-500/50 text-indigo-100";
+              const inactiveStyle = "bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200 hover:bg-gray-700";
+              const p1Active = remote.perspective === "p1";
+              const p2Active = remote.perspective === "p2";
+              const neutralActive = remote.perspective === "neutral";
+              // Affordance rules: a player viewing their own private replay
+              // can ONLY see their own perspective (server enforces; URL-
+              // tampering returns 403). A player on a public replay can
+              // preview the other side's view + the neutral spectator view.
+              // A non-player on a public replay can pick any perspective.
+              const canPickP2 = remote.callerSlot !== "p1" || remote.isPublic;
+              const canPickP1 = remote.callerSlot !== "p2" || remote.isPublic;
+              const canPickNeutral = remote.isPublic;
+              return (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-gray-600 uppercase tracking-wider mr-0.5">View as:</span>
+                  <button
+                    className={`${baseBtn} ${p1Active ? activeStyle : inactiveStyle}`}
+                    disabled={!canPickP1 || perspectivePending || p1Active}
+                    onClick={() => void handlePerspectiveChange("p1")}
+                    title={canPickP1 ? `Watch as ${p1Label}` : "Locked to your own perspective on a private replay"}
+                  >
+                    {p1Label}
+                  </button>
+                  <button
+                    className={`${baseBtn} ${p2Active ? activeStyle : inactiveStyle}`}
+                    disabled={!canPickP2 || perspectivePending || p2Active}
+                    onClick={() => void handlePerspectiveChange("p2")}
+                    title={canPickP2 ? `Watch as ${p2Label}` : "Locked to your own perspective on a private replay"}
+                  >
+                    {p2Label}
+                  </button>
+                  <button
+                    className={`${baseBtn} ${neutralActive ? activeStyle : inactiveStyle}`}
+                    disabled={!canPickNeutral || perspectivePending || neutralActive}
+                    onClick={() => void handlePerspectiveChange("neutral")}
+                    title={canPickNeutral ? "Spectator view — both players' hands visible" : "Available only on publicly shared replays"}
+                  >
+                    Spectator
+                  </button>
+                </div>
+              );
+            })()}
             <div className="ml-auto flex items-center gap-2">
               <label className="cursor-pointer px-2 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded text-xs text-gray-300 transition-colors">
                 Load replay
@@ -2231,7 +2449,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               </label>
               <button
                 className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 rounded border border-gray-700 transition-colors"
-                onClick={() => setReplayData(null)}
+                onClick={() => setReplayInput(null)}
               >
                 Exit replay
               </button>
@@ -2288,7 +2506,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         <div className="shrink-0 flex items-center gap-2 py-0.5 landscape-phone:!py-0">
           {/* Undo — left side */}
           <div className="w-16 flex justify-start">
-            {session.canUndo && !replayData && (
+            {session.canUndo && !replayInput && (
               <button
                 className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs bg-gray-700/40 hover:bg-gray-700/60 text-gray-400 hover:text-gray-200 rounded sm:rounded-md border border-gray-600/40 font-medium transition-colors"
                 onClick={() => { session.undo(); cancelMode(); }}
@@ -2398,7 +2616,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </div>
 
         {/* Replay controls — shown when reviewing a completed game */}
-        {replayData && (
+        {replayInput && (
           <ReplayControls
             session={replaySession}
             onTakeOver={(state) => {
@@ -2406,7 +2624,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               // subsequent undos reconstruct from here, not from the original
               // game's seed+actions (which would land back on the victory
               // screen).
-              setReplayData(null);
+              setReplayInput(null);
               session.forkFrom(state);
             }}
           />
@@ -2743,7 +2961,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     </div>
 
       {/* ======================= Game Over Modal ======================= */}
-      {isGameOver && !replayData && !gameOverModalDismissed && (() => {
+      {isGameOver && !replayInput && !gameOverModalDismissed && (() => {
         // Bo3 match state (embedded by server on game-over)
         const matchNextGameId = (gameState as Record<string, unknown>)._matchNextGameId as string | null | undefined;
         const matchScore = (gameState as Record<string, unknown>)._matchScore as { p1: number; p2: number } | undefined;
@@ -2842,11 +3060,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                   match where lobbyId fetch is still in-flight or returned
                   null for queue-spawned games).
                 Slot 3: Review Game / Download Replay — when replay data
-                  exists. Solo: from session.completedGame. MP: from the
-                  mpReplay fetch effect above. */}
+                  exists. Solo: from session.completedGame (ReplayData =
+                  seed+actions+decks). MP: from the mpReplay fetch effect
+                  above (RemoteReplay = pre-rendered server-filtered states).
+                  Different shapes; we wrap each in a ReplayInput discriminator
+                  before handing to setReplayInput. */}
             <div className="flex flex-col items-center gap-2 pt-1 w-full">
               {(() => {
-                const completedReplay = session.completedGame ?? mpReplay;
+                // Build the ReplayInput from whichever source has data.
+                // Solo path takes priority — if local action history exists,
+                // use it; mpReplay only matters in MP mode where there's
+                // no session.completedGame. Download is sandbox-only (MP
+                // only has filtered states client-side, no seed+actions).
+                const reviewInput: ReplayInput | null = session.completedGame
+                  ? { kind: "local", data: session.completedGame }
+                  : mpReplay
+                    ? { kind: "remote", data: mpReplay }
+                    : null;
+                const canDownloadReplay = !!session.completedGame;
                 const primaryStyle = "w-full px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold transition-colors shadow-lg shadow-amber-600/20";
                 const primaryDisabledStyle = "w-full px-5 py-2.5 bg-amber-600/40 text-white/70 rounded-lg font-bold cursor-not-allowed shadow-lg shadow-amber-600/20";
                 const secondaryStyle = "w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg font-medium transition-colors border border-gray-700";
@@ -2863,7 +3094,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 const hasPrimary = !multiplayerGame || hasNextGame || canRematch;
                 const backToLobby = () => {
                   session.reset();
-                  setReplayData(null);
+                  setReplayInput(null);
                   setGameOverModalDismissed(false);
                   onBack?.();
                 };
@@ -2928,7 +3159,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                     {!multiplayerGame && (
                       <button
                         className={primaryStyle}
-                        onClick={() => { session.reset(); setReplayData(null); setGameOverModalDismissed(false); }}
+                        onClick={() => { session.reset(); setReplayInput(null); setGameOverModalDismissed(false); }}
                       >
                         Play Again
                       </button>
@@ -2943,23 +3174,93 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                       Back to Lobby
                     </button>
 
-                    {/* Tertiary row — Review + Download, when replay exists */}
-                    {completedReplay && (
-                      <div className="grid grid-cols-2 gap-2 w-full">
-                        <button
-                          className={tertiaryReviewStyle}
-                          onClick={() => setReplayData(completedReplay)}
-                        >
-                          Review
-                        </button>
-                        <button
-                          className={tertiaryDownloadStyle}
-                          onClick={handleDownloadReplay}
-                        >
-                          Download
-                        </button>
-                      </div>
-                    )}
+                    {/* Tertiary row — Review (always when a replay exists),
+                        Download (sandbox-only — MP replays are server-rendered
+                        states with no seed we could re-export), Share (MP-only,
+                        toggles `replays.public` then copies the share URL). */}
+                    {reviewInput && (() => {
+                      const showShare = !!mpReplay;
+                      // Layout: 1, 2, or 3 buttons depending on which slots fire.
+                      const buttonCount = 1 + (canDownloadReplay ? 1 : 0) + (showShare ? 1 : 0);
+                      const rowClass = buttonCount === 1
+                        ? "w-full"
+                        : buttonCount === 2
+                          ? "grid grid-cols-2 gap-2 w-full"
+                          : "grid grid-cols-3 gap-2 w-full";
+                      return (
+                        <div className="w-full space-y-2">
+                          <div className={rowClass}>
+                            <button
+                              className={tertiaryReviewStyle}
+                              onClick={() => setReplayInput(reviewInput)}
+                            >
+                              Review
+                            </button>
+                            {canDownloadReplay && (
+                              <button
+                                className={tertiaryDownloadStyle}
+                                onClick={handleDownloadReplay}
+                              >
+                                Download
+                              </button>
+                            )}
+                            {showShare && mpReplay && (
+                              <button
+                                className={tertiaryDownloadStyle}
+                                disabled={sharePending}
+                                onClick={() => {
+                                  if (mpReplay.isPublic) {
+                                    // Already public — skip confirm, just copy.
+                                    copyShareLink(mpReplay.replayId);
+                                  } else {
+                                    setShareConfirmOpen((v) => !v);
+                                  }
+                                }}
+                              >
+                                {mpReplay.isPublic
+                                  ? (shareCopiedAt ? "Copied!" : "Copy link")
+                                  : "Share"}
+                              </button>
+                            )}
+                          </div>
+                          {/* Inline confirm — replaces the share button briefly
+                              with a yes/no choice + explanatory text. Cleaner
+                              than a modal layer for an already-modal context.
+                              Only shows for the toggle-to-public action; the
+                              "already public, just copy" path skips it. */}
+                          {showShare && mpReplay && shareConfirmOpen && !mpReplay.isPublic && (
+                            <div className="rounded-lg border border-amber-700/40 bg-amber-950/40 px-3 py-2.5 space-y-2">
+                              <div className="text-[11px] text-amber-200 leading-snug">
+                                Anyone with the link will be able to spectate this game with both players' hands and decisions visible. This can't be undone — but you can revoke the public flag from the replay viewer.
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  className="px-3 py-1.5 text-xs bg-amber-700 hover:bg-amber-600 text-white rounded font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  disabled={sharePending}
+                                  onClick={() => void handleSharePublic()}
+                                >
+                                  {sharePending ? "Sharing…" : "Make public & copy link"}
+                                </button>
+                                <button
+                                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded font-medium transition-colors border border-gray-700"
+                                  onClick={() => setShareConfirmOpen(false)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {/* Toast for "Copy link" success on already-public
+                              replays (the make-public path also copies and
+                              sets shareCopiedAt). */}
+                          {showShare && mpReplay && mpReplay.isPublic && shareCopiedAt && (
+                            <div className="text-[11px] text-emerald-400 text-center">
+                              Link copied to clipboard
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </>
                 );
               })()}
@@ -2974,7 +3275,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           backdrop click). Tap → re-open the modal so the player can hit Play
           Again / Back to Lobby / Review / Download. Top-center, mirrors the
           TopToast positioning so it clears the iPhone Dynamic Island. */}
-      {isGameOver && !replayData && gameOverModalDismissed && (
+      {isGameOver && !replayInput && gameOverModalDismissed && (
         <div
           className="fixed left-1/2 -translate-x-1/2 z-40 pointer-events-none"
           style={{ top: "calc(1rem + env(safe-area-inset-top))" }}

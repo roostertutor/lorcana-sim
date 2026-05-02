@@ -197,6 +197,43 @@ option entirely until this is resolved.
 
 ---
 
+## Shareable MP replays — finish the UX
+
+**Discovery context (2026-05-01):** while wiring the sandbox state filter, the user asked what's needed for shareable MP replays. Audit showed most plumbing was already built — Phase 2 of the MP UX plan had shipped the server side on 2026-04-22 (replay auto-save, share endpoint, public flag, route + auto-fetch wired). The work split into four phases:
+
+- **Phase A — Server-side per-viewer filtering.** ✅ DONE 2026-05-01 (commit `937fbb8`). Server reconstructs + filters per perspective; access matrix at `decideReplayAccess` in `server/src/services/gameService.ts`. 21 unit tests.
+- **Phase B — Client refactor + perspective toggle.** ✅ DONE 2026-05-01 (commit pending alongside C). `useReplaySession` accepts discriminated union `{ kind: "local" | "remote" }`; `serverApi.getGameReplay` returns the new `ReplayMeta` shape; `getSharedReplay` (public-or-player) + `setReplayPublic` (PATCH) added; new `/replay/share/:replayId` route registers `SharedReplayPage`; replay banner has perspective toggle (P1/P2/Spectator) with affordance gating per the access matrix.
+- **Phase C — Share UI on game-over overlay + privacy chrome.** ✅ DONE 2026-05-01 (commit pending alongside B). Share button + inline confirm flow on game-over overlay (3-button tertiary row when MP+download both apply); privacy chip on replay banner (player click toggles public + copies link; non-player sees read-only "Public replay" badge).
+- **Phase D — "My Replays" browse list.** OPEN — see prompt below.
+
+The active anti-cheat leak (player reviewing their MP game saw opponent hand history) was closed by Phase A. Phase B+C make the existing PATCH /replay/:id/share endpoint reachable from the UI and add the perspective toggle that completes the filter UX.
+
+### Phase D — "My Replays" browse + (later) public discovery
+
+**Owner:** ui-specialist (browse list page is more of a screen than a game-board widget).
+
+**Tasks:**
+1. **`/replays` route** — list the caller's finished MP games. Columns: date, opponent username, format (Bo1/Bo3), winner indicator, turn count, share status (private/public). Click navigates to `/replay/:gameId` (existing route, calls `getGameReplay(gameId)` → server's `/game/:id/replay` endpoint, player-only auth).
+2. **Server endpoint** `GET /replay?user=me&limit=50` — joins `replays` × `games` × `profiles` for username, paginated, ordered by `created_at DESC`. Players see their own; nobody else's. Need to add to `server/src/routes/replay.ts`.
+3. **Public browser** at `/replays/public` — paginated list of public replays. Server endpoint `GET /replay?public=true&limit=50&sort=recent|turn-count`. **Defer** until usage data shows public sharing is happening; otherwise it'll be an empty page.
+4. **Profile screen integration** — link "View replays" on each profile page to `/replays?user=<userId>` if that user has any public replays.
+
+**Out of scope until Phase D ships:** explicit replay search, replay tagging, replay annotations, replay clipping (that's the Creator tooling track in BACKLOG).
+
+**Estimated scope:** ~1 day for "My Replays" + endpoint; +1 day for public browser when triggered.
+
+### Known follow-up gaps from Phase B/C (worth a small follow-up commit)
+
+1. **`callerSlot` detection in `App.tsx → metaToRemoteReplay`** is hardcoded to `null` because `ReplayMeta` doesn't carry player IDs (only usernames). Effect: a player visiting their own MP replay via direct `/replay/:gameId` URL gets reduced affordances — no privacy chip toggle, perspective toggle behaves as if anonymous. Server already knows the caller's slot when responding; cleanest fix is to add an optional `callerSlot?: "p1" | "p2" | null` to `ReplayMeta` and stamp it in `buildReplayView`. Then the UI flips both helpers (App.tsx + GameBoard.tsx) to read from the response. The MP game-over Review path is unaffected (callerSlot is sourced from `multiplayerGame.myPlayerId`).
+2. **Privacy chip + share button only render when `mpReplay` is non-null** (the auto-fetched MP context state). They don't render when reviewing via `/replay/:gameId` direct URL or `/replay/share/:replayId`. Once #1 lands, the chip should also work in those paths — the `replayInput.data.replayId` is already present, just need to refactor `handleSharePublic` / `copyShareLink` to read from `replayInput.data.replayId` rather than `mpReplay.replayId`.
+
+### Decisions locked
+- Don't expose raw `seed + actions` to private viewers, even with a "I'll filter client-side, promise" contract. Determined cheats just disable the wrap. The Phase A reconstruct-server-side decision is the only architecturally sound shape.
+- Don't filter the action stream itself. Some action args inherently carry private info (chosen card from a private peek) that's load-bearing for replay correctness. Filter the *state* (already pure), not the *action* (impure, breaks reconstruction).
+- Don't bundle "spectator mode" (live in-game watching) into this work. Different threat model (in-progress game info leaks differently — opponent's hand at decision time rather than post-hoc), different latency requirements. Park it as a follow-up if Phase A's reconstructor pattern proves performant.
+
+---
+
 ## Engine agent: 8 condition-field-typo bugs surfaced by the 2026-04-30 card-status improvement
 
 The new condition-field validator (`scripts/card-status.ts:CONDITION_FIELD_MAP`,

@@ -276,13 +276,92 @@ export async function getGameActionList(gameId: string): Promise<GameAction[]> {
   return data.actions
 }
 
-export async function getGameReplay(gameId: string) {
-  const res = await fetch(`${SERVER_URL}/game/${gameId}/replay`, {
+/** Server's per-viewer-filtered replay payload. Matches `ReplayView` in
+ *  `server/src/services/gameService.ts` (Phase A, commit 937fbb8). */
+export type ReplayPerspective = "p1" | "p2" | "neutral"
+
+export interface ReplayMeta {
+  id: string
+  gameId: string
+  public: boolean
+  winnerUsername: string | null
+  p1Username: string | null
+  p2Username: string | null
+  turnCount: number
+  format: string | null
+  gameFormat: string | null
+  gameRotation: string | null
+  createdAt: string
+  /** The viewing perspective `replay.states` was filtered against. */
+  perspective: ReplayPerspective
+  /** Pre-rendered, per-viewer-filtered state stream + winner. Null if the
+   *  underlying game has no actions yet (shouldn't happen for finished MP
+   *  games, but the server returns nullable so we mirror it). */
+  replay: {
+    states: GameState[]
+    winner: PlayerID | null
+  } | null
+}
+
+/** Fetch a replay via `GET /game/:id/replay` (player-only auth path).
+ *  PHASE A (commit 937fbb8) anti-cheat fix: server now returns a pre-filtered
+ *  state stream instead of raw seed+actions+decks. Pass `perspective` to
+ *  request a specific view ('p2' / 'neutral' subject to the access matrix:
+ *  see `decideReplayAccess` in gameService.ts).
+ *
+ *  Returns null on 4xx/5xx — caller can distinguish "no replay yet" (game
+ *  not finished) vs "forbidden" by status if needed; today we just collapse. */
+export async function getGameReplay(
+  gameId: string,
+  perspective?: ReplayPerspective,
+): Promise<ReplayMeta | null> {
+  const url = perspective != null
+    ? `${SERVER_URL}/game/${gameId}/replay?perspective=${perspective}`
+    : `${SERVER_URL}/game/${gameId}/replay`
+  const res = await fetch(url, {
     headers: await authHeaders(),
   })
   if (!res.ok) return null
-  const data = await res.json() as { replay: { seed: number; p1Deck: DeckEntry[]; p2Deck: DeckEntry[]; actions: GameAction[]; winner: string | null; turnCount: number } }
+  const data = await res.json() as { replay: ReplayMeta }
   return data.replay
+}
+
+/** Fetch a replay via `GET /replay/:id` (public-or-player auth path). Used
+ *  by the share-link flow — readable without a session for public replays.
+ *  Auth header is omitted when no session exists; server's optional-auth
+ *  handler reads the bearer if present, otherwise treats as anonymous and
+ *  returns 200 only when `replays.public=true`. */
+export async function getSharedReplay(
+  replayId: string,
+  perspective?: ReplayPerspective,
+): Promise<ReplayMeta | null> {
+  const url = perspective != null
+    ? `${SERVER_URL}/replay/${replayId}?perspective=${perspective}`
+    : `${SERVER_URL}/replay/${replayId}`
+  // Auth header is best-effort — public replays work without it. Suppress
+  // throws from getToken() (no session) and just send the request anonymously.
+  let headers: Record<string, string> = { "Content-Type": "application/json" }
+  try {
+    headers = await authHeaders()
+  } catch { /* anonymous request — server will gate on replay.public */ }
+  const res = await fetch(url, { headers })
+  if (!res.ok) return null
+  const data = await res.json() as { replay: ReplayMeta }
+  return data.replay
+}
+
+/** Toggle a replay's `public` flag via `PATCH /replay/:id/share`. Player-only
+ *  endpoint — server enforces. Returns the new public state on success or
+ *  `null` on failure (network error or auth issue). */
+export async function setReplayPublic(replayId: string, makePublic: boolean): Promise<boolean | null> {
+  const res = await fetch(`${SERVER_URL}/replay/${replayId}/share`, {
+    method: "PATCH",
+    headers: await authHeaders(),
+    body: JSON.stringify({ public: makePublic }),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { ok: boolean; public: boolean }
+  return data.public
 }
 
 export interface ReplayPayload {

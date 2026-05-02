@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
-import type { ReplayData } from "./hooks/useGameSession.js";
-import { getGameReplay, getGameInfo } from "./lib/serverApi.js";
+import type { ReplayInput, RemoteReplay } from "./hooks/useReplaySession.js";
+import { getGameReplay, getSharedReplay, getGameInfo } from "./lib/serverApi.js";
+import type { ReplayMeta } from "./lib/serverApi.js";
 import { supabase } from "./lib/supabase.js";
 import DecksPage from "./pages/DecksPage.js";
 import DeckBuilderPage from "./pages/DeckBuilderPage.js";
@@ -379,25 +380,49 @@ function MultiplayerPage() {
   );
 }
 
+/** Translate a server `ReplayMeta` (Phase A endpoint shape) into the
+ *  client-side `RemoteReplay` consumed by `useReplaySession`. Mirrors the
+ *  helper in GameBoard.tsx but with conservative caller-slot detection.
+ *
+ *  We can't tell from `meta` alone whether the caller is one of the two
+ *  players — `ReplayMeta` carries usernames, not player IDs. The server
+ *  already echoed the appropriate `perspective` based on its own access
+ *  decision; we mirror it. The toggle UI uses `isPublic` + `callerSlot`
+ *  to decide affordances; missing slot = anonymous, toggle locked to the
+ *  server-granted perspective. Cleaner future shape: server includes the
+ *  caller's slot in the response. Punted to a Phase B follow-up. */
+function metaToRemoteReplay(meta: ReplayMeta): RemoteReplay {
+  return {
+    replayId: meta.id,
+    gameId: meta.gameId,
+    states: meta.replay?.states ?? [],
+    winner: meta.replay?.winner ?? null,
+    turnCount: meta.turnCount,
+    perspective: meta.perspective,
+    isPublic: meta.public,
+    callerIsPlayer: false,
+    callerSlot: null,
+    p1Username: meta.p1Username,
+    p2Username: meta.p2Username,
+  };
+}
+
+/** Player-only replay viewer keyed by gameId. Reached via /replay/:gameId.
+ *  For a given `gameId` we hit `GET /game/:id/replay` (player-only auth).
+ *  Public sharing uses `/replay/share/:replayId` (separate route below)
+ *  which calls `GET /replay/:id` and works without auth for public replays. */
 function ReplayPage() {
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
-  const [replayData, setReplayData] = useState<ReplayData | null>(null);
+  const [replayInput, setReplayInput] = useState<ReplayInput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!gameId) return;
     getGameReplay(gameId)
-      .then((data) => {
-        if (data) {
-          setReplayData({
-            seed: data.seed,
-            p1Deck: data.p1Deck,
-            p2Deck: data.p2Deck,
-            actions: data.actions,
-            winner: (data.winner as ReplayData["winner"]) ?? null,
-            turnCount: data.turnCount,
-          });
+      .then((meta) => {
+        if (meta && meta.replay) {
+          setReplayInput({ kind: "remote", data: metaToRemoteReplay(meta) });
         } else {
           setError("Replay not found");
         }
@@ -418,7 +443,7 @@ function ReplayPage() {
     );
   }
 
-  if (!replayData) {
+  if (!replayInput) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
         <span className="text-gray-500 text-sm animate-pulse">Loading replay...</span>
@@ -429,8 +454,60 @@ function ReplayPage() {
   return (
     <GameBoard
       definitions={CARD_DEFINITIONS}
-      initialReplayData={replayData}
+      initialReplayInput={replayInput}
       onBack={() => navigate("/multiplayer")}
+    />
+  );
+}
+
+/** Public-share replay viewer keyed by replayId. Reached via the canonical
+ *  share URL `/replay/share/:replayId`. Hits `GET /replay/:id` which works
+ *  without auth for public replays (see server/src/routes/replay.ts:47-80). */
+function SharedReplayPage() {
+  const { replayId } = useParams<{ replayId: string }>();
+  const navigate = useNavigate();
+  const [replayInput, setReplayInput] = useState<ReplayInput | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!replayId) return;
+    getSharedReplay(replayId)
+      .then((meta) => {
+        if (meta && meta.replay) {
+          setReplayInput({ kind: "remote", data: metaToRemoteReplay(meta) });
+        } else {
+          setError("Replay not found, or this replay is private. Ask the players to share it publicly.");
+        }
+      })
+      .catch(() => setError("Failed to load replay"));
+  }, [replayId]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 p-4">
+        <div className="text-center space-y-3 max-w-md">
+          <div className="text-red-400">{error}</div>
+          <button className="text-amber-400 text-sm hover:underline" onClick={() => navigate("/")}>
+            Back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!replayInput) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <span className="text-gray-500 text-sm animate-pulse">Loading replay...</span>
+      </div>
+    );
+  }
+
+  return (
+    <GameBoard
+      definitions={CARD_DEFINITIONS}
+      initialReplayInput={replayInput}
+      onBack={() => navigate("/")}
     />
   );
 }
@@ -462,6 +539,10 @@ export default function App() {
       <Route path="/solo" element={<SoloGamePage />} />
       <Route path="/game/:gameId" element={<MultiplayerGamePage />} />
       <Route path="/replay/:gameId" element={<ReplayPage />} />
+      {/* Public-share path. Canonical share URL — `share/:replayId` to
+          disambiguate from the player-only gameId path above. Auth optional;
+          server gates on `replays.public`. */}
+      <Route path="/replay/share/:replayId" element={<SharedReplayPage />} />
       <Route path="/dev/add-card" element={<DevAddCardPage />} />
 
       {/* Fallback */}
