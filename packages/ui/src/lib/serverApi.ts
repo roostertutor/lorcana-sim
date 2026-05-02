@@ -350,6 +350,43 @@ export async function getSharedReplay(
   return data.replay
 }
 
+/** Lightweight row in the "My Replays" browse list. Mirrors the server's
+ *  `ReplayListItem` shape — no state stream, no decks. Click a row → navigate
+ *  to `/replay/:gameId` which hits the per-replay filtered endpoint. */
+export interface ReplayListItem {
+  id: string
+  gameId: string
+  p1Username: string | null
+  p2Username: string | null
+  callerIsP1: boolean
+  won: boolean | null
+  public: boolean
+  format: string | null
+  gameFormat: string | null
+  gameRotation: string | null
+  turnCount: number
+  createdAt: string
+}
+
+/** Fetch the caller's MP replays (player-only auth). Newest-first, paginated.
+ *  Returns `{ replays: [], total: 0 }` on transport error so the UI can
+ *  distinguish "no results" from "auth failure" via inspecting `total`. */
+export async function getMyReplays(
+  limit = 50,
+  offset = 0,
+): Promise<{ replays: ReplayListItem[]; total: number }> {
+  try {
+    const res = await fetch(
+      `${SERVER_URL}/replay/list?user=me&limit=${limit}&offset=${offset}`,
+      { headers: await authHeaders() },
+    )
+    if (!res.ok) return { replays: [], total: 0 }
+    return await res.json() as { replays: ReplayListItem[]; total: number }
+  } catch {
+    return { replays: [], total: 0 }
+  }
+}
+
 /** Toggle a replay's `public` flag via `PATCH /replay/:id/share`. Player-only
  *  endpoint — server enforces. Returns the new public state on success or
  *  `null` on failure (network error or auth issue). */

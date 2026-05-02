@@ -683,6 +683,99 @@ async function handleMatchProgress(
   return { nextGameId: nextGame.id, p1Wins, p2Wins }
 }
 
+/** One row in the "My Replays" browse list. Lightweight metadata only — no
+ *  state stream, no decks (those cost a full reconstruction or a heavy fetch).
+ *  Caller-perspective fields (`callerIsP1`, `won`) are stamped server-side so
+ *  the UI doesn't need to re-derive from raw player IDs. */
+export interface ReplayListItem {
+  id: string
+  gameId: string
+  p1Username: string | null
+  p2Username: string | null
+  /** True if the calling user was player 1 of the parent game. False if they
+   *  were player 2. (List is filtered to the caller's own games server-side,
+   *  so they're always one of the two.) */
+  callerIsP1: boolean
+  /** Did the calling user win? Null if the game ended without a recorded winner
+   *  (resign-with-no-valid-state is the documented case in the schema). */
+  won: boolean | null
+  public: boolean
+  format: string | null
+  gameFormat: string | null
+  gameRotation: string | null
+  turnCount: number
+  createdAt: string
+}
+
+/** Paginated list of finished MP replays the caller participated in.
+ *  Joins `replays` × `games` to filter by player IDs (RLS would also let
+ *  the caller read public replays from non-participants, but we want a
+ *  "MINE only" view here — explicit player-id filter ensures that).
+ *  Ordered newest-first. Returns `{ replays, total }` so the UI can
+ *  render pagination affordances. */
+export async function listMyReplays(
+  userId: string,
+  limit: number,
+  offset: number,
+): Promise<{ replays: ReplayListItem[]; total: number }> {
+  // Fetch the caller's finished games — IDs + winner + slot — first. Replays
+  // are 1:1 with games so we can pull replay metadata in a second query keyed
+  // by game_id. Doing it as a join via `games(...)` from `replays` would also
+  // work but the filter-by-player-id syntax is cleaner from the games side.
+  const { data: games, error: gErr, count } = await supabase
+    .from("games")
+    .select("id, player1_id, player2_id, winner_id, status", { count: "exact" })
+    .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
+    .eq("status", "finished")
+    .order("updated_at", { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  if (gErr || !games || games.length === 0) {
+    return { replays: [], total: count ?? 0 }
+  }
+
+  const gameIds = games.map((g) => g.id as string)
+  const { data: replays, error: rErr } = await supabase
+    .from("replays")
+    .select(
+      "id, game_id, public, p1_username, p2_username, turn_count, format, game_format, game_rotation, created_at",
+    )
+    .in("game_id", gameIds)
+
+  if (rErr || !replays) {
+    return { replays: [], total: count ?? 0 }
+  }
+
+  const replayByGame = new Map(replays.map((r) => [r.game_id as string, r]))
+
+  // Preserve the games-order (newest-first) and drop any games that don't
+  // have a replay row yet (shouldn't happen post-finish, but defensive).
+  const items: ReplayListItem[] = []
+  for (const g of games) {
+    const r = replayByGame.get(g.id as string)
+    if (!r) continue
+    const callerIsP1 = (g.player1_id as string) === userId
+    const winnerId = g.winner_id as string | null
+    const won = winnerId == null ? null : winnerId === userId
+    items.push({
+      id: r.id as string,
+      gameId: g.id as string,
+      p1Username: (r.p1_username as string | null) ?? null,
+      p2Username: (r.p2_username as string | null) ?? null,
+      callerIsP1,
+      won,
+      public: r.public as boolean,
+      format: (r.format as string | null) ?? null,
+      gameFormat: (r.game_format as string | null) ?? null,
+      gameRotation: (r.game_rotation as string | null) ?? null,
+      turnCount: r.turn_count as number,
+      createdAt: r.created_at as string,
+    })
+  }
+
+  return { replays: items, total: count ?? items.length }
+}
+
 export async function getGameHistory(userId: string, page: number, limit: number) {
   const { data, error } = await supabase
     .from("games")

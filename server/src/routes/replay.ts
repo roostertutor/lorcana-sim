@@ -5,6 +5,7 @@ import {
   buildReplayView,
   decideReplayAccess,
   getReplayById,
+  listMyReplays,
   setReplayPublic,
   type ReplayPerspective,
 } from "../services/gameService.js"
@@ -18,6 +19,39 @@ function parsePerspectiveQuery(raw: string | undefined): ReplayPerspective | nul
   if (raw === "p1" || raw === "p2" || raw === "neutral") return raw
   return undefined
 }
+
+/**
+ * GET /replay/list?user=me&limit=50&offset=0
+ *
+ * Paginated list of MP replays the caller participated in. Player-only auth.
+ * Ordered newest-first by parent-game `updated_at`. Returns lightweight
+ * metadata per row (no state stream, no decks) so the UI can render a list
+ * cheaply; a click navigates to `/replay/:gameId` which hits the per-replay
+ * filtered endpoint.
+ *
+ * `user=me` is currently the only valid value. Future work (profile page
+ * integration) might allow `user=<id>` to surface another user's PUBLIC
+ * replays — the access matrix already supports that via RLS. Until then we
+ * 400 anything other than `me` so callers don't depend on a TBD behavior.
+ *
+ * Registered BEFORE `/:id` so Hono's path-matching catches the literal
+ * `/list` segment first; with `/:id` first, `id` would capture `"list"`.
+ */
+replay.get("/list", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const userParam = c.req.query("user") ?? "me"
+  if (userParam !== "me") {
+    return c.json({ error: "Only user=me is supported" }, 400)
+  }
+
+  const rawLimit = parseInt(c.req.query("limit") ?? "50", 10)
+  const rawOffset = parseInt(c.req.query("offset") ?? "0", 10)
+  const limit = Math.min(Math.max(Number.isFinite(rawLimit) ? rawLimit : 50, 1), 100)
+  const offset = Math.max(Number.isFinite(rawOffset) ? rawOffset : 0, 0)
+
+  const result = await listMyReplays(userId, limit, offset)
+  return c.json(result)
+})
 
 /**
  * GET /replay/:id

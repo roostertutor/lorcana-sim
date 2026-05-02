@@ -12,13 +12,15 @@ import SimulationView from "./pages/SimulationView.js";
 import SandboxLobby from "./pages/SandboxLobby.js";
 import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
+import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
 
-type Tab = "decks" | "multiplayer" | "sandbox";
+type Tab = "decks" | "multiplayer" | "replays" | "sandbox";
 
 const TABS: { id: Tab; path: string; label: string }[] = [
   { id: "decks", path: "/", label: "Decks" },
   { id: "multiplayer", path: "/multiplayer", label: "Multiplayer" },
+  { id: "replays", path: "/replays", label: "Replays" },
   // Sandbox surfaced as a top-level tab — installed PWA can't easily type
   // URLs to reach `/sandbox`, so the route needed a discoverable entry point.
   { id: "sandbox", path: "/sandbox", label: "Sandbox" },
@@ -524,6 +526,7 @@ export default function App() {
       <Route path="/decks/new" element={<TabPage tab="decks"><DeckBuilderPage /></TabPage>} />
       <Route path="/decks/:id" element={<TabPage tab="decks"><DeckBuilderPage /></TabPage>} />
       <Route path="/multiplayer" element={<MultiplayerPage />} />
+      <Route path="/replays" element={<TabPage tab="replays"><ReplaysPage /></TabPage>} />
 
       {/* Lobby join via URL — /lobby/ABC123 */}
       <Route path="/lobby/:code" element={<LobbyJoinPage />} />
