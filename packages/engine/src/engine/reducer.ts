@@ -4255,8 +4255,10 @@ export function applyEffect(
       return state;
     }
 
-    case "remove_keyword_target": {
+    case "remove_keyword": {
       // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn".
+      // Effect form (with duration) — for the Static form (no duration,
+      // continuous while source in play), see gameModifiers.ts:512.
       const timedEffect: TimedEffect = {
         type: "suppress_keyword",
         keyword: effect.keyword,
@@ -8200,10 +8202,11 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
-    case "remove_keyword_target": {
+    case "remove_keyword": {
       // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn". Attach
       // a `suppress_keyword` TimedEffect; hasKeyword honors it until the
-      // duration expires.
+      // duration expires. Effect form (with duration) — Static form lives
+      // in gameModifiers.ts:512.
       const timedEffect: TimedEffect = {
         type: "suppress_keyword",
         keyword: effect.keyword,

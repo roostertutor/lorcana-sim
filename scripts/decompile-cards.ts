@@ -1986,15 +1986,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     const v = e.value ? ` +${e.value}` : "";
     return `While being challenged, ${tgt} gain ${cap(kw)}${v}`;
   },
+  // Two flavors of `remove_keyword` share this discriminator (mirrors how
+  // `grant_keyword` and `cost_reduction` already collide between Effect /
+  // Static forms — disambiguated by context):
+  //   - Static form (Captain Hook MAN-TO-MAN): no `duration`, lives on a
+  //     `type: "static"` ability. Oracle wording is "lose X and can't gain X".
+  //   - Effect form (Maui Soaring Demigod IN MA BELLY): has `duration`,
+  //     lives in a triggered/activated ability's `effects[]`. Oracle wording
+  //     is "loses X this turn" — written as a one-shot timed suppression.
+  // Distinguishing signal: `duration` is set iff Effect form.
   remove_keyword: (e) => {
     const tgt = renderTarget(e.target ?? {});
-    return `${tgt} lose ${cap(e.keyword ?? "keyword")} and can't gain ${cap(e.keyword ?? "keyword")}`;
-  },
-  // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn" — timed
-  // keyword suppression via suppress_keyword TimedEffect.
-  remove_keyword_target: (e) => {
-    const tgt = renderTarget(e.target ?? {});
-    return `${tgt} ${verbS(tgt, "lose", "loses")} ${cap(e.keyword ?? "keyword")}${dur(e)}`;
+    const kw = cap(e.keyword ?? "keyword");
+    if (e.duration !== undefined) {
+      return `${tgt} ${verbS(tgt, "lose", "loses")} ${kw}${dur(e)}`;
+    }
+    return `${tgt} lose ${kw} and can't gain ${kw}`;
   },
   sing_cost_bonus_characters: (e) => {
     const tgt = renderTarget(e.target ?? {});

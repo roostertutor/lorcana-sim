@@ -7070,7 +7070,7 @@
             "duration": "this_turn"
           },
           {
-            "type": "remove_keyword_target",
+            "type": "remove_keyword",
             "keyword": "reckless",
             "target": {
               "type": "this"

@@ -273,7 +273,7 @@ export type Effect =
   | ChooseEffect
   | ExertEffect
   | GrantKeywordEffect
-  | RemoveKeywordTargetEffect
+  | RemoveKeywordEffect
   | ReadyEffect
   | CantActionEffect
   | MustQuestIfAbleEffect
@@ -1471,10 +1471,14 @@ export interface GrantKeywordEffect {
 
 /** Timed-variant "loses <keyword>". Attaches a `suppress_keyword` TimedEffect
  *  to the target. Used by Maui Soaring Demigod IN MA BELLY ("loses Reckless
- *  this turn"). Distinct from the permanent `remove_keyword` StaticEffect
- *  which is applied via static ability scans in gameModifiers. */
-export interface RemoveKeywordTargetEffect {
-  type: "remove_keyword_target";
+ *  this turn"). Same `type: "remove_keyword"` discriminator as the Static
+ *  variant (RemoveKeywordStatic at types:1929) — distinguished by context:
+ *  Effect lives in triggered/activated abilities' `effects[]` and dispatches
+ *  via reducer.ts; Static lives on a `type: "static"` ability and is read
+ *  by the gameModifiers scanner. Mirrors the same Effect/Static name-collision
+ *  pattern used by `grant_keyword` and `cost_reduction`. */
+export interface RemoveKeywordEffect {
+  type: "remove_keyword";
   keyword: Keyword;
   target: CardTarget;
   duration: EffectDuration;
