@@ -463,7 +463,7 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
         {/* Top-left badges — stacked vertically */}
         {(() => {
           const badges: { text: string; color: string }[] = [];
-          if (zone === "hand" && mods?.universalShifters.has(instanceId)) {
+          if (zone === "hand" && def.abilities.some((a: any) => a.type === "keyword" && a.keyword === "shift" && a.variant === "universal")) {
             badges.push({ text: "U-Shift", color: "bg-gray-600/90" });
           }
           if (zone === "play" && (def as any).alternateNames?.length > 0) {
