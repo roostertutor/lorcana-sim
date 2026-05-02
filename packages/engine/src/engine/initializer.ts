@@ -7,6 +7,7 @@ import type {
   CardDefinition,
   CardInstance,
   CardVariantType,
+  GameEvent,
   GameState,
   PlayerID,
   RngState,
@@ -210,7 +211,14 @@ export function createGame(
   // appropriate PlayerID slot and passing it here.
   const chooserId: PlayerID = config.chooserPlayerId ?? "player1";
 
-  let state: GameState = {
+  // CRD 2.1.3 → 2.2.1: opening hands are dealt AFTER the play/draw decision,
+  // not at game-start. We carry handSize on state so the reducer's
+  // `choose_play_order` resolution branch can read it when it deals.
+  // Until that resolves, both hands are empty — the choose-play-order modal
+  // displays with no opening hand visible to either player (matching CRD
+  // setup order and closing the latent reveal vector where neutral-perspective
+  // replay scrubs at step 0 would have surfaced both hands).
+  const state: GameState = {
     turnNumber: 1,
     // currentPlayer is only meaningful once a starting player is picked. We
     // tentatively set it to the chooser so "whose move is it?" consumers that
@@ -221,6 +229,7 @@ export function createGame(
     // decided" (no card effects run during the play_order_select phase anyway).
     currentPlayer: chooserId,
     phase: "play_order_select",
+    startingHandSize: handSize,
     players: {
       player1: { id: "player1", lore: 0, availableInk: 0, hasPlayedInkThisTurn: false },
       player2: { id: "player2", lore: 0, availableInk: 0, hasPlayedInkThisTurn: false },
@@ -230,7 +239,15 @@ export function createGame(
     rng,
     interactive: config.interactive ?? false,
     triggerStack: [],
-    pendingChoice: null,
+    // CRD 2.1.3.2: chooser picks go-first-or-second. Mulligan (CRD 2.2.2) only
+    // begins after this resolves, because CRD 2.2.2 orders mulligans starting
+    // with the starting player — which we don't know yet. Opening hands are
+    // dealt at the same moment (see reducer.ts choose_play_order branch).
+    pendingChoice: {
+      type: "choose_play_order",
+      choosingPlayerId: chooserId,
+      prompt: "Choose whether to go first or second.",
+    },
     actionLog: [
       {
         timestamp: Date.now(),
@@ -245,93 +262,53 @@ export function createGame(
     wonBy: null,
   };
 
-  // Deal opening hands
-  state = dealOpeningHands(state, handSize);
-
-  // Log the opening hands
-  for (const playerId of ["player1", "player2"] as const) {
-    const handIds = state.zones[playerId].hand;
-    const cardNames = handIds
-      .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "Unknown")
-      .join(", ");
-    state = {
-      ...state,
-      actionLog: [
-        ...state.actionLog,
-        {
-          timestamp: Date.now(),
-          turn: 1,
-          playerId,
-          // Card names are private to the drawer — opening hand cards are in
-          // a hidden zone. Server's filterStateForPlayer redacts message text
-          // for non-authorized viewers (see GameLogEntry.privateTo JSDoc).
-          message: `${playerId} drew: ${cardNames}.`,
-          type: "card_drawn" as const,
-          privateTo: playerId,
-        },
-      ],
-    };
-  }
-
-  // CRD 2.1.3.2: chooser picks go-first-or-second. Mulligan (CRD 2.2.2) only
-  // begins after this resolves, because CRD 2.2.2 orders mulligans starting
-  // with the starting player — which we don't know yet.
-  state = {
-    ...state,
-    pendingChoice: {
-      type: "choose_play_order",
-      choosingPlayerId: chooserId,
-      prompt: "Choose whether to go first or second.",
-    },
-  };
-
   return state;
 }
 
-function dealOpeningHands(state: GameState, handSize: number): GameState {
-  // Draw for player1
-  for (let i = 0; i < handSize; i++) {
-    const deck = state.zones.player1.deck;
-    const topId = deck[0];
-    if (!topId) break;
-    state = {
-      ...state,
-      cards: {
-        ...state.cards,
-        [topId]: { ...state.cards[topId]!, zone: "hand" },
-      },
-      zones: {
-        ...state.zones,
-        player1: {
-          ...state.zones.player1,
-          deck: deck.slice(1),
-          hand: [...state.zones.player1.hand, topId],
+/**
+ * Deal opening hands per CRD 2.2.1 — `handSize` cards from the top of each
+ * deck into each player's hand. Per-card `card_drawn` events are pushed into
+ * the supplied `events` array so analytics + replay tracking sees each draw
+ * (mirrors the per-turn `applyDraw` event surface in reducer.ts:2212).
+ *
+ * This is no longer called from `createGame` — opening hands are dealt by
+ * the reducer's `choose_play_order` resolution branch so the deal happens
+ * AFTER the play/draw decision per CRD 2.1.3 → 2.2 ordering. Exported so
+ * the reducer can call it; analytics consumers that just want a sampled
+ * opening hand should call `createGame` then `applyAction(RESOLVE_CHOICE)`
+ * rather than calling this directly.
+ *
+ * Triggers (CRD 6.2 `card_drawn` like Jafar Striking Illusionist) are NOT
+ * queued here — opening-hand draws happen during setup, before the first
+ * turn starts, and there is no active turn context for triggers to resolve in.
+ */
+export function dealOpeningHands(
+  state: GameState,
+  handSize: number,
+  events?: GameEvent[],
+): GameState {
+  for (const playerId of ["player1", "player2"] as const) {
+    for (let i = 0; i < handSize; i++) {
+      const deck = state.zones[playerId].deck;
+      const topId = deck[0];
+      if (!topId) break;
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [topId]: { ...state.cards[topId]!, zone: "hand" },
         },
-      },
-    };
-  }
-
-  // Draw for player2
-  for (let i = 0; i < handSize; i++) {
-    const deck = state.zones.player2.deck;
-    const topId = deck[0];
-    if (!topId) break;
-    state = {
-      ...state,
-      cards: {
-        ...state.cards,
-        [topId]: { ...state.cards[topId]!, zone: "hand" },
-      },
-      zones: {
-        ...state.zones,
-        player2: {
-          ...state.zones.player2,
-          deck: deck.slice(1),
-          hand: [...state.zones.player2.hand, topId],
+        zones: {
+          ...state.zones,
+          [playerId]: {
+            ...state.zones[playerId],
+            deck: deck.slice(1),
+            hand: [...state.zones[playerId].hand, topId],
+          },
         },
-      },
-    };
+      };
+      events?.push({ type: "card_drawn", playerId, instanceId: topId });
+    }
   }
-
   return state;
 }

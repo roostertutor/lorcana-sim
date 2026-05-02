@@ -192,6 +192,106 @@ it("deals 7 cards to each player (CRD 2.2.1.4)", () => {
     expect(state.currentPlayer).toBe("player1");
     expect(state.phase).toBe("main");
   });
+
+  // CRD 2.1.3 → 2.2.1: opening hands are dealt AFTER the play/draw decision,
+  // not at game-start. The choose_play_order modal must be answerable WITHOUT
+  // either player seeing their hand — otherwise the chooser can scout their
+  // own hand to bias the decision, the non-chooser sees a "started" game
+  // mid-modal, and any neutral-perspective public replay scrub at step 0
+  // surfaces both opening hands. Regression for 2026-05-01 user report
+  // (HANDOFF entry: "opening hands drawn before play/draw decision violates
+  // CRD 2.1.3 → 2.2 ordering").
+  describe("CRD 2.1.3 → 2.2.1 — opening hands are dealt by choose_play_order resolution, not by createGame", () => {
+    const TEST_DECK = buildTestDeck(["mickey-mouse-true-friend"]);
+
+    function freshGame() {
+      return createGame(
+        { player1Deck: TEST_DECK, player2Deck: TEST_DECK, seed: 0xc0ffee },
+        CARD_DEFINITIONS,
+      );
+    }
+
+    it("createGame returns a state with empty hands and full decks", () => {
+      const state = freshGame();
+      expect(state.zones.player1.hand).toHaveLength(0);
+      expect(state.zones.player2.hand).toHaveLength(0);
+      expect(state.zones.player1.deck).toHaveLength(60);
+      expect(state.zones.player2.deck).toHaveLength(60);
+      // Pendingchoice is the play/draw decision — opening hand isn't surfaced yet.
+      expect(state.pendingChoice?.type).toBe("choose_play_order");
+    });
+
+    it('resolving choose_play_order with "first" deals 7-card opening hands to both players', () => {
+      let state = freshGame();
+      state = applyAction(
+        state,
+        { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+        CARD_DEFINITIONS,
+      ).newState;
+      expect(state.zones.player1.hand).toHaveLength(7);
+      expect(state.zones.player2.hand).toHaveLength(7);
+      expect(state.zones.player1.deck).toHaveLength(53);
+      expect(state.zones.player2.deck).toHaveLength(53);
+    });
+
+    it('resolving choose_play_order with "second" deals 7-card opening hands too', () => {
+      // Symmetric coverage: the deal happens regardless of which side the
+      // chooser picks, so it must work whether the call site reads "first" or
+      // "second" from the chooser.
+      let state = freshGame();
+      state = applyAction(
+        state,
+        { type: "RESOLVE_CHOICE", playerId: "player1", choice: "second" },
+        CARD_DEFINITIONS,
+      ).newState;
+      expect(state.zones.player1.hand).toHaveLength(7);
+      expect(state.zones.player2.hand).toHaveLength(7);
+    });
+
+    it("per-player card_drawn opening-hand log entries appear at the choose_play_order step, not at createGame", () => {
+      const initial = freshGame();
+      // No card_drawn entries should exist before the play-order resolution —
+      // only the game_start entry from createGame.
+      expect(initial.actionLog.filter((e) => e.type === "card_drawn")).toHaveLength(0);
+
+      const state = applyAction(
+        initial,
+        { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+        CARD_DEFINITIONS,
+      ).newState;
+
+      const p1Opening = state.actionLog.find(
+        (e) => e.type === "card_drawn" && e.playerId === "player1" && /drew:/.test(e.message),
+      );
+      const p2Opening = state.actionLog.find(
+        (e) => e.type === "card_drawn" && e.playerId === "player2" && /drew:/.test(e.message),
+      );
+      expect(p1Opening).toBeDefined();
+      expect(p2Opening).toBeDefined();
+      // privateTo must remain stamped — the cards are still in hidden zones,
+      // and stateFilter must redact them for non-audience viewers.
+      expect(p1Opening!.privateTo).toBe("player1");
+      expect(p2Opening!.privateTo).toBe("player2");
+    });
+
+    it("resolving choose_play_order emits per-card card_drawn events for opening-hand draws (analytics + replay)", () => {
+      // runGame's updateStatsPostAction reads card_drawn events to set
+      // drawnOnTurn for opening-hand cards (was a pre-loop hand-walk before
+      // the relocation, now driven by these events). 7 + 7 cards = 14 events.
+      const state = freshGame();
+      const result = applyAction(
+        state,
+        { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+        CARD_DEFINITIONS,
+      );
+      const drawEvents = result.events.filter((e) => e.type === "card_drawn");
+      expect(drawEvents).toHaveLength(14);
+      const p1Draws = drawEvents.filter((e) => e.playerId === "player1");
+      const p2Draws = drawEvents.filter((e) => e.playerId === "player2");
+      expect(p1Draws).toHaveLength(7);
+      expect(p2Draws).toHaveLength(7);
+    });
+  });
 });
 
 describe("§3 Turn Structure", () => {

@@ -3736,6 +3736,12 @@ export interface GameState {
   /** CRD 2.x: which player took turn 1. Used by Underdog ("you're not the first
    *  player") and any future first-player-relative check. Set in initializer. */
   firstPlayerId?: PlayerID;
+  /** CRD 2.1.3.2 → 2.2.1: opening-hand size (default 7). Stamped by createGame
+   *  and read in the reducer's `choose_play_order` resolution branch — opening
+   *  hands are dealt AFTER the play/draw decision per CRD ordering, so the
+   *  reducer needs this number plumbed across actions. Carrying it on state
+   *  avoids a parallel "config" channel for one number. */
+  startingHandSize?: number;
   phase: GamePhase;
   players: Record<PlayerID, PlayerState>;
   /** All card instances in the game, keyed by instanceId */

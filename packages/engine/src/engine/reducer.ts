@@ -30,6 +30,7 @@ import type {
   BanishCause,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
+import { dealOpeningHands } from "./initializer.js";
 import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
 import {
   appendLog,
@@ -2275,6 +2276,33 @@ function applyResolveChoice(
       ? `${chooserId} chose to go first.`
       : `${chooserId} chose to go second (${opponentId} goes first).`;
     state = appendLog(state, { turn: state.turnNumber, playerId: chooserId, message: logMsg, type: "choice_made" });
+
+    // CRD 2.1.3 → 2.2.1: deal opening hands AFTER the play/draw decision —
+    // not at game-start. createGame stamps `startingHandSize` on initial
+    // state for this read. Per-card `card_drawn` events are pushed into
+    // the closure's events array so analytics + replay tracking sees each
+    // draw (mirrors per-turn applyDraw); no triggers are queued because
+    // setup happens before any active turn (see dealOpeningHands JSDoc).
+    const handSize = state.startingHandSize ?? 7;
+    state = dealOpeningHands(state, handSize, events);
+
+    // Log the opening hands. Card names are private to the drawer per CRD
+    // 4.1.4 (the cards moved deck → hand, both hidden zones). Server's
+    // filterStateForPlayer redacts message text for non-authorized viewers
+    // — see GameLogEntry.privateTo JSDoc.
+    for (const drawingPlayerId of ["player1", "player2"] as const) {
+      const handIds = state.zones[drawingPlayerId].hand;
+      const cardNames = handIds
+        .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "Unknown")
+        .join(", ");
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: drawingPlayerId,
+        message: `${drawingPlayerId} drew: ${cardNames}.`,
+        type: "card_drawn",
+        privateTo: drawingPlayerId,
+      });
+    }
 
     // CRD 2.2.2: mulligan starts with the starting player. Map to the existing
     // mulligan_p1 / mulligan_p2 phase naming — "p1" here means "the first of

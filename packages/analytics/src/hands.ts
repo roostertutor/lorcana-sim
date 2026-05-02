@@ -5,7 +5,7 @@
 // =============================================================================
 
 import type { CardDefinition, DeckEntry } from "@lorcana-sim/engine";
-import { createGame, getZoneInstances } from "@lorcana-sim/engine";
+import { applyAction, createGame, getZoneInstances } from "@lorcana-sim/engine";
 import type { HandStats } from "./types.js";
 
 export function analyzeOpeningHands(
@@ -24,7 +24,16 @@ export function analyzeOpeningHands(
   const defFrequency: Record<string, number> = {};
 
   for (let i = 0; i < iterations; i++) {
-    const state = createGame({ player1Deck: deck, player2Deck: deck }, definitions);
+    // CRD 2.1.3 → 2.2.1: opening hands are dealt by the engine in the
+    // `choose_play_order` resolution branch, not by createGame. Resolve the
+    // play-order choice with "first" (analytics doesn't care which slot is
+    // starting; we just need the deal to happen) before reading the hand.
+    let state = createGame({ player1Deck: deck, player2Deck: deck }, definitions);
+    state = applyAction(
+      state,
+      { type: "RESOLVE_CHOICE", playerId: "player1", choice: "first" },
+      definitions,
+    ).newState;
     const hand = getZoneInstances(state, "player1", "hand");
 
     let handCost = 0;
