@@ -9,6 +9,22 @@ import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 
+// localStorage keys for "last remembered" lobby selections — restored on
+// mount so returning to the lobby after a match keeps the user's most
+// recent format/rotation choices instead of snapping back to defaults.
+const LS_MATCH_FORMAT     = "lobby-match-format";     // "bo1" | "bo3"
+const LS_SELECTED_ROTATION = "lobby-selected-rotation"; // RotationId | "" (empty = no override)
+const LS_PASTE_FORMAT     = "lobby-paste-format";     // JSON GameFormat
+
+function readLS(key: string): string | null {
+  if (typeof window === "undefined") return null;
+  try { return window.localStorage.getItem(key); } catch { return null; }
+}
+function writeLS(key: string, value: string): void {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.setItem(key, value); } catch { /* quota / privacy mode */ }
+}
+
 interface Props {
   onGameStart: (gameId: string, myPlayerId: "player1" | "player2") => void;
   /** opponentDeck is undefined for mirror match (default), or the parsed
@@ -35,13 +51,25 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [deckText, setDeckText] = useState("");
   const [deckMode, setDeckMode] = useState<"saved" | "paste">("saved");
   const [deckOpen, setDeckOpen] = useState(false);
-  const [format, setFormat]     = useState<"bo1" | "bo3">("bo1");
+  const [format, setFormat]     = useState<"bo1" | "bo3">(() => {
+    const saved = readLS(LS_MATCH_FORMAT);
+    return saved === "bo1" || saved === "bo3" ? saved : "bo1";
+  });
   // Paste-mode format fallback — used only when the user has pasted a
   // deck rather than selecting a saved one. Saved decks carry their own
   // format stamp; we read from that instead. Default matches the
   // pre-release transition baseline (same as schema DEFAULT / saveDeck
   // default).
-  const [pasteFormat, setPasteFormat] = useState<GameFormat>({ family: "core", rotation: "s11" });
+  const [pasteFormat, setPasteFormat] = useState<GameFormat>(() => {
+    const saved = readLS(LS_PASTE_FORMAT);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as GameFormat;
+        if (parsed && typeof parsed.family === "string" && typeof parsed.rotation === "string") return parsed;
+      } catch { /* fall through to default */ }
+    }
+    return { family: "core", rotation: "s11" };
+  });
   // Public lobby → appears in the browser for anyone to join. Server
   // also auto-forces spectator_policy='public' when this is true, so
   // the policy picker is hidden/locked in that case.
@@ -86,7 +114,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   // (default). Set when the user picks a non-default rotation from the
   // dropdown (e.g., Core-s12 test rotation pre-launch). Resets to null when
   // the deck's family changes (a new family has its own rotation lifecycle).
-  const [selectedRotation, setSelectedRotation] = useState<import("@lorcana-sim/engine").RotationId | null>(null);
+  const [selectedRotation, setSelectedRotation] = useState<import("@lorcana-sim/engine").RotationId | null>(() => {
+    const saved = readLS(LS_SELECTED_ROTATION);
+    // Empty string sentinel = "no override" (null). Anything else = a
+    // RotationId we trust the dropdown will validate against the live
+    // offered rotations on render — if the saved id is no longer offered,
+    // the picker just doesn't highlight anything and the family default
+    // takes over via `defaultRotation` below.
+    return saved && saved !== "" ? (saved as import("@lorcana-sim/engine").RotationId) : null;
+  });
   const publicPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Listen for auth state changes (catches OAuth redirects + session restore)
@@ -185,6 +221,14 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   useEffect(() => {
     setSelectedRotation(null);
   }, [formatFamily]);
+
+  // Persist last-remembered lobby selections so returning to the lobby
+  // after a match restores the user's most recent format/rotation choices
+  // instead of snapping back to defaults. Each effect writes on change;
+  // initial values were read in the corresponding useState lazy initializer.
+  useEffect(() => { writeLS(LS_MATCH_FORMAT, format); }, [format]);
+  useEffect(() => { writeLS(LS_SELECTED_ROTATION, selectedRotation ?? ""); }, [selectedRotation]);
+  useEffect(() => { writeLS(LS_PASTE_FORMAT, JSON.stringify(pasteFormat)); }, [pasteFormat]);
 
   // Client-side legality pre-check — mirrors the server's isLegalFor()
   // validation in createLobby / joinLobby. Surfacing the issues inline
