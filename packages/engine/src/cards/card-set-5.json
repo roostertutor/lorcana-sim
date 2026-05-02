@@ -10948,12 +10948,7 @@
         "storyName": "POWERING UP",
         "rulesText": "This item enters play exerted.",
         "effect": {
-          "type": "enter_play_exerted",
-          "filter": {
-            "cardType": [
-              "item"
-            ]
-          }
+          "type": "enter_play_exerted_self"
         }
       },
       {

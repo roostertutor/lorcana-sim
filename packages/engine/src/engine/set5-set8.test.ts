@@ -1449,6 +1449,53 @@ describe("§5 Set 5 — Robin Hood Sharpshooter MY GREATEST PERFORMANCE (peek_an
   });
 });
 
+describe("§5 Set 5 — Sapphire Chromicon POWERING UP (item self-enters-exerted)", () => {
+  // 2026-05-02 wiring fix: Sapphire was using `enter_play_exerted +
+  // filter:{cardType:["item"]}` to encode "This item enters play exerted."
+  // That's the wrong primitive — `enter_play_exerted` reads from the
+  // gameModifiers cache (populated by ACTIVE static abilities of in-play
+  // sources), so when Sapphire itself was being played its filter wasn't
+  // in the cache yet → Sapphire entered ready (oracle violation), and once
+  // Sapphire was in play, EVERY future item the same player played entered
+  // exerted (also wrong — oracle says only "THIS item"). Migrated to
+  // `enter_play_exerted_self`, matching Sleepy - Nodding Off (set 2 #21
+  // YAWN!) and the other 13 self-targeting cards. Read direct from
+  // def.abilities at applyEnterPlayExertion:1063, doesn't propagate.
+  it("Sapphire Chromicon enters play exerted (its own POWERING UP triggers on self)", () => {
+    let state = startGame(["sapphire-chromicon"]);
+    state = giveInk(state, "player1", 5);
+    let chromiconId: string;
+    ({ state, instanceId: chromiconId } = injectCard(state, "player1", "sapphire-chromicon", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: chromiconId } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    const inst = getInstance(r.newState, chromiconId);
+    expect(inst.zone).toBe("play");
+    expect(inst.isExerted).toBe(true);
+  });
+
+  it("Sapphire Chromicon does NOT force OTHER items the same player plays to enter exerted", () => {
+    // Pre-fix bug: with `enter_play_exerted + filter:{cardType:["item"]}`,
+    // once Sapphire was in play, future items entered exerted. Oracle says
+    // only THIS item — verify a second item plays ready.
+    let state = startGame(["sapphire-chromicon", "dinglehopper"]);
+    state = giveInk(state, "player1", 10);
+    let chromiconId: string, dingleId: string;
+    ({ state, instanceId: chromiconId } = injectCard(state, "player1", "sapphire-chromicon", "play"));
+    ({ state, instanceId: dingleId } = injectCard(state, "player1", "dinglehopper", "hand"));
+
+    // Sapphire (already in play) is exerted; play a different item and verify
+    // it enters READY (not affected by Sapphire's self-only static).
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: dingleId } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    const dinglehopper = getInstance(r.newState, dingleId);
+    expect(dinglehopper.zone).toBe("play");
+    expect(dinglehopper.isExerted).toBe(false);
+  });
+});
+
 describe("§5 Set 5 — Elsa The Fifth Spirit CRYSTALLIZE (chosen_by_opponent + Vanish hook)", () => {
   // Regression for 2026-04-21 crash: reducer.ts:2478 passed
   // `vanishMods.grantedKeywords.get(targetId)` (a { keyword; value? }[] array)
