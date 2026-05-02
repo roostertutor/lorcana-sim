@@ -154,12 +154,34 @@ export function filterStateForPlayer(state: GameState, playerId: PlayerID): Game
   // overwrite ONLY the identifying fields. This preserves `isExerted`,
   // `instanceId`, `ownerId`, `zone`, plus any future public-mechanical
   // state added to CardInstance — only `definitionId` becomes "hidden".
-  // (CRD 4.2.1.1 reveals at the moment of inking, but that's a one-shot
-  // log-line event handled by `card_put_into_inkwell` — once placed, the
-  // zone is face-down to the opponent again.)
+  //
+  // CRD 4.2.1.1 carve-out: cards inked THIS turn by the opponent stay
+  // visible to the viewer until the opponent's turn ends. PLAY_INK reveals
+  // identity at the moment of inking (the action log line is public and
+  // names the card — see `applyPlayInk`'s appendLog at reducer.ts:~1134).
+  // Re-stubbing those cards in the inkwell would erase information the
+  // viewer already saw via the log; surfacing them face-up keeps the
+  // visualization aligned with what the player knows. End-of-turn:
+  // `applyPassTurn` resets `inkPlaysThisTurn` to 0 on the new active
+  // player (reducer.ts:1950), so when control returns to the viewer the
+  // condition `currentPlayer === opponentId && inkPlaysThisTurn > 0`
+  // fails for both directions and every inkwell card stubs again.
+  // Inkwell zones append on PLAY_INK (zoneTransition + moveCard), so the
+  // last `inkPlaysThisTurn` cards are this-turn's inks.
   const inkwellIds = state.zones[opponentId]?.inkwell ?? []
-  for (const id of inkwellIds) {
+  // `state.players` is technically required by the type but test fixtures
+  // routinely build minimal states without it — defensive `?.` keeps the
+  // filter callable on partial states.
+  const opponentInkPlays = state.players?.[opponentId]?.inkPlaysThisTurn ?? 0
+  const opponentIsActive = state.currentPlayer === opponentId
+  const visibleThisTurnCount = opponentIsActive ? opponentInkPlays : 0
+  // Cards at indices >= (length - K) are face-up (just inked); cards at
+  // indices < (length - K) are stubbed face-down.
+  const stubBoundary = inkwellIds.length - visibleThisTurnCount
+  for (let i = 0; i < inkwellIds.length; i++) {
+    const id = inkwellIds[i]!
     if (revealedSet.has(id)) continue
+    if (i >= stubBoundary) continue // this-turn's ink — keep real definitionId
     const original = state.cards[id]
     if (!original) continue
     filteredCards[id] = { ...original, definitionId: "hidden" }

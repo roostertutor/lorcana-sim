@@ -635,4 +635,158 @@ describe("filterStateForPlayer — inkwell zone redaction (CRD 4.1.4)", () => {
 
     expect(serialized).not.toContain("belle-hidden-depths")
   })
+
+  // ── This-turn ink visibility carve-out (CRD 4.2.1.1) ──────────────────
+  // PLAY_INK reveals identity at the moment of inking — the action log line
+  // is public and names the card. Re-stubbing those cards in the inkwell
+  // would erase information the viewer already saw via the log. So while
+  // the inking player is active and `inkPlaysThisTurn > 0`, the LAST K
+  // cards of their inkwell (= this-turn's inks) keep their real
+  // definitionId. End of their turn: `inkPlaysThisTurn` resets via
+  // applyPassTurn (reducer.ts:1950) → cards stub again.
+
+  /** Build a state with an opponent inkwell + currentPlayer + inkPlaysThisTurn.
+   *  The filter's carve-out for this-turn inks reads all three. */
+  function makeStateWithInkwellAndTurn(opts: {
+    inkOwnerId: "player1" | "player2"
+    inkCards: CardInstance[]
+    currentPlayer: "player1" | "player2"
+    inkPlaysThisTurn: number
+  }): GameState {
+    const cardsMap: Record<string, CardInstance> = {}
+    for (const c of opts.inkCards) cardsMap[c.instanceId] = c
+    const otherId = opts.inkOwnerId === "player1" ? "player2" : "player1"
+    return {
+      cards: cardsMap,
+      zones: {
+        [opts.inkOwnerId]: { hand: [], deck: [], play: [], inkwell: opts.inkCards.map((c) => c.instanceId), discard: [] },
+        [otherId]: { hand: [], deck: [], play: [], inkwell: [], discard: [] },
+      },
+      actionLog: [],
+      currentPlayer: opts.currentPlayer,
+      players: {
+        [opts.inkOwnerId]: { inkPlaysThisTurn: opts.inkPlaysThisTurn },
+        [otherId]: { inkPlaysThisTurn: 0 },
+      },
+    } as unknown as GameState
+  }
+
+  it("preserves identity for opponent's just-inked cards while opponent is active", () => {
+    // Opponent (player1) is active with 1 ink play this turn — the last
+    // (most recently inked) card stays face-up to the viewer (player2).
+    // Older inkwell cards from prior turns still stub.
+    const oldCard = makeInkwellCard({
+      instanceId: "ink-prior-turn",
+      definitionId: "mickey-mouse-true-friend",
+      ownerId: "player1",
+    })
+    const newCard = makeInkwellCard({
+      instanceId: "ink-this-turn",
+      definitionId: "elsa-snow-queen",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwellAndTurn({
+      inkOwnerId: "player1",
+      inkCards: [oldCard, newCard], // oldest first, newest last (zone append order)
+      currentPlayer: "player1",
+      inkPlaysThisTurn: 1,
+    })
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    // Older card stubbed (was already in inkwell from a prior turn).
+    expect(forP2.cards["ink-prior-turn"]!.definitionId).toBe("hidden")
+    // This-turn ink stays face-up — opponent saw it inked publicly.
+    expect(forP2.cards["ink-this-turn"]!.definitionId).toBe("elsa-snow-queen")
+  })
+
+  it("re-stubs all opponent inkwell cards when opponent's turn ends", () => {
+    // Mirror of the prior test: same inkwell composition, but currentPlayer
+    // is now the viewer (the inker has passed turn). The carve-out should
+    // disengage and ALL inkwell cards stub again.
+    const oldCard = makeInkwellCard({
+      instanceId: "ink-prior-turn",
+      definitionId: "mickey-mouse-true-friend",
+      ownerId: "player1",
+    })
+    const newCard = makeInkwellCard({
+      instanceId: "ink-this-turn",
+      definitionId: "elsa-snow-queen",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwellAndTurn({
+      inkOwnerId: "player1",
+      inkCards: [oldCard, newCard],
+      currentPlayer: "player2", // viewer is now active — opponent passed turn
+      inkPlaysThisTurn: 1, // stale from opponent's turn (engine resets on next pass back)
+    })
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    // Both stubs — opponent isn't active, no carve-out.
+    expect(forP2.cards["ink-prior-turn"]!.definitionId).toBe("hidden")
+    expect(forP2.cards["ink-this-turn"]!.definitionId).toBe("hidden")
+  })
+
+  it("preserves multiple this-turn inks when opponent inked more than once", () => {
+    // Two inks this turn (extra ink play granted, e.g. via Daisy Duck or
+    // Aladdin). Both should stay face-up; older cards still stub.
+    const old1 = makeInkwellCard({ instanceId: "old1", definitionId: "mickey-001", ownerId: "player1" })
+    const old2 = makeInkwellCard({ instanceId: "old2", definitionId: "mickey-002", ownerId: "player1" })
+    const new1 = makeInkwellCard({ instanceId: "new1", definitionId: "elsa-spirit", ownerId: "player1" })
+    const new2 = makeInkwellCard({ instanceId: "new2", definitionId: "anna-snow", ownerId: "player1" })
+    const state = makeStateWithInkwellAndTurn({
+      inkOwnerId: "player1",
+      inkCards: [old1, old2, new1, new2],
+      currentPlayer: "player1",
+      inkPlaysThisTurn: 2,
+    })
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    expect(forP2.cards["old1"]!.definitionId).toBe("hidden")
+    expect(forP2.cards["old2"]!.definitionId).toBe("hidden")
+    expect(forP2.cards["new1"]!.definitionId).toBe("elsa-spirit")
+    expect(forP2.cards["new2"]!.definitionId).toBe("anna-snow")
+  })
+
+  it("inkPlaysThisTurn=0 stubs everything even when opponent is active", () => {
+    // Opponent's turn just started, no inks yet. All inkwell cards should
+    // stub — there's nothing newly revealed this turn.
+    const card = makeInkwellCard({
+      instanceId: "ink-old",
+      definitionId: "mickey-001",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwellAndTurn({
+      inkOwnerId: "player1",
+      inkCards: [card],
+      currentPlayer: "player1", // opponent's turn but they haven't inked
+      inkPlaysThisTurn: 0,
+    })
+
+    const forP2 = filterStateForPlayer(state, "player2")
+
+    expect(forP2.cards["ink-old"]!.definitionId).toBe("hidden")
+  })
+
+  it("viewer's own inkwell ignores the carve-out (always full identity)", () => {
+    // The carve-out is opponent-direction-only. P1 always sees their own
+    // inkwell in full regardless of currentPlayer / inkPlaysThisTurn.
+    const card = makeInkwellCard({
+      instanceId: "my-card",
+      definitionId: "elsa-snow-queen",
+      ownerId: "player1",
+    })
+    const state = makeStateWithInkwellAndTurn({
+      inkOwnerId: "player1",
+      inkCards: [card],
+      currentPlayer: "player2", // opponent's turn — wouldn't trigger carve-out either way
+      inkPlaysThisTurn: 0,
+    })
+
+    const forP1 = filterStateForPlayer(state, "player1")
+
+    expect(forP1.cards["my-card"]!.definitionId).toBe("elsa-snow-queen")
+  })
 })
