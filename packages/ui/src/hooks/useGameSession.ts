@@ -171,6 +171,115 @@ export function useGameSession(): GameSession {
   const isForkedRef = useRef(false);
   // Realtime channel ref for cleanup
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  // Reconnection bookkeeping. Supabase's channel.subscribe() does not
+  // auto-resubscribe on CHANNEL_ERROR / TIMED_OUT (the socket reconnects
+  // but the channel-level join can fail silently). We manually retry with
+  // exponential backoff (1s → 2s → 4s → 8s → 16s, capped at 30s) and clear
+  // the counter on a successful SUBSCRIBED. Both refs reset on reset() /
+  // unmount so a navigation-away mid-backoff doesn't keep firing.
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttemptsRef = useRef<number>(0);
+
+  // ---------------------------------------------------------------------------
+  // MP helpers — channel subscription + reconnection
+  // ---------------------------------------------------------------------------
+
+  /** Fetch the latest filtered state from the server and apply it. Used by:
+   *  - The initial state-load on startGame.
+   *  - The Realtime postgres_changes listener (any UPDATE triggers a refetch).
+   *  - The post-reconnect catch-up (we may have missed updates while the
+   *    channel was down). */
+  const fetchAndApplyGameState = useCallback((gameId: string) => {
+    return getGame(gameId)
+      .then((filtered) => {
+        gameStateRef.current = filtered;
+        setGameState(filtered);
+        setError(null);
+        // Bump actionCount so reveal-detection in GameBoard fires on
+        // server-pushed state changes (existing behavior; preserved here).
+        setActionCount((c) => c + 1);
+      })
+      .catch((err: unknown) => setError(String(err)));
+  }, []);
+
+  /** Subscribe (or re-subscribe) to the game's Realtime channel. Idempotent —
+   *  removes any existing channel before creating a new one. The subscribe
+   *  callback handles connection lifecycle:
+   *
+   *  - SUBSCRIBED  → "connected"; reset reconnect counter; if we just
+   *                  recovered from a disconnect, force a state refetch
+   *                  to catch up on missed updates.
+   *  - CLOSED / CHANNEL_ERROR / TIMED_OUT → "reconnecting"; schedule a
+   *                  re-subscribe with exponential backoff. We don't keep
+   *                  retrying via the SDK because some failure modes
+   *                  (auth-token expiry, RLS deny) require a fresh subscribe
+   *                  to recover.
+   *
+   *  Race-guarded by the configRef check inside the timer — if the user
+   *  navigated away, reset(), or started a different game during backoff,
+   *  the scheduled resubscribe no-ops. */
+  const subscribeToGameChannel = useCallback((mp: { gameId: string; myPlayerId: PlayerID }) => {
+    if (channelRef.current) {
+      void supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+    const channel = supabase
+      .channel(`game:${mp.gameId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "games",
+          filter: `id=eq.${mp.gameId}`,
+        },
+        () => {
+          // ANTI-CHEAT: ignore raw payload (contains full unfiltered state),
+          // fetch filtered state from GET /game/:id instead.
+          void fetchAndApplyGameState(mp.gameId);
+        },
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          const wasReconnecting = reconnectAttemptsRef.current > 0;
+          reconnectAttemptsRef.current = 0;
+          if (reconnectTimerRef.current) {
+            clearTimeout(reconnectTimerRef.current);
+            reconnectTimerRef.current = null;
+          }
+          setConnectionStatus("connected");
+          // Force a state refetch on RE-subscribe (not the initial subscribe;
+          // startGame's own getGame already populated state for that path).
+          // Without this, P1 could miss any of P2's actions that landed
+          // while the channel was down — symptoms reported 2026-05-01:
+          // "I ink a card and pass turn but opponent's screen never updates."
+          if (wasReconnecting) {
+            void fetchAndApplyGameState(mp.gameId);
+          }
+        } else if (status === "CLOSED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          setConnectionStatus("reconnecting");
+          // Schedule the next attempt only if one isn't already pending —
+          // some failure modes fire multiple status events in quick
+          // succession (CHANNEL_ERROR followed by CLOSED).
+          if (reconnectTimerRef.current == null) {
+            const attempt = reconnectAttemptsRef.current;
+            const delay = Math.min(1000 * Math.pow(2, attempt), 30000);
+            reconnectAttemptsRef.current = attempt + 1;
+            reconnectTimerRef.current = setTimeout(() => {
+              reconnectTimerRef.current = null;
+              // Race guard: only resubscribe if the same MP game is still
+              // the active session. Reset / startGame on a different game /
+              // navigation-away during backoff cancels the resubscribe.
+              const currentMp = configRef.current?.multiplayer;
+              if (currentMp && currentMp.gameId === mp.gameId) {
+                subscribeToGameChannel(mp);
+              }
+            }, delay);
+          }
+        }
+      });
+    channelRef.current = channel;
+  }, [fetchAndApplyGameState]);
 
   // ---------------------------------------------------------------------------
   // startGame
@@ -187,59 +296,20 @@ export function useGameSession(): GameSession {
     isForkedRef.current = false;
 
     if (config.multiplayer) {
-      // Multiplayer: fetch current state from server — don't create locally
+      // Multiplayer: fetch current state from server — don't create locally.
+      // Realtime subscription handles ongoing updates + auto-reconnect.
       const mp = config.multiplayer;
-      getGame(mp.gameId)
-        .then((state) => {
-          gameStateRef.current = state;
-          setGameState(state);
-          // Bump actionCount on initial state arrival — see comment near
-          // setActionCount in dispatch's MP branch for why.
-          setActionCount((c) => c + 1);
-        })
-        .catch((err: unknown) => setError(String(err)));
-
-      // Set up Realtime subscription for opponent actions.
-      // ANTI-CHEAT: ignore raw payload (contains full unfiltered state),
-      // fetch filtered state from GET /game/:id instead.
-      if (channelRef.current) {
-        void supabase.removeChannel(channelRef.current);
+      // Reset reconnect bookkeeping for the new session — a previous
+      // session's pending backoff timer (if any) would otherwise resubscribe
+      // to the wrong game. cleanupReconnect runs both at unmount and reset.
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
       }
-      const channel = supabase
-        .channel(`game:${mp.gameId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "games",
-            filter: `id=eq.${mp.gameId}`,
-          },
-          () => {
-            getGame(mp.gameId)
-              .then((filtered) => {
-                gameStateRef.current = filtered;
-                setGameState(filtered);
-                setError(null);
-                // Bump actionCount when an opponent action arrives via Realtime,
-                // so reveal-detection in GameBoard sees `advanced === true`.
-                // Without this, the opponent's reveal-bearing actions (e.g. P2
-                // plays Diablo) never trigger the reveal modal on P1's view.
-                setActionCount((c) => c + 1);
-              })
-              .catch((err: unknown) => {
-                setError(String(err));
-              });
-          },
-        )
-        .subscribe((status) => {
-          if (status === "SUBSCRIBED") {
-            setConnectionStatus("connected");
-          } else if (status === "CLOSED" || status === "CHANNEL_ERROR") {
-            setConnectionStatus("reconnecting");
-          }
-        });
-      channelRef.current = channel;
+      reconnectAttemptsRef.current = 0;
+
+      void fetchAndApplyGameState(mp.gameId);
+      subscribeToGameChannel(mp);
       return;
     }
 
@@ -452,9 +522,17 @@ export function useGameSession(): GameSession {
     };
   }, [gameState, dispatch]);
 
-  // Clean up Realtime channel on unmount
+  // Clean up Realtime channel + any pending reconnect timer on unmount.
+  // Without the timer cleanup, an unmount during backoff would fire a
+  // resubscribe against a torn-down hook (race against the configRef guard
+  // in subscribeToGameChannel — defensive belt-and-suspenders here).
   useEffect(() => {
     return () => {
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
+      reconnectAttemptsRef.current = 0;
       if (channelRef.current) {
         void supabase.removeChannel(channelRef.current);
         setConnectionStatus(null);
@@ -542,6 +620,11 @@ export function useGameSession(): GameSession {
   // ---------------------------------------------------------------------------
   const reset = useCallback(() => {
     if (botTimerRef.current) clearTimeout(botTimerRef.current);
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+    reconnectAttemptsRef.current = 0;
     if (channelRef.current) {
       void supabase.removeChannel(channelRef.current);
       channelRef.current = null;
