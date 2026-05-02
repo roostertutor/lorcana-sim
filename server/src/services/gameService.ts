@@ -5,6 +5,7 @@ import {
   ENGINE_VERSION,
   INFINITY_ROTATIONS,
   createGame,
+  filterStateForPlayer,
   getAllLegalActions,
   isLegalFor,
   type GameConfig,
@@ -13,6 +14,7 @@ import {
   type DeckEntry,
   type GameFormat,
   type GameFormatFamily,
+  type PlayerID,
   type RotationId,
 } from "@lorcana-sim/engine"
 import { supabase } from "../db/client.js"
@@ -726,9 +728,27 @@ export async function getGameHistory(userId: string, page: number, limit: number
   })
 }
 
+/** Perspective the caller is asking the replay to be rendered from.
+ *  - `p1` / `p2` — filter every state via `filterStateForPlayer` so the
+ *                  caller sees only what that player saw at each step
+ *                  (their own hand, opponent's hand stubbed, public board).
+ *  - `neutral`   — no filter; both hands fully visible. Only legal when
+ *                  the replay has been opted-public (`replays.public=true`)
+ *                  by both players. */
+export type ReplayPerspective = "p1" | "p2" | "neutral"
+
 /** Replay row shape returned to clients. Merges the `replays` table
- *  metadata with the reconstructible replay data (seed, decks, actions)
- *  from `getGameReplay`. */
+ *  metadata with the reconstructed, per-viewer-filtered state stream.
+ *
+ *  PHASE A (2026-04-29): the legacy `{ seed, p1Deck, p2Deck, actions }`
+ *  payload was removed to close an anti-cheat leak — when the client
+ *  reconstructed locally it had no way to apply the per-player filter
+ *  from `filterStateForPlayer`, so a player reviewing their just-finished
+ *  MP game could see the opponent's complete hand history (every draw,
+ *  every tutor, every private peek). We now reconstruct + filter
+ *  server-side and return pre-rendered `GameState[]`. The `perspective`
+ *  field echoes which view the client is looking at so the consumer can
+ *  render the appropriate label / disable opponent-specific controls. */
 export interface ReplayView {
   id: string
   gameId: string
@@ -741,14 +761,16 @@ export interface ReplayView {
   gameFormat: string | null
   gameRotation: string | null
   createdAt: string
-  // Reconstructible payload — seed + decks + actions. Same shape as
-  // getGameReplay returns; nested here so a single endpoint call gets
-  // everything needed to render a replay viewer.
+  /** The viewing perspective the states below were filtered against. */
+  perspective: ReplayPerspective
+  /** Reconstructed + per-viewer-filtered state stream.
+   *  - `states[0]` is the initial state (post-`createGame`, before any action).
+   *  - `states[N]` is the state AFTER action N-1 was applied.
+   *  - Length = `actions.length + 1`.
+   *  Each state has been run through `filterStateForPlayer` for `p1`/`p2`
+   *  perspectives; `neutral` returns unfiltered states. */
   replay: {
-    seed: number
-    p1Deck: unknown
-    p2Deck: unknown
-    actions: unknown[]
+    states: GameState[]
     winner: "player1" | "player2" | null
   } | null
 }
@@ -812,14 +834,22 @@ export async function getReplayById(replayId: string): Promise<
   }
 }
 
-/** Compose the client-facing ReplayView from the replays row + reconstructible
- *  payload. Separate function so the route layer can call `getReplayById` for
- *  access-control first (cheap) and only hit `getGameReplay` (expensive —
- *  scans all game_actions) after the check passes. */
+/** Compose the client-facing ReplayView from the replays row + per-viewer
+ *  filtered state stream. Separate function so the route layer can call
+ *  `getReplayById` for access-control first (cheap) and only hit
+ *  `getFilteredGameReplay` (expensive — replays the full action stream) after
+ *  the access-matrix check has passed.
+ *
+ *  Callers MUST resolve `perspective` BEFORE calling this. See
+ *  `decideReplayAccess` for the access-matrix logic that maps
+ *  (caller, replay-public-flag, requested-perspective) → granted-perspective
+ *  | rejection. The route layer rejects with 401/403 on a rejection;
+ *  this function never auths. */
 export async function buildReplayView(
   replayId: string,
   replay: NonNullable<Awaited<ReturnType<typeof getReplayById>>>,
   includePayload: boolean,
+  perspective: ReplayPerspective,
 ): Promise<ReplayView> {
   const winnerUsername =
     replay.row.winner_player_id === replay.p1_id
@@ -830,16 +860,11 @@ export async function buildReplayView(
 
   let payload: ReplayView["replay"] = null
   if (includePayload) {
-    const r = await getGameReplay(replay.row.game_id)
+    const r = await getFilteredGameReplay(replay.row.game_id, perspective)
     if (r) {
       payload = {
-        seed: r.seed,
-        p1Deck: r.p1Deck,
-        p2Deck: r.p2Deck,
-        actions: r.actions,
-        // getGameReplay types `winner` as `string | null` (Supabase returns
-        // loosely-typed row data); narrow to the PlayerID union here.
-        winner: r.winner as "player1" | "player2" | null,
+        states: r.states,
+        winner: r.winner,
       }
     }
   }
@@ -856,6 +881,7 @@ export async function buildReplayView(
     gameFormat: replay.row.game_format,
     gameRotation: replay.row.game_rotation,
     createdAt: replay.row.created_at,
+    perspective,
     replay: payload,
   }
 }
@@ -881,6 +907,159 @@ export async function setReplayPublic(
 
   if (error) return { ok: false, status: 500, error: `Failed to update replay: ${error.message}` }
   return { ok: true, public: makePublic }
+}
+
+/** Inputs to {@link decideReplayAccess}. Pure data — no DB handles. */
+export interface ReplayAccessInput {
+  /** Supabase user id of the caller, or null for unauth'd. */
+  userId: string | null
+  /** Player1 of the parent game (from `getReplayById`). */
+  p1Id: string
+  /** Player2 of the parent game. */
+  p2Id: string
+  /** `replays.public` flag. True iff both players opted in to the share link. */
+  isPublic: boolean
+  /** What the caller asked for via `?perspective=`, or null if omitted. */
+  requested: ReplayPerspective | null
+}
+
+export type ReplayAccessDecision =
+  | { ok: true; perspective: ReplayPerspective }
+  | { ok: false; status: 401 | 403; error: string }
+
+/**
+ * Pure function: decide whether `userId` may view the replay, and from which
+ * perspective. Encodes the Phase A access matrix from
+ * docs/HANDOFF.md → "Shareable MP replays — close the anti-cheat leak":
+ *
+ * | Caller          | Replay state | Requested      | Result                                           |
+ * |-----------------|--------------|----------------|--------------------------------------------------|
+ * | Player1         | private      | omitted/p1     | 200, perspective=p1                              |
+ * | Player1         | private      | p2             | 403                                              |
+ * | Player1         | private      | neutral        | 403 (player not entitled to opp's hand on priv)  |
+ * | Player1         | public       | omitted/p1     | 200, perspective=p1                              |
+ * | Player1         | public       | p2             | 200, perspective=p2 (preview shareable view)     |
+ * | Player1         | public       | neutral        | 200, perspective=neutral                         |
+ * | Non-player auth | private      | any            | 403                                              |
+ * | Non-player auth | public       | omitted/any    | 200, perspective=requested ?? neutral            |
+ * | Unauthed        | private      | any            | 401                                              |
+ * | Unauthed        | public       | omitted/any    | 200, perspective=requested ?? neutral            |
+ *
+ * Default-perspective rule: caller-is-player → their own slot. Otherwise →
+ * neutral (only reachable when the replay is public; non-players on private
+ * are 403'd before defaulting).
+ *
+ * Pure so the route layer can unit-test the matrix without spinning up a
+ * Supabase double or the engine reconstruction loop.
+ */
+export function decideReplayAccess(input: ReplayAccessInput): ReplayAccessDecision {
+  const { userId, p1Id, p2Id, isPublic, requested } = input
+
+  // Identify caller's relationship to the game.
+  const callerSlot: "p1" | "p2" | null =
+    userId === p1Id ? "p1" : userId === p2Id ? "p2" : null
+  const isPlayer = callerSlot != null
+
+  // Gate 1: private + non-player → 401 if unauthed, 403 if authed-as-other.
+  if (!isPublic && !isPlayer) {
+    return userId == null
+      ? { ok: false, status: 401, error: "Authentication required" }
+      : { ok: false, status: 403, error: "This replay is private" }
+  }
+
+  // Gate 2: private + player + opponent/neutral perspective → 403.
+  // The player isn't entitled to see their opponent's hand even on their
+  // own game's replay; neutral on a private game would leak both hands.
+  if (!isPublic && isPlayer && requested != null) {
+    const ownPerspective: ReplayPerspective = callerSlot
+    if (requested !== ownPerspective) {
+      return { ok: false, status: 403, error: "Cannot view opponent's perspective on a private replay" }
+    }
+  }
+
+  // Gate 3: default perspective resolution.
+  // - Player default → own slot (p1/p2).
+  // - Non-player default → neutral (only reachable here when isPublic=true,
+  //   because non-player + private was already 403'd above).
+  const granted: ReplayPerspective =
+    requested ?? (isPlayer ? (callerSlot as "p1" | "p2") : "neutral")
+
+  return { ok: true, perspective: granted }
+}
+
+/**
+ * Reconstruct the game's full state stream and apply per-viewer filtering.
+ *
+ * Pulls the same seed + decks + actions data as `getGameReplay`, then runs
+ * `createGame + applyAction` server-side (mirroring the loop that used to
+ * live in `useReplaySession.ts:40-56`) to produce `GameState[]`. For
+ * `p1`/`p2` perspectives, every state is passed through
+ * `filterStateForPlayer` so the response payload contains no information
+ * the requested viewer wasn't entitled to see at that step (opponent's
+ * hand stubbed, opponent's deck stubbed, private peeks redacted, etc.).
+ * For `neutral`, states are returned unfiltered — only legal when
+ * `replays.public === true`, which the access-matrix gate enforces.
+ *
+ * Why server-side: the legacy client-side reconstruction at
+ * `packages/ui/src/hooks/useReplaySession.ts` had no filter applied, so a
+ * player reviewing their just-finished MP game saw the opponent's full
+ * private history. Returning pre-filtered states removes any way for the
+ * client to bypass the filter.
+ *
+ * Cost: one full action-stream replay + N filter passes per request. For
+ * a typical 20-turn MP game (~150 actions) this is ~150 reducer calls
+ * + ~150 filter passes, well under 100ms at engine speeds. No caching for
+ * Phase A (recompute on every fetch); `replays.cached_states_jsonb` is
+ * the future option if measurable load shows up.
+ */
+export async function getFilteredGameReplay(
+  gameId: string,
+  perspective: ReplayPerspective,
+): Promise<{ states: GameState[]; winner: PlayerID | null; turnCount: number } | null> {
+  const r = await getGameReplay(gameId)
+  if (!r) return null
+
+  // Reconstruct: createGame seeded with the original RNG seed, then applyAction
+  // for each persisted action. Mirrors useReplaySession.ts:40-56 — keep the
+  // shapes in sync if either side changes.
+  const initial = createGame(
+    {
+      player1Deck: r.p1Deck as DeckEntry[],
+      player2Deck: r.p2Deck as DeckEntry[],
+      seed: r.seed,
+      interactive: true,
+      chooserPlayerId: "player1",
+    },
+    definitions,
+  )
+
+  const states: GameState[] = [initial]
+  let current = initial
+  for (const action of r.actions as GameAction[]) {
+    const result = applyAction(current, action, definitions)
+    if (result.success) current = result.newState
+    // Push regardless so step indices align with the source actions array
+    // even if some action fails to apply (e.g., engine version skew).
+    // Same fallthrough behavior as useReplaySession.ts:48-53.
+    states.push(current)
+  }
+
+  // Apply per-viewer filter for player perspectives. Neutral returns
+  // unfiltered states (only legal when isPublic=true; access-matrix gate
+  // ensures we never reach here with neutral on a private replay).
+  let filtered: GameState[]
+  if (perspective === "neutral") {
+    filtered = states
+  } else {
+    const playerId: PlayerID = perspective === "p1" ? "player1" : "player2"
+    filtered = states.map((s) => filterStateForPlayer(s, playerId))
+  }
+
+  return {
+    states: filtered,
+    winner: r.winner as PlayerID | null,
+    turnCount: r.turnCount,
+  }
 }
 
 export async function getGameReplay(gameId: string) {
