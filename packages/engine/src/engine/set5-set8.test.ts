@@ -1496,6 +1496,53 @@ describe("§5 Set 5 — Sapphire Chromicon POWERING UP (item self-enters-exerted
   });
 });
 
+describe('§6 Set 6 — magic-number-99 → "all" sentinel migration (Genie + Yokai)', () => {
+  // 2026-05-02: removed the last 2 magic-number-99 sites in card data.
+  // Both encoded "max-out" semantics that the field types didn't natively
+  // express; extended `put_card_on_bottom_of_deck.amount` and
+  // `cost_reduction.amount` to accept `number | "all"`. Sentinel resolves
+  // to MAX_SAFE_INTEGER internally; callers cap naturally
+  // (Math.min(amount, pool.length) for moves; Math.max(0, cost) for
+  // cost reductions).
+
+  it('Genie - Wonderful Trickster FORBIDDEN TREASURE: "all" puts entire hand on bottom of deck', () => {
+    let state = startGame(["genie-wonderful-trickster"]);
+    let genieId: string;
+    ({ state, instanceId: genieId } = injectCard(state, "player1", "genie-wonderful-trickster", "play", { isDrying: false }));
+    // Note: startGame already deals 7 opening-hand cards. Test asserts the
+    // delta (hand-before count → 0; deck +N), so the actual starting size
+    // doesn't need to be a fixed number. Sentinel "all" must drain whatever
+    // count is in hand.
+    const handBefore = getZone(state, "player1", "hand").length;
+    expect(handBefore).toBeGreaterThan(0);
+    const deckBefore = getZone(state, "player1", "deck").length;
+
+    // Pass turn — FORBIDDEN TREASURE fires at end of player1's turn.
+    state = passTurns(state, 1);
+
+    // ALL hand cards moved to deck-bottom; hand is empty.
+    expect(getZone(state, "player1", "hand")).toHaveLength(0);
+    expect(getZone(state, "player1", "deck").length).toBe(deckBefore + handBefore);
+    void genieId;
+  });
+
+  it('Yokai - Scientific Supervillain NEUROTRANSMITTER: "all" reduces Microbots cost to 0', () => {
+    let state = startGame(["yokai-scientific-supervillain", "microbots"]);
+    let yokaiId: string, microbotsId: string;
+    ({ state, instanceId: yokaiId } = injectCard(state, "player1", "yokai-scientific-supervillain", "play", { isDrying: false }));
+    ({ state, instanceId: microbotsId } = injectCard(state, "player1", "microbots", "hand"));
+    // Verify Microbots cost is computed as 0 with NO ink available.
+    state = giveInk(state, "player1", 0);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: microbotsId } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, microbotsId).zone).toBe("play");
+    // Player still has 0 ink — Yokai's NEUROTRANSMITTER reduced cost to 0.
+    expect(r.newState.players.player1.availableInk).toBe(0);
+    void yokaiId;
+  });
+});
+
 describe("§5 Set 5 — Elsa The Fifth Spirit CRYSTALLIZE (chosen_by_opponent + Vanish hook)", () => {
   // Regression for 2026-04-21 crash: reducer.ts:2478 passed
   // `vanishMods.grantedKeywords.get(targetId)` (a { keyword; value? }[] array)

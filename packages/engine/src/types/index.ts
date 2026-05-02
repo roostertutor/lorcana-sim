@@ -987,8 +987,11 @@ export interface PutCardOnBottomOfDeckEffect {
   ownerScope?: "self" | "opponent" | "target_player";
   /** CardFilter for selecting eligible cards. */
   filter?: CardFilter;
-  /** Number of cards to move. Defaults to 1. */
-  amount?: number;
+  /** Number of cards to move. Defaults to 1. `"all"` moves every eligible
+   *  card from the source zone (Genie - Wonderful Trickster FORBIDDEN
+   *  TREASURE: "put all the cards in your hand on the bottom of your deck").
+   *  Replaces the legacy `amount: 99` magic-number idiom. */
+  amount?: number | "all";
   /** For from "play": chosen character target. */
   target?: CardTarget;
   /** Deck end to place cards at. Defaults to "bottom". "top" is used by
@@ -2510,7 +2513,12 @@ export interface CantBeChallengedException {
  *  Owl Island: dynamic amount { type: "count", filter: chars at this location }. */
 export interface CostReductionStatic {
   type: "cost_reduction";
-  amount: number | { type: "count"; filter: CardFilter };
+  /** Number of {I} reduced. `"all"` reduces the cost to 0 — used for "for
+   *  free" wording (Yokai - Scientific Supervillain NEUROTRANSMITTER:
+   *  "You may play items named Microbots for free."). Replaces the legacy
+   *  `amount: 99` magic-number idiom. Mirrors MoveToSelfCostReductionStatic
+   *  which already accepts `number | "all"`. */
+  amount: number | "all" | { type: "count"; filter: CardFilter };
   /** Filter for which cards get the discount */
   filter: CardFilter;
   /** Scope of the discount. Default "all" — both normal play and Shift cost.

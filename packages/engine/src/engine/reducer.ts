@@ -3663,7 +3663,15 @@ export function applyEffect(
     case "put_card_on_bottom_of_deck": {
       // CRD: place card(s) on the bottom (or top) of a deck without shuffling.
       // See PutCardOnBottomOfDeckEffect docs for variants.
-      const amount = effect.amount ?? 1;
+      // `amount: "all"` → resolved to pool size after eligibility filtering
+      // (Genie - Wonderful Trickster FORBIDDEN TREASURE moves the entire
+      // hand to deck-bottom). Sentinel marker; the per-pool resolution
+      // happens after the candidate pool is built so we can pass
+      // pool.length safely. Use Number.MAX_SAFE_INTEGER as the pre-pool
+      // sentinel so Math.min(amount, pool.length) below resolves correctly.
+      const amount = effect.amount === "all"
+        ? Number.MAX_SAFE_INTEGER
+        : (effect.amount ?? 1);
       const ownerScope = effect.ownerScope ?? "self";
       const position: "top" | "bottom" = effect.position ?? "bottom";
       const targetPlayer =
@@ -6439,7 +6447,10 @@ function canPerformChooseOption(
           return inst && def ? matchesFilter(inst, def, effect.filter!, state, targetPlayer) : false;
         });
       }
-      return pool.length >= (effect.amount ?? 1);
+      // `amount: "all"` is feasible iff the pool has any card. Numeric amount
+      // requires pool.length >= amount.
+      const reqAmount = effect.amount === "all" ? 1 : (effect.amount ?? 1);
+      return pool.length >= reqAmount;
     }
     default: {
       // CRD 6.1.5.2: If the effect targets "chosen" cards, check if enough valid targets exist.

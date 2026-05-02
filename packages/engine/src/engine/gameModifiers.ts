@@ -701,8 +701,16 @@ export function getGameModifiers(
 
         case "cost_reduction": {
           // Resolve dynamic amount (Owl Island: count of chars at this location)
+          // `amount: "all"` reduces the cost to 0 — used for "for free"
+          // wording (Yokai - Scientific Supervillain NEUROTRANSMITTER:
+          // "You may play items named Microbots for free."). Resolve to a
+          // large sentinel; the cost-payment helpers cap at the card's
+          // effective cost via Math.max(0, cost - reduction). Replaces the
+          // legacy `amount: 99` magic-number idiom.
           let resolvedAmount: number;
-          if (typeof effect.amount === "number") {
+          if (effect.amount === "all") {
+            resolvedAmount = Number.MAX_SAFE_INTEGER;
+          } else if (typeof effect.amount === "number") {
             resolvedAmount = effect.amount;
           } else if (effect.amount.type === "count") {
             // Count matching instances inline (can't import findMatchingInstances from reducer)

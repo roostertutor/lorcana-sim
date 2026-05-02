@@ -3787,7 +3787,7 @@
           {
             "type": "put_card_on_bottom_of_deck",
             "from": "hand",
-            "amount": 99
+            "amount": "all"
           }
         ]
       }
@@ -10369,7 +10369,7 @@
         "rulesText": "You may play items named Microbots for free.",
         "effect": {
           "type": "cost_reduction",
-          "amount": 99,
+          "amount": "all",
           "filter": {
             "cardType": [
               "item"
