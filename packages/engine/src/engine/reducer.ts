@@ -1013,8 +1013,15 @@ function applyPlayCard(
       }
     }
 
-    // No pending choice — action cleanup (silent, not a "leaves play")
-    state = zoneTransition(state, instanceId, "discard", definitions, events, { silent: true });
+    // No pending choice — action cleanup (silent, not a "leaves play").
+    // CRD 5.4.3 default disposal is discard, but actionEffects may have moved
+    // the card elsewhere during resolution (We Could Be Immortals →
+    // put_into_inkwell target:this; Lady Tremaine / Max Goof / Ursula →
+    // put_card_on_bottom_of_deck target:this from:"play"). If the card is no
+    // longer in play, the inner effect's destination wins — don't drag it back.
+    if (state.cards[instanceId]?.zone === "play") {
+      state = zoneTransition(state, instanceId, "discard", definitions, events, { silent: true });
+    }
     return state;
   } else {
     // Characters/items enter play — zoneTransition fires enters_play, card_played
@@ -3581,6 +3588,7 @@ export function applyEffect(
               sourceInstanceId,
               controllingPlayerId: "player2",
               ...(abilitySource ? { abilitySource } : {}),
+              ...(triggeringCardInstanceId ? { triggeringCardInstanceId } : {}),
             },
           };
           return state;
@@ -3662,6 +3670,24 @@ export function applyEffect(
         ownerScope === "self" ? controllingPlayerId
         : ownerScope === "opponent" ? getOpponent(controllingPlayerId)
         : /* target_player — controller picks; engine picks opponent in 2P */ getOpponent(controllingPlayerId);
+
+      // Direct-target shapes (this / triggering_card / last_resolved_target)
+      // skip choosers AND ignore `from` (use the named card's current zone).
+      // Used by Ursula - Deceiver of All WHAT A DEAL, Max Goof - Chart Topper
+      // NUMBER ONE HIT, Lady Tremaine EXPEDIENT SCHEMES — sibling effect after
+      // play_card moves the just-played action card to deck-bottom. By the time
+      // this sibling fires, the action has already returned to discard via
+      // applyPlayCard's post-resolution discard, so we can't restrict by
+      // `from === "play"` — just resolve the named card and move it to deck
+      // wherever it currently lives. Replaces the legacy
+      // PlayCardEffect.thenPutOnBottomOfDeck flag (deleted 2026-05-02).
+      if (effect.target) {
+        const directId = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+        if (directId && state.cards[directId]) {
+          const inst = state.cards[directId];
+          return moveCard(state, directId, inst.ownerId, "deck", position);
+        }
+      }
 
       if (effect.from === "play") {
         // Chosen character moves to its OWN owner's deck at configured
@@ -5982,6 +6008,7 @@ export function applyEffect(
                 sourceInstanceId,
                 controllingPlayerId,
                 ...(abilitySource ? { abilitySource } : {}),
+                ...(triggeringCardInstanceId ? { triggeringCardInstanceId } : {}),
               },
             };
           }
@@ -6008,6 +6035,7 @@ export function applyEffect(
                 sourceInstanceId,
                 controllingPlayerId,
                 ...(abilitySource ? { abilitySource } : {}),
+                ...(triggeringCardInstanceId ? { triggeringCardInstanceId } : {}),
               },
             };
           }
@@ -6941,6 +6969,7 @@ function processTriggerStack(
               sourceInstanceId: trigger.sourceInstanceId,
               controllingPlayerId: source.ownerId,
               ...((queuedAbilitySource.storyName || queuedAbilitySource.rulesText) ? { abilitySource: queuedAbilitySource } : {}),
+              ...(trigger.context.triggeringCardInstanceId ? { triggeringCardInstanceId: trigger.context.triggeringCardInstanceId } : {}),
             },
           };
         }
@@ -6988,6 +7017,7 @@ function processTriggerStack(
               sourceInstanceId: trigger.sourceInstanceId,
               controllingPlayerId: source.ownerId,
               ...(passAbilitySource ? { abilitySource: passAbilitySource } : {}),
+              ...(trigger.context.triggeringCardInstanceId ? { triggeringCardInstanceId: trigger.context.triggeringCardInstanceId } : {}),
             },
           };
         }
@@ -7097,16 +7127,16 @@ function resumePendingEffectQueue(
 ): GameState {
   if (!state.pendingEffectQueue || state.pendingChoice) return state;
 
-  const { effects, sourceInstanceId, controllingPlayerId, abilitySource } = state.pendingEffectQueue;
+  const { effects, sourceInstanceId, controllingPlayerId, abilitySource, triggeringCardInstanceId } = state.pendingEffectQueue;
   state = { ...state, pendingEffectQueue: undefined };
 
   for (let i = 0; i < effects.length; i++) {
     const effect = effects[i]!;
-    state = applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, undefined, abilitySource);
+    state = applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
     if (state.pendingChoice) {
       const remaining = effects.slice(i + 1);
       if (remaining.length > 0) {
-        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId, controllingPlayerId, ...(abilitySource ? { abilitySource } : {}) } };
+        state = { ...state, pendingEffectQueue: { effects: remaining, sourceInstanceId, controllingPlayerId, ...(abilitySource ? { abilitySource } : {}), ...(triggeringCardInstanceId ? { triggeringCardInstanceId } : {}) } };
       }
       return state;
     }
@@ -8405,8 +8435,9 @@ function applyEffectToTarget(
       // Note: actions resolve their effects on play and then return to discard via the
       // normal play-card path; play_for_free skips that path, so songs/actions handled
       // here will need their actionEffects resolved separately. For Ursula's case
-      // (replaying a song from discard), the song's actionEffects must run, then the
-      // song itself goes to bottom-of-deck via thenPutOnBottomOfDeck.
+      // (replaying a song from discard), the song's actionEffects include a sibling
+      // put_card_on_bottom_of_deck target:this from:"play" — the post-resolution
+      // discard guard below skips because the card has already moved out of play.
       state = zoneTransition(state, targetInstanceId, "play", definitions, events, {
         reason: "played", triggeringPlayerId: controllingPlayerId,
       });
@@ -8435,8 +8466,15 @@ function applyEffectToTarget(
         for (const actionEffect of def.actionEffects) {
           state = applyEffect(state, actionEffect, targetInstanceId, controllingPlayerId, definitions, events);
         }
-        // CRD 5.4.3: actions go to discard after resolving (unless re-routed by thenPutOnBottomOfDeck below).
-        if (!effect.thenPutOnBottomOfDeck) {
+        // CRD 5.4.3 default disposal is discard, but actionEffects may have
+        // moved the card elsewhere during resolution (We Could Be Immortals →
+        // put_into_inkwell target:this; Lady Tremaine / Max Goof / Ursula →
+        // put_card_on_bottom_of_deck target:this from:"play"). If the card is
+        // no longer in play, the inner effect's destination wins — don't drag
+        // it back. Mirrors the same guard at applyPlayCard:1023 for the
+        // PLAY_CARD action path. Replaces the legacy thenPutOnBottomOfDeck
+        // flag (deleted 2026-05-02) with a destination-agnostic guard.
+        if (state.cards[targetInstanceId]?.zone === "play") {
           state = zoneTransition(state, targetInstanceId, "discard", definitions, events, { reason: "discarded" });
         }
       }
@@ -8447,18 +8485,12 @@ function applyEffectToTarget(
           grantedKeywords: [...playedInst.grantedKeywords, ...effect.grantKeywords],
         });
       }
-      // banishAtEndOfTurn branch REMOVED 2026-05-02 — see PASS_TURN comment
-      // and PlayCardEffect type comment. Cards now express the end-of-turn
-      // banish via a sibling create_delayed_trigger effect after this play_card.
-
-      // CRD: "...then put it on the bottom of your deck" (Ursula - Deceiver of All).
-      // For actions: bypass the normal post-resolution discard and route to bottom of deck instead.
-      // For characters: they're now in play; this would be unusual but supported.
-      if (effect.thenPutOnBottomOfDeck) {
-        const owner = getInstance(state, targetInstanceId).ownerId;
-        // moveCard appends to the end of the destination zone array → bottom of deck.
-        state = moveCard(state, targetInstanceId, owner, "deck");
-      }
+      // banishAtEndOfTurn branch REMOVED 2026-05-02 — cards now express the
+      // end-of-turn banish via a sibling create_delayed_trigger effect.
+      // thenPutOnBottomOfDeck branch REMOVED 2026-05-02 — cards now express
+      // the deck-bottom destination via a sibling put_card_on_bottom_of_deck
+      // target:this from:"play" effect; the post-resolution discard guard above
+      // skips when actionEffects have already moved the card out of play.
       state = appendLog(state, {
         turn: state.turnNumber,
         playerId: controllingPlayerId,

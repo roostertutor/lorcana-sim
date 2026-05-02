@@ -1688,12 +1688,17 @@ export interface PlayCardEffect {
   // matching Candy Drift's precedent. This collapses the dedicated
   // pendingEndOfTurnBanish state queue into the general delayedTriggers
   // machinery — same mechanic, one less primitive.
-  /**
-   * After the play resolves (and any post-resolution discard for actions),
-   * put the played card on the bottom of its owner's deck.
-   * Used by Ursula - Deceiver of All ("...then put it on the bottom of your deck.").
-   */
-  thenPutOnBottomOfDeck?: boolean;
+  // thenPutOnBottomOfDeck: REMOVED 2026-05-02. The 3 cards using this flag
+  // (Lady Tremaine - Sinister Socialite EXPEDIENT SCHEMES, Max Goof - Chart
+  // Topper NUMBER ONE HIT, Ursula - Deceiver of All WHAT A DEAL) now wire
+  // the deck-bottom destination via a sibling `put_card_on_bottom_of_deck`
+  // effect with target:this and from:"play". The post-resolution discard at
+  // both applyPlayCard:1023 and play_card Effect:8447 now guards on
+  // `state.cards[id]?.zone === "play"` — actionEffects that moved the card
+  // out of play during resolution win, defaulting to discard otherwise. This
+  // also fixes a latent bug in We Could Be Immortals (set 6 #162) which
+  // wired the same sibling-effect pattern (put_into_inkwell target:this) but
+  // had its destination silently overridden by the unconditional discard.
   /**
    * Generalization to "play a card from a zone" — see card-status `play_card` capability.
    * Default "free" preserves the historical behavior; "normal" deducts the card's effective
@@ -3765,6 +3770,12 @@ export interface GameState {
     sourceInstanceId: string;
     controllingPlayerId: PlayerID;
     abilitySource?: { storyName?: string; rulesText?: string };
+    /** Preserve the triggeringCardInstanceId across pause/resume so queued
+     *  sibling effects can still resolve `target: triggering_card` after a
+     *  pendingChoice was raised mid-sequence. Without this, Ursula DOA's
+     *  WHAT A DEAL would lose its song reference between the song's choose_
+     *  discard surfacing and the queued put_card_on_bottom_of_deck. */
+    triggeringCardInstanceId?: string;
   } | undefined;
 
   /** CRD 3.2.3.1: Draw step deferred when a turn_start trigger ("At the start

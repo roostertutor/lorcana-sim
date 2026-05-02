@@ -5032,8 +5032,14 @@
                 }
               ]
             },
-            "thenPutOnBottomOfDeck": true,
             "isMay": true
+          },
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "play",
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }
@@ -15102,8 +15108,14 @@
                 }
               ]
             },
-            "thenPutOnBottomOfDeck": true,
             "isMay": true
+          },
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "play",
+            "target": {
+              "type": "last_resolved_target"
+            }
           }
         ]
       }

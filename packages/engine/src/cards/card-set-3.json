@@ -5641,8 +5641,14 @@
             "target": {
               "type": "triggering_card"
             },
-            "thenPutOnBottomOfDeck": true,
             "isMay": true
+          },
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "play",
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }
@@ -13262,8 +13268,14 @@
             "target": {
               "type": "triggering_card"
             },
-            "thenPutOnBottomOfDeck": true,
             "isMay": true
+          },
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "play",
+            "target": {
+              "type": "triggering_card"
+            }
           }
         ]
       }

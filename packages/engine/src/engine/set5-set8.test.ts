@@ -1088,6 +1088,36 @@ describe("§6 Set 6 — Basil Disguised Detective TWISTS AND TURNS (opponent pic
   });
 });
 
+describe("§6 Set 6 — We Could Be Immortals (action card self-inks via put_into_inkwell target:this)", () => {
+  // 2026-05-02 regression: action cards that move themselves out of play during
+  // actionEffects (We Could Be Immortals → put_into_inkwell target:this; Lady
+  // Tremaine / Max Goof / Ursula → put_card_on_bottom_of_deck target:* from:"play")
+  // were silently dragged back to discard by applyPlayCard's unconditional
+  // post-resolution discard. Fixed by guarding the discard on
+  // `state.cards[id]?.zone === "play"` — actionEffects that moved the card
+  // elsewhere now win. Also enabled the deletion of the legacy
+  // PlayCardEffect.thenPutOnBottomOfDeck flag (3 cards migrated to a sibling
+  // put_card_on_bottom_of_deck effect using the same guard).
+  it("song lands in inkwell, NOT discard, after sibling put_into_inkwell target:this resolves", () => {
+    let state = startGame(["we-could-be-immortals"]);
+    state = giveInk(state, "player1", 10);
+    let wcbiId: string;
+    ({ state, instanceId: wcbiId } = injectCard(state, "player1", "we-could-be-immortals", "hand"));
+
+    const inkwellBefore = getZone(state, "player1", "inkwell").length;
+    const discardBefore = getZone(state, "player1", "discard").length;
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: wcbiId } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Critical assertion: the song's "Then, put this card into your inkwell"
+    // sticks. The pre-fix bug landed it in discard instead.
+    expect(getInstance(r.newState, wcbiId).zone).toBe("inkwell");
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkwellBefore + 1);
+    expect(getZone(r.newState, "player1", "discard").length).toBe(discardBefore);
+  });
+});
+
 describe("§6 Set 6 — Oswald FAVORABLE CHANCE fires on effect-driven inkwell placement", () => {
   it("Fishbone Quill putting a hand card into inkwell triggers Oswald's card_put_into_inkwell watcher", () => {
     let state = startGame();

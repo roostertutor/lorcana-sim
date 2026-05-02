@@ -140,11 +140,13 @@ function findInterfaceFields(source: string, discriminator: string): { name: str
       for (let j = i; j >= Math.max(0, i - 5); j--) {
         const m = lines[j]!.match(/export interface (\w+)/);
         if (m) {
-          // Walk forwards to collect fields. Cap at 60 lines — long-JSDoc
-          // interfaces (DrawEffect's `until` notes, DiscardEffect's `until`
-          // notes) need more headroom than the original 30-line cap allowed.
+          // Walk forwards to collect fields. Cap at 120 lines — long-JSDoc
+          // interfaces (PlayCardEffect with its REMOVED-2026-05-02 history
+          // comments + revealed-flag explanation, DrawEffect's `until` notes,
+          // DiscardEffect's `until` notes) need more headroom than the
+          // original 30-line cap allowed.
           const fields: string[] = [];
-          for (let k = j + 1; k < Math.min(lines.length, j + 60); k++) {
+          for (let k = j + 1; k < Math.min(lines.length, j + 120); k++) {
             const fl = lines[k]!.trim();
             if (fl === "}") break;
             const fm = fl.match(/^(\w+)\??:/);
