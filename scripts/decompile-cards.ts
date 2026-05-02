@@ -1893,16 +1893,22 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${maybe}${destVerb}. ${cases}`;
   },
 
-  // Static "enters play exerted" — applies to a filtered set (e.g.
-  // Sapphire Chromicon "items enter play exerted"). Self-applied form
-  // is more commonly wired as a triggered enters_play → exert this.
+  // Static "enters play exerted" — applies to a filtered set sourced from
+  // ANOTHER card (e.g. Jiminy Cricket Level-Headed and Wise: "Opposing
+  // characters with Rush enter play exerted"; Figaro Tuxedo Cat: "Opposing
+  // items enter play exerted"). For "THIS character/item enters play
+  // exerted" oracle text, use enter_play_exerted_self instead — same
+  // mechanic, different read path (direct from def.abilities at
+  // applyEnterPlayExertion:1063 vs gameModifiers cache).
   enter_play_exerted: (e) => {
     const filt = e.filter ? renderFilter(e.filter) : "characters";
     return `${filt} enter play exerted`;
   },
 
   // Self variant — Sleepy Nodding Off, Dale Friend in Need, Baymax Low Battery,
-  // Bolt Down but Not Out. Card simply enters play exerted.
+  // Bolt Down but Not Out, Sapphire Chromicon (item — noun rewritten to "this
+  // item" by the static-ability post-processor at decompile-cards.ts:3168).
+  // Card simply enters play exerted.
   enter_play_exerted_self: () => "this character enters play exerted",
 
   // Location-keyed move-cost reduction. Jolly Roger Hook's Ship: "Your Pirate
