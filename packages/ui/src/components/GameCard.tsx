@@ -4,7 +4,7 @@
 
 import React, { useMemo } from "react";
 import type { CardDefinition, GameState, GameModifiers, KeywordAbility } from "@lorcana-sim/engine";
-import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower, evaluateCondition } from "@lorcana-sim/engine";
+import { getGameModifiers, getEffectiveStrength, getEffectiveWillpower, evaluateCondition, HIDDEN_DEFINITION } from "@lorcana-sim/engine";
 import Icon from "./Icon.js";
 import type { IconName } from "./Icon.js";
 import Glyph from "./Glyph.js";
@@ -126,8 +126,21 @@ interface Props {
 export default function GameCard({ instanceId, gameState, definitions, isSelected, onClick, zone, faceDown, isTarget, isAttacker, skipRotation, onCardsUnderClick, gameModifiers: externalMods, isPlayable, naturalSize }: Props) {
   const instance = gameState.cards[instanceId];
   if (!instance) return null;
-  const def = definitions[instance.definitionId];
+  // The state filter (engine `filterStateForPlayer`) stubs opponent-side cards
+  // in hidden zones (hand, deck, inkwell) with `definitionId: "hidden"`. The
+  // game's definitions map doesn't carry an entry under that key, so a raw
+  // `definitions["hidden"]` lookup returns undefined and the old `if (!def)
+  // return null` early-bailed — leaving opponent's inkwell + hand strips
+  // visually empty even though the underlying zone arrays had IDs. Engine
+  // exports a `HIDDEN_DEFINITION` placeholder for exactly this case; using
+  // it as a fallback makes downstream rendering tolerant. The face-down
+  // branch below force-engages for any hidden stub regardless of the
+  // `faceDown` prop, so users see card backs (CRD 4.1.4 — opponent inkwell
+  // is private) rather than the placeholder's empty stat fields.
+  const def = definitions[instance.definitionId]
+    ?? (instance.definitionId === "hidden" ? HIDDEN_DEFINITION : null);
   if (!def) return null;
+  const isHiddenStub = def === HIDDEN_DEFINITION;
 
   // Compute modifiers once per state change (uses external if provided, else computes)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -177,8 +190,12 @@ export default function GameCard({ instanceId, gameState, definitions, isSelecte
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); }
   };
 
-  // ── Face-down card back (opponent hand) ──
-  if (faceDown) {
+  // ── Face-down card back (opponent hand, or any hidden stub) ──
+  // `isHiddenStub` covers cards stubbed by the state filter (opponent's
+  // hand/deck/inkwell). They have no real definition to render with, so we
+  // force-engage the face-down branch regardless of the caller's `faceDown`
+  // prop. CRD 4.1.4: opponent's inkwell + hand identities stay private.
+  if (faceDown || isHiddenStub) {
     return (
       <div
         className={`${mobileWidth} ${CARD_SIZING_DESKTOP} aspect-[5/7] ${mobileRadius} overflow-hidden shrink-0`}
