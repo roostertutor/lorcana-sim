@@ -13,7 +13,7 @@ import type {
   PendingChoice,
   PlayerID,
 } from "@lorcana-sim/engine";
-import { createGame, applyAction, getAllLegalActions } from "@lorcana-sim/engine";
+import { createGame, applyAction, getAllLegalActions, filterStateForPlayer } from "@lorcana-sim/engine";
 
 // -----------------------------------------------------------------------------
 // ReplayData — self-contained snapshot for replay reconstruction
@@ -357,10 +357,44 @@ export function useGameSession(): GameSession {
   // ---------------------------------------------------------------------------
   // Derived state
   // ---------------------------------------------------------------------------
-  const pendingChoice = gameState?.pendingChoice ?? null;
-  const actionLog = gameState?.actionLog ?? [];
-  const isGameOver = gameState?.isGameOver ?? false;
-  const winner = gameState?.winner ?? null;
+  // Anti-cheat / hidden-info redaction. Engine state held in `gameState` is
+  // raw (full information): the bot effect at line ~383 and `dispatch`'s local
+  // apply both need to see the bot's own hand to make decisions, so we can't
+  // filter at the React-state layer. Instead we filter at the *boundary* —
+  // anything the UI consumes goes through `viewState`, which redacts log
+  // entries / hides opponent hand+deck / drops private ResolvedRef snapshots
+  // for the human's perspective. Source of redaction lives in
+  // `packages/engine/src/engine/stateFilter.ts` and is shared with the server.
+  //
+  // Viewer determination:
+  // - MP: server already filtered before sending us state, but re-filtering
+  //   against `myPlayerId` is idempotent (opponent stubs stay stubs, redacted
+  //   log lines re-redact to the same generic string) and keeps the call site
+  //   uniform.
+  // - Sandbox vs bot: filter against the human (player1IsHuman → "player1").
+  // - Both-human / both-bot: no single viewer, return raw. Neither config
+  //   currently ships, but the explicit branch keeps future hot-seat /
+  //   replay-spectator modes from accidentally redacting both sides.
+  const viewerId = useMemo<PlayerID | null>(() => {
+    const cfg = configRef.current;
+    if (!cfg) return null;
+    if (cfg.multiplayer) return cfg.multiplayer.myPlayerId;
+    if (cfg.player1IsHuman && !cfg.player2IsHuman) return "player1";
+    if (!cfg.player1IsHuman && cfg.player2IsHuman) return "player2";
+    return null;
+  // configRef is a ref, but viewer changes only on startGame — use actionCount
+  // (bumped on every state install incl. initial load) as a recompute trigger.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actionCount]);
+  const viewState = useMemo<GameState | null>(() => {
+    if (!gameState) return null;
+    if (!viewerId) return gameState;
+    return filterStateForPlayer(gameState, viewerId);
+  }, [gameState, viewerId]);
+  const pendingChoice = viewState?.pendingChoice ?? null;
+  const actionLog = viewState?.actionLog ?? [];
+  const isGameOver = viewState?.isGameOver ?? false;
+  const winner = viewState?.winner ?? null;
 
   // ---------------------------------------------------------------------------
   // resolveChoice
@@ -593,7 +627,11 @@ export function useGameSession(): GameSession {
   }, []);
 
   return {
-    gameState,
+    // Filtered for the viewer's perspective — see `viewState` definition
+    // above. Internal references (bot effect, dispatch's local apply, replay
+    // reconstruction, undo) read raw `gameState` from the React state /
+    // `gameStateRef`; only the public surface gets the redaction.
+    gameState: viewState,
     legalActions,
     pendingChoice,
     actionLog,
