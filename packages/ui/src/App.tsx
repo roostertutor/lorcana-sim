@@ -3,8 +3,8 @@ import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from "re
 import { CARD_DEFINITIONS } from "@lorcana-sim/engine";
 import type { DeckEntry } from "@lorcana-sim/engine";
 import type { ReplayInput, RemoteReplay } from "./hooks/useReplaySession.js";
-import { getGameReplay, getSharedReplay, getGameInfo } from "./lib/serverApi.js";
-import type { ReplayMeta } from "./lib/serverApi.js";
+import { getGameReplay, getSharedReplay, getGameInfo, getProfile } from "./lib/serverApi.js";
+import type { ReplayMeta, Profile } from "./lib/serverApi.js";
 import { supabase } from "./lib/supabase.js";
 import DecksPage from "./pages/DecksPage.js";
 import DeckBuilderPage from "./pages/DeckBuilderPage.js";
@@ -164,6 +164,7 @@ function LobbyJoinPage() {
 
 function UserMenu({ navigate }: { navigate: (path: string) => void }) {
   const [session, setSession] = useState<{ email: string } | null | undefined>(undefined);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -173,6 +174,18 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Fetch profile (username, games_played, ELO) when session becomes valid.
+  // Used for display only — email is intentionally NEVER rendered, so we
+  // never leak it on a stream / screenshare. Username is the public-facing
+  // handle.
+  useEffect(() => {
+    if (!session) {
+      setProfile(null);
+      return;
+    }
+    getProfile().then((p) => { if (p) setProfile(p); });
+  }, [session]);
 
   // Close popover on outside click. mousedown beats click so a click on
   // the avatar after the popover is open doesn't immediately re-open it.
@@ -190,6 +203,7 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
   async function handleSignOut() {
     await supabase.auth.signOut();
     setSession(null);
+    setProfile(null);
     setOpen(false);
   }
 
@@ -209,24 +223,40 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
     );
   }
 
-  // First letter of email — placeholder for proper avatar art. Falls back
-  // to "?" if email is empty (shouldn't happen with supabase, but defensive).
-  const initial = session.email[0]?.toUpperCase() ?? "?";
+  // First letter of USERNAME (not email). Showing email's first char on the
+  // avatar leaked one bit of identity to anyone watching the screen — fine
+  // most of the time, dox-vector for streamers / screenshares. Fallback to
+  // "?" while profile is loading; "Player" if profile resolved without a
+  // username (shouldn't happen with ensureProfile, but defensive).
+  const displayName = profile?.username ?? "Player";
+  const initial = profile ? (displayName[0]?.toUpperCase() ?? "?") : "?";
 
   return (
     <div ref={ref} className="relative shrink-0">
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 text-gray-950 text-xs font-bold flex items-center justify-center transition-colors"
-        title={session.email}
-        aria-label={`Account: ${session.email}`}
+        // Tooltip + aria-label use username, NOT email — same anti-leak rule.
+        title={displayName}
+        aria-label={`Account: ${displayName}`}
       >
         {initial}
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-1 w-56 bg-gray-950 border border-gray-700 rounded-lg shadow-xl py-1 z-30">
-          <div className="px-3 py-2 border-b border-gray-800 text-[11px] text-gray-400 truncate" title={session.email}>
-            {session.email}
+          {/* Identity block — username + games_played. Email deliberately
+               NOT shown anywhere; user knows their own email and the cost
+               of accidentally streaming it isn't worth a convenience copy.
+               If they need to recover it, sign-in flow / Supabase has it. */}
+          <div className="px-3 py-2 border-b border-gray-800">
+            <div className="text-sm font-semibold text-gray-200 truncate" title={displayName}>
+              {displayName}
+            </div>
+            {profile && profile.games_played > 0 && (
+              <div className="text-[10px] text-gray-500 mt-0.5">
+                {profile.games_played} {profile.games_played === 1 ? "game" : "games"} played
+              </div>
+            )}
           </div>
           <button
             onClick={handleSignOut}

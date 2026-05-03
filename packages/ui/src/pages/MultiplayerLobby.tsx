@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
-import type { EloKey, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
+import type { PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
@@ -109,7 +109,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     writeLS(LS_PLAY_MODE, mode);
   }
   const [session, setSession]   = useState<{ email: string } | null>(null);
-  const [profile, setProfile]   = useState<Profile | null>(null);
   // Public lobby browser state. Closed by default so the main Host/Join
   // flow stays the primary action; users toggle it open to see what's
   // available. Auto-polls every 5s while open, stops on collapse.
@@ -142,7 +141,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   });
   const publicPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Listen for auth state changes (catches OAuth redirects + session restore)
+  // Listen for auth state changes (catches OAuth redirects + session
+  // restore, and sign-outs triggered from the global UserMenu avatar
+  // dropdown). On sign-out we also need to flush lobby-local state —
+  // previously handled by a local handleSignOut that ran from a Sign
+  // Out button in the lobby session bar; both bar and button were
+  // removed 2026-05-03 when identity moved to UserMenu, so the
+  // listener picks up the cleanup duty.
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, authSession) => {
       if (authSession) {
@@ -150,18 +155,24 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         ensureProfile().catch(() => {});
       } else {
         setSession(null);
+        setLobbyCode(null);
+        setLobbyId(null);
+        setWaitStartedAt(null);
+        setPublicBrowserOpen(false);
+        setPublicLobbies([]);
+        setStatus(null);
       }
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch profile + saved decks when signed in. Game history used to
-  // load here for the Recent Games block on this page; that block was
-  // dropped 2026-05-03 since /replays is the single source of truth
-  // for the user's match history.
+  // Fetch saved decks when signed in. Profile fetch (username/ELO/games)
+  // moved to UserMenu in App.tsx 2026-05-03 — global avatar dropdown is
+  // the single home for identity now. Game history used to load here for
+  // the Recent Games block; dropped 2026-05-03 since /replays is the
+  // canonical match-history surface.
   useEffect(() => {
-    if (!session) { setProfile(null); setSavedDecks([]); return; }
-    getProfile().then((p) => { if (p) setProfile(p); });
+    if (!session) { setSavedDecks([]); return; }
     listDecks().then((decks) => {
       setSavedDecks(decks);
       // Auto-select first valid deck
@@ -287,16 +298,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     }
   }
 
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    setSession(null);
-    setLobbyCode(null);
-    setLobbyId(null);
-    setWaitStartedAt(null);
-    setPublicBrowserOpen(false);
-    setPublicLobbies([]);
-    setStatus(null);
-  }
 
   // Poll lobby status after creating — transition to game when guest joins.
   // Caps at 150 attempts (5 min) to avoid hammering the server indefinitely.
@@ -1078,36 +1079,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             </div>
           </div>
         ) : (
-          /* Lobby actions */
+          /* Lobby actions — session bar (username / ELO / games / sign-out)
+             dropped 2026-05-03. Sign-out lives in the global UserMenu
+             (avatar dropdown) which already had it; identity / games count
+             moved to UserMenu too. Email is no longer rendered anywhere
+             (anti-doxxing on streams). Format-specific ELO is still visible
+             on the queue-search wait screen below where it's actionable. */
           <div className="space-y-3">
-            {/* Session bar */}
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-600">{profile?.username ?? session.email}</span>
-                {profile?.elo_ratings && (() => {
-                  // Per-rotation ELO key — mirrors the server schema.
-                  // Falls back to legacy single-column elo while old
-                  // accounts haven't been backfilled to the full 8-key
-                  // JSONB yet.
-                  const eloKey = `${format}_${gameFormat.family}_${gameFormat.rotation}` as EloKey;
-                  return (
-                    <span className="text-xs font-mono text-amber-500/80" title={`${formatDisplayName(gameFormat)} · ${format.toUpperCase()}`}>
-                      {profile.elo_ratings[eloKey] ?? profile.elo} ELO
-                    </span>
-                  );
-                })()}
-                {profile && profile.games_played > 0 && (
-                  <span className="text-xs text-gray-700">({profile.games_played} games)</span>
-                )}
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
-              >
-                Sign out
-              </button>
-            </div>
-
             {queueStatus ? (
               /* ─ Queue-wait screen ────────────────────────────────────────
                  Active when the user is in the matchmaking queue. Hides
