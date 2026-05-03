@@ -704,18 +704,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [gameOverModalDismissed, setGameOverModalDismissed] = useState(false);
   const [guiSettings, setGuiSetting] = useGuiSettings();
 
-  // Sidebar visibility predicate — matches the wrapper at line ~2636
-  // (`hidden md:flex landscape-phone:!hidden`). When this is true, the
-  // SandboxPanel is already permanently visible in the right sidebar, so
-  // the kebab's "Sandbox tools" item below would be redundant AND would
-  // strand the user (clicking it sets `showAnalysis=true`, which both
-  // hides the kebab and opens a drawer that's `md:hidden` on desktop —
-  // user ends up with no visible UI to dismiss the panel state). Gating
-  // `onOpenSandbox` on `!sandboxSidebarVisible` skips the menu item
-  // entirely on desktop sandbox view, where the panel is already there.
-  const sandboxSidebarVisible = useMediaQuery(
-    "(min-width: 768px) and not ((orientation: landscape) and (max-height: 500px))",
+  // Sidebar visibility predicate — the inverse of the mobile drawer's
+  // visibility (drawer wrapper at line ~2676 uses `md:hidden
+  // landscape-phone:!block`, so the drawer is visible when `< md OR
+  // landscape-phone`). When the sidebar IS visible, SandboxPanel is
+  // already permanently rendered there, so the kebab's "Sandbox tools"
+  // item would be redundant AND would strand the user (clicking sets
+  // `showAnalysis=true`, hiding the kebab; the drawer stays `md:hidden`
+  // so nothing appears to dismiss the state from). Gating `onOpenSandbox`
+  // on `!sandboxSidebarVisible` skips the menu item entirely on desktop.
+  //
+  // Note: written as comma-separated queries (CSS2-era, universally
+  // supported) instead of `and not (...)` (Media Queries Level 4). The
+  // L4 form silently returns `false` in any browser that can't parse it,
+  // which masked this fix on first attempt — the menu item kept showing.
+  const drawerOnlyMode = useMediaQuery(
+    "(max-width: 767.98px), (orientation: landscape) and (max-height: 500px)",
   );
+  const sandboxSidebarVisible = !drawerOnlyMode;
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
