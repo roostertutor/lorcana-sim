@@ -3,7 +3,7 @@ import type { CardDefinition, GameState, PlayerID } from "@lorcana-sim/engine";
 import GameCard from "./GameCard.js";
 import CardInspectModal from "./CardInspectModal.js";
 import Icon from "./Icon.js";
-import ModalFrame from "./ModalFrame.js";
+import ModalFrame, { MODAL_SIZE } from "./ModalFrame.js";
 
 interface ZoneViewSection {
   /** Section header label (e.g. "Revealed by Vision of the Future",
@@ -104,22 +104,16 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
 
   return (
     <ModalFrame onClose={onClose} variant="auto">
-      {/* Width matches PendingChoiceModal's panel (mulligan, target
-          picker) — same 7-col grid of scale-0.78 GameCard thumbs, so
-          the lg:max-w-3xl bump is required for the same reason: at
-          lg+ GameCard becomes w-[120px], scaled 0.78 = 94px per thumb;
-          7 cols × 94px = 658px wouldn't fit max-w-2xl (672px) once
-          padding is included, clipping the rightmost column. Keep this
-          aligned with PendingChoiceModal:1406 — divergence here makes
-          the same cards visually shrink/grow as the player flips
-          between modals. */}
+      {/* MODAL_SIZE.lg matches PendingChoiceModal's panel — same 7-col
+          card-grid role, so widths must agree (see ModalFrame.tsx
+          MODAL_SIZE comment for why lg = 672 → 768px on lg+). */}
       <div
-        className="relative bg-gray-950 border border-gray-800
+        className={`relative bg-gray-950 border border-gray-800
                    rounded-t-2xl sm:rounded-2xl
-                   w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
+                   ${MODAL_SIZE.lg}
                    max-h-[90dvh] sm:max-h-[80vh]
                    pb-[env(safe-area-inset-bottom,0px)]
-                   flex flex-col shadow-2xl"
+                   flex flex-col shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

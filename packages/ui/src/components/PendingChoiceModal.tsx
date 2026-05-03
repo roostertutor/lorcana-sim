@@ -5,6 +5,7 @@ import { getBoardCardImage } from "../utils/cardImage.js";
 import GameCard from "./GameCard.js";
 import CardTextRender from "./CardTextRender.js";
 import AbilityTextRender from "./AbilityTextRender.js";
+import { MODAL_SIZE } from "./ModalFrame.js";
 
 /**
  * Render a CardFilter as a short, human-readable label for per-type cap lines
@@ -1388,12 +1389,11 @@ export default function PendingChoiceModal({
       />
 
       {/* Panel — bottom sheet on mobile, centered card on sm+.
-          Widened to max-w-2xl on sm+ so all 7-col target-picker grids
-          (mulligan + every choose_target / choose_order / reveal-style
-          modal) fit without horizontal overflow. Step up to max-w-3xl at
-          lg+ because GameCard's lg:w-[120px] size makes each scaled thumb
-          94px wide (120 × 0.78) — at max-w-2xl the 7-col grid gives only
-          85px per column, clipping the cards on desktop.
+          MODAL_SIZE.lg matches ZoneViewModal — both render 7-col grids
+          of scale-0.78 GameCard thumbs and must agree in width so
+          cards don't visually shrink/grow when the player flips
+          between modals. (See ModalFrame.tsx MODAL_SIZE comment for
+          why the lg:max-w-3xl bump matters.)
 
           Padding is `pt-5 px-5` only — NO panel-level pb. Bottom padding
           (incl. iPhone home-indicator safe-area) lives INSIDE the
@@ -1403,12 +1403,12 @@ export default function PendingChoiceModal({
           pb-safe (which sticky positioning doesn't reach). Branches
           WITHOUT a sticky footer (choose_trigger, choose_option,
           opponent-waiting) add the pb directly to their content root. */}
-      <div className="relative z-10 w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
+      <div className={`relative z-10 ${MODAL_SIZE.lg}
                       max-h-[82vh] overflow-y-auto
                       bg-gray-950 border border-gray-700
                       rounded-t-2xl sm:rounded-2xl
                       pt-5 px-5
-                      shadow-2xl">
+                      shadow-2xl`}>
         {/* Panel header row: hide button. The Art/Text card preview toggle
             moved to Settings → "Card preview style" (2026-04-27) so the
             choice persists across modals and across sessions, and so the

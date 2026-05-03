@@ -41,7 +41,7 @@ import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
 import TopToast from "../components/TopToast.js";
 import InfoToast from "../components/InfoToast.js";
 import ModeToast from "../components/ModeToast.js";
-import ModalFrame from "../components/ModalFrame.js";
+import ModalFrame, { MODAL_SIZE } from "../components/ModalFrame.js";
 import Glyph from "../components/Glyph.js";
 import SettingsModal from "../components/SettingsModal.js";
 import { useGuiSettings } from "../hooks/useGuiSettings.js";
@@ -3462,7 +3462,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       {showEffects && activeEffects.length > 0 && (
         <ModalFrame onClose={() => setShowEffects(false)} variant="auto" backdropClass="bg-black/60 backdrop-blur-sm">
           <div
-            className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl p-4 max-w-sm w-full sm:w-[90vw] shadow-2xl max-h-[80vh] overflow-y-auto"
+            className={`relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl p-4 ${MODAL_SIZE.sm} shadow-2xl max-h-[80vh] overflow-y-auto`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">

@@ -2,6 +2,42 @@ import React, { useEffect, useRef } from "react";
 
 type Variant = "dialog" | "auto";
 
+// =============================================================================
+// MODAL_SIZE — width tokens for modal panels.
+//
+// Consumers apply these to their panel root className. ModalFrame itself
+// doesn't render the panel (consumers own border/bg/padding/sticky-header
+// etc.), so size lives as exported tokens rather than a prop on
+// ModalFrame. Picking by role — not by visual preference — keeps thumbs
+// visually stable as users flip between modals of the same kind (e.g.
+// the same scale-0.78 GameCard renders to the exact same pixel size in
+// the mulligan and a zone viewer).
+//
+// - sm  → 384px max panel. CardInspect, Settings, Active Effects, confirms.
+//         Single-card detail / short form / text list.
+// - md  → 448px max panel. No current consumers; reserved for medium forms
+//         (e.g. multi-field auth, deck import dialog).
+// - lg  → 672px max → 768px on lg+. ZoneView, PendingChoiceModal grids.
+//         7-col grids of scale-0.78 GameCard thumbs need the lg bump
+//         because GameCard becomes w-[120px] at lg breakpoint; 7 × 94px
+//         scaled = 658px would clip max-w-2xl (672px) once panel padding
+//         is included.
+//
+// All tokens include `w-full` (mobile bottom-sheet fills viewport) and
+// `sm:mx-4` (16px breathing room on sm+ centered modals).
+//
+// Add a tier here BEFORE introducing a new max-width in any modal —
+// drift on this is what produced the mulligan-vs-zone-view size mismatch
+// fixed in commit 66e84c7.
+// =============================================================================
+export const MODAL_SIZE = {
+  sm: "w-full sm:max-w-sm sm:mx-4",
+  md: "w-full sm:max-w-md sm:mx-4",
+  lg: "w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4",
+} as const;
+
+export type ModalSize = keyof typeof MODAL_SIZE;
+
 interface Props {
   onClose: () => void;
   /** Layout / size variant.
@@ -20,9 +56,6 @@ interface Props {
    *  (so Tab cycles into it; screen readers announce the new context). */
   initialFocusRef?: React.RefObject<HTMLElement>;
   children: React.ReactNode;
-  /** @deprecated Use `variant`. Kept for older call sites; "center" maps
-   *  to "dialog", "bottom-sheet-mobile" maps to "auto". */
-  placement?: "center" | "bottom-sheet-mobile";
 }
 
 const VARIANT_CLASS: Record<Variant, string> = {
@@ -77,19 +110,12 @@ if (typeof window !== "undefined") {
  */
 export default function ModalFrame({
   onClose,
-  variant,
-  placement,
+  variant = "dialog",
   backdropClass = "bg-black/70 backdrop-blur-sm",
   closeOnEscape = true,
   initialFocusRef,
   children,
 }: Props) {
-  // Backwards compat: placement → variant mapping. Prefer `variant` in
-  // new code; placement is kept only so older call sites (and an
-  // in-flight migration) don't break atomically.
-  const resolvedVariant: Variant =
-    variant ?? (placement === "bottom-sheet-mobile" ? "auto" : "dialog");
-
   const containerRef = useRef<HTMLDivElement>(null);
   // Latest-ref pattern: the effect runs once on mount; we don't want
   // a fresh `onClose` identity per render to re-run focus capture or
@@ -139,7 +165,7 @@ export default function ModalFrame({
       tabIndex={-1}
       role="dialog"
       aria-modal="true"
-      className={`fixed inset-0 z-50 flex justify-center outline-none ${VARIANT_CLASS[resolvedVariant]} ${backdropClass}`}
+      className={`fixed inset-0 z-50 flex justify-center outline-none ${VARIANT_CLASS[variant]} ${backdropClass}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCloseRef.current();
       }}

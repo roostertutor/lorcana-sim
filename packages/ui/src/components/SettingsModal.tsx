@@ -12,7 +12,7 @@
 // =============================================================================
 
 import React from "react";
-import ModalFrame from "./ModalFrame.js";
+import ModalFrame, { MODAL_SIZE } from "./ModalFrame.js";
 import Icon from "./Icon.js";
 import type { GuiSettings } from "../hooks/useGuiSettings.js";
 
@@ -26,7 +26,7 @@ export default function SettingsModal({ settings, onUpdate, onClose }: Props) {
   return (
     <ModalFrame onClose={onClose} variant="auto">
       <div
-        className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[90dvh] sm:max-h-[80vh] overflow-y-auto"
+        className={`relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl ${MODAL_SIZE.sm} shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[90dvh] sm:max-h-[80vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 sticky top-0 bg-gray-950 z-10">
