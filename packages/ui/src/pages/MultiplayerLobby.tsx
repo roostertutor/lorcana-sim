@@ -1493,23 +1493,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           );
         })()}
 
-        {/* Past games discovery link — replaces the inline Recent Games
-             block (dropped 2026-05-03). The /replays tab already lists
-             the caller's match history with richer formatting (W/L,
-             format chip, relative timestamps, perspective toggle), so
-             showing the same data again here was duplicate content.
-             Inline link keeps the path discoverable for users who used
-             to land on Recent Games from this page. */}
-        {session && (
-          <div className="text-center">
-            <button
-              onClick={() => navigate("/replays")}
-              className="text-xs text-gray-500 hover:text-amber-400 transition-colors"
-            >
-              View past games →
-            </button>
-          </div>
-        )}
+        {/* Recent Games block + "View past games →" link were both
+             dropped 2026-05-03. /replays is in the top nav already, so
+             a discovery hint at the bottom of the lobby is unnecessary
+             chrome. Users who want their match history navigate via the
+             top tab. */}
       </div>
 
       {/* Bounce keyframes */}

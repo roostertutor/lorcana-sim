@@ -244,17 +244,29 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-1 w-56 bg-gray-950 border border-gray-700 rounded-lg shadow-xl py-1 z-30">
-          {/* Identity block — username + games_played. Email deliberately
-               NOT shown anywhere; user knows their own email and the cost
-               of accidentally streaming it isn't worth a convenience copy.
-               If they need to recover it, sign-in flow / Supabase has it. */}
+          {/* Identity block — username + ELO + games_played. Email
+               deliberately NOT shown anywhere; user knows their own
+               email and the cost of accidentally streaming it isn't
+               worth a convenience copy. If they need to recover it,
+               sign-in flow / Supabase has it.
+               ELO shown is profile.elo (legacy single field) for an
+               at-a-glance summary across formats. Format-specific
+               ELOs (per-rotation × bo1/bo3) surface in the queue-
+               search card during ranked queueing — that's where the
+               distinction matters for matchmaking. */}
           <div className="px-3 py-2 border-b border-gray-800">
             <div className="text-sm font-semibold text-gray-200 truncate" title={displayName}>
               {displayName}
             </div>
-            {profile && profile.games_played > 0 && (
-              <div className="text-[10px] text-gray-500 mt-0.5">
-                {profile.games_played} {profile.games_played === 1 ? "game" : "games"} played
+            {profile && (
+              <div className="text-[10px] text-gray-500 mt-0.5 flex items-center gap-1.5">
+                <span className="font-mono text-amber-500/80">{profile.elo} ELO</span>
+                {profile.games_played > 0 && (
+                  <>
+                    <span className="text-gray-700">·</span>
+                    <span>{profile.games_played} {profile.games_played === 1 ? "game" : "games"}</span>
+                  </>
+                )}
               </div>
             )}
           </div>
