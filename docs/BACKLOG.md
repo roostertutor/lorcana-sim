@@ -24,6 +24,36 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 ## UI / Design
 
+### Mobile vs Desktop UX — remaining sections after Section C shipped
+
+**Considered (2026-05-03)**: Multi-section punch list of mobile-vs-desktop chrome differences in non-gameboard surfaces. Original menu had six sections (A–F):
+
+- **A. Lobby / multiplayer chrome** — native share sheet vs copy-to-clipboard, reconnection banner shape (full sheet on mobile vs toast on desktop), touch-target audit (44px min on mobile). **QR code for cross-device handoff was explicitly dropped by user 2026-05-03 — do NOT re-propose.**
+- **B. Deckbuilder mobile pass** — card-grid columns by viewport, filter-bar collapse to bottom-sheet on mobile, decklist sidebar→sheet on mobile, card-inspect modal full-screen edge-to-edge on mobile, touch DnD strategy (long-press vs tap-to-add/remove), deck-export PNG mobile-save button.
+- **C. Modal system standardization** — **DONE 2026-05-03**, commits `66e84c7` (variant API + ESC-stack + scroll lock + focus restore + ARIA + form input mobile keyboards) and `c02fea2` (`MODAL_SIZE` token system: sm/md/lg, with all 5 modals migrated and the deprecated `placement` prop removed).
+- **D. Navigation chrome** — bottom tab bar on mobile (already a separate BACKLOG entry below — "Bottom nav on mobile"), back-button / swipe-back behavior audit across routes (especially in/out of lobby + game).
+- **E. Forms & input polish** — `inputMode` / `autoComplete` audit (PARTIALLY DONE in commit `66e84c7` — lobby code, card search, card-add, trait, deck name covered. Remaining: `DevAddCardPage` numeric inputs (low ROI, internal tooling), and a hover-affordance audit — anything that only shows on `:hover` is invisible on touch; sites in `CardTile`, `BoardMenu`, etc. need tap-equivalents).
+- **F. History / replays / decks** — `DecksPage` card density (stacked list on mobile vs columns on desktop), `ReplaysPage` scrubber touch zones / snap-to-turn buttons on mobile, `ComparisonView` swipe-between vs side-by-side.
+
+**Why parked (2026-05-03)**: Section C took one focused session and shipped clean. User chose to pause here and revisit the rest in dedicated future sessions ("focus on one each" — explicit pushback against jumping between sections). Each remaining section is self-contained enough to ship as one commit pair (foundation + migrations) without holding the others hostage.
+
+**What Section C unlocked for future sections**:
+- `MODAL_SIZE.sm/md/lg` tokens — any new modal in any future section uses these (no width drift, no per-modal max-w decisions).
+- `variant="auto"` shape — any new modal that should bottom-sheet on mobile is one prop.
+- ESC-stack — nested modals work correctly out of the box; no per-modal handler wiring.
+- Form-input pattern proven — same `autoCapitalize` / `enterKeyHint` / `inputMode` shape applies to any new input.
+
+**Trigger to reconsider**: User asks for "next mobile UX section" — start with **A (lobby chrome)** since it's the smallest and most visible (entry-point surface). After A, **B (deckbuilder)** is the heaviest and benefits most from `MODAL_SIZE.lg` (filter bottom-sheet uses it). Then **D (nav)** since it touches every page and best done after the screens themselves are stable. **E remainder** and **F** are quickest — sprinkle in alongside the bigger sections.
+
+Suggested order (carry-over from the original session plan): **A → B → D → E remainder → F**.
+
+**Expected scope**: Each section is roughly the size of Section C — 1–2 sessions, 2 commits (foundation + migrations or audit + fixes). Total if all five ship: ~6–10 sessions across the whole punch list.
+
+**Decisions explicitly NOT to revisit**:
+- **QR code for lobby cross-device handoff** — user dropped it 2026-05-03, twice. Don't re-propose unless a streamer / event organizer specifically asks for it.
+
+---
+
 ### Pluralization helper (`pluralize(noun, count)`)
 
 **Considered**: Replace the small number of ad-hoc `+s` plural sites in the UI with a single `pluralize(noun, count)` helper. Mostly cosmetic — fixes things like "1 cards" / "Item/Locations" before they ship.
