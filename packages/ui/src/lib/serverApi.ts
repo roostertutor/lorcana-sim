@@ -238,7 +238,16 @@ export interface Profile {
   username: string
   elo: number
   elo_ratings: EloRatings
+  /** Overall games-played counter across all formats. Kept as the single
+   *  activity number for the avatar dropdown; for per-format counts that
+   *  pair with the ratings table, use `games_played_by_format`. */
   games_played: number
+  /** Per-format games-played counter, mirroring the EloRatings shape. Each
+   *  bucket increments by 1 per finished game (both ranked and unranked)
+   *  in the matching {match × family × rotation} key. Server seeds the
+   *  full 8-key shape with zeros so the field is always defined post-
+   *  migration; missing keys read as 0 if older clients race a new key. */
+  games_played_by_format: Record<EloKey, number>
 }
 
 export async function getProfile(): Promise<Profile | null> {

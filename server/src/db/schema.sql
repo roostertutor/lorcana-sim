@@ -146,6 +146,83 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS elo_ratings JSONB NOT NULL DEFAULT
 UPDATE profiles SET elo_ratings = '{"bo1_core_s11":1200,"bo1_core_s12":1200,"bo1_infinity_s11":1200,"bo1_infinity_s12":1200,"bo3_core_s11":1200,"bo3_core_s12":1200,"bo3_infinity_s11":1200,"bo3_infinity_s12":1200}'::jsonb || elo_ratings
 WHERE NOT (elo_ratings ? 'bo1_core_s11');
 
+-- Per-format games_played counters (parallel to elo_ratings).
+-- Keys mirror the EloKey shape: {match}_{family}_{rotation}. The overall
+-- profiles.games_played column stays as the activity-tracking single counter
+-- (used for the avatar-dropdown summary). This JSONB lets the /me page show
+-- per-format counts alongside per-format ratings — natural pairing.
+--
+-- Seeded with all 8 current keys at 0 so reads can index in without nullcheck.
+-- When a new rotation lands, run the same merge pattern below to extend the
+-- shape without clobbering existing counts. Source of truth for which
+-- rotations exist remains the engine registries (CORE_ROTATIONS /
+-- INFINITY_ROTATIONS) — this default tracks them.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS games_played_by_format JSONB NOT NULL DEFAULT
+  '{"bo1_core_s11":0,"bo1_core_s12":0,"bo1_infinity_s11":0,"bo1_infinity_s12":0,"bo3_core_s11":0,"bo3_core_s12":0,"bo3_infinity_s11":0,"bo3_infinity_s12":0}'::jsonb;
+
+-- One-shot key migration for the games_played_by_format JSONB. Same idempotent
+-- "merge defaults into existing rows" pattern as elo_ratings above. The
+-- left-merge keeps existing keys intact; only missing keys pick up the 0
+-- default. Safe to re-run; no effect after first pass for a given rotation set.
+UPDATE profiles SET games_played_by_format = '{"bo1_core_s11":0,"bo1_core_s12":0,"bo1_infinity_s11":0,"bo1_infinity_s12":0,"bo3_core_s11":0,"bo3_core_s12":0,"bo3_infinity_s11":0,"bo3_infinity_s12":0}'::jsonb || games_played_by_format
+WHERE NOT (games_played_by_format ? 'bo1_core_s11');
+
+-- One-shot historical backfill of games_played_by_format from the replays
+-- table. The `games` table itself doesn't carry format columns (format lives
+-- on the parent `lobbies` row, or — for queue games — on the now-deleted
+-- matchmaking_queue row). The `replays` table denormalized format/game_format/
+-- game_rotation at finish time, so it's the most reliable single-source for
+-- "completed game count, per format key, per user."
+--
+-- Limitation: queue games created BEFORE replays were saved for queue paths
+-- (currently saveReplayForGame is only called inside the `if (lobby)` branch
+-- of resign + handleMatchProgress) won't be counted here. Queue play is
+-- pre-launch / negligible today, so the gap is acceptable; the going-forward
+-- write path (in updateElo) covers all paths uniformly.
+--
+-- Idempotent: each run REPLACES the historical counts with the
+-- recomputed-from-replays count, then `||` merges any going-forward keys
+-- that aren't in the rebuild. Counts each game once per player slot —
+-- both p1 and p2 get +1 for the format key derived from the replay row.
+WITH per_user_counts AS (
+  SELECT
+    g.player1_id AS user_id,
+    r.format || '_' || r.game_format || '_' || r.game_rotation AS key,
+    COUNT(*) AS games
+  FROM replays r
+  JOIN games g ON g.id = r.game_id
+  WHERE r.format IS NOT NULL
+    AND r.game_format IS NOT NULL
+    AND r.game_rotation IS NOT NULL
+    AND g.player1_id IS NOT NULL
+  GROUP BY g.player1_id, r.format, r.game_format, r.game_rotation
+  UNION ALL
+  SELECT
+    g.player2_id AS user_id,
+    r.format || '_' || r.game_format || '_' || r.game_rotation AS key,
+    COUNT(*) AS games
+  FROM replays r
+  JOIN games g ON g.id = r.game_id
+  WHERE r.format IS NOT NULL
+    AND r.game_format IS NOT NULL
+    AND r.game_rotation IS NOT NULL
+    AND g.player2_id IS NOT NULL
+  GROUP BY g.player2_id, r.format, r.game_format, r.game_rotation
+),
+agg AS (
+  SELECT user_id, jsonb_object_agg(key, games) AS counts
+  FROM (
+    SELECT user_id, key, SUM(games)::int AS games
+    FROM per_user_counts
+    GROUP BY user_id, key
+  ) s
+  GROUP BY user_id
+)
+UPDATE profiles p
+SET games_played_by_format = p.games_played_by_format || a.counts
+FROM agg a
+WHERE p.id = a.user_id;
+
 -- ── Decks + deck_versions (backfilled DDL) ──────────────────────────────
 -- These tables were originally created ad-hoc in Supabase Studio and the
 -- base DDL never landed in source control; only the `ALTER TABLE decks …`

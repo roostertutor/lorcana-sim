@@ -336,6 +336,28 @@ function buildDefaultRatings(): EloRatings {
 
 const DEFAULT_RATINGS: EloRatings = buildDefaultRatings()
 
+/** Per-format games-played counter map. Same key shape as EloRatings, but the
+ *  zero-default lets us treat missing keys as "no games played in that bucket"
+ *  without having to nullcheck on read. Mirrors the schema's JSONB seed. */
+type GamesPlayedByFormat = Record<EloKey, number>
+
+function buildDefaultGamesPlayedByFormat(): GamesPlayedByFormat {
+  const out: Partial<Record<EloKey, number>> = {}
+  for (const match of ["bo1", "bo3"] as const) {
+    for (const [family, registry] of [
+      ["core", CORE_ROTATIONS],
+      ["infinity", INFINITY_ROTATIONS],
+    ] as const) {
+      for (const rotation of Object.keys(registry) as RotationId[]) {
+        out[`${match}_${family}_${rotation}`] = 0
+      }
+    }
+  }
+  return out as GamesPlayedByFormat
+}
+
+const DEFAULT_GAMES_PLAYED_BY_FORMAT: GamesPlayedByFormat = buildDefaultGamesPlayedByFormat()
+
 function getEloKey(format: string, cardPool: string, rotation: string): EloKey {
   const f: MatchFormat = format === "bo3" ? "bo3" : "bo1"
   const p: GameFormatFamily = cardPool === "core" ? "core" : "infinity"
@@ -358,6 +380,23 @@ export interface EloUpdateResult {
   eloKey: EloKey
 }
 
+/** Take an existing per-format counts JSONB (possibly partial / null), merge
+ *  it onto the default-zero map, and increment the supplied bucket by 1.
+ *  Returns the full 8-key (or larger, when registries grow) map ready to be
+ *  written back to the profiles row. The default-merge keeps the JSONB's
+ *  full key set populated even if a row still has the old `{}` default.
+ *
+ *  Exported for direct unit-testing — the function is pure (no DB), so we
+ *  can verify the bump logic without spinning up the supabase double. */
+export function bumpGamesPlayedByFormat(
+  existing: Partial<GamesPlayedByFormat> | null | undefined,
+  eloKey: EloKey,
+): GamesPlayedByFormat {
+  const next: GamesPlayedByFormat = { ...DEFAULT_GAMES_PLAYED_BY_FORMAT, ...(existing ?? {}) }
+  next[eloKey] = (next[eloKey] ?? 0) + 1
+  return next
+}
+
 async function updateElo(
   player1Id: string,
   player2Id: string,
@@ -365,29 +404,66 @@ async function updateElo(
   eloKey: EloKey = FALLBACK_ELO_KEY,
   gameRanked: boolean = false,
 ): Promise<EloUpdateResult | null> {
-  // Unranked match: still bump games_played for activity tracking, but skip
-  // the ELO math entirely. Private lobbies are always ranked=false (anti-
-  // collusion); casual queue games are always ranked=false; ranked queue
-  // games are ranked iff the rotation has ranked=true at game-create time.
-  // The flag is read directly off `games.ranked` — no need to re-derive
-  // from the rotation registry here, since it's already authoritative.
+  // Unranked match: still bump games_played + games_played_by_format for
+  // activity tracking, but skip the ELO math entirely. Private lobbies are
+  // always ranked=false (anti-collusion); casual queue games are always
+  // ranked=false; ranked queue games are ranked iff the rotation has
+  // ranked=true at game-create time. The flag is read directly off
+  // `games.ranked` — no need to re-derive from the rotation registry here,
+  // since it's already authoritative.
   if (!gameRanked) {
     const [{ data: p1g }, { data: p2g }] = await Promise.all([
-      supabase.from("profiles").select("games_played").eq("id", player1Id).single(),
-      supabase.from("profiles").select("games_played").eq("id", player2Id).single(),
+      supabase
+        .from("profiles")
+        .select("games_played, games_played_by_format")
+        .eq("id", player1Id)
+        .single(),
+      supabase
+        .from("profiles")
+        .select("games_played, games_played_by_format")
+        .eq("id", player2Id)
+        .single(),
     ])
     if (p1g && p2g) {
+      const p1Counts = bumpGamesPlayedByFormat(
+        p1g.games_played_by_format as Partial<GamesPlayedByFormat> | null,
+        eloKey,
+      )
+      const p2Counts = bumpGamesPlayedByFormat(
+        p2g.games_played_by_format as Partial<GamesPlayedByFormat> | null,
+        eloKey,
+      )
       await Promise.all([
-        supabase.from("profiles").update({ games_played: (p1g.games_played as number) + 1 }).eq("id", player1Id),
-        supabase.from("profiles").update({ games_played: (p2g.games_played as number) + 1 }).eq("id", player2Id),
+        supabase
+          .from("profiles")
+          .update({
+            games_played: (p1g.games_played as number) + 1,
+            games_played_by_format: p1Counts,
+          })
+          .eq("id", player1Id),
+        supabase
+          .from("profiles")
+          .update({
+            games_played: (p2g.games_played as number) + 1,
+            games_played_by_format: p2Counts,
+          })
+          .eq("id", player2Id),
       ])
     }
     return null
   }
 
   const [{ data: p1 }, { data: p2 }] = await Promise.all([
-    supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player1Id).single(),
-    supabase.from("profiles").select("elo, elo_ratings, games_played").eq("id", player2Id).single(),
+    supabase
+      .from("profiles")
+      .select("elo, elo_ratings, games_played, games_played_by_format")
+      .eq("id", player1Id)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("elo, elo_ratings, games_played, games_played_by_format")
+      .eq("id", player2Id)
+      .single(),
   ])
 
   if (!p1 || !p2) return null
@@ -408,15 +484,34 @@ async function updateElo(
   p1Ratings[eloKey] = p1After
   p2Ratings[eloKey] = p2After
 
+  const p1Counts = bumpGamesPlayedByFormat(
+    p1.games_played_by_format as Partial<GamesPlayedByFormat> | null,
+    eloKey,
+  )
+  const p2Counts = bumpGamesPlayedByFormat(
+    p2.games_played_by_format as Partial<GamesPlayedByFormat> | null,
+    eloKey,
+  )
+
   // Also update the legacy elo column with the rating that just changed
   await Promise.all([
     supabase
       .from("profiles")
-      .update({ elo: p1After, elo_ratings: p1Ratings, games_played: (p1.games_played as number) + 1 })
+      .update({
+        elo: p1After,
+        elo_ratings: p1Ratings,
+        games_played: (p1.games_played as number) + 1,
+        games_played_by_format: p1Counts,
+      })
       .eq("id", player1Id),
     supabase
       .from("profiles")
-      .update({ elo: p2After, elo_ratings: p2Ratings, games_played: (p2.games_played as number) + 1 })
+      .update({
+        elo: p2After,
+        elo_ratings: p2Ratings,
+        games_played: (p2.games_played as number) + 1,
+        games_played_by_format: p2Counts,
+      })
       .eq("id", player2Id),
   ])
 
