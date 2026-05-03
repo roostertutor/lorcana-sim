@@ -257,35 +257,22 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-1 w-56 bg-gray-950 border border-gray-700 rounded-lg shadow-xl py-1 z-30">
-          {/* Identity block — username + ELO + games_played. Email
-               deliberately NOT shown anywhere; user knows their own
-               email and the cost of accidentally streaming it isn't
-               worth a convenience copy. If they need to recover it,
-               sign-in flow / Supabase has it.
-               ELO shown is profile.elo (legacy single field) for an
-               at-a-glance summary across formats. Per-rotation ELO
-               breakdown (bo1/bo3 × 4 rotations) lives on the /me
-               page — link below opens it. */}
+          {/* Identity block — username only. Email deliberately NOT
+               shown anywhere (anti-doxx on streams). The ELO + games
+               summary line that used to live here was dropped 2026-
+               05-03 — profile.elo is the legacy single-rotation
+               field, not a meaningful aggregate of the per-format
+               matrix on /me, and the overall games_played counter
+               became redundant once /me had per-format counts. The
+               dropdown is now identity + navigation + actions; stats
+               live on the Profile page one tap away. */}
           <div className="px-3 py-2 border-b border-gray-800">
             <div className="text-sm font-semibold text-gray-200 truncate" title={displayName}>
               {displayName}
             </div>
-            {profile && (
-              <div className="text-[10px] text-gray-500 mt-0.5 flex items-center gap-1.5">
-                <span className="font-mono text-amber-500/80">{profile.elo} ELO</span>
-                {profile.games_played > 0 && (
-                  <>
-                    <span className="text-gray-700">·</span>
-                    <span>{profile.games_played} {profile.games_played === 1 ? "game" : "games"}</span>
-                  </>
-                )}
-              </div>
-            )}
           </div>
-          {/* Profile link — full /me page with ELO breakdown grid +
-               sign-out. The dropdown stays as a quick-access escape
-               hatch (Sign out without navigating away from current
-               view). */}
+          {/* Profile link — full /me page with the ELO breakdown grid
+               + per-format games count. */}
           <button
             onClick={() => { setOpen(false); navigate("/me"); }}
             className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"

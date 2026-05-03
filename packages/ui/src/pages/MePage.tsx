@@ -55,13 +55,6 @@ export default function MePage() {
     getProfile().then((p) => { if (p) setProfile(p); });
   }, [session]);
 
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    // Land on Decks after sign-out — neutral home that doesn't require
-    // auth (vs /multiplayer which would just bounce to its sign-in card).
-    navigate("/");
-  }
-
   // Loading flicker — render nothing while supabase resolves.
   if (session === undefined) {
     return null;
@@ -164,18 +157,10 @@ export default function MePage() {
         ))}
       </div>
 
-      {/* Sign out — duplicate of UserMenu's sign-out so users on a real
-          phone don't have to navigate to find it. The avatar dropdown
-          stays as a quick-access escape hatch from anywhere in the app
-          (decided 2026-05-03). */}
-      <div className="text-center">
-        <button
-          onClick={handleSignOut}
-          className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-gray-100 rounded-lg text-sm font-medium transition-colors"
-        >
-          Sign out
-        </button>
-      </div>
+      {/* Sign-out button removed 2026-05-03. The UserMenu avatar
+          dropdown is always visible (top-right on desktop, included
+          in the Me-tab navigation on mobile), so a duplicate button
+          here was redundant chrome. */}
     </div>
   );
 }
