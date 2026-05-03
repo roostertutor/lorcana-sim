@@ -2897,12 +2897,15 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           hidden={showLog || showAnalysis || showEffects || showSettings || (isGameOver && !gameOverModalDismissed)}
           onOpenLog={() => setShowLog(true)}
           onOpenSettings={() => setShowSettings(true)}
-          {/* Sandbox tools menu item only when the sidebar isn't already
-              showing the panel — see sandboxSidebarVisible comment above
-              for why this avoids the desktop dead-end. */}
-          {...(sandboxMode && !sandboxSidebarVisible
-            ? { onOpenSandbox: () => setShowAnalysis(true) }
-            : {})}
+          {...(
+            // `onOpenSandbox` only when sidebar SandboxPanel isn't
+            // already visible — see sandboxSidebarVisible hook comment
+            // above for why (avoids the desktop dead-end where the
+            // kebab item was redundant + stranding the user).
+            sandboxMode && !sandboxSidebarVisible
+              ? { onOpenSandbox: () => setShowAnalysis(true) }
+              : {}
+          )}
           {...(multiplayerGame && !isGameOver
             ? {
                 onResign: () => {
