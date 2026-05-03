@@ -14,20 +14,30 @@ import GameBoard from "./pages/GameBoard.js";
 import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
+import MePage from "./pages/MePage.js";
 
-type Tab = "decks" | "multiplayer" | "replays" | "sandbox";
+type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 
+// Order: Decks → Replays → Play → Sandbox → Me. Play sits at index 2
+// (visual center of 5) so it can be visually emphasized as the primary
+// action via styling. Workflow reads left-to-right: prep (Decks) →
+// review (Replays) → play (primary) → tinker (Sandbox) → account (Me).
 const TABS: { id: Tab; path: string; label: string }[] = [
   { id: "decks", path: "/", label: "Decks" },
+  { id: "replays", path: "/replays", label: "Replays" },
   // Tab id + path stay "multiplayer" — preserves bookmarks and the
   // /lobby/:code shareable links that route through MultiplayerLobby.
   // Label "Play" is honest about scope: this tab also hosts Solo (vs
   // bot), which isn't multiplayer in the strict sense.
   { id: "multiplayer", path: "/multiplayer", label: "Play" },
-  { id: "replays", path: "/replays", label: "Replays" },
   // Sandbox surfaced as a top-level tab — installed PWA can't easily type
   // URLs to reach `/sandbox`, so the route needed a discoverable entry point.
   { id: "sandbox", path: "/sandbox", label: "Sandbox" },
+  // Me page — username, ELO grid (8 ratings), games played, sign out.
+  // The full version of what UserMenu's avatar dropdown shows in
+  // summary form. Avatar dropdown still works as a quick-access escape
+  // hatch (Sign out from anywhere without navigating to /me first).
+  { id: "me", path: "/me", label: "Me" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -250,10 +260,9 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
                worth a convenience copy. If they need to recover it,
                sign-in flow / Supabase has it.
                ELO shown is profile.elo (legacy single field) for an
-               at-a-glance summary across formats. Format-specific
-               ELOs (per-rotation × bo1/bo3) surface in the queue-
-               search card during ranked queueing — that's where the
-               distinction matters for matchmaking. */}
+               at-a-glance summary across formats. Per-rotation ELO
+               breakdown (bo1/bo3 × 4 rotations) lives on the /me
+               page — link below opens it. */}
           <div className="px-3 py-2 border-b border-gray-800">
             <div className="text-sm font-semibold text-gray-200 truncate" title={displayName}>
               {displayName}
@@ -270,6 +279,16 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
               </div>
             )}
           </div>
+          {/* Profile link — full /me page with ELO breakdown grid +
+               sign-out. The dropdown stays as a quick-access escape
+               hatch (Sign out without navigating away from current
+               view). */}
+          <button
+            onClick={() => { setOpen(false); navigate("/me"); }}
+            className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
+          >
+            Profile
+          </button>
           <button
             onClick={handleSignOut}
             className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
@@ -638,6 +657,7 @@ export default function App() {
       <Route path="/decks/:id" element={<TabPage tab="decks"><DeckBuilderPage /></TabPage>} />
       <Route path="/multiplayer" element={<MultiplayerPage />} />
       <Route path="/replays" element={<TabPage tab="replays"><ReplaysPage /></TabPage>} />
+      <Route path="/me" element={<TabPage tab="me"><MePage /></TabPage>} />
 
       {/* Lobby join via URL — /lobby/ABC123 */}
       <Route path="/lobby/:code" element={<LobbyJoinPage />} />
