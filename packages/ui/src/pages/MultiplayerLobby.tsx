@@ -9,6 +9,7 @@ import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 import Icon from "../components/Icon.js";
+import { useMediaQuery } from "../hooks/useMediaQuery.js";
 
 // localStorage keys for "last remembered" lobby selections — restored on
 // mount so returning to the lobby after a match keeps the user's most
@@ -570,13 +571,26 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     }
   }
 
-  // Capability detection runs once at module-eval time so we can pick
-  // the right icon BEFORE the user clicks (share-arrow on touch devices
-  // that have navigator.share, clipboard-only elsewhere). `canShare` is
-  // tested with a stub payload because some browsers expose `share`
-  // unconditionally but reject specific MIME / scheme combinations.
+  // Use the share sheet only on touch-primary devices (phones, tablets).
+  // Modern desktop browsers (Chrome 93+ on Windows, Safari / Chrome on
+  // macOS, Edge) ship navigator.share too, but desktop users expect a
+  // copy-link affordance — the OS share dialogs there are awkward (small
+  // OS-native popovers, often empty or with sparse target lists). The
+  // gate is UX intent ("user wants the share sheet"), not API capability
+  // ("the share API exists").
+  //
+  // (pointer: coarse) is the cleanest signal for touch-primary input:
+  // true on phones / tablets, false on mouse / trackpad. Reactive via
+  // useMediaQuery so users with dual-input devices (Surface, hybrids)
+  // get the right behavior if they switch input modes mid-session.
+  //
+  // Original implementation gated on API capability alone, which made
+  // desktop users see the share button and trigger the awkward OS
+  // dialog — fixed in commit [next].
+  const isTouchDevice = useMediaQuery("(pointer: coarse)");
   const SHARE_PROBE_PAYLOAD = { url: "https://example.com/", title: "probe" };
   const canNativeShare =
+    isTouchDevice &&
     typeof navigator !== "undefined" &&
     typeof navigator.share === "function" &&
     (typeof navigator.canShare !== "function" || navigator.canShare(SHARE_PROBE_PAYLOAD));
