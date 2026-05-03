@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
-import type { PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
+import type { EloKey, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
@@ -109,6 +109,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     writeLS(LS_PLAY_MODE, mode);
   }
   const [session, setSession]   = useState<{ email: string } | null>(null);
+  // Profile surfaced for the per-rotation ELO display in the format
+  // chips below — the global UserMenu also fetches profile (legacy elo
+  // summary), but it doesn't have access to format/family/rotation
+  // selections, so the per-rotation breakdown lives here. Two fetches
+  // is the cost of not threading profile through context.
+  const [profile, setProfile]   = useState<Profile | null>(null);
   // Public lobby browser state. Closed by default so the main Host/Join
   // flow stays the primary action; users toggle it open to see what's
   // available. Auto-polls every 5s while open, stops on collapse.
@@ -155,6 +161,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         ensureProfile().catch(() => {});
       } else {
         setSession(null);
+        setProfile(null);
         setLobbyCode(null);
         setLobbyId(null);
         setWaitStartedAt(null);
@@ -166,13 +173,16 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch saved decks when signed in. Profile fetch (username/ELO/games)
-  // moved to UserMenu in App.tsx 2026-05-03 — global avatar dropdown is
-  // the single home for identity now. Game history used to load here for
+  // Fetch saved decks + profile when signed in. UserMenu also fetches
+  // profile (for username + summary ELO in the avatar dropdown); we
+  // fetch separately here to power per-rotation ELO chips below. Could
+  // share via React context, but two fetches is fine — this is a cheap
+  // GET and the duplication is local. Game history used to load here for
   // the Recent Games block; dropped 2026-05-03 since /replays is the
   // canonical match-history surface.
   useEffect(() => {
-    if (!session) { setSavedDecks([]); return; }
+    if (!session) { setSavedDecks([]); setProfile(null); return; }
+    getProfile().then((p) => { if (p) setProfile(p); });
     listDecks().then((decks) => {
       setSavedDecks(decks);
       // Auto-select first valid deck
@@ -835,25 +845,53 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             <div className="flex flex-wrap gap-1.5">
               {offeredRotations.map((opt) => {
                 const isCurrent = opt.rotation === effectiveRotation;
+                // Per-rotation ELO breakdown — bo1 / bo3 ratings for the
+                // current family × this rotation. Server stores 8 keys
+                // total (bo1/bo3 × 4 rotations); we show the two for
+                // this rotation. Test rotations don't track ELO, so the
+                // pair is suppressed there. Missing keys (account not
+                // backfilled to elo_ratings JSONB yet) render as "—".
+                const eloBo1 = opt.ranked && profile?.elo_ratings
+                  ? profile.elo_ratings[`bo1_${gameFormat.family}_${opt.rotation}` as EloKey] ?? null
+                  : null;
+                const eloBo3 = opt.ranked && profile?.elo_ratings
+                  ? profile.elo_ratings[`bo3_${gameFormat.family}_${opt.rotation}` as EloKey] ?? null
+                  : null;
+                const showElo = opt.ranked && profile != null;
                 return (
                   <button
                     key={opt.rotation}
                     onClick={() => setSelectedRotation(opt.rotation)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border flex flex-col items-center gap-0.5 ${
                       isCurrent
                         ? `${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border}`
                         : "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"
                     }`}
                     title={opt.ranked ? "Live rotation — ranked play available" : "Test rotation — casual only (no ELO)"}
                   >
-                    {opt.displayName}
-                    {!opt.ranked && (
-                      <span className="ml-1.5 text-[9px] opacity-70">test</span>
+                    <span>
+                      {opt.displayName}
+                      {!opt.ranked && (
+                        <span className="ml-1.5 text-[9px] opacity-70">test</span>
+                      )}
+                    </span>
+                    {showElo && (
+                      <span className="text-[9px] font-mono opacity-75">
+                        {eloBo1 ?? "—"} / {eloBo3 ?? "—"}
+                      </span>
                     )}
                   </button>
                 );
               })}
             </div>
+            {/* Per-rotation ELO key — small footnote so users can read
+                 the chip's "1200 / 1180" pair correctly. Only shown when
+                 chips are actually rendering ELO. */}
+            {profile?.elo_ratings && offeredRotations.some((o) => o.ranked) && (
+              <div className="text-[9px] text-gray-600 font-mono">
+                ELO shown as bo1 / bo3
+              </div>
+            )}
             <div className="text-[10px] text-gray-500">
               {chosenRotationIsRanked
                 ? "Ranked queue available for this rotation."
