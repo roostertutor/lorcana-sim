@@ -674,7 +674,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const isWaiting = !!lobbyCode && !!lobbyId;
 
   return (
-    <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center px-4 py-8">
+    {/* justify-start (was justify-center) so content anchors to the top
+         of the page. Center-aligned vertical layout caused the entire
+         lobby to shift up/down when the segmented switcher toggled
+         between Quick Play and Custom Game (different content heights
+         → different center points). min-h still keeps the container
+         full-height so the footer doesn't ride up under short content. */}
+    <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-start px-4 py-8">
       <div className="w-full max-w-md space-y-4">
 
         {/* Header */}
