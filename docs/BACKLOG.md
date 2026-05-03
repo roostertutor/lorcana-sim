@@ -28,7 +28,7 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 
 **Considered (2026-05-03)**: Multi-section punch list of mobile-vs-desktop chrome differences in non-gameboard surfaces. Original menu had six sections (A–F):
 
-- **A. Lobby / multiplayer chrome** — native share sheet vs copy-to-clipboard, reconnection banner shape (full sheet on mobile vs toast on desktop), touch-target audit (44px min on mobile). **QR code for cross-device handoff was explicitly dropped by user 2026-05-03 — do NOT re-propose.**
+- **A. Lobby / multiplayer chrome** — **DONE 2026-05-03**, commits `ca4e434` (A1: navigator.share on mobile, full URL to clipboard on desktop, capability-aware icon swap — was copying bare 6-char code so recipient had to manually type /lobby/ABC123) and `109fe7e` (A2: touch-target audit, ~12 sites in MultiplayerLobby bumped to 44×44px to meet WCAG 2.5.5 / iOS HIG; segmented toggles + filter chips + row controls intentionally kept compact). **Reconnection banner re-scoped out** — there's no banner today, just the colored connection dot in BoardMenu; if a real banner ever lands it'll be net-new feature work, not a mobile/desktop delta. **QR code for cross-device handoff explicitly dropped by user 2026-05-03 — do NOT re-propose.**
 - **B. Deckbuilder mobile pass** — card-grid columns by viewport, filter-bar collapse to bottom-sheet on mobile, decklist sidebar→sheet on mobile, card-inspect modal full-screen edge-to-edge on mobile, touch DnD strategy (long-press vs tap-to-add/remove), deck-export PNG mobile-save button.
 - **C. Modal system standardization** — **DONE 2026-05-03**, commits `66e84c7` (variant API + ESC-stack + scroll lock + focus restore + ARIA + form input mobile keyboards) and `c02fea2` (`MODAL_SIZE` token system: sm/md/lg, with all 5 modals migrated and the deprecated `placement` prop removed).
 - **D. Navigation chrome** — bottom tab bar on mobile (already a separate BACKLOG entry below — "Bottom nav on mobile"), back-button / swipe-back behavior audit across routes (especially in/out of lobby + game).
@@ -43,9 +43,9 @@ If an entry has no trigger condition, it's not parked — it's lost. Either give
 - ESC-stack — nested modals work correctly out of the box; no per-modal handler wiring.
 - Form-input pattern proven — same `autoCapitalize` / `enterKeyHint` / `inputMode` shape applies to any new input.
 
-**Trigger to reconsider**: User asks for "next mobile UX section" — start with **A (lobby chrome)** since it's the smallest and most visible (entry-point surface). After A, **B (deckbuilder)** is the heaviest and benefits most from `MODAL_SIZE.lg` (filter bottom-sheet uses it). Then **D (nav)** since it touches every page and best done after the screens themselves are stable. **E remainder** and **F** are quickest — sprinkle in alongside the bigger sections.
+**Trigger to reconsider**: User asks for "next mobile UX section" — next up is **B (deckbuilder)** since A and C have shipped. B is the heaviest of the remaining sections and benefits most from `MODAL_SIZE.lg` (filter bottom-sheet uses it). Then **D (nav)** since it touches every page and best done after the screens themselves are stable. **E remainder** and **F** are quickest — sprinkle in alongside the bigger sections.
 
-Suggested order (carry-over from the original session plan): **A → B → D → E remainder → F**.
+Suggested order (~~A~~ ~~C~~ shipped 2026-05-03): **B → D → E remainder → F**.
 
 **Expected scope**: Each section is roughly the size of Section C — 1–2 sessions, 2 commits (foundation + migrations or audit + fixes). Total if all five ship: ~6–10 sessions across the whole punch list.
 
