@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, getGameHistory, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
-import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
+import type { EloKey, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
@@ -110,7 +110,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   }
   const [session, setSession]   = useState<{ email: string } | null>(null);
   const [profile, setProfile]   = useState<Profile | null>(null);
-  const [history, setHistory]   = useState<GameHistoryEntry[]>([]);
   // Public lobby browser state. Closed by default so the main Host/Join
   // flow stays the primary action; users toggle it open to see what's
   // available. Auto-polls every 5s while open, stops on collapse.
@@ -156,11 +155,13 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch profile + game history + saved decks when signed in
+  // Fetch profile + saved decks when signed in. Game history used to
+  // load here for the Recent Games block on this page; that block was
+  // dropped 2026-05-03 since /replays is the single source of truth
+  // for the user's match history.
   useEffect(() => {
-    if (!session) { setProfile(null); setHistory([]); setSavedDecks([]); return; }
+    if (!session) { setProfile(null); setSavedDecks([]); return; }
     getProfile().then((p) => { if (p) setProfile(p); });
-    getGameHistory().then(setHistory);
     listDecks().then((decks) => {
       setSavedDecks(decks);
       // Auto-select first valid deck
@@ -1508,32 +1509,21 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           );
         })()}
 
-        {/* Game History */}
-        {session && history.length > 0 && (
-          <div className="card p-4 space-y-2">
-            <div className="text-sm font-semibold text-gray-300">Recent Games</div>
-            <div className="space-y-1.5">
-              {history.slice(0, 10).map((g) => (
-                <div key={g.id} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className={`font-bold ${g.won ? "text-green-400" : "text-red-400"}`}>
-                      {g.won ? "W" : "L"}
-                    </span>
-                    <span className="text-gray-400">vs {g.opponentName}</span>
-                    <span className="text-gray-700">({g.opponentElo})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="text-amber-500/70 hover:text-amber-400 transition-colors"
-                      onClick={() => navigate(`/replay/${g.id}`)}
-                    >
-                      Replay
-                    </button>
-                    <span className="text-gray-700">{new Date(g.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Past games discovery link — replaces the inline Recent Games
+             block (dropped 2026-05-03). The /replays tab already lists
+             the caller's match history with richer formatting (W/L,
+             format chip, relative timestamps, perspective toggle), so
+             showing the same data again here was duplicate content.
+             Inline link keeps the path discoverable for users who used
+             to land on Recent Games from this page. */}
+        {session && (
+          <div className="text-center">
+            <button
+              onClick={() => navigate("/replays")}
+              className="text-xs text-gray-500 hover:text-amber-400 transition-colors"
+            >
+              View past games →
+            </button>
           </div>
         )}
       </div>
