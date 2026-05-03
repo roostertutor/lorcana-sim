@@ -1418,3 +1418,154 @@ section only — public games section can ship without it.
   band-widening curves, queue-depth display, region-based matching all
   live in a future phase once real usage data exists.
 
+---
+
+## Server agent (first) + GUI agent (follow-up): per-format games_played counter
+
+Filed 2026-05-03 from a UI session looking at the new `/me` page (commits
+`7d896ff` + `87309dd`). The page shows a Ratings By Format table with all
+8 ELO values (bo1/bo3 × core/infinity × s11/s12), but games-played is a
+single overall counter — `profile.games_played` — not broken down per
+format. The natural pairing (per-format ratings + per-format counts)
+isn't possible with the current schema.
+
+User request (paraphrased): "should games played be per format too?" —
+yes conceptually, but data isn't tracked that way today.
+
+### What's there now
+
+```ts
+// packages/ui/src/lib/serverApi.ts:237-242
+export interface Profile {
+  username: string
+  elo: number                    // legacy single-rotation rating (pre-matrix)
+  elo_ratings: EloRatings        // 8-key JSONB: Record<EloKey, number>
+  games_played: number           // ← single counter, not per-format
+}
+export type EloKey = `${"bo1" | "bo3"}_${GameFormatFamily}_${RotationId}`
+```
+
+### What we want
+
+Per-format game counts that mirror the `EloKey` shape so the UI can render:
+
+| Rotation | Bo1 (rating · games) | Bo3 (rating · games) |
+|---|---|---|
+| Set 11 | 1200 · 12 games | 1180 · 4 games |
+| Set 12 | 1185 · 6 games  | — / —          |
+
+### Two server-side schema options
+
+**Option A — parallel JSONB column** (recommended)
+```sql
+ALTER TABLE profiles
+  ADD COLUMN IF NOT EXISTS games_played_by_format JSONB
+    NOT NULL DEFAULT '{}'::jsonb;
+```
+Same shape as `elo_ratings` (Record<EloKey, number>). Symmetric, easy to
+query, easy to backfill.
+
+**Option B — extend `elo_ratings` to a richer record**
+```ts
+// Replace Record<EloKey, number> with:
+elo_ratings: Record<EloKey, { rating: number; games: number }>
+```
+More compact but breaks every existing client that reads `elo_ratings[key]
+as a number. Migration is hairier.
+
+→ **Go with Option A.** Backwards-compatible; clients that don't need
+games-per-format keep working unchanged.
+
+### Backfill source
+
+Two candidate sources — pick whichever already has format columns
+populated:
+
+1. **`games`** table — the canonical record of completed games. Should
+   have `match_format` (bo1/bo3), `game_format_family` (core/infinity),
+   `game_format_rotation` (s11/s12) per row.
+2. **`matches`** table — bo3 series. Each match is 1–3 games; counting
+   games (not matches) is the user-meaningful number.
+
+Backfill query sketch:
+```sql
+WITH counts AS (
+  SELECT
+    user_id,
+    match_format || '_' || game_format_family || '_' || game_format_rotation AS key,
+    COUNT(*) AS games
+  FROM games
+  WHERE status = 'completed'  -- exclude resigns? abandons? confirm with current games table semantics
+    AND user_id IS NOT NULL
+  GROUP BY user_id, key
+)
+UPDATE profiles p
+SET games_played_by_format =
+  COALESCE(p.games_played_by_format, '{}'::jsonb) ||
+  jsonb_object_agg(c.key, c.games)
+FROM counts c
+WHERE p.user_id = c.user_id;
+```
+
+(Confirm column names against the actual schema; this is illustrative.)
+
+### Write-path update
+
+Wherever the post-game write currently increments `games_played` (likely
+in the matchmaking / private-lobby resolution path on the server), also
+increment the relevant key in `games_played_by_format`:
+
+```sql
+UPDATE profiles
+SET
+  games_played = games_played + 1,
+  games_played_by_format = jsonb_set(
+    COALESCE(games_played_by_format, '{}'::jsonb),
+    ARRAY[$key],
+    to_jsonb(COALESCE((games_played_by_format ->> $key)::int, 0) + 1)
+  )
+WHERE user_id = $userId;
+```
+
+Or, if both players finish a game, increment both rows in the same
+transaction. Same place where `elo_ratings[key]` is currently mutated —
+co-locate.
+
+### API surface
+
+Add `games_played_by_format` to the `Profile` interface in
+`packages/ui/src/lib/serverApi.ts`:
+
+```ts
+export interface Profile {
+  username: string
+  elo: number
+  elo_ratings: EloRatings
+  games_played: number                              // keep — overall fallback
+  games_played_by_format: Record<EloKey, number>    // new
+}
+```
+
+`getProfile` endpoint should return it; existing consumers ignore
+unrecognized fields, so no breaking change.
+
+### Sequencing (UI agent: read this on the way back)
+
+**Server first, UI follow-up.** UI work is trivial once the field is
+populated — one new column in the MePage ratings table. Don't pre-build
+the UI against a stub; just wait for the field to land.
+
+When server-specialist completes:
+1. Delete this HANDOFF entry (per the convention at the top of the file).
+2. UI agent then updates `packages/ui/src/pages/MePage.tsx`:
+   - Add a per-rotation games count to the table cells. Probably "1200 · 12g" inline, or a small subscript "1200 / 12g" — exact format TBD.
+   - Drop the overall `games_played` subtitle on the page (now redundant with the per-format counts in the table).
+   - Avatar dropdown (App.tsx UserMenu) keeps the overall `profile.games_played` summary — that's the right surface for a quick-glance number.
+
+### Out of scope
+
+- Win rate per format (would need wins/losses split — not in current schema).
+- Per-format peak ELO history (separate problem; needs a time-series
+  table, not a counter).
+- Per-format leaderboards (Phase-7-ish, not part of this entry).
+
