@@ -8,6 +8,10 @@ import type { EloKey, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, 
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
+// FORMAT_FAMILY_ACCENT still used for the public-lobby browser row badges
+// at the bottom (formatDisplayName chip on each row); the lobby's own
+// format display moved to the unified config strip and no longer uses
+// the accent palette.
 import Icon from "../components/Icon.js";
 import { useMediaQuery } from "../hooks/useMediaQuery.js";
 
@@ -250,7 +254,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     ?? "s12";
   const effectiveRotation = selectedRotation ?? defaultRotation;
   const gameFormat: GameFormat = { family: formatFamily, rotation: effectiveRotation };
-  const formatAccent = FORMAT_FAMILY_ACCENT[gameFormat.family];
   // Whether the chosen rotation supports ranked play. Drives the Find
   // Ranked button visibility — hide when the user picked a non-ranked
   // rotation (e.g. Core-s12 test pre-launch).
@@ -830,102 +833,151 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
-        {/* Match format (Bo1 / Bo3) — top-level toggle so Quick Play AND
-             Custom Game both see the picker. Was previously buried inside
-             the Host card (Custom Game only), which silently locked Quick
-             Play users to whatever bo1/bo3 was last persisted. Affects
-             matchmaking ELO (server keeps separate bo1 and bo3 ratings
-             per rotation) and lobby seed for hosted games. */}
-        <div className="flex items-center gap-2 px-1">
-          <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
-            Match
-          </span>
-          <div className="flex rounded-lg bg-gray-800 p-0.5">
-            {(["bo1", "bo3"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFormat(f)}
-                className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
-                  format === f
-                    ? "bg-gray-700 text-gray-100 shadow-sm"
-                    : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                {f === "bo1" ? "Bo1" : "Bo3"}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* ─ Match config strip ────────────────────────────────────────
+             Unified Match | Format | Rotation row at the top of the
+             lobby. All three controls feed both Quick Play and Custom
+             Game; previously they lived in three different places
+             (Match in Host card, Format in Host card, Rotation in its
+             own card), so users had to hunt to change settings.
 
-        {/* Format rotation picker — only rendered when multiple rotations
-             are offered for the deck's family (e.g., during a staging
-             window pre-set-launch when both s11 live and s12 staged
-             coexist). Drives Find Casual + Host private lobby; Find
-             Ranked is constrained to ranked rotations and hides when
-             the picked rotation isn't ranked. Default is the family's
-             live ranked rotation. */}
-        {offeredRotations.length > 1 && (
-          <div className="card p-3 space-y-1.5">
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
-              Format Rotation
+             - Match (Bo1/Bo3): always interactive.
+             - Format (Core/Infinity): interactive in paste mode; in
+               saved-deck mode the format is dictated by the selected
+               deck's stamp, so the buttons render disabled with a
+               tooltip pointing at the deckbuilder.
+             - Rotation: only rendered when multiple rotations are
+               offered (e.g., staging window during a set launch).
+
+             Per-rotation ELO surfaces in a single caption row below
+             the strip — updates as the user clicks rotation chips.
+             Cleaner than the prior per-chip subtext that made the
+             Rotation control taller than the others.
+             ────────────────────────────────────────────────────────── */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
+          {/* Match (Bo1 / Bo3) */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
+              Match
+            </span>
+            <div className="flex rounded-lg bg-gray-800 p-0.5">
+              {(["bo1", "bo3"] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFormat(f)}
+                  className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+                    format === f
+                      ? "bg-gray-700 text-gray-100 shadow-sm"
+                      : "text-gray-500 hover:text-gray-300"
+                  }`}
+                >
+                  {f === "bo1" ? "Bo1" : "Bo3"}
+                </button>
+              ))}
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {offeredRotations.map((opt) => {
-                const isCurrent = opt.rotation === effectiveRotation;
-                // Per-rotation ELO breakdown — bo1 / bo3 ratings for the
-                // current family × this rotation. Server stores 8 keys
-                // total (bo1/bo3 × 4 rotations); we show the two for
-                // this rotation. Test rotations don't track ELO, so the
-                // pair is suppressed there. Missing keys (account not
-                // backfilled to elo_ratings JSONB yet) render as "—".
-                const eloBo1 = opt.ranked && profile?.elo_ratings
-                  ? profile.elo_ratings[`bo1_${gameFormat.family}_${opt.rotation}` as EloKey] ?? null
-                  : null;
-                const eloBo3 = opt.ranked && profile?.elo_ratings
-                  ? profile.elo_ratings[`bo3_${gameFormat.family}_${opt.rotation}` as EloKey] ?? null
-                  : null;
-                const showElo = opt.ranked && profile != null;
+          </div>
+
+          {/* Format (Core / Infinity). In saved-deck mode the family is
+               determined by the selected deck's stamp, so the buttons
+               render disabled — clicking does nothing, tooltip points
+               at the deckbuilder. In paste mode the toggle is live and
+               mutates pasteFormat. */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
+              Format
+            </span>
+            <div className="flex rounded-lg bg-gray-800 p-0.5">
+              {(["core", "infinity"] as const).map((fam) => {
+                const isCurrent = formatFamily === fam;
+                const isLocked = deckMode === "saved";
                 return (
                   <button
-                    key={opt.rotation}
-                    onClick={() => setSelectedRotation(opt.rotation)}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border flex flex-col items-center gap-0.5 ${
+                    key={fam}
+                    onClick={() => {
+                      if (isLocked) return;
+                      setPasteFormat({ ...pasteFormat, family: fam });
+                    }}
+                    disabled={isLocked}
+                    title={isLocked ? "Format set by selected deck — switch decks or edit in deckbuilder" : undefined}
+                    className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
                       isCurrent
-                        ? `${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border}`
-                        : "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"
-                    }`}
-                    title={opt.ranked ? "Live rotation — ranked play available" : "Test rotation — casual only (no ELO)"}
+                        ? "bg-gray-700 text-gray-100 shadow-sm"
+                        : "text-gray-500 hover:text-gray-300"
+                    } ${isLocked ? "cursor-not-allowed" : ""} ${isLocked && !isCurrent ? "opacity-40" : ""}`}
                   >
-                    <span>
-                      {opt.displayName}
-                      {!opt.ranked && (
-                        <span className="ml-1.5 text-[9px] opacity-70">test</span>
-                      )}
-                    </span>
-                    {showElo && (
-                      <span className="text-[9px] font-mono opacity-75">
-                        {eloBo1 ?? "—"} / {eloBo3 ?? "—"}
-                      </span>
-                    )}
+                    {fam === "core" ? "Core" : "Infinity"}
                   </button>
                 );
               })}
             </div>
-            {/* Per-rotation ELO key — small footnote so users can read
-                 the chip's "1200 / 1180" pair correctly. Only shown when
-                 chips are actually rendering ELO. */}
-            {profile?.elo_ratings && offeredRotations.some((o) => o.ranked) && (
-              <div className="text-[9px] text-gray-600 font-mono">
-                ELO shown as bo1 / bo3
-              </div>
-            )}
-            <div className="text-[10px] text-gray-500">
-              {chosenRotationIsRanked
-                ? "Ranked queue available for this rotation."
-                : "Test rotation — only Casual queue and private lobby. ELO unaffected."}
-            </div>
           </div>
-        )}
+
+          {/* Rotation — conditionally visible. Hidden when only one
+               rotation is offered for the family (i.e., post-launch
+               steady state). During a staging window (e.g., s11 live +
+               s12 preview), both render and the user picks. */}
+          {offeredRotations.length > 1 && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
+                Rotation
+              </span>
+              <div className="flex rounded-lg bg-gray-800 p-0.5 flex-wrap">
+                {offeredRotations.map((opt) => {
+                  const isCurrent = opt.rotation === effectiveRotation;
+                  return (
+                    <button
+                      key={opt.rotation}
+                      onClick={() => setSelectedRotation(opt.rotation)}
+                      title={opt.ranked ? "Live rotation — ranked play available" : "Test rotation — casual only (no ELO)"}
+                      className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+                        isCurrent
+                          ? "bg-gray-700 text-gray-100 shadow-sm"
+                          : "text-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      {opt.displayName}
+                      {!opt.ranked && (
+                        <span className="ml-1.5 text-[9px] opacity-70">test</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ELO + ranked-availability caption below the config strip.
+             Updates per the currently-selected rotation. Bo1/Bo3 shown
+             together (server tracks separate ratings) so users can see
+             both before deciding. Test rotations show the casual-only
+             reminder; missing keys render as "—" (account not yet
+             backfilled to elo_ratings JSONB). */}
+        {(() => {
+          const ranked = chosenRotationIsRanked;
+          const eloBo1 = ranked && profile?.elo_ratings
+            ? profile.elo_ratings[`bo1_${gameFormat.family}_${gameFormat.rotation}` as EloKey] ?? null
+            : null;
+          const eloBo3 = ranked && profile?.elo_ratings
+            ? profile.elo_ratings[`bo3_${gameFormat.family}_${gameFormat.rotation}` as EloKey] ?? null
+            : null;
+          if (!ranked) {
+            return (
+              <div className="text-[10px] text-gray-500 px-1">
+                Test rotation — only Casual queue and private lobby. ELO unaffected.
+              </div>
+            );
+          }
+          if (!profile) return null;
+          return (
+            <div className="text-[10px] text-gray-500 px-1 font-mono">
+              <span className="uppercase tracking-wider text-gray-600 font-bold mr-1.5 not-italic">ELO</span>
+              <span className="text-amber-500/80">{eloBo1 ?? "—"}</span>
+              <span className="text-gray-700"> bo1 · </span>
+              <span className="text-amber-500/80">{eloBo3 ?? "—"}</span>
+              <span className="text-gray-700"> bo3</span>
+            </div>
+          );
+        })()}
 
         {/* ─ Play-mode segmented switcher ─────────────────────────────
              Quick Play and Custom Game are mutually exclusive intents
@@ -1304,43 +1356,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     <div className="text-sm font-semibold text-gray-200">Host a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Create a lobby, share the code</div>
                   </div>
-                  {/* Match format (Bo1/Bo3) toggle moved to a top-level
-                       row 2026-05-03 so Quick Play can also pick it.
-                       Card-pool format display below stays Host-local
-                       since it's read from the selected deck's stamp. */}
+                  {/* All match config (Match / Format / Rotation) moved
+                       to the top-level config strip 2026-05-03. The Host
+                       card now scopes to host-specific settings only:
+                       public/private + spectator policy below. */}
                   <div className="space-y-1.5">
-                    {/* Card-pool format — sourced from the selected deck's
-                         stamp. Read-only display because the deck declares
-                         its format; pasted decks use the pasteFormat
-                         (simple Core/Infinity toggle — rotation defaults
-                         to s11, matching schema DEFAULT). Per-deck format
-                         is edited via the deckbuilder. */}
-                    {deckMode === "saved" ? (
-                      <div
-                        className={`flex items-center justify-between px-2 py-1.5 rounded-md text-xs font-medium border ${formatAccent.badgeBg} ${formatAccent.text} ${formatAccent.border}`}
-                        title="Format declared by the selected deck. Edit in the deckbuilder to change."
-                      >
-                        <span className="uppercase tracking-wider text-[10px] font-bold opacity-75">Format</span>
-                        <span className="font-bold">{formatDisplayName(gameFormat)}</span>
-                      </div>
-                    ) : (
-                      <div className="flex rounded-lg bg-gray-800 p-0.5">
-                        {(["core", "infinity"] as const).map((fam) => (
-                          <button
-                            key={fam}
-                            onClick={() => setPasteFormat({ ...pasteFormat, family: fam })}
-                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                              pasteFormat.family === fam
-                                ? "bg-gray-700 text-gray-100 shadow-sm"
-                                : "text-gray-500 hover:text-gray-300"
-                            }`}
-                          >
-                            {fam === "core" ? "Core" : "Infinity"}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
                     {/* Public / private toggle — public lobbies appear in
                          the Public Games browser below and auto-force
                          spectator_policy='public'. Private lobbies expose
