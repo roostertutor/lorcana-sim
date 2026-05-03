@@ -92,92 +92,6 @@
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/1_7d725bcba747016e5290c14270ea31da48edc3db.jpg"
   },
   {
-    "id": "gosalyn-mallard-the-quivering-quack",
-    "name": "Gosalyn Mallard",
-    "fullName": "Gosalyn Mallard - The Quivering Quack",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 2,
-    "inkable": false,
-    "traits": [
-      "Dreamborn",
-      "Super",
-      "Hero"
-    ],
-    "abilities": [
-      {
-        "type": "triggered",
-        "storyName": "HEROIC INTERVENTION",
-        "rulesText": "When you play this character, you may ready chosen character with cost 2 or less. If you do, they can't quest or challenge for the rest of this turn.",
-        "trigger": {
-          "on": "enters_play"
-        },
-        "effects": [
-          {
-            "type": "ready",
-            "isMay": true,
-            "target": {
-              "type": "chosen",
-              "filter": {
-                "zone": "play",
-                "cardType": [
-                  "character"
-                ],
-                "statComparisons": [
-                  {
-                    "stat": "cost",
-                    "op": "lte",
-                    "value": 2
-                  }
-                ]
-              }
-            },
-            "followUpEffects": [
-              {
-                "type": "cant_action",
-                "action": "quest",
-                "target": {
-                  "type": "this"
-                },
-                "duration": "end_of_turn"
-              },
-              {
-                "type": "cant_action",
-                "action": "challenge",
-                "target": {
-                  "type": "this"
-                },
-                "duration": "end_of_turn"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "setId": "12",
-    "number": 1,
-    "rarity": "common",
-    "_source": "lorcast",
-    "subtitle": "The Quivering Quack",
-    "strength": 2,
-    "willpower": 3,
-    "lore": 1,
-    "rulesText": "HEROIC INTERVENTION When you play this character, you may ready chosen character with cost 2 or less. If you do, they can’t quest or challenge for the rest of this turn.",
-    "flavorText": "\"I bet Dad never caught any flowers like this!\"",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/1_8405dd39a5816e0c_normal.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HEROIC INTERVENTION",
-        "rulesText": "When you play this character, you may ready chosen character with cost 2 or less. If you do, they can't quest or challenge for the rest of this turn.",
-        "raw": "HEROIC INTERVENTION When you play this character, you may ready chosen character with cost 2 or less. If you do, they can't quest or challenge for the rest of this turn."
-      }
-    ],
-    "_imageSource": "lorcast",
-    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_1755646d14394fc69c64fcae17bf5f44.avif?1776906603"
-  },
-  {
     "id": "monterey-jack-watchful-ranger",
     "name": "Monterey Jack",
     "fullName": "Monterey Jack - Watchful Ranger",
@@ -14901,35 +14815,6 @@
     "_foilMaskSource": "ravensburger",
     "_foilMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/205_dc7ea8131f74b3e1aaff76963bb06d0221db7302.jpg",
     "_foilTopMaskSourceUrl": "https://api.lorcana.ravensburger.com/images/en/set12/205_b2c8b34a480463232de59d56e9452797ddf71c17.jpg"
-  },
-  {
-    "id": "woody-waiting-for-friends",
-    "name": "Woody",
-    "fullName": "Woody - Waiting for Friends",
-    "cardType": "character",
-    "inkColors": [
-      "amber"
-    ],
-    "cost": 1,
-    "inkable": true,
-    "traits": [
-      "Storyborn",
-      "Hero",
-      "Toy"
-    ],
-    "abilities": [],
-    "setId": "12",
-    "number": 205,
-    "rarity": "epic",
-    "_source": "lorcast",
-    "subtitle": "Waiting for Friends",
-    "strength": 2,
-    "willpower": 2,
-    "lore": 1,
-    "flavorText": "I watch the jungle from up here\r\nWe used to laugh together\r\nThese days, I end up remembering them\r\nI remember my friends\r\nBut in Lorcana,\r\nNow I'm alone",
-    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set12/205_816dcf27ce81c67e_normal.jpg",
-    "_imageSource": "lorcast",
-    "_sourceImageUrl": "https://cards.lorcast.io/card/digital/normal/crd_2eb1fa4c7ab0498b8d4cfcd28f56a8cf.avif?1776734424"
   },
   {
     "id": "rex-protective-dinosaur",
