@@ -45,6 +45,7 @@ import ModalFrame, { MODAL_SIZE } from "../components/ModalFrame.js";
 import Glyph from "../components/Glyph.js";
 import SettingsModal from "../components/SettingsModal.js";
 import { useGuiSettings } from "../hooks/useGuiSettings.js";
+import { useMediaQuery } from "../hooks/useMediaQuery.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
@@ -702,6 +703,19 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // game-over because this defaults to false.
   const [gameOverModalDismissed, setGameOverModalDismissed] = useState(false);
   const [guiSettings, setGuiSetting] = useGuiSettings();
+
+  // Sidebar visibility predicate — matches the wrapper at line ~2636
+  // (`hidden md:flex landscape-phone:!hidden`). When this is true, the
+  // SandboxPanel is already permanently visible in the right sidebar, so
+  // the kebab's "Sandbox tools" item below would be redundant AND would
+  // strand the user (clicking it sets `showAnalysis=true`, which both
+  // hides the kebab and opens a drawer that's `md:hidden` on desktop —
+  // user ends up with no visible UI to dismiss the panel state). Gating
+  // `onOpenSandbox` on `!sandboxSidebarVisible` skips the menu item
+  // entirely on desktop sandbox view, where the panel is already there.
+  const sandboxSidebarVisible = useMediaQuery(
+    "(min-width: 768px) and not ((orientation: landscape) and (max-height: 500px))",
+  );
   const [discardViewerId, setDiscardViewerId] = useState<"player" | "opponent" | null>(null);
   const [deckViewerOpen, setDeckViewerOpen] = useState(false);
   const [inspectCardId, setInspectCardId] = useState<string | null>(null);
@@ -2883,7 +2897,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           hidden={showLog || showAnalysis || showEffects || showSettings || (isGameOver && !gameOverModalDismissed)}
           onOpenLog={() => setShowLog(true)}
           onOpenSettings={() => setShowSettings(true)}
-          {...(sandboxMode ? { onOpenSandbox: () => setShowAnalysis(true) } : {})}
+          {/* Sandbox tools menu item only when the sidebar isn't already
+              showing the panel — see sandboxSidebarVisible comment above
+              for why this avoids the desktop dead-end. */}
+          {...(sandboxMode && !sandboxSidebarVisible
+            ? { onOpenSandbox: () => setShowAnalysis(true) }
+            : {})}
           {...(multiplayerGame && !isGameOver
             ? {
                 onResign: () => {
