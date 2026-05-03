@@ -8,6 +8,7 @@ import type { EloKey, GameHistoryEntry, Profile, PublicLobby, SpectatorPolicy, M
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
+import Icon from "../components/Icon.js";
 
 // localStorage keys for "last remembered" lobby selections — restored on
 // mount so returning to the lobby after a match keeps the user's most
@@ -569,12 +570,74 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     }
   }
 
-  function handleCopyCode() {
+  // Capability detection runs once at module-eval time so we can pick
+  // the right icon BEFORE the user clicks (share-arrow on touch devices
+  // that have navigator.share, clipboard-only elsewhere). `canShare` is
+  // tested with a stub payload because some browsers expose `share`
+  // unconditionally but reject specific MIME / scheme combinations.
+  const SHARE_PROBE_PAYLOAD = { url: "https://example.com/", title: "probe" };
+  const canNativeShare =
+    typeof navigator !== "undefined" &&
+    typeof navigator.share === "function" &&
+    (typeof navigator.canShare !== "function" || navigator.canShare(SHARE_PROBE_PAYLOAD));
+
+  /** Build the full join URL the recipient will paste / click.
+   *  e.g. https://app.example.com/lobby/ABC123 — pasting into a browser
+   *  address bar lands them directly on this lobby with the code
+   *  pre-filled (App.tsx routes /lobby/:code → MultiplayerLobby with
+   *  `initialJoinCode`). Without the URL the recipient would only have
+   *  the bare code "ABC123" and need to know to manually navigate. */
+  function buildLobbyUrl(code: string): string {
+    return `${window.location.origin}/lobby/${code}`;
+  }
+
+  /** Share the lobby join URL via the platform's preferred mechanism.
+   *
+   *  - **Mobile / capable devices**: opens the native share sheet via
+   *    navigator.share — the user picks Messages / WhatsApp / Discord /
+   *    etc. and the URL is sent through that channel. This is the right
+   *    UX on a phone where copy-to-clipboard adds a step (paste into
+   *    where?) and isn't the platform convention.
+   *  - **Desktop**: falls back to clipboard.writeText with the FULL URL
+   *    (was previously copying the bare code, which forced the
+   *    recipient to know to type /lobby/ themselves). Toast "Copied!"
+   *    feedback for 2s.
+   *  - **Share cancelled** (user dismissed the share sheet without
+   *    picking a target): silent no-op. AbortError is the standard
+   *    rejection on cancel and shouldn't fall through to clipboard.
+   *  - **Share errored** (anything else — browser bug, permission
+   *    denied): falls through to clipboard so the user still gets the
+   *    URL out.
+   */
+  async function handleShareLobby() {
     if (!lobbyCode) return;
-    navigator.clipboard.writeText(lobbyCode).then(() => {
+    const url = buildLobbyUrl(lobbyCode);
+    if (canNativeShare) {
+      try {
+        await navigator.share({
+          title: "Join my Lorcana game",
+          text: `Lobby code: ${lobbyCode}`,
+          url,
+        });
+        // Share sheet IS the visual feedback on mobile; no toast needed.
+        return;
+      } catch (err) {
+        // User cancelled — silent. Anything else (rare) falls through
+        // to clipboard so the URL still ends up somewhere useful.
+        if ((err as DOMException)?.name === "AbortError") return;
+      }
+    }
+    // Clipboard path — desktop default and mobile fallback.
+    try {
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    } catch {
+      // Clipboard can throw on insecure origins or when permissions
+      // are denied. No graceful fallback that doesn't add UI noise;
+      // we just don't show success feedback. The user will still see
+      // the lobby code on screen and can read it manually.
+    }
   }
 
   const isWaiting = !!lobbyCode && !!lobbyId;
@@ -1303,15 +1366,21 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     {lobbyCode}
                   </span>
                   <button
-                    onClick={handleCopyCode}
+                    onClick={handleShareLobby}
                     className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400
                                hover:text-gray-200 transition-colors active:scale-95"
-                    title="Copy code"
+                    // Tooltip + aria-label adapt by capability so desktop
+                    // users see "Copy link" while mobile sees "Share".
+                    title={canNativeShare ? "Share link" : "Copy link"}
+                    aria-label={canNativeShare ? "Share lobby link" : "Copy lobby link"}
                   >
                     {copied ? (
-                      <span className="text-green-400 text-xs font-bold">✓</span>
+                      <Icon name="check" className="w-4 h-4 text-green-400" />
                     ) : (
-                      <span className="text-sm">⎘</span>
+                      <Icon
+                        name={canNativeShare ? "share" : "clipboard"}
+                        className="w-4 h-4"
+                      />
                     )}
                   </button>
                 </div>
