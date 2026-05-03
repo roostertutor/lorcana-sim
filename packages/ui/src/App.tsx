@@ -15,6 +15,7 @@ import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
 import MePage from "./pages/MePage.js";
+import Icon, { type IconName } from "./components/Icon.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 
@@ -22,22 +23,24 @@ type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 // (visual center of 5) so it can be visually emphasized as the primary
 // action via styling. Workflow reads left-to-right: prep (Decks) →
 // review (Replays) → play (primary) → tinker (Sandbox) → account (Me).
-const TABS: { id: Tab; path: string; label: string }[] = [
-  { id: "decks", path: "/", label: "Decks" },
-  { id: "replays", path: "/replays", label: "Replays" },
+const TABS: { id: Tab; path: string; label: string; icon: IconName }[] = [
+  { id: "decks", path: "/", label: "Decks", icon: "rectangle-stack" },
+  { id: "replays", path: "/replays", label: "Replays", icon: "clock" },
   // Tab id + path stay "multiplayer" — preserves bookmarks and the
   // /lobby/:code shareable links that route through MultiplayerLobby.
   // Label "Play" is honest about scope: this tab also hosts Solo (vs
-  // bot), which isn't multiplayer in the strict sense.
-  { id: "multiplayer", path: "/multiplayer", label: "Play" },
+  // bot), which isn't multiplayer in the strict sense. Visually
+  // emphasized in the bottom nav as the primary action (sits at index
+  // 2 of 5 = visual center).
+  { id: "multiplayer", path: "/multiplayer", label: "Play", icon: "play" },
   // Sandbox surfaced as a top-level tab — installed PWA can't easily type
   // URLs to reach `/sandbox`, so the route needed a discoverable entry point.
-  { id: "sandbox", path: "/sandbox", label: "Sandbox" },
+  { id: "sandbox", path: "/sandbox", label: "Sandbox", icon: "wrench" },
   // Me page — username, ELO grid (8 ratings), games played, sign out.
   // The full version of what UserMenu's avatar dropdown shows in
   // summary form. Avatar dropdown still works as a quick-access escape
   // hatch (Sign out from anywhere without navigating to /me first).
-  { id: "me", path: "/me", label: "Me" },
+  { id: "me", path: "/me", label: "Me", icon: "user-circle" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -439,18 +442,33 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
       >
         {TABS.map((t) => {
           const isActive = activeTab === t.id;
+          // Play tab gets always-amber treatment + larger icon — it's
+          // the primary action, signaled visually as such regardless
+          // of which page the user is currently on. Inspired by the
+          // Instagram / TikTok center-action pattern, scaled back to
+          // a tab-shaped emphasis (not a floating action button)
+          // because we have 5 tabs not 4 + FAB.
+          const isPrimary = t.id === "multiplayer";
           return (
             <button
               key={t.id}
               onClick={() => navigate(t.path)}
               aria-current={isActive ? "page" : undefined}
-              className={`flex-1 py-3 text-xs font-bold transition-colors active:scale-[0.97] ${
-                isActive
+              className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors active:scale-[0.97] ${
+                isPrimary
+                  ? "text-amber-400"
+                  : isActive
                   ? "text-amber-400"
                   : "text-gray-500 hover:text-gray-300"
               }`}
             >
-              {t.label}
+              <Icon
+                name={t.icon}
+                className={isPrimary ? "w-6 h-6" : "w-5 h-5"}
+              />
+              <span className="text-[10px] font-bold tracking-wide">
+                {t.label}
+              </span>
             </button>
           );
         })}
