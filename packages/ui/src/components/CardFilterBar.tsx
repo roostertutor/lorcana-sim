@@ -222,6 +222,9 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
               placeholder="Type a trait (Princess, Hero, Villain…)"
               value={traitQuery}
               onChange={(e) => setTraitQuery(e.target.value)}
+              autoCapitalize="words"
+              autoComplete="off"
+              aria-label="Filter by trait"
               className="w-full bg-gray-950 border border-gray-800 rounded-md px-2 py-1 text-[11px] text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
             />
             {traitSuggestions.length > 0 && (
@@ -279,10 +282,17 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
       {/* Top row: search + filter toggle (mobile) + clear */}
       <div className="flex items-center gap-2">
         <input
-          type="text"
+          // type="search" gives mobile keyboards a "Search" key + the
+          // browser-rendered ✕ clear control. autoCapitalize="words"
+          // matches how card names are written ("Mickey Mouse").
+          type="search"
           placeholder="Search card name..."
           value={filters.query}
           onChange={(e) => onChange({ ...filters, query: e.target.value })}
+          autoCapitalize="words"
+          autoComplete="off"
+          enterKeyHint="search"
+          aria-label="Search card name"
           className="flex-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
         />
         {/* Mobile-only filter sheet toggle */}

@@ -1168,6 +1168,16 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                                focus:border-amber-500 focus:outline-none placeholder-gray-700"
                     placeholder="XXXXXX"
                     maxLength={6}
+                    // Lobby codes are alphanumeric uppercase; hint mobile
+                    // keyboards to surface caps and skip auto-correct so
+                    // the user doesn't fight the input on a phone.
+                    inputMode="text"
+                    autoCapitalize="characters"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="go"
+                    aria-label="Lobby code"
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                     onKeyDown={(e) => e.key === "Enter" && handleJoinLobby()}

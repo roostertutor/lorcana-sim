@@ -103,9 +103,23 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
   const flatShowsOwnerBadges = sections == null && sectionHasMultipleOwners(cardIds);
 
   return (
-    <ModalFrame onClose={onClose}>
+    <ModalFrame onClose={onClose} variant="auto">
+      {/* Width matches PendingChoiceModal's panel (mulligan, target
+          picker) — same 7-col grid of scale-0.78 GameCard thumbs, so
+          the lg:max-w-3xl bump is required for the same reason: at
+          lg+ GameCard becomes w-[120px], scaled 0.78 = 94px per thumb;
+          7 cols × 94px = 658px wouldn't fit max-w-2xl (672px) once
+          padding is included, clipping the rightmost column. Keep this
+          aligned with PendingChoiceModal:1406 — divergence here makes
+          the same cards visually shrink/grow as the player flips
+          between modals. */}
       <div
-        className="relative bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col shadow-2xl"
+        className="relative bg-gray-950 border border-gray-800
+                   rounded-t-2xl sm:rounded-2xl
+                   w-full sm:max-w-2xl lg:max-w-3xl sm:mx-4
+                   max-h-[90dvh] sm:max-h-[80vh]
+                   pb-[env(safe-area-inset-bottom,0px)]
+                   flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -145,7 +159,12 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
                         {section.cardIds.length} card{section.cardIds.length !== 1 ? "s" : ""}
                       </span>
                     </div>
-                    <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5">
+                    {/* Column count matches the mulligan grid
+                         (PendingChoiceModal:499) — 4 cols on portrait
+                         phone, 7 cols at sm+ (landscape phone, tablet,
+                         desktop). Modal max-w-2xl ≈ 672px fits 7 cards
+                         comfortably at the current scale-0.78 thumb. */}
+                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                       {section.cardIds.map(id => renderCardCell(id, sectionMultiOwner))}
                     </div>
                   </div>
@@ -153,7 +172,7 @@ export default function ZoneViewModal({ title, cardIds, gameState, definitions, 
               })}
             </div>
           ) : (
-            <div className="grid grid-cols-4 landscape-phone:grid-cols-7 gap-1.5">
+            <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
               {cardIds.map(id => renderCardCell(id, flatShowsOwnerBadges))}
             </div>
           )}

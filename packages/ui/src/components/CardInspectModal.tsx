@@ -72,7 +72,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
   }
 
   return (
-    <ModalFrame onClose={onClose} placement="bottom-sheet-mobile">
+    <ModalFrame onClose={onClose} variant="auto">
       <div
         className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[90dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}

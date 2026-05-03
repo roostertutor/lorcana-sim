@@ -276,6 +276,10 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                          text-sm text-gray-200 placeholder-gray-600
                          focus:border-amber-500 focus:outline-none"
               placeholder="Add a card — type name..."
+              autoCapitalize="words"
+              autoComplete="off"
+              enterKeyHint="search"
+              aria-label="Add card by name"
               value={query}
               onChange={(e) => { setQuery(e.target.value); setShowDropdown(true); }}
               onFocus={() => setShowDropdown(true)}

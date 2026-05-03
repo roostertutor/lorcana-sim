@@ -3460,7 +3460,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       })()}
       {/* ======================= Active Effects Modal ======================= */}
       {showEffects && activeEffects.length > 0 && (
-        <ModalFrame onClose={() => setShowEffects(false)} placement="bottom-sheet-mobile" backdropClass="bg-black/60 backdrop-blur-sm">
+        <ModalFrame onClose={() => setShowEffects(false)} variant="auto" backdropClass="bg-black/60 backdrop-blur-sm">
           <div
             className="relative bg-gray-950 border border-gray-800 rounded-t-2xl sm:rounded-2xl p-4 max-w-sm w-full sm:w-[90vw] shadow-2xl max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}

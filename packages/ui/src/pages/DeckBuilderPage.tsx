@@ -444,6 +444,10 @@ export default function DeckBuilderPage() {
                                  text-sm text-gray-200 placeholder-gray-600
                                  focus:border-amber-500 focus:outline-none"
                       placeholder="Deck name"
+                      autoCapitalize="words"
+                      autoComplete="off"
+                      enterKeyHint="done"
+                      aria-label="Deck name"
                       value={deckName}
                       onChange={(e) => setDeckName(e.target.value)}
                     />
