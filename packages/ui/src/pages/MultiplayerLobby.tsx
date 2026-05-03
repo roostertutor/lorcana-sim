@@ -830,6 +830,33 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
+        {/* Match format (Bo1 / Bo3) — top-level toggle so Quick Play AND
+             Custom Game both see the picker. Was previously buried inside
+             the Host card (Custom Game only), which silently locked Quick
+             Play users to whatever bo1/bo3 was last persisted. Affects
+             matchmaking ELO (server keeps separate bo1 and bo3 ratings
+             per rotation) and lobby seed for hosted games. */}
+        <div className="flex items-center gap-2 px-1">
+          <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
+            Match
+          </span>
+          <div className="flex rounded-lg bg-gray-800 p-0.5">
+            {(["bo1", "bo3"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFormat(f)}
+                className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+                  format === f
+                    ? "bg-gray-700 text-gray-100 shadow-sm"
+                    : "text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                {f === "bo1" ? "Bo1" : "Bo3"}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Format rotation picker — only rendered when multiple rotations
              are offered for the deck's family (e.g., during a staging
              window pre-set-launch when both s11 live and s12 staged
@@ -1277,25 +1304,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     <div className="text-sm font-semibold text-gray-200">Host a game</div>
                     <div className="text-xs text-gray-600 mt-0.5">Create a lobby, share the code</div>
                   </div>
-                  {/* Match format (Bo1/Bo3) — separate from card-pool
-                       format; this stays a lobby-level toggle. */}
+                  {/* Match format (Bo1/Bo3) toggle moved to a top-level
+                       row 2026-05-03 so Quick Play can also pick it.
+                       Card-pool format display below stays Host-local
+                       since it's read from the selected deck's stamp. */}
                   <div className="space-y-1.5">
-                    <div className="flex rounded-lg bg-gray-800 p-0.5">
-                      {(["bo1", "bo3"] as const).map((f) => (
-                        <button
-                          key={f}
-                          onClick={() => setFormat(f)}
-                          className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                            format === f
-                              ? "bg-gray-700 text-gray-100 shadow-sm"
-                              : "text-gray-500 hover:text-gray-300"
-                          }`}
-                        >
-                          {f === "bo1" ? "Bo1" : "Bo3"}
-                        </button>
-                      ))}
-                    </div>
-
                     {/* Card-pool format — sourced from the selected deck's
                          stamp. Read-only display because the deck declares
                          its format; pasted decks use the pasteFormat
