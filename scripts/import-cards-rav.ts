@@ -736,9 +736,9 @@ function normName(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number; manualReplaced: number; sourceSkipped: number; lockedUpgradesAvailable: { slug: string; number: number; prevSource: string }[] } {
+function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { preserved: number; keywordsRescued: number; reslugged: number; carriedOver: number; manualReplaced: number; sourceSkipped: number; droppedStale: number; lockedUpgradesAvailable: { slug: string; number: number; prevSource: string }[] } {
   const outPath = setJsonPath(setCode);
-  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0, lockedUpgradesAvailable: [] };
+  if (!existsSync(outPath)) return { preserved: 0, keywordsRescued: 0, reslugged: 0, carriedOver: 0, manualReplaced: 0, sourceSkipped: 0, droppedStale: 0, lockedUpgradesAvailable: [] };
 
   // R2 base URL is needed to detect whether `prev.imageUrl` is R2-shaped (a
   // sync-images-rav-produced URL we want to preserve across re-imports) or
@@ -937,17 +937,37 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
   // same run. Without this carry-over, those files get truncated to just the
   // slice (42-card P3 wipe bug from 2026-04-18). Matches on id, with a
   // (number, normName) fallback to survive slug renames.
+  //
+  // Stale-detection (added 2026-05-03): if the incoming batch HAS an entry at
+  // `prev.number` (different slug + different name), `prev` is a stale
+  // pre-release rename artifact — Ravensburger renamed the card mid-pre-
+  // release and the old entry no longer matches the live API. Drop it
+  // instead of carrying over. Lorcana never has two distinct cards at the
+  // same number within a set (alt-art reprints get NEW numbers 200+), so
+  // number-collision-without-slug-or-name-match is unambiguously a rename.
+  // Caught the live cases of Gosalyn Mallard #1 (Quivering→Quiverwing) and
+  // Woody #205 (Waiting for Friends→Waiting for a Friend) — see commit
+  // 2b231e2 for the manual cleanup of those two before this fix landed.
   let carriedOver = 0;
+  let droppedStale = 0;
   const incomingByIdNum = new Set(newCards.map((c) => `${c.id}|${c.number}`));
   const incomingByKey = new Set(newCards.map((c) => `${c.number}|${normName(c.fullName)}`));
+  const incomingNumbers = new Set(newCards.map((c) => c.number));
   for (const prev of existing) {
     if (incomingByIdNum.has(`${prev.id}|${prev.number}`)) continue;
     if (incomingByKey.has(`${prev.number}|${normName(prev.fullName)}`)) continue;
+    if (incomingNumbers.has(prev.number)) {
+      // Stale pre-release rename — log loudly so the user sees the cleanup.
+      console.log(`  ⚠ Dropped stale pre-release entry: ${prev.id} #${prev.number} (${prev.fullName})`);
+      console.log(`     Replaced by an incoming entry at the same number with a different slug/name.`);
+      droppedStale++;
+      continue;
+    }
     newCards.push(prev);
     carriedOver++;
   }
 
-  return { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, lockedUpgradesAvailable };
+  return { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, droppedStale, lockedUpgradesAvailable };
 }
 
 // =============================================================================
@@ -1061,14 +1081,15 @@ async function main() {
         newCardKeys.add(`${setCode}|${key}`);
       }
     }
-    const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, lockedUpgradesAvailable } = mergeWithExisting(setCode, setCards);
-    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0 || manualReplaced > 0 || sourceSkipped > 0) {
+    const { preserved, keywordsRescued, reslugged, carriedOver, manualReplaced, sourceSkipped, droppedStale, lockedUpgradesAvailable } = mergeWithExisting(setCode, setCards);
+    if (preserved > 0 || keywordsRescued > 0 || reslugged > 0 || carriedOver > 0 || manualReplaced > 0 || sourceSkipped > 0 || droppedStale > 0) {
       console.log(`  Preserved manual abilities on ${preserved} card(s) in set ${setCode}` +
         (keywordsRescued > 0 ? `; rescued ${keywordsRescued} keyword field(s)` : "") +
         (reslugged > 0 ? `; ${reslugged} card(s) matched via renamed slug` : "") +
         (carriedOver > 0 ? `; carried over ${carriedOver} card(s) not in this batch` : "") +
         (manualReplaced > 0 ? `; replaced ${manualReplaced} manual pre-reveal entry/entries` : "") +
-        (sourceSkipped > 0 ? `; skipped ${sourceSkipped} card(s) (lower-tier source would downgrade existing data)` : "") + ".");
+        (sourceSkipped > 0 ? `; skipped ${sourceSkipped} card(s) (lower-tier source would downgrade existing data)` : "") +
+        (droppedStale > 0 ? `; dropped ${droppedStale} stale pre-release entry/entries (per-line ⚠ above)` : "") + ".");
     }
     // Flag _sourceLock cards where Ravensburger NOW publishes the same card —
     // the lock is preventing a potential tier upgrade. User can remove the
