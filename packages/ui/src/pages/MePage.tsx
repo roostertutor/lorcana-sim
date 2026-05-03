@@ -96,32 +96,27 @@ export default function MePage() {
 
   return (
     <div className="max-w-md mx-auto py-8 px-4 space-y-6">
-      {/* Identity header. ELO summary line dropped 2026-05-03 —
-          profile.elo is the legacy single-rotation field, not an
-          actual aggregate of the 8-rating matrix below; surfacing it
-          as "summary" alongside the full breakdown was redundant and
-          mildly misleading (the number doesn't summarize anything,
-          it's just the pre-migration column). The avatar dropdown
-          (App.tsx UserMenu) still uses profile.elo for a quick-glance
-          number — that's the right place for it because the dropdown
-          is a summary surface, not a full-detail view. */}
+      {/* Identity header. Both the legacy ELO summary AND the overall
+          games-played subtitle were dropped here — the table below
+          shows per-format ratings AND per-format game counts (server
+          shipped games_played_by_format in commit e4120a6), so the
+          aggregate numbers are redundant on this page. The avatar
+          dropdown (App.tsx UserMenu) keeps the overall summary for a
+          quick-glance number from anywhere in the app. */}
       <div className="text-center space-y-2">
         <div className="w-20 h-20 mx-auto rounded-full bg-amber-600 text-gray-950 text-3xl font-black flex items-center justify-center shadow-lg">
           {initial}
         </div>
         <h1 className="text-2xl font-black text-amber-400 tracking-tight">{profile.username}</h1>
-        {profile.games_played > 0 && (
-          <div className="text-xs text-gray-500">
-            {profile.games_played} {profile.games_played === 1 ? "game" : "games"} played
-          </div>
-        )}
       </div>
 
       {/* ELO breakdown — per family, with bo1 / bo3 columns × rotation
           rows. 8 ratings total (2 families × 2 rotations × 2 match
-          formats). Missing keys (account not yet backfilled) render
-          as "—" rather than 0 so the user can tell unrated apart from
-          rated-and-1500. */}
+          formats). Each cell shows the rating + per-format games
+          count (server: games_played_by_format, shipped e4120a6).
+          The count is what makes the rating meaningful — 1500 with
+          0 games means "default ELO, never played" (rendered as "—");
+          1500 with 12 games means "actually played and finished here". */}
       <div className="card p-4 space-y-4">
         <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
           Ratings by format
@@ -144,17 +139,22 @@ export default function MePage() {
                 {ROTATIONS.map((rotation) => {
                   const bo1Key = `bo1_${family}_${rotation}` as EloKey;
                   const bo3Key = `bo3_${family}_${rotation}` as EloKey;
-                  const eloBo1 = profile.elo_ratings?.[bo1Key];
-                  const eloBo3 = profile.elo_ratings?.[bo3Key];
+                  // games_played_by_format is server-seeded with all 8
+                  // keys at 0, so the value is always a number. Missing
+                  // keys (older client racing newer server) read as 0
+                  // via nullish-coalesce.
+                  const gamesBo1 = profile.games_played_by_format?.[bo1Key] ?? 0;
+                  const gamesBo3 = profile.games_played_by_format?.[bo3Key] ?? 0;
+                  // "Unrated" = 0 games played. Render — rather than
+                  // the default 1500 because seeing "1500" for every
+                  // unplayed format misrepresents activity.
+                  const eloBo1 = gamesBo1 > 0 ? profile.elo_ratings?.[bo1Key] : null;
+                  const eloBo3 = gamesBo3 > 0 ? profile.elo_ratings?.[bo3Key] : null;
                   return (
                     <tr key={rotation} className="border-b border-gray-800/50 last:border-0">
                       <td className="py-1.5 text-gray-400">{ROTATION_LABEL[rotation]}</td>
-                      <td className={`py-1.5 text-right font-mono ${eloBo1 != null ? "text-amber-500/80" : "text-gray-700"}`}>
-                        {eloBo1 ?? "—"}
-                      </td>
-                      <td className={`py-1.5 text-right font-mono ${eloBo3 != null ? "text-amber-500/80" : "text-gray-700"}`}>
-                        {eloBo3 ?? "—"}
-                      </td>
+                      <RatingCell elo={eloBo1} games={gamesBo1} />
+                      <RatingCell elo={eloBo3} games={gamesBo3} />
                     </tr>
                   );
                 })}
@@ -177,5 +177,27 @@ export default function MePage() {
         </button>
       </div>
     </div>
+  );
+}
+
+/** Single cell in the Ratings By Format table — renders rating + game
+ *  count stacked. Unrated formats (0 games) render as a dim "—" with
+ *  no game count line. Rated formats show the rating in amber and the
+ *  count below as smaller dim text. */
+function RatingCell({ elo, games }: { elo: number | null | undefined; games: number }) {
+  if (elo == null) {
+    return (
+      <td className="py-1.5 text-right font-mono text-gray-700">
+        —
+      </td>
+    );
+  }
+  return (
+    <td className="py-1.5 text-right font-mono">
+      <div className="text-amber-500/80">{elo}</div>
+      <div className="text-[9px] text-gray-600 font-normal">
+        {games} {games === 1 ? "game" : "games"}
+      </div>
+    </td>
   );
 }
