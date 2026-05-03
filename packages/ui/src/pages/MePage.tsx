@@ -96,17 +96,25 @@ export default function MePage() {
 
   return (
     <div className="max-w-md mx-auto py-8 px-4 space-y-6">
-      {/* Identity header */}
+      {/* Identity header. ELO summary line dropped 2026-05-03 —
+          profile.elo is the legacy single-rotation field, not an
+          actual aggregate of the 8-rating matrix below; surfacing it
+          as "summary" alongside the full breakdown was redundant and
+          mildly misleading (the number doesn't summarize anything,
+          it's just the pre-migration column). The avatar dropdown
+          (App.tsx UserMenu) still uses profile.elo for a quick-glance
+          number — that's the right place for it because the dropdown
+          is a summary surface, not a full-detail view. */}
       <div className="text-center space-y-2">
         <div className="w-20 h-20 mx-auto rounded-full bg-amber-600 text-gray-950 text-3xl font-black flex items-center justify-center shadow-lg">
           {initial}
         </div>
         <h1 className="text-2xl font-black text-amber-400 tracking-tight">{profile.username}</h1>
-        <div className="text-xs text-gray-500">
-          <span className="font-mono text-amber-500/80">{profile.elo}</span> ELO summary
-          {" · "}
-          {profile.games_played} {profile.games_played === 1 ? "game" : "games"} played
-        </div>
+        {profile.games_played > 0 && (
+          <div className="text-xs text-gray-500">
+            {profile.games_played} {profile.games_played === 1 ? "game" : "games"} played
+          </div>
+        )}
       </div>
 
       {/* ELO breakdown — per family, with bo1 / bo3 columns × rotation
