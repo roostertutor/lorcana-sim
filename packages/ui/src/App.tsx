@@ -19,7 +19,11 @@ type Tab = "decks" | "multiplayer" | "replays" | "sandbox";
 
 const TABS: { id: Tab; path: string; label: string }[] = [
   { id: "decks", path: "/", label: "Decks" },
-  { id: "multiplayer", path: "/multiplayer", label: "Multiplayer" },
+  // Tab id + path stay "multiplayer" — preserves bookmarks and the
+  // /lobby/:code shareable links that route through MultiplayerLobby.
+  // Label "Play" is honest about scope: this tab also hosts Solo (vs
+  // bot), which isn't multiplayer in the strict sense.
+  { id: "multiplayer", path: "/multiplayer", label: "Play" },
   { id: "replays", path: "/replays", label: "Replays" },
   // Sandbox surfaced as a top-level tab — installed PWA can't easily type
   // URLs to reach `/sandbox`, so the route needed a discoverable entry point.
