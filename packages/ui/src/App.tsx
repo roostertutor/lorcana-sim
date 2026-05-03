@@ -300,14 +300,14 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
   // - `sticky top-0` still pins to viewport y=0 while content inside the
   //   header sits below the status bar via its own padding
   return (
-    // pb-[…] + md:pb-0 reserves room at the bottom on mobile for the
-    // fixed BottomNav rendered below. Without it, the footer (last
-    // flex child) would render behind the nav. Calc() includes the
-    // nav's button area (3.5rem) plus iOS safe-area-inset-bottom (the
-    // nav's own paddingBottom carries that for the visible buttons,
-    // and the outer needs to match so flow content ends above it).
+    // pb-[…] reserves room at the bottom on portrait phones for the
+    // fixed BottomNav rendered below. Removed on md+ AND on landscape-
+    // phone (both surfaces use the top nav instead — see comments at
+    // the nav itself). Without the override, small landscape phones
+    // (e.g., iPhone SE landscape at 568px width) would still get the
+    // padding even though the bottom nav is hidden there.
     <div
-      className="min-h-screen flex flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0"
+      className="min-h-screen flex flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0 landscape-phone:!pb-0"
       style={{
         paddingLeft: "env(safe-area-inset-left)",
         paddingRight: "env(safe-area-inset-right)",
@@ -334,10 +334,15 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
           >
             ⬡ Lorcana Sim
           </button>
-          {/* Top tabs — hidden on mobile (BottomNav below takes over).
-               Top header on mobile is just logo + UserMenu; navigation
-               lives in the thumb-zone bottom bar. */}
-          <nav className="hidden md:block flex-1 min-w-0 overflow-x-auto scrollbar-none">
+          {/* Top tabs — hidden on portrait phone (BottomNav below
+               takes over), shown on md+ AND on landscape-phone. The
+               landscape-phone unhide is intentional: vertical real
+               estate is precious there (≤500px tall), and a bottom
+               nav eating ~56px is a worse trade than the more compact
+               top-nav pills. Thumb-reach advantage of bottom nav is
+               also reduced in landscape (thumbs grip the sides, not
+               the bottom edge). */}
+          <nav className="hidden md:block landscape-phone:!block flex-1 min-w-0 overflow-x-auto scrollbar-none">
             <div className="flex gap-1 flex-nowrap">
               {TABS.map((t) => (
                 <button
@@ -350,10 +355,12 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
               ))}
             </div>
           </nav>
-          {/* Spacer so UserMenu still right-aligns when the nav element
-               is hidden on mobile. flex-1 takes remaining width between
-               logo and UserMenu. */}
-          <div className="md:hidden flex-1" />
+          {/* Spacer so UserMenu still right-aligns when the top nav
+               element is hidden (portrait phone only). On landscape-
+               phone the top nav unhides via landscape-phone:!block,
+               so we hide the spacer too — flex-1 from the nav itself
+               takes the remaining space. */}
+          <div className="md:hidden landscape-phone:!hidden flex-1" />
           {/* Avatar + sign-out — right-aligned. Subscribes to supabase auth
                independently from the lobby so signing out here propagates
                to MultiplayerLobby's own session listener. */}
@@ -385,15 +392,21 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
         </p>
       </footer>
 
-      {/* Bottom nav — mobile-only thumb-zone navigation. Tabs
-           migrate from the top header here on mobile so the top
-           chrome shrinks to logo + avatar (less to scan; bottom-edge
-           thumb reach owns navigation, matching Twitter / Instagram /
-           Discord / Spotify mobile patterns).
+      {/* Bottom nav — portrait-phone thumb-zone navigation. Tabs
+           migrate from the top header here on portrait phones so the
+           top chrome shrinks to logo + avatar; bottom-edge thumb
+           reach owns navigation, matching Twitter / Instagram /
+           Discord / Spotify mobile patterns.
+
+           Hidden on md+ (top nav takes over) AND on landscape-phone
+           (vertical real estate is too precious there — ≤500px tall;
+           ~56px bottom nav is a worse trade than the more compact
+           top-nav pills, and landscape thumb-reach is at the sides
+           anyway, not the bottom).
 
            Fixed-position above the home indicator: paddingBottom
            env(safe-area-inset-bottom) keeps the visible button row
-           clear of the iOS gesture bar. The outer Shell container
+           clear of the iOS gesture bar. Outer Shell container
            reserves matching room (pb-[calc(3.5rem+env(...))]) so
            footer + content don't render behind the nav.
 
@@ -401,7 +414,7 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
            — modal backdrops correctly cover the nav when something
            important is open. */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-gray-950/95 backdrop-blur border-t border-gray-800 flex"
+        className="md:hidden landscape-phone:!hidden fixed bottom-0 left-0 right-0 z-20 bg-gray-950/95 backdrop-blur border-t border-gray-800 flex"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="Primary navigation"
       >
