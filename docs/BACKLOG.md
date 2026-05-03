@@ -176,23 +176,22 @@ Proposal: flip the default to `false` (unstack everything) at `lg+` breakpoint, 
 
 ---
 
-### Bottom nav on mobile
+### Bottom nav on mobile — **DONE 2026-05-03**
 
-**Considered**: Move the tab nav (`Decks`, `Multiplayer`) from the top chrome to a bottom-fixed bar on mobile, leaving only logo + avatar at the top. Standard pattern in Twitter/X, Discord, Instagram, Reddit, Spotify mobile apps. Frees the top chrome entirely; matches "less chrome, more game" framing in `STRATEGY.md`.
+**Shipped**: commit [pending]. The 4-tab trigger fired (Decks / Play / Replays / Sandbox — was 2 when this was parked). Top tabs now hide on mobile via `hidden md:block` on the existing `<nav>`, and a fixed-position `<nav>` renders at the bottom-edge of the viewport with the same 4 buttons. Outer Shell container gets `pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0` so the footer + content clear the fixed nav. z-20 sits above sticky header (z-10), below modals (z-50).
 
-**Why parked (2026-04-25)**:
-- Only 2 tabs today — top bar already costs ~0px of effective space.
-- iOS Safari's bottom URL bar competes with bottom nav; layout jank during chrome-collapse.
-- `100vh` lies on mobile browsers; pinned bottom elements can be hidden under URL bar.
-- `env(safe-area-inset-bottom)` returns 0 outside PWA — can't pad-clear the home indicator the same way.
-- Bottom nav truly shines in PWA standalone mode where browser chrome is gone. We don't yet have meaningful PWA install rates.
+**Original framing (kept for context)**: Move the tab nav from the top chrome to a bottom-fixed bar on mobile, leaving only logo + avatar at the top. Standard pattern in Twitter/X, Discord, Instagram, Reddit, Spotify mobile apps. Matches "less chrome, more game" framing in `STRATEGY.md`.
 
-**Trigger to reconsider**:
-- Tabs grow to 4+ items (top bar starts overflowing painfully), OR
-- PWA install rate becomes a real metric we're tracking, OR
-- Mobile gameboard redesign earns its own first-class layout pass and we need top-chrome budget back.
+**Resolved concerns** (from the original 2026-04-25 parking):
+- ~~Only 2 tabs today~~ — now 4, top bar overflowed painfully on phones.
+- ~~iOS Safari URL bar competes~~ — accepted: when the URL bar is showing, the nav sits above it (still tappable). When URL bar collapses, nav stays anchored to viewport bottom. PWA mode skips this entirely.
+- ~~`100vh` lies on mobile~~ — Shell uses `min-h-screen` not `100vh` directly; fixed-bottom nav doesn't depend on viewport-height math.
+- ~~`env(safe-area-inset-bottom)` returns 0 outside PWA~~ — that's correct behavior; outside PWA there's no home indicator to clear, and the nav still sits at the bottom of the visible browser viewport.
+- ~~PWA install rates~~ — moot; nav works in both standalone and browser modes.
 
-**Scope if built**: ~2 hrs. Conditional layout (`@media (display-mode: standalone)` or always-on for mobile), update Shell to render tabs at bottom on `< sm`, ensure deckbuilder sticky-bar still composes correctly.
+**Open follow-ups** (small):
+- Add icons under each label (currently text-only, matches top nav style). Heroicons available in repo: `rectangle-stack` (Decks), `play` (Play), `clock` (Replays), `wrench` (Sandbox). Skipped this session — text-only ships clean and labels are short enough to fit 4-across on iPhone-class widths.
+- Consider auto-hiding the nav on scroll-down (iOS-style chrome collapse) if vertical real estate becomes tight on long pages. BACKLOG entry "Auto-hide top chrome on scroll" already discusses similar mechanics.
 
 ---
 
