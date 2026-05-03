@@ -839,7 +839,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           {/* Find Casual — primary CTA. Always visible; disabled when not
                signed in or no deck ready. */}
           <button
-            className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
+            className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
                        disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                        transition-colors active:scale-[0.98]"
             onClick={() => handleFindMatch("casual")}
@@ -861,7 +861,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                chosen=s12 (test) → hidden. Post-launch s12 becomes ranked. */}
           {session && chosenRotationIsRanked && (
             <button
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800
                          disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                          transition-colors active:scale-[0.98]"
               onClick={() => handleFindMatch("ranked")}
@@ -949,7 +949,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             </div>
 
             <input
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-3
                          text-sm text-gray-200 placeholder-gray-600
                          focus:border-amber-500 focus:outline-none"
               placeholder="Email"
@@ -960,7 +960,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               onKeyDown={(e) => e.key === "Enter" && handleAuth()}
             />
             <input
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-3
                          text-sm text-gray-200 placeholder-gray-600
                          focus:border-amber-500 focus:outline-none"
               placeholder="Password"
@@ -971,7 +971,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
               onKeyDown={(e) => e.key === "Enter" && handleAuth()}
             />
             <button
-              className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700
+              className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700
                          disabled:text-gray-500 text-white rounded-lg text-sm font-bold
                          transition-colors active:scale-[0.98]"
               onClick={handleAuth}
@@ -990,7 +990,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             {/* OAuth buttons */}
             <div className="flex gap-2">
               <button
-                className="flex-1 py-2.5 bg-white hover:bg-gray-100 text-gray-900 rounded-lg text-sm font-medium
+                className="flex-1 py-3 bg-white hover:bg-gray-100 text-gray-900 rounded-lg text-sm font-medium
                            transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
                 onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/multiplayer" } })}
               >
@@ -998,7 +998,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                 Google
               </button>
               <button
-                className="flex-1 py-2.5 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg text-sm font-medium
+                className="flex-1 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-lg text-sm font-medium
                            transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
                 onClick={() => supabase.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: window.location.origin + "/multiplayer" } })}
               >
@@ -1208,7 +1208,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     )}
                   </div>
                   <button
-                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
+                    className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleCreateLobby}
@@ -1226,7 +1226,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     <div className="text-xs text-gray-600 mt-0.5">Enter the host's code</div>
                   </div>
                   <input
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2
+                    // py-3 (vs prior py-2) brings the input to ~44px tall
+                    // matching the iOS / WCAG 2.5.5 touch-target minimum,
+                    // consistent with all other primary inputs/buttons in
+                    // this lobby after the A2 audit.
+                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-3
                                text-sm text-gray-200 font-mono tracking-[0.3em] uppercase text-center
                                focus:border-amber-500 focus:outline-none placeholder-gray-700"
                     placeholder="XXXXXX"
@@ -1246,7 +1250,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     onKeyDown={(e) => e.key === "Enter" && handleJoinLobby()}
                   />
                   <button
-                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
+                    className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleJoinLobby}
@@ -1367,7 +1371,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   </span>
                   <button
                     onClick={handleShareLobby}
-                    className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400
+                    // min-w-11 / min-h-11 = 44px = iOS / WCAG 2.5.5 min
+                    // touch target. Was p-2 (32px) which works fine on
+                    // desktop but is below the touch threshold on mobile
+                    // — same surface where navigator.share matters most.
+                    className="min-w-11 min-h-11 inline-flex items-center justify-center
+                               rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400
                                hover:text-gray-200 transition-colors active:scale-95"
                     // Tooltip + aria-label adapt by capability so desktop
                     // users see "Copy link" while mobile sees "Share".
@@ -1375,11 +1384,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     aria-label={canNativeShare ? "Share lobby link" : "Copy lobby link"}
                   >
                     {copied ? (
-                      <Icon name="check" className="w-4 h-4 text-green-400" />
+                      <Icon name="check" className="w-5 h-5 text-green-400" />
                     ) : (
                       <Icon
                         name={canNativeShare ? "share" : "clipboard"}
-                        className="w-4 h-4"
+                        className="w-5 h-5"
                       />
                     )}
                   </button>
@@ -1387,7 +1396,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
 
                 <button
                   onClick={handleCancelLobby}
-                  className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+                  // Was a bare-text link with no padding — a few-pixel
+                  // tap target. Bumped to a min-h-11 (44px) button with
+                  // hover background so it's discoverable AND tappable
+                  // on touch. Visual weight stays low (gray-on-dark, no
+                  // border) since this is the "cancel waiting" escape
+                  // hatch, not a primary action.
+                  className="px-4 min-h-11 inline-flex items-center justify-center
+                             text-xs text-gray-600 hover:text-gray-400 hover:bg-gray-800/40
+                             rounded-md transition-colors"
                 >
                   Cancel
                 </button>
