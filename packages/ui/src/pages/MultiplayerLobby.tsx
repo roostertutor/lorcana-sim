@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
+import { createLobby, joinLobby, ensureProfile, getProfile, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
 import type { EloKey, Profile, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
@@ -11,8 +11,8 @@ import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRo
 // FORMAT_FAMILY_ACCENT still used for the saved-deck row badges in the
 // deck picker (each row's Core/Infinity chip uses the accent palette).
 // formatDisplayName still used for the legality-error message.
-import Icon from "../components/Icon.js";
-import { useMediaQuery } from "../hooks/useMediaQuery.js";
+// Icon + useMediaQuery imports were used by the wait-state share
+// button (lobby code copy/share) which moved to LobbyMiddleScreen.
 
 // localStorage keys for "last remembered" lobby selections — restored on
 // mount so returning to the lobby after a match keeps the user's most
@@ -78,14 +78,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [joinCode, setJoinCode] = useState(initialJoinCode ?? "");
   const [status, setStatus]     = useState<string | null>(null);
   const [error, setError]       = useState<string | null>(null);
-  const [lobbyCode, setLobbyCode] = useState<string | null>(null);
-  const [lobbyId, setLobbyId]   = useState<string | null>(null);
-  // Timestamp of when the host entered the waiting state — used to render
-  // the "Waiting: MM:SS" counter. Null when not waiting. Resets on cancel
-  // / on lobby match. Expressed as ms-epoch for simple subtract-then-format.
-  const [waitStartedAt, setWaitStartedAt] = useState<number | null>(null);
-  const [waitElapsedSec, setWaitElapsedSec] = useState(0);
-  const [copied, setCopied]     = useState(false);
+  // lobbyCode / lobbyId / waitStartedAt / waitElapsedSec state removed
+  // 2026-05-04 — local wait-state UI was replaced by the middle screen
+  // at /game/{lobbyId}, which owns its own lobby-status state.
+  // copied/setCopied + canNativeShare moved to LobbyMiddleScreen with
+  // the wait state 2026-05-04.
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
   // Quick Play vs Custom Game segmented switcher. Quick Play is the
   // default surface — most users want "match me with someone now"; Custom
@@ -111,11 +108,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   const [profile, setProfile]   = useState<Profile | null>(null);
   // Public lobby browser state removed 2026-05-04 — feature dropped
   // (~0% usage by user account). publicBrowserOpen / publicLobbies /
-  // publicLoading / publicPollRef + the browser polling effect are
-  // all gone. (The `pollRef` below is a DIFFERENT ref — used by the
-  // lobby-status polling effect that watches for a guest joining
-  // your created lobby; nothing to do with the public browser.)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // publicLoading / publicPollRef + the browser polling effect all
+  // gone. The lobby-status pollRef + its polling effect were also
+  // removed in the duels middle-screen restructure (waiting state
+  // moved to /game/{lobbyId}).
 
   // Matchmaking queue state. Server is authoritative — queue entry exists
   // server-side or it doesn't. The UI mirrors that with a `queueStatus`
@@ -154,9 +150,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       } else {
         setSession(null);
         setProfile(null);
-        setLobbyCode(null);
-        setLobbyId(null);
-        setWaitStartedAt(null);
         setStatus(null);
       }
     });
@@ -291,45 +284,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   }
 
 
-  // Poll lobby status after creating — transition to game when guest joins.
-  // Caps at 150 attempts (5 min) to avoid hammering the server indefinitely.
-  useEffect(() => {
-    if (!lobbyId || !session) return;
-    let attempts = 0;
-    const MAX_POLL_ATTEMPTS = 150;
-    pollRef.current = setInterval(async () => {
-      attempts++;
-      if (attempts >= MAX_POLL_ATTEMPTS) {
-        clearInterval(pollRef.current!);
-        setError("Lobby timed out waiting for a player. Please create a new lobby.");
-        setStatus(null);
-        setLobbyCode(null);
-        setLobbyId(null);
-        setWaitStartedAt(null);
-        return;
-      }
-      const data = await getLobbyGame(lobbyId);
-      if (data?.lobby.status === "active" && data.game) {
-        clearInterval(pollRef.current!);
-        onGameStart(data.game.id, data.hostSide);
-      }
-    }, 2000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [lobbyId, session, onGameStart]);
-
-  // Tick the waiting-time counter once per second. Separate from the
-  // poll interval above so the display updates smoothly instead of
-  // jumping every 2s. Stops when we leave the waiting state.
-  useEffect(() => {
-    if (waitStartedAt === null) return;
-    const handle = setInterval(() => {
-      setWaitElapsedSec(Math.floor((Date.now() - waitStartedAt) / 1000));
-    }, 1000);
-    return () => clearInterval(handle);
-  }, [waitStartedAt]);
-
-  // Public lobby browser polling effect removed 2026-05-04 with the
-  // public-browser feature dropoff.
+  // Lobby-status polling + wait-state-counter effects removed 2026-05-04
+  // when the duels middle-screen restructure landed. The /multiplayer
+  // page no longer renders a wait state — host navigates immediately
+  // to /game/{lobbyId} where LobbyMiddleScreen owns the polling /
+  // realtime subscription. Same for the wait timer (now lives in the
+  // middle screen).
 
   // Hydrate queue state on mount + after sign-in. If the server has a
   // queue entry for this user (e.g., they refreshed mid-queue), pick up
@@ -474,171 +434,75 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   }
 
   async function handleCreateLobby() {
-    if (!session || !deckReady) return;
+    if (!session) return;
     setError(null);
     setStatus("Creating lobby…");
     try {
-      // public flag dropped 2026-05-04 — every custom lobby is private
-      // (URL-only). Server still accepts the field for backwards compat
-      // but always passes `false` from the client now. Server-side cleanup
-      // tracked in the duels-style middle-screen HANDOFF entry.
+      // Duels-style middle-screen restructure 2026-05-04: lobby create
+      // takes format settings only — no deck arg. Deck attaches in the
+      // middle screen at /game/{lobbyId} via setDeckInLobby. Host is
+      // the implicit creator (player1); guest joins as player2 via the
+      // shared link or 6-char code.
       const result = await createLobby(
-        deck,
         format,
         gameFormat.family,
         gameFormat.rotation,
-        { public: false, spectatorPolicy },
+        { spectatorPolicy },
       );
-      setLobbyCode(result.code);
-      setLobbyId(result.lobbyId);
-      setWaitStartedAt(Date.now());
-      setWaitElapsedSec(0);
-      setStatus(null);
+      // Save host slot to localStorage so the middle screen knows which
+      // side this user is. Mirrors the shape MultiplayerGamePage in
+      // App.tsx already reads (key "mp-game").
+      localStorage.setItem("mp-game", JSON.stringify({
+        lobbyId: result.lobbyId,
+        myPlayerId: "player1",
+      }));
+      navigate(`/play/${result.lobbyId}`);
     } catch (err) {
       setError(String(err));
       setStatus(null);
     }
   }
 
-  /** Host cancels their waiting lobby. Server will 409 if a guest raced
-   *  in and joined first — in that case, the polling loop will pick up
-   *  the active game and navigate us in. We let the poll handle that
-   *  rather than fighting it here; we just clear the cancel UI and let
-   *  the natural game-start path take over. */
-  async function handleCancelLobby() {
-    if (!lobbyId) {
-      // Edge case: lobby row never made it (creation failed mid-flight).
-      // Just clear the UI — nothing to cancel server-side.
-      setLobbyCode(null);
-      setLobbyId(null);
-      setWaitStartedAt(null);
-      return;
-    }
-    const result = await cancelLobby(lobbyId);
-    if (result.ok) {
-      setLobbyCode(null);
-      setLobbyId(null);
-      setWaitStartedAt(null);
-    } else if (result.status === 409) {
-      // Race with join — don't clear local state; the poll will transition
-      // us into the game shortly via onGameStart.
-      setStatus("Opponent joined just now — starting…");
-    } else {
-      // 403 / 404 / 500 — something's wrong server-side. Clear UI and
-      // surface the error so the user can try fresh.
-      setError(result.error);
-      setLobbyCode(null);
-      setLobbyId(null);
-      setWaitStartedAt(null);
-    }
-  }
+  // handleCancelLobby removed 2026-05-04 — cancellation lives in the
+  // middle screen (LobbyMiddleScreen) now since the wait state moved
+  // there entirely.
 
   async function handleJoinLobby() {
-    if (!session || !deckReady || !joinCode.trim()) return;
+    if (!session || !joinCode.trim()) return;
     joinLobbyByCode(joinCode.trim());
   }
 
-  /** Shared implementation — code-entry and public-browser joins both
-   *  land here so both paths get identical legality/status/error
-   *  handling. Caller is responsible for the deckReady gate. */
+  /** Code-share / paste path: claim the guest slot via the 6-char
+   *  code; server's joinLobby resolves code → lobbyId in the same
+   *  call. Navigate to /play/{lobbyId} where the middle screen
+   *  handles deck pick + ready. Deck attaches IN the middle screen. */
   async function joinLobbyByCode(code: string) {
-    if (!session || !deckReady) return;
+    if (!session) return;
     setError(null);
-    setStatus("Joining…");
+    setStatus("Joining lobby…");
     try {
-      const result = await joinLobby(code, deck);
-      setStatus("Starting game…");
-      onGameStart(result.gameId, result.myPlayerId);
+      const join = await joinLobby(code);
+      localStorage.setItem("mp-game", JSON.stringify({
+        lobbyId: join.lobbyId,
+        myPlayerId: join.myPlayerId,
+      }));
+      navigate(`/play/${join.lobbyId}`);
     } catch (err) {
       setError(String(err));
       setStatus(null);
     }
   }
 
-  // Use the share sheet only on touch-primary devices (phones, tablets).
-  // Modern desktop browsers (Chrome 93+ on Windows, Safari / Chrome on
-  // macOS, Edge) ship navigator.share too, but desktop users expect a
-  // copy-link affordance — the OS share dialogs there are awkward (small
-  // OS-native popovers, often empty or with sparse target lists). The
-  // gate is UX intent ("user wants the share sheet"), not API capability
-  // ("the share API exists").
-  //
-  // (pointer: coarse) is the cleanest signal for touch-primary input:
-  // true on phones / tablets, false on mouse / trackpad. Reactive via
-  // useMediaQuery so users with dual-input devices (Surface, hybrids)
-  // get the right behavior if they switch input modes mid-session.
-  //
-  // Original implementation gated on API capability alone, which made
-  // desktop users see the share button and trigger the awkward OS
-  // dialog — fixed in commit [next].
-  const isTouchDevice = useMediaQuery("(pointer: coarse)");
-  const SHARE_PROBE_PAYLOAD = { url: "https://example.com/", title: "probe" };
-  const canNativeShare =
-    isTouchDevice &&
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
-    (typeof navigator.canShare !== "function" || navigator.canShare(SHARE_PROBE_PAYLOAD));
+  // Share sheet detection (canNativeShare / SHARE_PROBE_PAYLOAD /
+  // useMediaQuery import) moved to LobbyMiddleScreen with the wait
+  // state 2026-05-04 — the share affordance for the lobby code/URL
+  // belongs with the wait state.
 
-  /** Build the full join URL the recipient will paste / click.
-   *  e.g. https://app.example.com/lobby/ABC123 — pasting into a browser
-   *  address bar lands them directly on this lobby with the code
-   *  pre-filled (App.tsx routes /lobby/:code → MultiplayerLobby with
-   *  `initialJoinCode`). Without the URL the recipient would only have
-   *  the bare code "ABC123" and need to know to manually navigate. */
-  function buildLobbyUrl(code: string): string {
-    return `${window.location.origin}/lobby/${code}`;
-  }
-
-  /** Share the lobby join URL via the platform's preferred mechanism.
-   *
-   *  - **Mobile / capable devices**: opens the native share sheet via
-   *    navigator.share — the user picks Messages / WhatsApp / Discord /
-   *    etc. and the URL is sent through that channel. This is the right
-   *    UX on a phone where copy-to-clipboard adds a step (paste into
-   *    where?) and isn't the platform convention.
-   *  - **Desktop**: falls back to clipboard.writeText with the FULL URL
-   *    (was previously copying the bare code, which forced the
-   *    recipient to know to type /lobby/ themselves). Toast "Copied!"
-   *    feedback for 2s.
-   *  - **Share cancelled** (user dismissed the share sheet without
-   *    picking a target): silent no-op. AbortError is the standard
-   *    rejection on cancel and shouldn't fall through to clipboard.
-   *  - **Share errored** (anything else — browser bug, permission
-   *    denied): falls through to clipboard so the user still gets the
-   *    URL out.
-   */
-  async function handleShareLobby() {
-    if (!lobbyCode) return;
-    const url = buildLobbyUrl(lobbyCode);
-    if (canNativeShare) {
-      try {
-        await navigator.share({
-          title: "Join my Lorcana game",
-          text: `Lobby code: ${lobbyCode}`,
-          url,
-        });
-        // Share sheet IS the visual feedback on mobile; no toast needed.
-        return;
-      } catch (err) {
-        // User cancelled — silent. Anything else (rare) falls through
-        // to clipboard so the URL still ends up somewhere useful.
-        if ((err as DOMException)?.name === "AbortError") return;
-      }
-    }
-    // Clipboard path — desktop default and mobile fallback.
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard can throw on insecure origins or when permissions
-      // are denied. No graceful fallback that doesn't add UI noise;
-      // we just don't show success feedback. The user will still see
-      // the lobby code on screen and can read it manually.
-    }
-  }
-
-  const isWaiting = !!lobbyCode && !!lobbyId;
+  // isWaiting is permanently false on this page now — the wait
+  // state was moved to the middle screen at /game/{lobbyId}. Kept as
+  // a const so existing render conditionals keep evaluating
+  // correctly without a sweep.
+  const isWaiting = false;
 
   return (
     // justify-start (was justify-center) so content anchors to the top
@@ -1152,82 +1016,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   Cancel
                 </button>
               </div>
-            ) : isWaiting ? (
-              /* ─ Waiting state ─ host has created a lobby and is waiting
-                 for an opponent to join. Moved up to its own branch (was
-                 the trailing `: ()` arm) when the playMode switcher
-                 landed 2026-05-03; otherwise Quick-Play mode would fall
-                 through to this branch when not actually waiting. */
-              <div className="card p-6 text-center space-y-4">
-                {/* Animated dots */}
-                <div className="flex justify-center gap-1.5">
-                  {[0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="w-2 h-2 rounded-full bg-amber-500"
-                      style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
-                    />
-                  ))}
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-400">Waiting for opponent</div>
-                  <div className="text-xs text-gray-600 mt-0.5">Share this code with your opponent</div>
-                  {/* Wait-time counter. Lobby auto-times-out at 5 min
-                       (MAX_POLL_ATTEMPTS * 2s); surfacing the elapsed
-                       time gives the host a sense of how long the wait
-                       has been and when to consider cancelling. */}
-                  <div className="text-[11px] font-mono text-gray-500 mt-1 tabular-nums">
-                    {Math.floor(waitElapsedSec / 60)}:{String(waitElapsedSec % 60).padStart(2, "0")}
-                    <span className="text-gray-700"> / 5:00</span>
-                  </div>
-                </div>
-
-                {/* Lobby code with copy button */}
-                <div className="flex items-center justify-center gap-3">
-                  <span className="text-4xl font-mono font-black tracking-[0.3em] text-amber-400">
-                    {lobbyCode}
-                  </span>
-                  <button
-                    onClick={handleShareLobby}
-                    // min-w-11 / min-h-11 = 44px = iOS / WCAG 2.5.5 min
-                    // touch target. Was p-2 (32px) which works fine on
-                    // desktop but is below the touch threshold on mobile
-                    // — same surface where navigator.share matters most.
-                    className="min-w-11 min-h-11 inline-flex items-center justify-center
-                               rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400
-                               hover:text-gray-200 transition-colors active:scale-95"
-                    // Tooltip + aria-label adapt by capability so desktop
-                    // users see "Copy link" while mobile sees "Share".
-                    title={canNativeShare ? "Share link" : "Copy link"}
-                    aria-label={canNativeShare ? "Share lobby link" : "Copy lobby link"}
-                  >
-                    {copied ? (
-                      <Icon name="check" className="w-5 h-5 text-green-400" />
-                    ) : (
-                      <Icon
-                        name={canNativeShare ? "share" : "clipboard"}
-                        className="w-5 h-5"
-                      />
-                    )}
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleCancelLobby}
-                  // Was a bare-text link with no padding — a few-pixel
-                  // tap target. Bumped to a min-h-11 (44px) button with
-                  // hover background so it's discoverable AND tappable
-                  // on touch. Visual weight stays low (gray-on-dark, no
-                  // border) since this is the "cancel waiting" escape
-                  // hatch, not a primary action.
-                  className="px-4 min-h-11 inline-flex items-center justify-center
-                             text-xs text-gray-600 hover:text-gray-400 hover:bg-gray-800/40
-                             rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
             ) : playMode === "custom" ? (
               <>
               {/* ─ Custom Game ──────────────────────────────────────────────
@@ -1294,8 +1082,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleCreateLobby}
-                    disabled={!deckReady || !legality.ok || !!status}
-                    title={!legality.ok ? "Fix illegal cards before creating a lobby" : undefined}
+                    // No deckReady gate 2026-05-04 — deck attaches in
+                    // the middle screen (/play/{lobbyId}) post-create,
+                    // not here. The Create button just needs an auth
+                    // session and a non-busy state.
+                    disabled={!session || !!status}
                   >
                     {status === "Creating lobby…" ? "Creating…" : "Create Lobby"}
                   </button>
@@ -1336,8 +1127,9 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                                disabled:text-gray-600 text-white rounded-lg text-sm font-bold
                                transition-colors active:scale-[0.98]"
                     onClick={handleJoinLobby}
-                    disabled={!deckReady || !legality.ok || joinCode.length < 6 || !!status}
-                    title={!legality.ok ? "Fix illegal cards before joining" : undefined}
+                    // No deckReady gate 2026-05-04 — deck attaches in
+                    // the middle screen, not here.
+                    disabled={!session || joinCode.length < 6 || !!status}
                   >
                     {status?.startsWith("Join") ? status : "Join"}
                   </button>

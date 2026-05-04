@@ -57,8 +57,13 @@ export interface CreateLobbyOptions {
   spectatorPolicy?: SpectatorPolicy
 }
 
+/** Create a new lobby with format settings only — deck attaches in the
+ *  middle screen (post-create) via setDeckInLobby. Server-spec change
+ *  2026-05-04: deck arg dropped from this endpoint along with the
+ *  `public` flag (public-lobby browser feature retired). Returns the
+ *  lobby UUID + 6-char voice/typing code. UI navigates to
+ *  /game/{lobbyId} after this resolves. */
 export async function createLobby(
-  deck: DeckEntry[],
   format: "bo1" | "bo3" = "bo1",
   gameFormat: GameFormatFamily = "infinity",
   gameRotation: RotationId = "s12",
@@ -68,11 +73,9 @@ export async function createLobby(
     method: "POST",
     headers: await authHeaders(),
     body: JSON.stringify({
-      deck,
       format,
       gameFormat,
       gameRotation,
-      public: options.public ?? false,
       spectatorPolicy: options.spectatorPolicy ?? "off",
     }),
   })
@@ -83,37 +86,85 @@ export async function createLobby(
     format: string
     gameFormat: string
     gameRotation: string
-    public: boolean
     spectatorPolicy: SpectatorPolicy
   }>
 }
 
-/** One entry in the public-lobby browser. Server deliberately omits deck
- *  fields (no scouting). Caller's own lobbies are filtered out server-side. */
-export interface PublicLobby {
-  id: string
+/** Privacy-safe lobby snapshot — never includes deck contents. Used by
+ *  LobbyMiddleScreen to render lobby state + transition to game when
+ *  status flips to 'active'. */
+export interface LobbyInfo {
+  lobbyId: string
   code: string
-  hostUsername: string
+  status: "waiting" | "lobby" | "active" | "cancelled"
   format: "bo1" | "bo3"
   gameFormat: GameFormatFamily
   gameRotation: RotationId
   spectatorPolicy: SpectatorPolicy
-  createdAt: string
+  hostUsername: string | null
+  guestUsername: string | null
+  hostHasDeck: boolean
+  guestHasDeck: boolean
+  hostReady: boolean
+  guestReady: boolean
+  /** Set when status === 'active' — id of the spawned games row. UI
+   *  navigates from /game/{lobbyId} → /game/{gameId} board view on
+   *  this transition. */
+  gameId: string | null
 }
 
-/** List public, waiting lobbies others have opened. Returns empty array
- *  on transport errors — UI shouldn't blow up if the server is blippy. */
-export async function listPublicLobbies(): Promise<PublicLobby[]> {
-  try {
-    const res = await fetch(`${SERVER_URL}/lobby/public`, {
-      headers: await authHeaders(),
-    })
-    if (!res.ok) return []
-    const data = await res.json() as { lobbies: PublicLobby[] }
-    return data.lobbies
-  } catch {
-    return []
-  }
+/** GET /lobby/:id/info — peek at a lobby without joining. RLS allows
+ *  read by anyone with the URL (having the URL = consent to know
+ *  format + presence). NEVER returns deck contents. */
+export async function getLobbyInfo(lobbyId: string): Promise<LobbyInfo | null> {
+  const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/info`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  return res.json() as Promise<LobbyInfo>
+}
+
+/** POST /lobby/:id/deck — attach (or swap) your deck to your slot.
+ *  Validates legality against the lobby's stored format. Implicitly
+ *  clears your ready flag so a deck swap forces an explicit re-ready. */
+export async function setDeckInLobby(lobbyId: string, deck: DeckEntry[]) {
+  const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/deck`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: JSON.stringify({ deck }),
+  })
+  if (!res.ok) throw new Error(await extractError(res))
+  return res.json() as Promise<{ ok: true }>
+}
+
+/** POST /lobby/:id/ready — toggle your ready flag. Server rejects
+ *  ready=true if no deck attached. When BOTH ready, the same call
+ *  atomically transitions lobby → active and spawns the games row;
+ *  the response includes gameStarted=true and the new gameId. */
+export async function setReadyInLobby(lobbyId: string, ready: boolean) {
+  const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/ready`, {
+    method: "POST",
+    headers: await authHeaders(),
+    body: JSON.stringify({ ready }),
+  })
+  if (!res.ok) throw new Error(await extractError(res))
+  return res.json() as Promise<{
+    ok: true
+    gameStarted: boolean
+    gameId: string | null
+  }>
+}
+
+/** GET /lobby/resolve/:code — 6-char voice/typing share lookup.
+ *  Returns the lobby UUID so the UI can navigate to /game/{lobbyId}.
+ *  Used by the manual code-input form on /multiplayer + the
+ *  /lobby/:code redirect on URL arrival. */
+export async function resolveLobbyCode(code: string): Promise<{ lobbyId: string }> {
+  const res = await fetch(`${SERVER_URL}/lobby/resolve/${encodeURIComponent(code)}`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) throw new Error(await extractError(res))
+  return res.json() as Promise<{ lobbyId: string }>
 }
 
 /** Host-only cancel of a waiting lobby. Returns ok=true on success;
@@ -170,14 +221,19 @@ export async function postRematch(previousLobbyId: string): Promise<{
   }
 }
 
-export async function joinLobby(code: string, deck: DeckEntry[]) {
+/** POST /lobby/join — claim the guest slot in a lobby. Server-spec
+ *  change 2026-05-04: deck arg dropped (deck attaches separately in
+ *  middle screen via setDeckInLobby); status flips to 'lobby' (not
+ *  'active'); does NOT spawn a games row. UI navigates to
+ *  /game/{lobbyId} on success. */
+export async function joinLobby(code: string) {
   const res = await fetch(`${SERVER_URL}/lobby/join`, {
     method: "POST",
     headers: await authHeaders(),
-    body: JSON.stringify({ code, deck }),
+    body: JSON.stringify({ code }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; gameId: string; myPlayerId: "player1" | "player2" }>
+  return res.json() as Promise<{ lobbyId: string; myPlayerId: "player1" | "player2" }>
 }
 
 export async function getGame(gameId: string) {

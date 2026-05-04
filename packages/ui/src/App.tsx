@@ -15,6 +15,8 @@ import MultiplayerLobby from "./pages/MultiplayerLobby.js";
 import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
 import MePage from "./pages/MePage.js";
+import LobbyMiddleScreen from "./components/LobbyMiddleScreen.js";
+import { resolveLobbyCode } from "./lib/serverApi.js";
 import Icon, { type IconName } from "./components/Icon.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
@@ -141,32 +143,92 @@ function MultiplayerGamePage() {
   );
 }
 
+/** /lobby/:code — share-link entry path. Resolves the 6-char code to
+ *  a lobby UUID and redirects to /play/{lobbyId} where the middle
+ *  screen lives. Failure (lobby cancelled, code expired, lobby full)
+ *  bounces to /multiplayer with an error banner.
+ *
+ *  Note: this is NOT the same as /play/{lobbyId} — that path expects
+ *  a UUID; /lobby/{code} expects a typeable 6-char code. The two
+ *  exist for different sharing modalities (clickable URL contains
+ *  the code; /play/{lobbyId} is the canonical post-resolution URL). */
 function LobbyJoinPage() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!code) { setError("No lobby code in URL"); return; }
+    let cancelled = false;
+    resolveLobbyCode(code)
+      .then(({ lobbyId }) => {
+        if (cancelled) return;
+        // Server's /lobby/join sets the guest slot. We fire it here
+        // so the user lands in the middle screen as the guest. If
+        // they're already the host (clicking their own share link),
+        // server returns a no-op + their existing slot. We rely on
+        // /lobby/:id/info to surface the right `myPlayerId` from
+        // session — but our localStorage key needs the slot. For
+        // now, default to player2 and let the middle screen correct
+        // via getLobbyInfo if needed. Future: server returns slot
+        // explicitly on resolve.
+        localStorage.setItem("mp-game", JSON.stringify({
+          lobbyId,
+          myPlayerId: "player2",
+        }));
+        navigate(`/play/${lobbyId}`, { replace: true });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(String(err));
+      });
+    return () => { cancelled = true; };
+  }, [code, navigate]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 px-4 space-y-3">
+        <div className="text-red-400 text-sm">{error}</div>
+        <button
+          className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold"
+          onClick={() => navigate("/multiplayer")}
+        >
+          Back to Play
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <Shell activeTab="multiplayer" navigate={navigate}>
-      <MultiplayerLobby
-        initialJoinCode={code ?? ""}
-        onGameStart={(gameId, myPlayerId) => {
-          localStorage.setItem("mp-game", JSON.stringify({ gameId, myPlayerId }));
-          navigate(`/game/${gameId}`);
-        }}
-        onPlaySolo={(deck, opponentDeck) => {
-          sessionStorage.setItem("solo-deck", JSON.stringify(deck));
-          // Mirror match (no opponent provided) — clear any prior pick so
-          // SoloGamePage falls back to deck-vs-deck.
-          if (opponentDeck) {
-            sessionStorage.setItem("solo-opponent-deck", JSON.stringify(opponentDeck));
-          } else {
-            sessionStorage.removeItem("solo-opponent-deck");
-          }
-          navigate("/solo");
-        }}
-      />
-    </Shell>
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-500 text-sm animate-pulse">
+      Joining lobby…
+    </div>
   );
+}
+
+/** /play/:lobbyId — middle-screen route. Reads myPlayerId from
+ *  localStorage (set by MultiplayerLobby's create/join flow or by
+ *  /lobby/:code redirect). Renders the lobby pre-game UI; redirects
+ *  to /game/{gameId} once both players are ready and the game spawns. */
+function PlayLobbyPage() {
+  const { lobbyId } = useParams<{ lobbyId: string }>();
+  const [config] = useState<{ lobbyId: string; myPlayerId: "player1" | "player2" } | null>(() => {
+    try {
+      const raw = localStorage.getItem("mp-game");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as { lobbyId?: string; myPlayerId: "player1" | "player2" };
+      return parsed.lobbyId ? { lobbyId: parsed.lobbyId, myPlayerId: parsed.myPlayerId } : null;
+    } catch { return null; }
+  });
+
+  if (!lobbyId) return <Navigate to="/multiplayer" replace />;
+  if (!config || config.lobbyId !== lobbyId) {
+    // Could happen if the user pasted a /play/{uuid} URL directly.
+    // Send them to /multiplayer to start fresh; future: detect and
+    // re-claim guest slot.
+    return <Navigate to="/multiplayer" replace />;
+  }
+  return <LobbyMiddleScreen lobbyId={lobbyId} myPlayerId={config.myPlayerId} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -670,6 +732,11 @@ export default function App() {
 
       {/* Lobby join via URL — /lobby/ABC123 */}
       <Route path="/lobby/:code" element={<LobbyJoinPage />} />
+      {/* /play/:lobbyId — middle screen for the duels-style pre-game
+           lobby state. Renders LobbyMiddleScreen; redirects to
+           /game/{gameId} once both players ready up and the game
+           starts. New 2026-05-04. */}
+      <Route path="/play/:lobbyId" element={<PlayLobbyPage />} />
 
       {/* Sandbox lobby — appears as a top-level tab so installed PWA can
            reach it without URL entry. The /sandbox/play game route is
