@@ -663,17 +663,35 @@ export async function listLobbies(userId: string) {
   return data
 }
 
-/** Host or guest cancels a waiting/lobby-state lobby (MP UX Phase 1 — cancel
- *  button; duels-style middle-screen "Leave lobby" reuses this same op).
+/** Host or guest cancels/leaves a waiting/lobby-state lobby (MP UX Phase 1 —
+ *  cancel button; duels-style middle-screen "Leave lobby" reuses this same op).
  *  Only valid on `status='waiting'` or `status='lobby'`; active games
- *  should use /game/:id/resign. 'cancelled' is distinct from 'finished' so
- *  the UI can show the right state.
+ *  should use /game/:id/resign.
  *
- *  Permission: either party (host OR guest). The lobby is a session for
- *  two specific people — if either leaves, the session ends. The opposing
- *  client picks up `status='cancelled'` via the broadcast at the bottom of
- *  this function and renders the "this lobby was cancelled" middle-screen
- *  state. */
+ *  Behavior splits by caller role:
+ *
+ *  - **Host leaves** → lobby is dead. Status flips to `'cancelled'`; the
+ *    guest's client picks up the new status via the broadcast and renders
+ *    the "this lobby was cancelled" middle-screen state.
+ *
+ *  - **Guest leaves** → slot reopens for the next person who clicks the
+ *    share link. We clear `guest_id` / `guest_deck` / `guest_ready` and
+ *    flip status back to `'waiting'`. We also clear `host_ready` — the
+ *    host was ready against THIS specific guest, not "any opponent," so
+ *    they must re-confirm once a new guest readies up. `host_deck` stays
+ *    attached (host already committed; the lobby is "host's room, guests
+ *    rotate"). The host's middle-screen polling picks up the new state
+ *    and re-renders the "waiting for opponent" UI; the Ready button
+ *    auto-toggles from "Unready" back to "Ready" when `host_ready` flips.
+ *
+ *  This matches the "share /lobby/CODE in a chat group, first-come-first-
+ *  serve" use case: if the first joiner backs out, the next person can
+ *  take the slot without forcing the host to recreate the lobby.
+ *
+ *  The race guard (`status IN ('waiting', 'lobby')` in the WHERE clause)
+ *  still fires the same way for both branches — if the row already
+ *  flipped to 'active', the UPDATE matches zero rows. The 409 above
+ *  catches it before we even attempt the write. */
 export async function cancelLobby(
   userId: string,
   lobbyId: string,
@@ -698,9 +716,24 @@ export async function cancelLobby(
     }
   }
 
+  const isHost = lobby.host_id === userId
+  const update = isHost
+    ? { status: "cancelled", updated_at: new Date() }
+    : {
+        // Guest leaves: reopen the slot. host_deck preserved on purpose —
+        // host's commitment carries forward; only host_ready is cleared
+        // because that flag was bound to a specific opponent.
+        guest_id: null,
+        guest_deck: null,
+        guest_ready: false,
+        host_ready: false,
+        status: "waiting",
+        updated_at: new Date(),
+      }
+
   const { error: updateError } = await supabase
     .from("lobbies")
-    .update({ status: "cancelled", updated_at: new Date() })
+    .update(update)
     .eq("id", lobbyId)
     .in("status", ["waiting", "lobby"]) // guard against race with start
 

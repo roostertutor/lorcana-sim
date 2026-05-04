@@ -698,6 +698,13 @@ describe("getLobbyInfo — privacy-safe shape", () => {
 // Permission gate covers both host-cancel and guest-leave on the duels-style
 // middle screen — the UI fires the same endpoint for both. Non-members must
 // still be rejected with 403.
+//
+// Behavior splits by caller role (refined 2026-05-03 to support
+// "share /lobby/CODE in chat, first-come-first-serve" pattern):
+//   - Host leaves → status='cancelled' (lobby is dead)
+//   - Guest leaves → slot reopens (status='waiting', guest fields cleared,
+//     host_ready cleared because the host was ready against THIS specific
+//     guest; host_deck preserved because the host already committed)
 
 describe("cancelLobby — host or guest may cancel", () => {
   it("allows the host to cancel and flips status to 'cancelled'", async () => {
@@ -713,17 +720,76 @@ describe("cancelLobby — host or guest may cancel", () => {
     expect(tables.lobbies.rows[0]!.status).toBe("cancelled")
   })
 
-  it("allows the guest to cancel (Leave lobby on the middle screen)", async () => {
+  it("guest leave reopens the slot (status→waiting, guest fields cleared)", async () => {
     tables.lobbies.rows.push({
       id: "lobby-1",
       code: "ABCDEF",
       host_id: "user-A",
       guest_id: "user-B",
+      host_deck: legalDeck(),
+      guest_deck: legalDeck(),
+      host_ready: true,
+      guest_ready: true,
       status: "lobby",
     })
     const r = await mod.cancelLobby("user-B", "lobby-1")
     expect(r.ok).toBe(true)
-    expect(tables.lobbies.rows[0]!.status).toBe("cancelled")
+    const row = tables.lobbies.rows[0]!
+    // Lobby is reusable — status flips back to 'waiting' (the same status
+    // the host saw before anyone joined).
+    expect(row.status).toBe("waiting")
+    expect(row.guest_id).toBeNull()
+    expect(row.guest_deck).toBeNull()
+    expect(row.guest_ready).toBe(false)
+    // host_ready cleared — host was ready against this specific guest, not
+    // any opponent. They re-confirm when a new guest readies up.
+    expect(row.host_ready).toBe(false)
+  })
+
+  it("guest leave preserves the host's attached deck", async () => {
+    const hostDeck = legalDeck()
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      host_deck: hostDeck,
+      guest_deck: legalDeck(),
+      host_ready: true,
+      guest_ready: false,
+      status: "lobby",
+    })
+    const r = await mod.cancelLobby("user-B", "lobby-1")
+    expect(r.ok).toBe(true)
+    // Host's commitment carries forward — the lobby is "host's room,
+    // guests rotate" rather than "session for two specific people."
+    expect(tables.lobbies.rows[0]!.host_deck).toBe(hostDeck)
+  })
+
+  it("after guest leaves, a new player can join the same lobby code", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      host_deck: legalDeck(),
+      guest_deck: legalDeck(),
+      host_ready: true,
+      guest_ready: false,
+      status: "lobby",
+      format: "bo1",
+      game_format: "core",
+      game_rotation: "s12",
+    })
+    // user-B leaves → slot reopens.
+    const leave = await mod.cancelLobby("user-B", "lobby-1")
+    expect(leave.ok).toBe(true)
+    // user-C grabs the freshly-opened slot via the share link.
+    const join = await mod.joinLobby("user-C", "ABCDEF")
+    expect(join.lobbyId).toBe("lobby-1")
+    const row = tables.lobbies.rows[0]!
+    expect(row.guest_id).toBe("user-C")
+    expect(row.status).toBe("lobby")
   })
 
   it("rejects a non-member with 403", async () => {
@@ -750,7 +816,7 @@ describe("cancelLobby — host or guest may cancel", () => {
     if (!r.ok) expect(r.status).toBe(404)
   })
 
-  it("rejects with 409 once the lobby is already active", async () => {
+  it("rejects host cancel with 409 once the lobby is already active", async () => {
     tables.lobbies.rows.push({
       id: "lobby-1",
       code: "ABCDEF",
@@ -761,5 +827,22 @@ describe("cancelLobby — host or guest may cancel", () => {
     const r = await mod.cancelLobby("user-A", "lobby-1")
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.status).toBe(409)
+  })
+
+  it("rejects guest cancel with 409 once the lobby is already active", async () => {
+    // Guest can't "leave" out of an active game — they need to resign.
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "active",
+    })
+    const r = await mod.cancelLobby("user-B", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(409)
+    // Critically: the row's guest_id / status must NOT have been cleared.
+    expect(tables.lobbies.rows[0]!.status).toBe("active")
+    expect(tables.lobbies.rows[0]!.guest_id).toBe("user-B")
   })
 })
