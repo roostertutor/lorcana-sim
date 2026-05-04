@@ -268,8 +268,8 @@ export function listFormatOptions(): FormatOption[] {
  *  null if no rotations are ranked (could happen mid-rotation-cut where the
  *  prior season retired and the new one hasn't flipped to ranked yet).
  *
- *  Pre-Set-12 launch: Core → "s11", Infinity → "s11".
- *  Post-Set-12 launch: Core → "s12", Infinity → "s12". */
+ *  Currently (post-Set-12 launch 2026-05-04): Core → "s12", Infinity →
+ *  "s12". s11 is retired (offeredForNewDecks=false, ranked=false). */
 export function getLiveRotation(family: GameFormatFamily): RotationId | null {
   const registry = family === "core" ? CORE_ROTATIONS : INFINITY_ROTATIONS;
   let best: RotationId | null = null;

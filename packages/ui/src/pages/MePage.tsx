@@ -22,7 +22,12 @@ import { getProfile } from "../lib/serverApi.js";
 import type { Profile, EloKey } from "../lib/serverApi.js";
 
 const FAMILIES: GameFormatFamily[] = ["core", "infinity"];
-const ROTATIONS: RotationId[] = ["s11", "s12"];
+// Rotation rows shown in the per-format ratings table. s11 was
+// removed 2026-05-04 alongside the engine retirement of the s11
+// rotation — there were never live games against it, so the table
+// row was always going to render as "—" for everyone. When a future
+// rotation lands, extend this list (e.g., ["s12", "s13"]).
+const ROTATIONS: RotationId[] = ["s12"];
 
 const FAMILY_LABEL: Record<GameFormatFamily, string> = {
   core: "Core",

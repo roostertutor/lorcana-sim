@@ -61,7 +61,7 @@ export async function createLobby(
   deck: DeckEntry[],
   format: "bo1" | "bo3" = "bo1",
   gameFormat: GameFormatFamily = "infinity",
-  gameRotation: RotationId = "s11",
+  gameRotation: RotationId = "s12",
   options: CreateLobbyOptions = {},
 ) {
   const res = await fetch(`${SERVER_URL}/lobby/create`, {

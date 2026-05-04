@@ -75,7 +75,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         if (parsed && typeof parsed.family === "string" && typeof parsed.rotation === "string") return parsed;
       } catch { /* fall through to default */ }
     }
-    return { family: "core", rotation: "s11" };
+    // Default fallback rotation for the paste-mode card-pool format
+    // when localStorage is empty / unparseable. Bumped s11 → s12 on
+    // 2026-05-04 cutover. The rotation registry is the source of
+    // truth for what's live; this default just picks the live Core
+    // rotation as a sensible starting point for first-time pasters.
+    return { family: "core", rotation: "s12" };
   });
   // Public lobby → appears in the browser for anyone to join. Server
   // also auto-forces spectator_policy='public' when this is true, so
@@ -911,11 +916,17 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             </div>
           </div>
 
-          {/* Rotation — conditionally visible. Hidden when only one
-               rotation is offered for the family (i.e., post-launch
-               steady state). During a staging window (e.g., s11 live +
-               s12 preview), both render and the user picks. */}
-          {offeredRotations.length > 1 && (
+          {/* Rotation — always visible (changed 2026-05-04). Previously
+               hidden when only one rotation was offered, but that meant
+               post-cutover users had no indicator of which rotation
+               they're playing AND the UI structure changed each time
+               preview season ended (block disappeared) or began (block
+               reappeared). Always-visible is steady: a single rotation
+               renders as one non-interactive-feeling chip (clicks no-
+               op since it's already current); a preview rotation
+               appearing adds a second chip and the same control becomes
+               a real toggle with no structural shift. */}
+          {offeredRotations.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
                 Rotation

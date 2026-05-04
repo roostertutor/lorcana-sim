@@ -127,10 +127,11 @@ export default function DeckBuilderPage() {
 
   // Resolve the rotation to validate against — current live ranked rotation
   // for this family. Falls back to the highest-id offered rotation if no
-  // live rotation exists (only happens briefly mid-rotation-cut). Pre-Set-12
-  // launch this is "s11"; post-launch this is "s12". Re-resolves whenever
-  // family changes so deckbuilder validation tracks the engine registry
-  // automatically.
+  // live rotation exists (only happens briefly mid-rotation-cut). Currently
+  // this is "s12" (Set 12 launched 2026-05-04, s11 retired). Re-resolves
+  // whenever family changes so deckbuilder validation tracks the engine
+  // registry automatically — when a future preview rotation lands and ranked
+  // shifts to it, this picks up the change with no edit here.
   const validationRotation = useMemo(() => {
     return getLiveRotation(formatFamily)
       ?? listOfferedRotationsForFamily(formatFamily).at(-1)?.rotation
