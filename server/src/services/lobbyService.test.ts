@@ -692,3 +692,74 @@ describe("getLobbyInfo — privacy-safe shape", () => {
     expect(info!.status).toBe("active")
   })
 })
+
+// ── cancelLobby ────────────────────────────────────────────────────────────
+//
+// Permission gate covers both host-cancel and guest-leave on the duels-style
+// middle screen — the UI fires the same endpoint for both. Non-members must
+// still be rejected with 403.
+
+describe("cancelLobby — host or guest may cancel", () => {
+  it("allows the host to cancel and flips status to 'cancelled'", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+    })
+    const r = await mod.cancelLobby("user-A", "lobby-1")
+    expect(r.ok).toBe(true)
+    expect(tables.lobbies.rows[0]!.status).toBe("cancelled")
+  })
+
+  it("allows the guest to cancel (Leave lobby on the middle screen)", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+    })
+    const r = await mod.cancelLobby("user-B", "lobby-1")
+    expect(r.ok).toBe(true)
+    expect(tables.lobbies.rows[0]!.status).toBe("cancelled")
+  })
+
+  it("rejects a non-member with 403", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+    })
+    const r = await mod.cancelLobby("user-C", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.status).toBe(403)
+      expect(r.error).toMatch(/host or guest/)
+    }
+    // Lobby state shouldn't change on rejection.
+    expect(tables.lobbies.rows[0]!.status).toBe("lobby")
+  })
+
+  it("returns 404 for a lobby that doesn't exist", async () => {
+    const r = await mod.cancelLobby("user-A", "nope")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(404)
+  })
+
+  it("rejects with 409 once the lobby is already active", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "active",
+    })
+    const r = await mod.cancelLobby("user-A", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(409)
+  })
+})

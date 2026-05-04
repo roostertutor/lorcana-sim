@@ -663,25 +663,32 @@ export async function listLobbies(userId: string) {
   return data
 }
 
-/** Host cancels their own waiting/lobby-state lobby (MP UX Phase 1 — cancel
- *  button). Only valid on `status='waiting'` or `status='lobby'`; active
- *  games should use /game/:id/resign. 'cancelled' is distinct from
- *  'finished' so the UI can show the right state. */
+/** Host or guest cancels a waiting/lobby-state lobby (MP UX Phase 1 — cancel
+ *  button; duels-style middle-screen "Leave lobby" reuses this same op).
+ *  Only valid on `status='waiting'` or `status='lobby'`; active games
+ *  should use /game/:id/resign. 'cancelled' is distinct from 'finished' so
+ *  the UI can show the right state.
+ *
+ *  Permission: either party (host OR guest). The lobby is a session for
+ *  two specific people — if either leaves, the session ends. The opposing
+ *  client picks up `status='cancelled'` via the broadcast at the bottom of
+ *  this function and renders the "this lobby was cancelled" middle-screen
+ *  state. */
 export async function cancelLobby(
   userId: string,
   lobbyId: string,
 ): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
   const { data: lobby, error: findError } = await supabase
     .from("lobbies")
-    .select("id, host_id, status")
+    .select("id, host_id, guest_id, status")
     .eq("id", lobbyId)
     .single()
 
   if (findError || !lobby) {
     return { ok: false, error: "Lobby not found", status: 404 }
   }
-  if (lobby.host_id !== userId) {
-    return { ok: false, error: "Only the host can cancel this lobby", status: 403 }
+  if (lobby.host_id !== userId && lobby.guest_id !== userId) {
+    return { ok: false, error: "Only the host or guest can cancel this lobby", status: 403 }
   }
   if (lobby.status !== "waiting" && lobby.status !== "lobby") {
     return {
