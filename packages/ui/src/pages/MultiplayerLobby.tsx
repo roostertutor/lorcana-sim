@@ -20,8 +20,9 @@ import { useMediaQuery } from "../hooks/useMediaQuery.js";
 // recent format/rotation choices instead of snapping back to defaults.
 const LS_MATCH_FORMAT     = "lobby-match-format";     // "bo1" | "bo3"
 const LS_SELECTED_ROTATION = "lobby-selected-rotation"; // RotationId | "" (empty = no override)
-const LS_PASTE_FORMAT     = "lobby-paste-format";     // JSON GameFormat
 const LS_PLAY_MODE        = "lobby-play-mode";        // "quick" | "custom"
+// LS_PASTE_FORMAT removed 2026-05-04 — paste-mode lobby workflow was
+// dropped (DeckBuilder owns deck import; lobby plays saved decks only).
 
 function readLS(key: string): string | null {
   if (typeof window === "undefined") return null;
@@ -55,33 +56,18 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   // Only meaningful when the user has saved decks beyond the one selected
   // as their own; gated below by `opponentOptions`.
   const [opponentDeckId, setOpponentDeckId] = useState<string | null>(null);
-  const [deckText, setDeckText] = useState("");
-  const [deckMode, setDeckMode] = useState<"saved" | "paste">("saved");
+  // deckText / deckMode / pasteFormat state was removed 2026-05-04 when
+  // paste-mode workflow was dropped from the lobby. Parser now reads
+  // selectedDeck.decklist_text directly via the useMemo below; format
+  // comes from selectedDeck.format_family. Deck import lives in
+  // DeckBuilder where it always did.
   const [deckOpen, setDeckOpen] = useState(false);
   const [format, setFormat]     = useState<"bo1" | "bo3">(() => {
     const saved = readLS(LS_MATCH_FORMAT);
     return saved === "bo1" || saved === "bo3" ? saved : "bo1";
   });
-  // Paste-mode format fallback — used only when the user has pasted a
-  // deck rather than selecting a saved one. Saved decks carry their own
-  // format stamp; we read from that instead. Default matches the
-  // pre-release transition baseline (same as schema DEFAULT / saveDeck
-  // default).
-  const [pasteFormat, setPasteFormat] = useState<GameFormat>(() => {
-    const saved = readLS(LS_PASTE_FORMAT);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as GameFormat;
-        if (parsed && typeof parsed.family === "string" && typeof parsed.rotation === "string") return parsed;
-      } catch { /* fall through to default */ }
-    }
-    // Default fallback rotation for the paste-mode card-pool format
-    // when localStorage is empty / unparseable. Bumped s11 → s12 on
-    // 2026-05-04 cutover. The rotation registry is the source of
-    // truth for what's live; this default just picks the live Core
-    // rotation as a sensible starting point for first-time pasters.
-    return { family: "core", rotation: "s12" };
-  });
+  // pasteFormat state removed 2026-05-04 with paste-mode dropoff.
+  // formatFamily below now derives entirely from selectedDeck.
   // Public lobby → appears in the browser for anyone to join. Server
   // also auto-forces spectator_policy='public' when this is true, so
   // the policy picker is hidden/locked in that case.
@@ -198,28 +184,34 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
       if (decks.length > 0 && !selectedDeckId) {
         const first = decks[0];
         setSelectedDeckId(first.id);
-        setDeckText(first.decklist_text);
       }
     }).catch(() => {});
   }, [session]);
 
+  // Resolve the selected deck object up front — used to derive parser
+  // input, format family, and the opponent-picker filter. null when no
+  // deck is selected (e.g., user hasn't built any decks yet).
+  const selectedDeck = selectedDeckId
+    ? savedDecks.find((d) => d.id === selectedDeckId) ?? null
+    : null;
+
   const { entries: deck, errors: deckErrors } = useMemo(
-    () => parseDecklist(deckText, CARD_DEFINITIONS),
-    [deckText],
+    () => selectedDeck
+      ? parseDecklist(selectedDeck.decklist_text, CARD_DEFINITIONS)
+      : { entries: [] as DeckEntry[], errors: [] as string[] },
+    [selectedDeck],
   );
 
   const deckReady = deck.length > 0 && deckErrors.length === 0;
   const cardCount = deck.reduce((s, e) => s + e.count, 0);
 
   // Solo opponent options — every saved deck EXCEPT the one currently
-  // selected as the user's deck (in saved mode). In paste mode, all saved
-  // decks are eligible since the user's deck is the pasted text. Hidden
-  // entirely if there are no eligible opponents (signed-out or one-deck
-  // accounts), in which case solo defaults to mirror.
+  // selected as the user's deck. Hidden entirely if there are no
+  // eligible opponents (signed-out or one-deck accounts), in which
+  // case solo defaults to mirror.
   const opponentOptions = useMemo(
-    () =>
-      savedDecks.filter((d) => deckMode !== "saved" || d.id !== selectedDeckId),
-    [savedDecks, deckMode, selectedDeckId],
+    () => savedDecks.filter((d) => d.id !== selectedDeckId),
+    [savedDecks, selectedDeckId],
   );
 
   // Resolve the opponent's parsed deck on demand. Returns undefined for
@@ -234,25 +226,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return parseDecklist(opp.decklist_text, CARD_DEFINITIONS).entries;
   }
 
-  // Format that this match will be created under. Saved deck → read the
-  // deck's stamp; paste mode → use the local pasteFormat state. The
-  // server validates legality against this before accepting the lobby;
-  // a paste-mode deck that's illegal in the paste-mode format surfaces
-  // as an ILLEGAL_DECK error from createLobby.
-  const selectedDeck = selectedDeckId
-    ? savedDecks.find((d) => d.id === selectedDeckId) ?? null
-    : null;
-  // Family is determined by the deck (saved deck stamp) or by paste-mode
-  // user choice. Rotation is per-game — defaults to the family's live
-  // ranked rotation, but the user can override via the rotation dropdown
-  // (visible when a family has multiple offered rotations, e.g., during
-  // a staging window pre-set-launch when both s11 live and s12 staged
-  // exist). selectedRotation is the user's override; null means use
-  // default. Wraps in a null-safe fallback so an unknown family never
-  // crashes the lobby.
-  const formatFamily = deckMode === "saved" && selectedDeck
-    ? selectedDeck.format_family
-    : pasteFormat.family;
+  // Format family is read from the selected deck's stamp. Paste-mode
+  // user-choice path was dropped 2026-05-04 — DeckBuilder owns deck
+  // import; lobby plays saved decks only. Falls back to "core" when
+  // no deck is selected (interactive surface is locked anyway in that
+  // case via deckReady=false).
+  const formatFamily: GameFormatFamily = selectedDeck?.format_family ?? "core";
   const offeredRotations = listOfferedRotationsForFamily(formatFamily);
   const defaultRotation = getLiveRotation(formatFamily)
     ?? offeredRotations.at(-1)?.rotation
@@ -276,7 +255,7 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   // initial values were read in the corresponding useState lazy initializer.
   useEffect(() => { writeLS(LS_MATCH_FORMAT, format); }, [format]);
   useEffect(() => { writeLS(LS_SELECTED_ROTATION, selectedRotation ?? ""); }, [selectedRotation]);
-  useEffect(() => { writeLS(LS_PASTE_FORMAT, JSON.stringify(pasteFormat)); }, [pasteFormat]);
+  // LS_PASTE_FORMAT effect removed 2026-05-04 with paste-mode dropoff.
 
   // Client-side legality pre-check — mirrors the server's isLegalFor()
   // validation in createLobby / joinLobby. Surfacing the issues inline
@@ -708,14 +687,17 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           <p className="text-gray-600 text-sm mt-1">Play against a real opponent</p>
         </div>
 
-        {/* Deck section */}
+        {/* Deck section. Paste-mode workflow was dropped 2026-05-04 —
+             DeckBuilder owns deck import (its paste textarea handles
+             the same parser). The lobby plays saved decks only. Users
+             with no saved decks see a CTA to /decks/new. */}
         <div className="card p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-300">Your Deck</span>
             <span className="flex items-center gap-2">
               {deckReady ? (
                 <span className="text-xs text-green-400 font-mono">{cardCount} cards</span>
-              ) : deckText ? (
+              ) : selectedDeck ? (
                 <span className="text-xs text-red-400">invalid</span>
               ) : (
                 <span className="text-xs text-gray-600">none selected</span>
@@ -723,85 +705,55 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             </span>
           </div>
 
-          {/* Mode toggle */}
-          <div className="flex rounded-lg bg-gray-800 p-0.5">
-            {(["saved", "paste"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setDeckMode(mode)}
-                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  deckMode === mode
-                    ? "bg-gray-700 text-gray-100 shadow-sm"
-                    : "text-gray-500 hover:text-gray-300"
-                }`}
-              >
-                {mode === "saved" ? "Saved Decks" : "Paste"}
-              </button>
-            ))}
-          </div>
-
-          {deckMode === "saved" ? (
-            savedDecks.length > 0 ? (
-              <div className="space-y-1.5">
-                {savedDecks.map((d) => {
-                  const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
-                  const count = parsed.entries.reduce((s, e) => s + e.count, 0);
-                  const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
-                  // Decks now carry only family — show the family chip; full
-                  // format display (with rotation) is lobby-side and uses the
-                  // current live rotation (resolved above).
-                  const deckAccent = FORMAT_FAMILY_ACCENT[d.format_family];
-                  return (
-                    <button
-                      key={d.id}
-                      onClick={() => { setSelectedDeckId(d.id); setDeckText(d.decklist_text); }}
-                      className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                        selectedDeckId === d.id
-                          ? "border-amber-500 bg-amber-900/20"
-                          : "border-gray-800 bg-gray-950 hover:border-gray-700"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm text-gray-200 truncate flex-1">{d.name}</span>
-                        <span
-                          className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${deckAccent.badgeBg} ${deckAccent.text}`}
-                        >
-                          {d.format_family === "core" ? "Core" : "Infinity"}
-                        </span>
-                        {isValid ? (
-                          <span className="text-xs text-green-400 font-mono shrink-0">{count}</span>
-                        ) : (
-                          <span className="text-xs text-red-400 shrink-0">invalid</span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-3 space-y-2">
-                <p className="text-xs text-gray-600">No saved decks</p>
-                <button
-                  className="text-xs text-amber-500 hover:text-amber-400 transition-colors"
-                  onClick={() => navigate("/")}
-                >
-                  Go to Decks to create one
-                </button>
-              </div>
-            )
+          {savedDecks.length > 0 ? (
+            <div className="space-y-1.5">
+              {savedDecks.map((d) => {
+                const parsed = parseDecklist(d.decklist_text, CARD_DEFINITIONS);
+                const count = parsed.entries.reduce((s, e) => s + e.count, 0);
+                const isValid = parsed.entries.length > 0 && parsed.errors.length === 0;
+                // Decks carry only family — show the family chip; full
+                // format display (with rotation) is lobby-side and uses
+                // the current live rotation (resolved above).
+                const deckAccent = FORMAT_FAMILY_ACCENT[d.format_family];
+                return (
+                  <button
+                    key={d.id}
+                    onClick={() => setSelectedDeckId(d.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                      selectedDeckId === d.id
+                        ? "border-amber-500 bg-amber-900/20"
+                        : "border-gray-800 bg-gray-950 hover:border-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm text-gray-200 truncate flex-1">{d.name}</span>
+                      <span
+                        className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${deckAccent.badgeBg} ${deckAccent.text}`}
+                      >
+                        {d.format_family === "core" ? "Core" : "Infinity"}
+                      </span>
+                      {isValid ? (
+                        <span className="text-xs text-green-400 font-mono shrink-0">{count}</span>
+                      ) : (
+                        <span className="text-xs text-red-400 shrink-0">invalid</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           ) : (
-            <div className="space-y-2">
-              <textarea
-                className="w-full h-44 bg-gray-950 border border-gray-700 rounded-lg p-3
-                           text-sm text-gray-200 font-mono resize-none focus:border-amber-500 focus:outline-none"
-                value={deckText}
-                onChange={(e) => { setDeckText(e.target.value); setSelectedDeckId(null); }}
-                placeholder={"4 Card Name\n4 Another Card\n..."}
-                spellCheck={false}
-              />
-              {deckErrors.length > 0 && (
-                <p className="text-red-400 text-xs">{deckErrors[0]}</p>
-              )}
+            <div className="text-center py-4 space-y-2">
+              <p className="text-xs text-gray-500">No saved decks yet.</p>
+              <button
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition-colors"
+                onClick={() => navigate("/decks/new")}
+              >
+                Build a deck →
+              </button>
+              <p className="text-[10px] text-gray-600">
+                Paste a decklist in the deckbuilder, save, then come back.
+              </p>
             </div>
           )}
 
@@ -822,41 +774,32 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                   <li className="italic">· …and {legality.issues.length - 3} more</li>
                 )}
               </ul>
-              {deckMode === "saved" ? (
-                <button
-                  className="text-amber-400 hover:text-amber-300 underline text-[11px]"
-                  onClick={() => selectedDeck && navigate(`/decks/${selectedDeck.id}`)}
-                >
-                  Fix in deckbuilder →
-                </button>
-              ) : (
-                <div className="text-red-400/80">
-                  Switch to Infinity format above, or paste a legal deck.
-                </div>
-              )}
+              <button
+                className="text-amber-400 hover:text-amber-300 underline text-[11px]"
+                onClick={() => selectedDeck && navigate(`/decks/${selectedDeck.id}`)}
+              >
+                Fix in deckbuilder →
+              </button>
             </div>
           )}
         </div>
 
         {/* ─ Match config strip ────────────────────────────────────────
-             Unified Match | Format | Rotation row at the top of the
-             lobby. All three controls feed both Quick Play and Custom
-             Game; previously they lived in three different places
-             (Match in Host card, Format in Host card, Rotation in its
-             own card), so users had to hunt to change settings.
+             Match | Rotation row at the top of the lobby (Format
+             dropped 2026-05-04 with paste-mode — family is read from
+             the selected deck's stamp now, redundant with the deck
+             row's badge). Both controls feed Quick Play AND Custom
+             Game; previously they lived inside the Host card so Quick
+             Play users couldn't reach them.
 
              - Match (Bo1/Bo3): always interactive.
-             - Format (Core/Infinity): interactive in paste mode; in
-               saved-deck mode the format is dictated by the selected
-               deck's stamp, so the buttons render disabled with a
-               tooltip pointing at the deckbuilder.
-             - Rotation: only rendered when multiple rotations are
-               offered (e.g., staging window during a set launch).
+             - Rotation: always visible. When only one rotation is
+               offered (steady state) it renders as a single non-
+               interactive-feeling chip; preview season just adds a
+               second chip without restructuring the control.
 
              Per-rotation ELO surfaces in a single caption row below
              the strip — updates as the user clicks rotation chips.
-             Cleaner than the prior per-chip subtext that made the
-             Rotation control taller than the others.
              ────────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
           {/* Match (Bo1 / Bo3) */}
@@ -881,40 +824,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
             </div>
           </div>
 
-          {/* Format (Core / Infinity). In saved-deck mode the family is
-               determined by the selected deck's stamp, so the buttons
-               render disabled — clicking does nothing, tooltip points
-               at the deckbuilder. In paste mode the toggle is live and
-               mutates pasteFormat. */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold shrink-0">
-              Format
-            </span>
-            <div className="flex rounded-lg bg-gray-800 p-0.5">
-              {(["core", "infinity"] as const).map((fam) => {
-                const isCurrent = formatFamily === fam;
-                const isLocked = deckMode === "saved";
-                return (
-                  <button
-                    key={fam}
-                    onClick={() => {
-                      if (isLocked) return;
-                      setPasteFormat({ ...pasteFormat, family: fam });
-                    }}
-                    disabled={isLocked}
-                    title={isLocked ? "Format set by selected deck — switch decks or edit in deckbuilder" : undefined}
-                    className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
-                      isCurrent
-                        ? "bg-gray-700 text-gray-100 shadow-sm"
-                        : "text-gray-500 hover:text-gray-300"
-                    } ${isLocked ? "cursor-not-allowed" : ""} ${isLocked && !isCurrent ? "opacity-40" : ""}`}
-                  >
-                    {fam === "core" ? "Core" : "Infinity"}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Format toggle removed 2026-05-04 with the paste-mode
+               dropoff — family is now always read from the selected
+               deck's stamp, so the toggle was either no-op (saved
+               mode) or unreachable (paste mode no longer exists). The
+               family is still visible to the user via the deck row's
+               Core/Infinity badge in the deck picker above. */}
 
           {/* Rotation — always visible (changed 2026-05-04). Previously
                hidden when only one rotation was offered, but that meant
