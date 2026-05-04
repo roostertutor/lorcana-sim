@@ -482,9 +482,11 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setStatus("Joining lobby…");
     try {
       const join = await joinLobby(code);
+      // Joiner is always player2 (guest) — host is player1 by
+      // definition. Server returns just lobbyId; slot is implicit.
       localStorage.setItem("mp-game", JSON.stringify({
         lobbyId: join.lobbyId,
-        myPlayerId: join.myPlayerId,
+        myPlayerId: "player2",
       }));
       navigate(`/play/${join.lobbyId}`);
     } catch (err) {

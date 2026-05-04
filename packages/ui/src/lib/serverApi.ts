@@ -92,7 +92,8 @@ export async function createLobby(
 
 /** Privacy-safe lobby snapshot — never includes deck contents. Used by
  *  LobbyMiddleScreen to render lobby state + transition to game when
- *  status flips to 'active'. */
+ *  status flips to 'active'. Server wraps in `{ lobby: LobbyInfo }`;
+ *  getLobbyInfo unwraps. */
 export interface LobbyInfo {
   lobbyId: string
   code: string
@@ -100,28 +101,31 @@ export interface LobbyInfo {
   format: "bo1" | "bo3"
   gameFormat: GameFormatFamily
   gameRotation: RotationId
-  spectatorPolicy: SpectatorPolicy
+  hostId: string
   hostUsername: string | null
+  guestId: string | null
   guestUsername: string | null
   hostHasDeck: boolean
   guestHasDeck: boolean
   hostReady: boolean
   guestReady: boolean
   /** Set when status === 'active' — id of the spawned games row. UI
-   *  navigates from /game/{lobbyId} → /game/{gameId} board view on
+   *  navigates from /play/{lobbyId} → /game/{gameId} board view on
    *  this transition. */
   gameId: string | null
 }
 
 /** GET /lobby/:id/info — peek at a lobby without joining. RLS allows
- *  read by anyone with the URL (having the URL = consent to know
- *  format + presence). NEVER returns deck contents. */
+ *  read by anyone in the lobby (host or guest). NEVER returns deck
+ *  contents. Server wraps the response in `{ lobby: LobbyInfo }`; we
+ *  unwrap on the client. */
 export async function getLobbyInfo(lobbyId: string): Promise<LobbyInfo | null> {
   const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/info`, {
     headers: await authHeaders(),
   })
   if (!res.ok) return null
-  return res.json() as Promise<LobbyInfo>
+  const data = await res.json() as { lobby: LobbyInfo }
+  return data.lobby
 }
 
 /** POST /lobby/:id/deck — attach (or swap) your deck to your slot.
@@ -221,11 +225,12 @@ export async function postRematch(previousLobbyId: string): Promise<{
   }
 }
 
-/** POST /lobby/join — claim the guest slot in a lobby. Server-spec
- *  change 2026-05-04: deck arg dropped (deck attaches separately in
- *  middle screen via setDeckInLobby); status flips to 'lobby' (not
- *  'active'); does NOT spawn a games row. UI navigates to
- *  /game/{lobbyId} on success. */
+/** POST /lobby/join — claim the GUEST slot (always player2 — host
+ *  is player1 by definition). Server-spec change 2026-05-04: deck
+ *  arg dropped (deck attaches separately in middle screen via
+ *  setDeckInLobby); status flips to 'lobby' (not 'active'); does
+ *  NOT spawn a games row. Server returns just `{ lobbyId }` — slot
+ *  is implicit (joiner = player2). */
 export async function joinLobby(code: string) {
   const res = await fetch(`${SERVER_URL}/lobby/join`, {
     method: "POST",
@@ -233,7 +238,7 @@ export async function joinLobby(code: string) {
     body: JSON.stringify({ code }),
   })
   if (!res.ok) throw new Error(await extractError(res))
-  return res.json() as Promise<{ lobbyId: string; myPlayerId: "player1" | "player2" }>
+  return res.json() as Promise<{ lobbyId: string }>
 }
 
 export async function getGame(gameId: string) {
