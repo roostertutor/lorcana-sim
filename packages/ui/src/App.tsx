@@ -16,7 +16,7 @@ import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
 import MePage from "./pages/MePage.js";
 import LobbyMiddleScreen from "./components/LobbyMiddleScreen.js";
-import { resolveLobbyCode } from "./lib/serverApi.js";
+import { resolveLobbyCode, joinLobby, getLobbyInfo } from "./lib/serverApi.js";
 import Icon, { type IconName } from "./components/Icon.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
@@ -160,28 +160,83 @@ function LobbyJoinPage() {
   useEffect(() => {
     if (!code) { setError("No lobby code in URL"); return; }
     let cancelled = false;
-    resolveLobbyCode(code)
-      .then(({ lobbyId }) => {
+
+    async function flow() {
+      try {
+        // Resolve the code → lobbyId for the eventual navigate target,
+        // independent of whether we end up joining freshly or detecting
+        // re-entry. resolveLobbyCode doesn't mutate state and doesn't
+        // require lobby membership.
+        const resolved = await resolveLobbyCode(code!);
         if (cancelled) return;
-        // Server's /lobby/join sets the guest slot. We fire it here
-        // so the user lands in the middle screen as the guest. If
-        // they're already the host (clicking their own share link),
-        // server returns a no-op + their existing slot. We rely on
-        // /lobby/:id/info to surface the right `myPlayerId` from
-        // session — but our localStorage key needs the slot. For
-        // now, default to player2 and let the middle screen correct
-        // via getLobbyInfo if needed. Future: server returns slot
-        // explicitly on resolve.
-        localStorage.setItem("mp-game", JSON.stringify({
-          lobbyId,
-          myPlayerId: "player2",
-        }));
-        navigate(`/play/${lobbyId}`, { replace: true });
-      })
-      .catch((err) => {
+        const lobbyId = resolved.lobbyId;
+
+        // Try to claim the guest slot. Three notable failure modes —
+        // each translates to a different navigation outcome:
+        //  1. "Cannot join your own lobby" — host re-clicked their own
+        //     share URL. Treat as success; navigate them to /play as
+        //     player1 (their existing host slot).
+        //  2. "Lobby not found or already started" — the lobby has
+        //     moved past status='waiting' (someone joined or it was
+        //     cancelled). If the caller is ALREADY in the lobby (host
+        //     or guest, re-entry on reload), getLobbyInfo will return
+        //     200 and we can derive the slot from hostId comparison.
+        //  3. Other errors — surface to the user; can't recover.
+        try {
+          await joinLobby(code!);
+          if (cancelled) return;
+          // Fresh guest slot claim — joinLobby only returns 200 to a
+          // non-host, non-guest caller. We're player2.
+          localStorage.setItem("mp-game", JSON.stringify({
+            lobbyId,
+            myPlayerId: "player2",
+          }));
+          navigate(`/play/${lobbyId}`, { replace: true });
+          return;
+        } catch (joinErr) {
+          if (cancelled) return;
+          const msg = String(joinErr);
+
+          // Case 1: host re-clicking their own URL.
+          if (msg.includes("own lobby")) {
+            localStorage.setItem("mp-game", JSON.stringify({
+              lobbyId,
+              myPlayerId: "player1",
+            }));
+            navigate(`/play/${lobbyId}`, { replace: true });
+            return;
+          }
+
+          // Case 2: re-entry by a user already in the lobby. Try
+          // getLobbyInfo — if it returns 200, we're a member; derive
+          // slot from hostId. Otherwise treat the original join error
+          // as authoritative.
+          if (msg.includes("already started") || msg.includes("not found")) {
+            const info = await getLobbyInfo(lobbyId);
+            if (info && !cancelled) {
+              const { data: { session } } = await supabase.auth.getSession();
+              const userId = session?.user?.id ?? "";
+              const myPlayerId: "player1" | "player2" =
+                userId === info.hostId ? "player1" : "player2";
+              localStorage.setItem("mp-game", JSON.stringify({
+                lobbyId,
+                myPlayerId,
+              }));
+              navigate(`/play/${lobbyId}`, { replace: true });
+              return;
+            }
+          }
+
+          // Case 3: unrecoverable.
+          setError(msg);
+        }
+      } catch (resolveErr) {
         if (cancelled) return;
-        setError(String(err));
-      });
+        setError(String(resolveErr));
+      }
+    }
+
+    flow();
     return () => { cancelled = true; };
   }, [code, navigate]);
 
