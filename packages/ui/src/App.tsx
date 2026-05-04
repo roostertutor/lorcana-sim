@@ -271,14 +271,13 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
               {displayName}
             </div>
           </div>
-          {/* Profile link — full /me page with the ELO breakdown grid
-               + per-format games count. */}
-          <button
-            onClick={() => { setOpen(false); navigate("/me"); }}
-            className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
-          >
-            Profile
-          </button>
+          {/* Profile link removed 2026-05-04 — the top-nav `Me` tab
+               (desktop / landscape phone) and bottom-nav `Me` tab
+               (portrait phone) already navigate to /me from anywhere,
+               so a Profile link in the avatar dropdown duplicated
+               that affordance. Dropdown's job is now identity +
+               sign-out (the unique value it still provides — sign-out
+               isn't a primary nav surface). */}
           <button
             onClick={handleSignOut}
             className="w-full text-left px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-800 transition-colors"
