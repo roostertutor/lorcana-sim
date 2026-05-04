@@ -562,7 +562,7 @@ export async function resignGame(gameId: string, userId: string) {
   const eloKey = getEloKey(
     (lobby?.format as string) ?? "bo1",
     (lobby?.game_format as string) ?? "infinity",
-    (lobby?.game_rotation as string) ?? "s11",
+    (lobby?.game_rotation as string) ?? "s12",
   )
   // Queue-spawned games carry their rotation/format on the games row directly
   // (no parent lobby). For now, queue games inherit the FALLBACK_ELO_KEY
@@ -652,7 +652,7 @@ async function saveReplayForGame(
         turn_count: state.turnNumber ?? 0,
         format: (lobby.format as string) ?? "bo1",
         game_format: (lobby.game_format as string) ?? "infinity",
-        game_rotation: (lobby.game_rotation as string) ?? "s11",
+        game_rotation: (lobby.game_rotation as string) ?? "s12",
       },
       { onConflict: "game_id", ignoreDuplicates: true },
     )
@@ -720,7 +720,7 @@ async function handleMatchProgress(
     // Match over — update ELO once per match and close lobby
     const matchWinner = p1Wins >= winsNeeded ? "player1" : "player2"
     const gameFormat = (lobby.game_format as string) ?? "infinity"
-    const gameRotation = (lobby.game_rotation as string) ?? "s11"
+    const gameRotation = (lobby.game_rotation as string) ?? "s12"
     const eloKey = getEloKey(format, gameFormat, gameRotation)
     // Private lobbies are unconditionally unranked (anti-collusion); the
     // games.ranked flag was set to false on game-create regardless of
@@ -758,7 +758,7 @@ async function handleMatchProgress(
   // here — but cheap, and cheap defense-in-depth is worth it).
   const lobbyFormat: GameFormat = {
     family: (lobby.game_format as GameFormatFamily) ?? "infinity",
-    rotation: (lobby.game_rotation as RotationId) ?? "s11",
+    rotation: (lobby.game_rotation as RotationId) ?? "s12",
   }
 
   const nextGame = await createNewGame(

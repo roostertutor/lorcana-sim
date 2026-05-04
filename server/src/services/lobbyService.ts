@@ -94,7 +94,7 @@ export async function createLobby(
   hostId: string,
   hostDeck: DeckEntry[],
   format: "bo1" | "bo3" = "bo1",
-  gameFormat: GameFormat = { family: "infinity", rotation: "s11" },
+  gameFormat: GameFormat = { family: "infinity", rotation: "s12" },
   options: CreateLobbyOptions = {},
 ) {
   assertRotationExists(gameFormat)

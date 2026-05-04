@@ -21,8 +21,8 @@ import { supabase } from "../db/client.js"
 const SPECTATOR_POLICIES: readonly SpectatorPolicy[] = ["off", "invite_only", "friends", "public"]
 
 /** Default rotation when the client doesn't send one. Matches schema default.
- *  Flip to "s12" on 2026-05-08 (Set 12 release) alongside the SQL column default. */
-const DEFAULT_ROTATION: RotationId = "s11"
+ *  Flipped to "s12" on 2026-05-08 (Set 12 release) alongside the SQL column default. */
+const DEFAULT_ROTATION: RotationId = "s12"
 
 const lobby = new Hono<{ Variables: { userId: string } }>()
 

@@ -255,8 +255,8 @@ vi.mock("../db/client.js", () => ({ supabase: mockSupabase }))
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function legalDeck(): DeckEntry[] {
-  // Pull 60 cards from set 1-5 (legal in s11+s12 Core and Infinity).
-  // 60 unique cards across s11 sets, 1 copy each. Real decks need 4-of
+  // Pull 60 cards from set 5 (legal in both s11 and s12 Core, and Infinity).
+  // 60 unique cards across s11/s12 sets, 1 copy each. Real decks need 4-of
   // limits but the legality checker only cares about set membership.
   const ids: string[] = []
   for (const def of Object.values(CARD_DEFINITIONS)) {
@@ -273,15 +273,15 @@ function legalDeck(): DeckEntry[] {
   return padded
 }
 
-function illegalCoreS11Deck(): DeckEntry[] {
-  // Set 12 cards are NOT legal in core-s11 (legalSets={5..11}).
-  const set12Ids: string[] = []
+function illegalCoreS12Deck(): DeckEntry[] {
+  // Set 4 cards are NOT legal in core-s12 (legalSets={5..12}).
+  const set4Ids: string[] = []
   for (const def of Object.values(CARD_DEFINITIONS)) {
-    if (set12Ids.length >= 5) break
-    if (def.setId === "12") set12Ids.push(def.id)
+    if (set4Ids.length >= 5) break
+    if (def.setId === "4") set4Ids.push(def.id)
   }
-  return set12Ids.length > 0
-    ? [{ definitionId: set12Ids[0]!, count: 4 }, ...legalDeck().slice(0, 56)]
+  return set4Ids.length > 0
+    ? [{ definitionId: set4Ids[0]!, count: 4 }, ...legalDeck().slice(0, 56)]
     : legalDeck()
 }
 
@@ -355,24 +355,29 @@ describe("joinMatchmakingQueue — rejection branches", () => {
     }
   })
 
-  it("rejects ranked queue on rotation with ranked=false (set 12 pre-launch)", async () => {
+  it("rejects retired rotation (offeredForNewDecks=false) with 400", async () => {
+    // Post-2026-05-08: s11 is retired (offeredForNewDecks=false). The registry
+    // entry stays around forever for stored-deck validation but no new games
+    // can be created against it. (Pre-cutover this test asserted a different
+    // shape — staged-but-not-ranked s12 — which no longer exists; the
+    // assertion now lands on the prior live rotation post-retirement.)
     const r = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s12" },
+      format: { family: "core", rotation: "s11" },
       matchFormat: "bo1",
-      queueKind: "ranked",
+      queueKind: "casual",
     })
     expect(r.ok).toBe(false)
     if (!r.ok) {
       expect(r.status).toBe(400)
-      expect(r.error).toMatch(/[Rr]anked/)
+      expect(r.error).toMatch(/no longer offered/)
     }
   })
 
   it("rejects illegal deck with 400 + issues list", async () => {
     const r = await mod.joinMatchmakingQueue("user-A", {
-      deck: illegalCoreS11Deck(),
-      format: { family: "core", rotation: "s11" },
+      deck: illegalCoreS12Deck(),
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
@@ -388,7 +393,7 @@ describe("joinMatchmakingQueue — rejection branches", () => {
   it("rejects when the user already has a queue entry", async () => {
     const r1 = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -396,7 +401,7 @@ describe("joinMatchmakingQueue — rejection branches", () => {
 
     const r2 = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -412,7 +417,7 @@ describe("joinMatchmakingQueue — rejection branches", () => {
     })
     const r = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -429,7 +434,7 @@ describe("joinMatchmakingQueue — rejection branches", () => {
     })
     const r = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -446,7 +451,7 @@ describe("joinMatchmakingQueue — rejection branches", () => {
     }
     const r = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -461,7 +466,7 @@ describe("joinMatchmakingQueue — successful flows", () => {
   it("queues a casual entry when no peer is waiting", async () => {
     const r = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -479,7 +484,7 @@ describe("joinMatchmakingQueue — successful flows", () => {
 
     const r1 = await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -488,7 +493,7 @@ describe("joinMatchmakingQueue — successful flows", () => {
 
     const r2 = await mod.joinMatchmakingQueue("user-B", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -509,18 +514,22 @@ describe("joinMatchmakingQueue — successful flows", () => {
     expect(g.ranked).toBe(false)
   })
 
-  it("does NOT pair across mismatched buckets (different rotation)", async () => {
+  it("does NOT pair across mismatched buckets (different family)", async () => {
+    // Pre-cutover this test compared s11 vs s12 (both live). Post-cutover s11
+    // is retired so that shape no longer parses; using core vs infinity
+    // exercises the same bucket-separation invariant against two live
+    // rotations.
     tables.profiles.rows.push({ id: "user-A", elo: 1200, elo_ratings: null })
     tables.profiles.rows.push({ id: "user-B", elo: 1200, elo_ratings: null })
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
     const r2 = await mod.joinMatchmakingQueue("user-B", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s12" },
+      format: { family: "infinity", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -534,13 +543,13 @@ describe("joinMatchmakingQueue — successful flows", () => {
     tables.profiles.rows.push({ id: "user-B", elo: 1200, elo_ratings: null })
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
     const r2 = await mod.joinMatchmakingQueue("user-B", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
@@ -553,23 +562,23 @@ describe("joinMatchmakingQueue — successful flows", () => {
     tables.profiles.rows.push({
       id: "user-A",
       elo: 1200,
-      elo_ratings: { bo1_core_s11: 1200 },
+      elo_ratings: { bo1_core_s12: 1200 },
     })
     tables.profiles.rows.push({
       id: "user-B",
       elo: 1200,
-      elo_ratings: { bo1_core_s11: 1230 },
+      elo_ratings: { bo1_core_s12: 1230 },
     })
 
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
     const r2 = await mod.joinMatchmakingQueue("user-B", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
@@ -579,7 +588,7 @@ describe("joinMatchmakingQueue — successful flows", () => {
     expect(tables.games.rows.length).toBe(1)
     const g = tables.games.rows[0]!
     expect(g.match_source).toBe("queue")
-    // s11 has ranked=true → ranked game
+    // s12 has ranked=true → ranked game
     expect(g.ranked).toBe(true)
   })
 
@@ -587,23 +596,23 @@ describe("joinMatchmakingQueue — successful flows", () => {
     tables.profiles.rows.push({
       id: "user-A",
       elo: 1200,
-      elo_ratings: { bo1_core_s11: 1100 },
+      elo_ratings: { bo1_core_s12: 1100 },
     })
     tables.profiles.rows.push({
       id: "user-B",
       elo: 1200,
-      elo_ratings: { bo1_core_s11: 1500 }, // 400 ELO delta — outside ±50
+      elo_ratings: { bo1_core_s12: 1500 }, // 400 ELO delta — outside ±50
     })
 
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
     const r2 = await mod.joinMatchmakingQueue("user-B", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })
@@ -627,7 +636,7 @@ describe("runMatchmakingPoll", () => {
       id: "entry-A",
       user_id: "user-A",
       format_family: "core",
-      format_rotation: "s11",
+      format_rotation: "s12",
       match_format: "bo1",
       queue_kind: "casual",
       decklist: legalDeck(),
@@ -640,7 +649,7 @@ describe("runMatchmakingPoll", () => {
       id: "entry-B",
       user_id: "user-B",
       format_family: "core",
-      format_rotation: "s11",
+      format_rotation: "s12",
       match_format: "bo1",
       queue_kind: "casual",
       decklist: legalDeck(),
@@ -671,7 +680,7 @@ describe("cancel + status", () => {
   it("DELETE /matchmaking removes the user's entry", async () => {
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "casual",
     })
@@ -697,11 +706,11 @@ describe("cancel + status", () => {
     tables.profiles.rows.push({
       id: "user-A",
       elo: 1200,
-      elo_ratings: { bo1_core_s11: 1200 },
+      elo_ratings: { bo1_core_s12: 1200 },
     })
     await mod.joinMatchmakingQueue("user-A", {
       deck: legalDeck(),
-      format: { family: "core", rotation: "s11" },
+      format: { family: "core", rotation: "s12" },
       matchFormat: "bo1",
       queueKind: "ranked",
     })

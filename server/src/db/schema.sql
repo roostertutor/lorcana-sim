@@ -99,8 +99,8 @@ CREATE POLICY "Actions visible to game players"
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS format TEXT NOT NULL DEFAULT 'bo1';      -- bo1 | bo3
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_format TEXT NOT NULL DEFAULT 'infinity'; -- core | infinity (family only)
 -- Rotation id paired with game_format — together they form the engine's GameFormat.
--- Default 's11' = pre-Set-12 live rotation. Flip to 's12' on 2026-05-08 (Set 12 release).
-ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_rotation TEXT NOT NULL DEFAULT 's11';
+-- Default 's12' = current live rotation (flipped from 's11' on 2026-05-08 at Set 12 release).
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS game_rotation TEXT NOT NULL DEFAULT 's12';
 ALTER TABLE games ADD COLUMN IF NOT EXISTS game_number INTEGER NOT NULL DEFAULT 1;    -- 1, 2, or 3
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS guest_deck JSONB;    -- stored on join for Bo3 rematches
 ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS p1_wins INTEGER NOT NULL DEFAULT 0;
@@ -307,10 +307,12 @@ ALTER TABLE decks ADD COLUMN IF NOT EXISTS card_metadata JSONB NOT NULL DEFAULT 
 -- Format stamp — which GameFormat the deck was built for. Together they mirror
 -- the engine's GameFormat = { family, rotation } shape. Default values blanket-
 -- stamp every existing row on ADD COLUMN (Postgres backfills from the DEFAULT);
--- no separate backfill script needed. Flip defaults to 's12' on 2026-05-08
--- when Set 12 releases and becomes the new Core default.
+-- no separate backfill script needed. Default 's12' = current live (flipped from
+-- 's11' on 2026-05-08 at Set 12 release). Note: the matchmaking-ship migration
+-- below DROPs decks.format_rotation entirely — this default is only hit on a
+-- fresh-environment rebuild before the DROP runs.
 ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_family TEXT NOT NULL DEFAULT 'core';
-ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_rotation TEXT NOT NULL DEFAULT 's11';
+ALTER TABLE decks ADD COLUMN IF NOT EXISTS format_rotation TEXT NOT NULL DEFAULT 's12';
 
 -- ── MP UX Phase 2: post-game polish ─────────────────────────────────────────
 
