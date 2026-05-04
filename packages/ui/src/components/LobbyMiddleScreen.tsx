@@ -111,12 +111,12 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
     });
   }, [savedDecks, lobbyFormat]);
 
-  // Whether the user has currently attached a deck (server-side flag).
+  // Caller-perspective derivations — used to gate the Ready button
+  // and decide which message to render in the toggle. Opponent state
+  // is read directly from info inside <PlayerSlot> below; the slot
+  // labels by role (HOST/GUEST) so we don't need to flip perspective.
   const myHasDeck = isHost ? info?.hostHasDeck : info?.guestHasDeck;
   const myReady = isHost ? info?.hostReady : info?.guestReady;
-  const oppHasDeck = isHost ? info?.guestHasDeck : info?.hostHasDeck;
-  const oppReady = isHost ? info?.guestReady : info?.hostReady;
-  const oppUsername = isHost ? info?.guestUsername : info?.hostUsername;
 
   async function handlePickDeck(d: SavedDeck) {
     setError(null);
@@ -263,22 +263,28 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
           </div>
         </div>
 
-        {/* Players + ready states */}
+        {/* Players + ready states. Both slots labeled by ROLE
+            (HOST / GUEST) regardless of who's viewing — no mental
+            flip required when comparing P1's screen vs P2's screen.
+            "(you)" marker on the caller's own slot identifies which
+            row is theirs without renaming the role label. */}
         <div className="card p-4 space-y-3">
           <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">
             Players
           </div>
           <PlayerSlot
-            label="You"
-            username="(you)"
-            hasDeck={!!myHasDeck}
-            ready={!!myReady}
+            label="HOST"
+            username={info.hostUsername ?? "(waiting…)"}
+            isYou={isHost}
+            hasDeck={!!info.hostHasDeck}
+            ready={!!info.hostReady}
           />
           <PlayerSlot
-            label={isHost ? "Guest" : "Host"}
-            username={oppUsername ?? null}
-            hasDeck={!!oppHasDeck}
-            ready={!!oppReady}
+            label="GUEST"
+            username={info.guestUsername ?? null}
+            isYou={!isHost}
+            hasDeck={!!info.guestHasDeck}
+            ready={!!info.guestReady}
           />
         </div>
 
@@ -367,25 +373,35 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
 function PlayerSlot({
   label,
   username,
+  isYou,
   hasDeck,
   ready,
 }: {
+  /** Role label — always "HOST" or "GUEST" regardless of who's viewing. */
   label: string;
+  /** Username if known; null while the slot is empty (guest hasn't joined). */
   username: string | null;
+  /** True when this slot is the calling user's own slot — shows "(you)"
+   *  marker so the caller can identify themselves without renaming the
+   *  role label. */
+  isYou: boolean;
   hasDeck: boolean;
   ready: boolean;
 }) {
   const status = !username
-    ? "Waiting…"
+    ? "Waiting for opponent…"
     : ready
       ? "Ready"
       : hasDeck
         ? "Picking…"
         : "Choosing deck…";
   const statusColor = ready ? "text-green-400" : "text-gray-500";
+  // Subtle highlight on the caller's own slot — distinct background so
+  // it's obvious "this is me" at a glance.
+  const rowBg = isYou ? "bg-gray-900 border-amber-700/50" : "bg-gray-950 border-gray-800";
 
   return (
-    <div className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-md bg-gray-950 border border-gray-800">
+    <div className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-md border ${rowBg}`}>
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-[10px] uppercase tracking-wider text-gray-600 font-bold shrink-0">
           {label}
@@ -393,6 +409,9 @@ function PlayerSlot({
         <span className="text-sm text-gray-200 truncate">
           {username ?? "(waiting…)"}
         </span>
+        {isYou && username && (
+          <span className="text-[10px] text-amber-500/80 font-medium shrink-0">(you)</span>
+        )}
       </div>
       <span className={`text-[10px] font-bold uppercase tracking-wider ${statusColor}`}>
         {status}
