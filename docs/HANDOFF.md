@@ -1418,3 +1418,288 @@ section only — public games section can ship without it.
   band-widening curves, queue-depth display, region-based matching all
   live in a future phase once real usage data exists.
 
+---
+
+## Server agent (first) + UI agent (follow-up): duels-style middle-screen lobby restructure
+
+Filed 2026-05-04 from a UX architecture review. User's actual lobby
+usage breakdown (their words):
+- 90% — joining MP via matchmaking (Quick Play)
+- 9%  — creating + joining custom lobbies with friends
+- ~0% — browsing public lobbies
+
+Specific pain point flagged: "I don't want to accidentally join an
+infinity lobby with a core deck (even though it's legal)." Only
+relevant to the 9% friend-pillar path; matchmaking is unaffected
+(queue locks family).
+
+Decision: adopt the duels.ink pattern for custom lobbies. Decouple
+deck choice from lobby creation. Lobby = format + opponent commit;
+deck = private prep that happens AFTER both players are in the
+lobby. Quick Play matchmaking is unchanged (its queue locks decks
++ format at queue-join time).
+
+### High-level architecture
+
+**Today (custom game):**
+```
+/multiplayer:  pick deck → pick Bo + Format → Create
+                 ↓ (deck attached at create time)
+              wait screen with code
+                 ↓ (friend joins — has their deck attached too)
+              instant game start → /game/{uuid} → coin flip → game
+```
+
+**After:**
+```
+/multiplayer:  pick Bo + Format → Create  (NO deck yet)
+                 ↓
+              /game/{uuid}: middle screen
+                 ├── shows Bo · Format · Rotation prominently
+                 ├── shows 6-char code (voice/typing share) + URL (clickable share)
+                 ├── opponent slot (Waiting → Joined)
+                 ├── your deck slot (pick from saved, can swap before Ready)
+                 ├── opponent's status (Picking… → Ready) — never their actual deck
+                 └── [Ready] button — both ready ⇒ coin flip + game
+```
+
+Quick Play (90% case) skips the middle screen — server pairs, decks
+already attached via queue, route lands directly in game.
+
+### Why this is the right shape
+
+- **Solves format mismatch pain:** middle screen shows format BEFORE
+  user picks deck. Can't accidentally bring the wrong-family deck.
+- **Privacy:** opponent sees ready state, not deck. Deck reveal
+  happens at game start, not lobby join.
+- **Deck swap freedom:** change your mind before Ready without
+  abandoning the lobby. Today you'd have to leave and re-join.
+- **Cleans up the friend-link experience:** /game/{uuid} URL works
+  for friends who don't have saved decks yet — they can build/save
+  in the middle-screen state machine, not in a separate flow.
+- **URL-as-share-token:** /game/{uuid} is unguessable (~128 bits of
+  entropy). Effectively private by default. 6-char code stays as a
+  parallel artifact for voice / typed sharing.
+
+### Sequencing
+
+**Server first, UI second.** The middle-screen UX depends on lobby
+state changes (lobby has format only at create, decks fill in
+later). UI agent will write throwaway mock code if it goes first.
+Server session ~1-2 days; UI session ~1 day after.
+
+Parallel safe-to-do work happens in the gap (UI agent can drop the
+public-lobby browser independently — see Phase 0 below).
+
+### Phase 0 — UI cleanup (safe, no dependencies, in flight 2026-05-04)
+
+UI agent drops the public-lobby browser surface entirely (~0% usage
+per user). Independent of server changes; can ship in parallel
+with the server work below.
+
+- Remove the collapsible "Public games" section in MultiplayerLobby
+  (Custom Game tab).
+- Drop `listPublicLobbies` import + polling effect.
+- Drop the "Public — list in browser; anyone can join" toggle on the
+  Host card (every lobby is private/URL-only after this).
+- Server endpoint `GET /lobbies/public` becomes dead code; can be
+  removed in Phase 1 server work or left dormant.
+
+### Phase 1 — Server work (server-specialist)
+
+**Lobby state model changes:**
+
+The current `lobbies` row carries `host_deck`, `guest_deck` (JSONB,
+attached at lobby-create / join time). New shape:
+
+```sql
+ALTER TABLE lobbies
+  -- Old: deck attached at create. New: per-player slots fill in
+  -- post-join when each side picks their deck in the middle screen.
+  -- Keep the existing columns; add ready-state booleans.
+  ADD COLUMN IF NOT EXISTS host_ready  BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS guest_ready BOOLEAN NOT NULL DEFAULT FALSE;
+```
+
+Keep `host_deck` / `guest_deck` JSONB but change the contract:
+- On lobby create: `host_deck = NULL` (was: deck JSONB)
+- On lobby join (guest): `guest_deck = NULL` (was: deck JSONB)
+- Per-player deck attachment via `setDeckInLobby` endpoint
+- `host_ready` / `guest_ready` start FALSE; flip to TRUE via setReady
+
+**Game-start trigger change:**
+
+Today, the game starts when both decks are attached (i.e., on
+`joinLobby` returning, both decks are present, server inits a
+`games` row). New: the game starts when **both `ready=true`**. The
+flip from "lobby" → "game" happens on the second ready confirmation,
+not on join.
+
+Implementation: a `startGameIfReady(lobbyId)` check on every state
+mutation in the lobby (deck pick, ready-toggle, second-player join).
+When `host_deck IS NOT NULL AND guest_deck IS NOT NULL AND host_ready
+AND guest_ready`, init the `games` row, broadcast game-start.
+
+**New endpoints:**
+
+```ts
+// All take `gameId` (UUID) — not the 6-char code.
+
+// Peek at a lobby without joining. Returns format + presence of
+// opponent (yes/no) + each player's ready state. Does NOT return
+// either player's deck (privacy). Used by middle screen on mount
+// and by /lobby/:code redirect path (look up code → return the
+// game UUID + format hint without joining).
+getLobbyInfo(gameId: string): {
+  format: { matchFormat, family, rotation },
+  hostUsername: string,
+  guestUsername: string | null,
+  hostReady: boolean,
+  guestReady: boolean,
+  hostHasDeck: boolean,    // true when host_deck IS NOT NULL
+  guestHasDeck: boolean,
+  status: 'waiting' | 'lobby' | 'in_game',
+}
+
+// Attach (or swap) your deck to your slot in the lobby. Validates
+// legality against the lobby's stored format. Doesn't auto-flip
+// ready (separate explicit step).
+setDeckInLobby(gameId: string, deck: DeckEntry[]): { ok: true } | { error: ... }
+
+// Toggle your ready flag. Server checks deck is attached first
+// (can't be ready without a deck). When both ready, server
+// transitions lobby → game in the same call (atomic).
+setReadyInLobby(gameId: string, ready: boolean): {
+  ok: true,
+  gameStarted: boolean,
+}
+
+// Lookup gameId by 6-char code (voice/typing share path). Returns
+// the gameId so the UI can navigate to /game/{gameId}. Rejects if
+// the lobby is full / code expired / not found.
+resolveLobbyCode(code: string): { gameId: string }
+```
+
+**Existing endpoints to update:**
+
+- `createLobby`: drop the deck arg; takes only Bo + Format. Returns
+  `{ gameId, code }`. Code is still generated for voice-share.
+- `joinLobby`: drop the deck arg; takes only the gameId (or code →
+  resolves to gameId). Marks the user as the guest, returns
+  `{ ok: true }`. Does NOT start the game.
+- `cancelLobby`: works the same way; cancellation flips status to
+  `cancelled`, broadcasts to anyone in the middle screen.
+
+**Realtime broadcast:**
+
+Realtime channel `lobby:{gameId}` broadcasts on:
+- guest joins (presence event)
+- either player picks/swaps deck (just `hostHasDeck` / `guestHasDeck`
+  flag, NOT the deck contents — privacy)
+- either player toggles ready
+- game starts (status flip → in_game)
+- lobby cancelled
+
+Existing `game:{gameId}` channel still broadcasts game state once
+the game starts. Two channels: lobby pre-start, game post-start.
+
+**Drop public lobby concept:**
+- `lobbies.public` column can stay (default false) but no UI surfaces
+  it now. Defer dropping the column until a future cleanup; safer
+  to leave dormant.
+- `GET /lobbies/public` endpoint becomes dead code; can drop in
+  this same commit or leave for cleanup.
+- All lobbies are URL-only access from the user's perspective.
+
+**Anti-cheat / RLS:**
+- `getLobbyInfo` should be readable by anyone with the gameId (since
+  having the URL = consent to know the format). RLS or app-level
+  permission gate.
+- `setDeckInLobby` / `setReadyInLobby` are caller-gated (must be the
+  host or the guest in this lobby).
+- Spectator-policy column on lobbies stays; dictates who can WATCH
+  once the game starts.
+
+**Migration:**
+- Existing in-flight lobbies (host_deck or guest_deck attached) → mark
+  as `cancelled` since the new state model doesn't support pre-deck-
+  pick games. Pre-launch this is fine; no real users to affect.
+- Or: backfill `host_ready=true, guest_ready=true` for any existing
+  full lobbies, so they continue without disruption. Either is OK.
+
+**Tests:**
+- Unit: `setDeckInLobby` validates legality, rejects illegal decks.
+- Unit: `setReadyInLobby` rejects when no deck attached.
+- Integration: full happy-path host → join → both pick decks → both
+  ready → game starts.
+- Integration: format-mismatch attempt — guest tries to attach
+  Infinity-only deck to a Core-only-rotation lobby → rejected.
+
+### Phase 2 — UI work (UI agent — me, after server lands)
+
+**New middle-screen rendering** at `/game/{gameId}` when status is
+`waiting | lobby`:
+
+Component split:
+- `LobbyMiddleScreen` (new) — renders the lobby UI. Subscribes to
+  realtime lobby channel via existing `useGameSession` or a new
+  `useLobbyRoom` hook.
+- `MyDeckSlot` — picker into your saved decks; calls
+  `setDeckInLobby` on selection.
+- `OpponentDeckSlot` — read-only status display (Picking / Ready /
+  not joined).
+- `ReadyButton` — calls `setReadyInLobby(true)`. Disabled when no
+  deck attached.
+
+**Route changes:**
+- `/game/{uuid}` — render `LobbyMiddleScreen` when `status != in_game`,
+  else render `<GameBoard>`. State machine flips visible component
+  as server broadcasts the status change.
+- `/lobby/{code}` — keep this route; resolves the code to a gameId
+  via the new `resolveLobbyCode` endpoint and redirects to
+  `/game/{gameId}`. URL-as-canonical, code-as-shorthand.
+
+**Deck section on /multiplayer:**
+- Quick Play tab: deck picker stays as-is (decks attach at queue-
+  join time).
+- Custom Game tab: deck picker is GONE from the lobby create form.
+  Custom Game card becomes just Bo + Format inputs + Create button.
+- "Your Deck" section above the segmented switcher: keep for Quick
+  Play; hide when Custom Game is active. To finalize at UI time.
+
+**Drop:**
+- Public-lobby browser (Phase 0).
+- The "wait screen with code" current state on /multiplayer post-
+  Create — replaced by /game/{uuid} navigation.
+- Lobby code typed-input flow now navigates via `resolveLobbyCode`.
+
+**Format-mismatch surfacing:**
+- In the middle screen, if user tries to attach a deck whose format
+  family doesn't match the lobby, the deck slot rejects + shows a
+  toast/error. Server enforces too. Middle screen IS the peek.
+
+### What this preserves
+
+- Quick Play matchmaking flow (90% usage) — unchanged.
+- 6-char codes — kept as voice-share artifact, parallel to URL.
+- Lobby cancellation flow — same shape from the middle screen.
+- Bo3 series — still works; second/third games re-init within the
+  same lobby (separate followup if rematch needs middle-screen re-prep).
+- Spectator system — not affected.
+
+### Out of scope
+
+- Deck-builder integration into the middle screen for friends with
+  no saved decks (they'd hit "no decks yet" → "Build a deck →" link
+  to /decks/new). Inline deck paste in middle screen is a future phase.
+- Public-lobby browser re-introduction with proper filters / ELO
+  bands / region — separate design.
+- Single "Find Match" smart button combining Quick Play + browser —
+  user reviewed and rejected this combination.
+
+### When server-specialist completes
+
+Per HANDOFF convention: delete this entry from the file, capturing the
+schema/endpoint/test summary in the commit message. UI agent picks up
+Phase 2 from the SHA.
+

@@ -3,15 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, listPublicLobbies, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
-import type { EloKey, Profile, PublicLobby, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
+import { cancelLobby, createLobby, joinLobby, ensureProfile, getLobbyGame, getProfile, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
+import type { EloKey, Profile, SpectatorPolicy, MatchmakingStatus, MatchmakingError, QueueKind } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
 import type { SavedDeck } from "../lib/deckApi.js";
 import { formatDisplayName, FORMAT_FAMILY_ACCENT, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
-// FORMAT_FAMILY_ACCENT still used for the public-lobby browser row badges
-// at the bottom (formatDisplayName chip on each row); the lobby's own
-// format display moved to the unified config strip and no longer uses
-// the accent palette.
+// FORMAT_FAMILY_ACCENT still used for the saved-deck row badges in the
+// deck picker (each row's Core/Infinity chip uses the accent palette).
+// formatDisplayName still used for the legality-error message.
 import Icon from "../components/Icon.js";
 import { useMediaQuery } from "../hooks/useMediaQuery.js";
 
@@ -68,10 +67,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   });
   // pasteFormat state removed 2026-05-04 with paste-mode dropoff.
   // formatFamily below now derives entirely from selectedDeck.
-  // Public lobby → appears in the browser for anyone to join. Server
-  // also auto-forces spectator_policy='public' when this is true, so
-  // the policy picker is hidden/locked in that case.
-  const [isPublic, setIsPublic] = useState(false);
+  // isPublic state removed 2026-05-04 with public-lobby browser
+  // dropoff. Every custom lobby is private (URL-only access) now;
+  // public discoverability isn't a feature. See HANDOFF "duels-style
+  // middle-screen lobby restructure" → Phase 0.
   // Spectator policy for private lobbies. Phase 1 stores it; Phase 7
   // is when the flag actually governs spectator read-access. Default
   // 'off' matches server-side DEFAULT.
@@ -110,12 +109,12 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
   // selections, so the per-rotation breakdown lives here. Two fetches
   // is the cost of not threading profile through context.
   const [profile, setProfile]   = useState<Profile | null>(null);
-  // Public lobby browser state. Closed by default so the main Host/Join
-  // flow stays the primary action; users toggle it open to see what's
-  // available. Auto-polls every 5s while open, stops on collapse.
-  const [publicBrowserOpen, setPublicBrowserOpen] = useState(false);
-  const [publicLobbies, setPublicLobbies] = useState<PublicLobby[]>([]);
-  const [publicLoading, setPublicLoading] = useState(false);
+  // Public lobby browser state removed 2026-05-04 — feature dropped
+  // (~0% usage by user account). publicBrowserOpen / publicLobbies /
+  // publicLoading / publicPollRef + the browser polling effect are
+  // all gone. (The `pollRef` below is a DIFFERENT ref — used by the
+  // lobby-status polling effect that watches for a guest joining
+  // your created lobby; nothing to do with the public browser.)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Matchmaking queue state. Server is authoritative — queue entry exists
@@ -140,8 +139,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     // takes over via `defaultRotation` below.
     return saved && saved !== "" ? (saved as import("@lorcana-sim/engine").RotationId) : null;
   });
-  const publicPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   // Listen for auth state changes (catches OAuth redirects + session
   // restore, and sign-outs triggered from the global UserMenu avatar
   // dropdown). On sign-out we also need to flush lobby-local state —
@@ -160,8 +157,6 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
         setLobbyCode(null);
         setLobbyId(null);
         setWaitStartedAt(null);
-        setPublicBrowserOpen(false);
-        setPublicLobbies([]);
         setStatus(null);
       }
     });
@@ -333,38 +328,8 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     return () => clearInterval(handle);
   }, [waitStartedAt]);
 
-  // Public lobby browser polling — fetch on open, refresh every 5s while
-  // open, stop on close. Server excludes the caller's own lobbies so
-  // this never shows "your own lobby" self-matches. Poll cadence chosen
-  // to balance freshness with server load (low-user scenario benefits
-  // from snappy display; can widen later).
-  useEffect(() => {
-    if (!session || !publicBrowserOpen) {
-      if (publicPollRef.current) {
-        clearInterval(publicPollRef.current);
-        publicPollRef.current = null;
-      }
-      return;
-    }
-    let cancelled = false;
-    const refresh = async () => {
-      setPublicLoading(true);
-      const lobbies = await listPublicLobbies();
-      if (!cancelled) {
-        setPublicLobbies(lobbies);
-        setPublicLoading(false);
-      }
-    };
-    refresh();
-    publicPollRef.current = setInterval(refresh, 5000);
-    return () => {
-      cancelled = true;
-      if (publicPollRef.current) {
-        clearInterval(publicPollRef.current);
-        publicPollRef.current = null;
-      }
-    };
-  }, [session, publicBrowserOpen]);
+  // Public lobby browser polling effect removed 2026-05-04 with the
+  // public-browser feature dropoff.
 
   // Hydrate queue state on mount + after sign-in. If the server has a
   // queue entry for this user (e.g., they refreshed mid-queue), pick up
@@ -513,12 +478,16 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
     setError(null);
     setStatus("Creating lobby…");
     try {
+      // public flag dropped 2026-05-04 — every custom lobby is private
+      // (URL-only). Server still accepts the field for backwards compat
+      // but always passes `false` from the client now. Server-side cleanup
+      // tracked in the duels-style middle-screen HANDOFF entry.
       const result = await createLobby(
         deck,
         format,
         gameFormat.family,
         gameFormat.rotation,
-        { public: isPublic, spectatorPolicy: isPublic ? "public" : spectatorPolicy },
+        { public: false, spectatorPolicy },
       );
       setLobbyCode(result.code);
       setLobbyId(result.lobbyId);
@@ -1287,49 +1256,38 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                        card now scopes to host-specific settings only:
                        public/private + spectator policy below. */}
                   <div className="space-y-1.5">
-                    {/* Public / private toggle — public lobbies appear in
-                         the Public Games browser below and auto-force
-                         spectator_policy='public'. Private lobbies expose
-                         the 4-way policy picker (Phase 1 stores it;
-                         Phase 7 activates it). */}
-                    <label className="flex items-center gap-2 text-xs text-gray-300 px-1 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isPublic}
-                        onChange={(e) => setIsPublic(e.target.checked)}
-                        className="w-3.5 h-3.5 accent-amber-500"
-                      />
-                      <span>Public — list in browser; anyone can join</span>
-                    </label>
-
-                    {!isPublic && (
-                      <div className="flex flex-col gap-1 pl-1">
-                        <span className="text-[10px] uppercase tracking-wider text-gray-600 font-bold">
-                          Spectators
-                        </span>
-                        <div className="flex rounded-lg bg-gray-800 p-0.5 text-[11px]">
-                          {(["off", "friends", "invite_only", "public"] as const).map((p) => (
-                            <button
-                              key={p}
-                              onClick={() => setSpectatorPolicy(p)}
-                              className={`flex-1 py-1 font-medium rounded-md transition-colors ${
-                                spectatorPolicy === p
-                                  ? "bg-gray-700 text-gray-100 shadow-sm"
-                                  : "text-gray-500 hover:text-gray-300"
-                              }`}
-                              title={
-                                p === "off" ? "No spectators" :
-                                p === "friends" ? "Friends only (Phase 5)" :
-                                p === "invite_only" ? "Invited only" :
-                                "Anyone with the code can watch"
-                              }
-                            >
-                              {p === "invite_only" ? "Invite" : p.charAt(0).toUpperCase() + p.slice(1)}
-                            </button>
-                          ))}
-                        </div>
+                    {/* Public/Private toggle dropped 2026-05-04 — every
+                         custom lobby is private (URL-only access) now;
+                         the public-lobby browser was removed in the same
+                         pass. Spectator policy stays — that's a separate
+                         "who can WATCH the game" concern, independent of
+                         lobby visibility. */}
+                    <div className="flex flex-col gap-1 pl-1">
+                      <span className="text-[10px] uppercase tracking-wider text-gray-600 font-bold">
+                        Spectators
+                      </span>
+                      <div className="flex rounded-lg bg-gray-800 p-0.5 text-[11px]">
+                        {(["off", "friends", "invite_only", "public"] as const).map((p) => (
+                          <button
+                            key={p}
+                            onClick={() => setSpectatorPolicy(p)}
+                            className={`flex-1 py-1 font-medium rounded-md transition-colors ${
+                              spectatorPolicy === p
+                                ? "bg-gray-700 text-gray-100 shadow-sm"
+                                : "text-gray-500 hover:text-gray-300"
+                            }`}
+                            title={
+                              p === "off" ? "No spectators" :
+                              p === "friends" ? "Friends only (Phase 5)" :
+                              p === "invite_only" ? "Invited only" :
+                              "Anyone with the code can watch"
+                            }
+                          >
+                            {p === "invite_only" ? "Invite" : p.charAt(0).toUpperCase() + p.slice(1)}
+                          </button>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </div>
                   <button
                     className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800
@@ -1386,80 +1344,10 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                 </div>
               </div>
 
-              {/* Public lobby browser — collapsible. Auto-polls every 5s
-                   while open. Server filters out the caller's own
-                   lobbies + only returns public/waiting rows. Click a
-                   row to join (uses the same legality + status flow as
-                   code-entry join). */}
-              <div className="card p-3 space-y-2">
-                <button
-                  onClick={() => setPublicBrowserOpen((v) => !v)}
-                  className="w-full flex items-center justify-between text-left"
-                >
-                  <div>
-                    <div className="text-sm font-semibold text-gray-200">
-                      Public games
-                      {publicBrowserOpen && publicLobbies.length > 0 && (
-                        <span className="ml-2 text-xs font-mono text-amber-500/80">{publicLobbies.length}</span>
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-0.5">
-                      {publicBrowserOpen
-                        ? "Pick a lobby to join — refreshes every 5s"
-                        : "Browse open lobbies anyone can join"}
-                    </div>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 text-gray-500 transition-transform ${publicBrowserOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </button>
-
-                {publicBrowserOpen && (
-                  <div className="space-y-1.5 max-h-64 overflow-y-auto">
-                    {publicLoading && publicLobbies.length === 0 ? (
-                      <div className="text-center py-4 text-xs text-gray-600 animate-pulse">Loading…</div>
-                    ) : publicLobbies.length === 0 ? (
-                      <div className="text-center py-4 text-xs text-gray-600">
-                        No public lobbies open right now. Be the first — toggle &quot;Public&quot; on Host above.
-                      </div>
-                    ) : (
-                      publicLobbies.map((pl) => {
-                        const plFormat: GameFormat = { family: pl.gameFormat, rotation: pl.gameRotation };
-                        const plAccent = FORMAT_FAMILY_ACCENT[pl.gameFormat];
-                        const ageMs = Date.now() - new Date(pl.createdAt).getTime();
-                        const ageMin = Math.floor(ageMs / 60000);
-                        const ageStr = ageMin < 1 ? "just now" : ageMin < 60 ? `${ageMin}m ago` : `${Math.floor(ageMin / 60)}h ago`;
-                        return (
-                          <div
-                            key={pl.id}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-950 border border-gray-800"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-sm text-gray-200 truncate">{pl.hostUsername}</span>
-                                <span className={`text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded shrink-0 ${plAccent.badgeBg} ${plAccent.text}`}>
-                                  {formatDisplayName(plFormat)}
-                                </span>
-                              </div>
-                              <div className="text-[10px] text-gray-600 mt-0.5">
-                                {pl.format.toUpperCase()} · {ageStr}
-                              </div>
-                            </div>
-                            <button
-                              className="py-1.5 px-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800 disabled:text-gray-600 text-white rounded-md text-xs font-bold transition-colors active:scale-95"
-                              onClick={() => joinLobbyByCode(pl.code)}
-                              disabled={!deckReady || !legality.ok || !!status}
-                              title={!legality.ok ? "Fix illegal cards before joining" : "Join this lobby"}
-                            >
-                              Join
-                            </button>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
-              </div>
+              {/* Public lobby browser dropped 2026-05-04 — feature
+                   removed (~0% usage). All lobbies are URL-only access
+                   now; users wanting random opponents use Quick Play
+                   matchmaking. */}
               </>
             ) : (
               /* Final fallback: signed-in, not in queue, not waiting,
