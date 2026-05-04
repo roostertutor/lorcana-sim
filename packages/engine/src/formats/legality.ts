@@ -63,11 +63,12 @@ export interface RotationEntry {
 
 /** Core rotations — every 4 sets, oldest 4 drop. Cadence per Ravensburger OP.
  *
- *  Current state (2026-04-21):
- *   - s11: pre-Set-12 live format, sets 5-11 (7 sets). Still offered for new
- *          decks while players who haven't opened Set 12 want to build to the
- *          proven card pool.
- *   - s12: Set 12 preview — additive, sets 5-12 (8 sets). Current default.
+ *  Current state (2026-05-08, Set 12 release day):
+ *   - s11: retired. Stays in the registry forever so stored decks stamped
+ *          `s11` keep validating against their original card pool, but no
+ *          new decks or games can be created under it.
+ *   - s12: live format, sets 5-12 (8 sets). The only Core rotation offered
+ *          for new decks; ranked games count for ELO.
  *   - (s13 will be added when Ravensburger locks in the next rotation. Per
  *     the cadence, s13 drops sets 5-8 → legalSets = {9,10,11,12,13}.)
  */
@@ -75,15 +76,15 @@ export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11"]),
     banlist: new Set<string>([]),
-    offeredForNewDecks: true,
-    ranked: true,
+    offeredForNewDecks: false,
+    ranked: false,
     displayName: "Set 11 Core",
   },
   s12: {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11", "12"]),
     banlist: new Set<string>([]),
     offeredForNewDecks: true,
-    ranked: false,
+    ranked: true,
     displayName: "Set 12 Core",
   },
 };
@@ -112,15 +113,15 @@ export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
     legalSets: INFINITY_S11_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
-    offeredForNewDecks: true,
-    ranked: true,
+    offeredForNewDecks: false,
+    ranked: false,
     displayName: "Set 11 Infinity",
   },
   s12: {
     legalSets: INFINITY_S12_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
     offeredForNewDecks: true,
-    ranked: false,
+    ranked: true,
     displayName: "Set 12 Infinity",
   },
 };

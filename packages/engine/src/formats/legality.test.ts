@@ -78,36 +78,36 @@ describe("rotation registry", () => {
     expect(s12.legalSets.has("C2")).toBe(true);
   });
 
-  it("all rotations are offered for new decks during pre-release window", () => {
-    // Once Set 12 officially drops, s11 flips to offeredForNewDecks:false.
-    // This assertion pins the current window state; update when cadence advances.
-    expect(CORE_ROTATIONS.s11.offeredForNewDecks).toBe(true);
+  it("post-cutover: s12 is the only rotation offered for new decks; s11 is retired", () => {
+    // 2026-05-08 cutover state: s11 retired (kept in the registry for stored-
+    // deck validation, but no new decks created under it); s12 live. Update
+    // again when the next rotation appears alongside s12.
+    expect(CORE_ROTATIONS.s11.offeredForNewDecks).toBe(false);
     expect(CORE_ROTATIONS.s12.offeredForNewDecks).toBe(true);
-    expect(INFINITY_ROTATIONS.s11.offeredForNewDecks).toBe(true);
+    expect(INFINITY_ROTATIONS.s11.offeredForNewDecks).toBe(false);
     expect(INFINITY_ROTATIONS.s12.offeredForNewDecks).toBe(true);
   });
 
-  it("ranked flag — s11 live (ranked), s12 staged-test (unranked) pre-launch", () => {
-    // Pre-2026-05-08 state: s11 is the live ranked rotation; s12 is the
-    // staged-test rotation (offered for deck building, but games don't count
-    // for ELO until Ravensburger flips it live). Same flag applies to Core
+  it("ranked flag — s12 live (ranked), s11 retired (unranked) post-cutover", () => {
+    // Post-2026-05-08 state: s12 is the live ranked rotation; s11 is retired
+    // (no new games of any kind, ranked or casual). Same flag applies to Core
     // and Infinity in the same time window.
-    expect(CORE_ROTATIONS.s11.ranked).toBe(true);
-    expect(CORE_ROTATIONS.s12.ranked).toBe(false);
-    expect(INFINITY_ROTATIONS.s11.ranked).toBe(true);
-    expect(INFINITY_ROTATIONS.s12.ranked).toBe(false);
+    expect(CORE_ROTATIONS.s11.ranked).toBe(false);
+    expect(CORE_ROTATIONS.s12.ranked).toBe(true);
+    expect(INFINITY_ROTATIONS.s11.ranked).toBe(false);
+    expect(INFINITY_ROTATIONS.s12.ranked).toBe(true);
   });
 });
 
 describe("isRankedFormat", () => {
   it("returns ranked flag for the resolved rotation (Core)", () => {
-    expect(isRankedFormat({ family: "core", rotation: "s11" })).toBe(true);
-    expect(isRankedFormat({ family: "core", rotation: "s12" })).toBe(false);
+    expect(isRankedFormat({ family: "core", rotation: "s11" })).toBe(false);
+    expect(isRankedFormat({ family: "core", rotation: "s12" })).toBe(true);
   });
 
   it("returns ranked flag for the resolved rotation (Infinity)", () => {
-    expect(isRankedFormat({ family: "infinity", rotation: "s11" })).toBe(true);
-    expect(isRankedFormat({ family: "infinity", rotation: "s12" })).toBe(false);
+    expect(isRankedFormat({ family: "infinity", rotation: "s11" })).toBe(false);
+    expect(isRankedFormat({ family: "infinity", rotation: "s12" })).toBe(true);
   });
 
   it("throws on unknown rotation id", () => {
@@ -318,15 +318,15 @@ describe("isLegalFor", () => {
 });
 
 describe("listOfferedRotations", () => {
-  it("returns both Core rotations in chronological order", () => {
+  it("returns only s12 for Core post-cutover (s11 retired)", () => {
     const offered = listOfferedRotations("core");
-    expect(offered.map((o) => o.id)).toEqual(["s11", "s12"]);
-    expect(offered[0]!.entry.displayName).toBe("Set 11 Core");
-    expect(offered[1]!.entry.displayName).toBe("Set 12 Core");
+    expect(offered.map((o) => o.id)).toEqual(["s12"]);
+    expect(offered[0]!.entry.displayName).toBe("Set 12 Core");
   });
 
-  it("returns both Infinity rotations", () => {
+  it("returns only s12 for Infinity post-cutover (s11 retired)", () => {
     const offered = listOfferedRotations("infinity");
-    expect(offered.map((o) => o.id)).toEqual(["s11", "s12"]);
+    expect(offered.map((o) => o.id)).toEqual(["s12"]);
+    expect(offered[0]!.entry.displayName).toBe("Set 12 Infinity");
   });
 });
