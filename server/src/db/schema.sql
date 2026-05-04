@@ -561,3 +561,49 @@ ALTER TABLE matchmaking_queue REPLICA IDENTITY FULL;
 -- channel is the primary client signal. The status endpoint surfaces it
 -- so it's safe to add and the field shape stays stable.
 ALTER TABLE matchmaking_queue ADD COLUMN IF NOT EXISTS paired_game_id UUID;
+
+-- ── MP UX duels-style middle screen (2026-05-04) ───────────────────────────
+-- Decouple deck choice from lobby creation. Pre-existing flow: deck attached
+-- at create + join time, game spawned the moment the second player joined.
+-- New flow: lobby = format + opponent commit; deck and ready state fill in
+-- post-join via setDeckInLobby + setReadyInLobby. Game spawns when both
+-- ready=true with decks attached. See docs/HANDOFF.md →
+-- "duels-style middle-screen lobby restructure" for the spec.
+--
+-- Schema is purely additive — host_deck / guest_deck columns stay (nullable
+-- already; the contract just changes from "filled at create/join" to "filled
+-- post-join via setDeck"). Older rows that have a deck attached at create
+-- continue to work; the route layer handles both shapes during the cutover.
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS host_ready  BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS guest_ready BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- Backfill discipline: any lobby row currently in `waiting` status whose
+-- host_deck IS NOT NULL pre-dates the new contract (deck was attached at
+-- create). Mark host_ready=true for those so the new readiness gate doesn't
+-- block them — they had a deck already, the host's intent was effectively
+-- "ready". Same for active lobbies (game already spawned), where the
+-- semantics don't matter but consistency is nice. This is idempotent
+-- (boolean OR is monotonic) and only affects pre-cutover rows since new
+-- creates ship with host_deck=NULL + host_ready=false.
+UPDATE lobbies
+   SET host_ready = TRUE
+ WHERE host_deck IS NOT NULL
+   AND host_ready = FALSE;
+UPDATE lobbies
+   SET guest_ready = TRUE
+ WHERE guest_deck IS NOT NULL
+   AND guest_ready = FALSE;
+
+-- Lobby status now also supports 'lobby' (transitional state — both players
+-- present, picking decks / toggling ready). Documented here for reference;
+-- column has no CHECK constraint so the value flows freely.
+-- Status transitions (post-2026-05-04):
+--   waiting          -> lobby         : guest joined (no game spawned yet)
+--   waiting          -> cancelled     : host cancelled (alone in lobby)
+--   waiting          -> finished      : abandoned cleanup
+--   lobby            -> active        : both ready, decks attached, game spawned
+--   lobby            -> cancelled     : host cancelled (after guest joined)
+--   active           -> finished      : match completed
+--
+-- Pre-cutover lobbies that already have a guest_id and status='active' stay
+-- as-is — they predate the 'lobby' transitional state.

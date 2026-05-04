@@ -11,9 +11,12 @@ import {
   createLobby,
   joinLobby,
   getLobby,
+  getLobbyInfo,
   listLobbies,
-  listPublicLobbies,
   rematchLobby,
+  resolveLobbyCode,
+  setDeckInLobby,
+  setReadyInLobby,
   type SpectatorPolicy,
 } from "../services/lobbyService.js"
 import { supabase } from "../db/client.js"
@@ -26,52 +29,41 @@ const DEFAULT_ROTATION: RotationId = "s12"
 
 const lobby = new Hono<{ Variables: { userId: string } }>()
 
-// POST /lobby/create
+// POST /lobby/create — duels-style middle-screen flow (2026-05-04).
+// Pre-cutover this took a `deck` arg and validated up-front; the new flow
+// commits format only at create time, deck attaches via /lobby/:id/deck
+// after the guest joins.
 lobby.post("/create", requireAuth, async (c) => {
   const userId = c.get("userId")
   const body = await c.req.json<{
-    deck: DeckEntry[]
     format?: string
     gameFormat?: string
     gameRotation?: string
-    public?: boolean
     spectatorPolicy?: string
   }>()
-
-  if (!Array.isArray(body.deck) || body.deck.length === 0) {
-    return c.json({ error: "deck is required" }, 400)
-  }
 
   const format = body.format === "bo3" ? "bo3" : "bo1"
   const family: GameFormatFamily = body.gameFormat === "core" ? "core" : "infinity"
   const rotation = (body.gameRotation ?? DEFAULT_ROTATION) as RotationId
   const gameFormat: GameFormat = { family, rotation }
 
-  const isPublic = body.public === true
   const spectatorPolicy: SpectatorPolicy =
     body.spectatorPolicy && SPECTATOR_POLICIES.includes(body.spectatorPolicy as SpectatorPolicy)
       ? (body.spectatorPolicy as SpectatorPolicy)
       : "off"
 
   try {
-    const result = await createLobby(userId, body.deck, format, gameFormat, {
-      public: isPublic,
-      spectatorPolicy,
-    })
+    const result = await createLobby(userId, format, gameFormat, { spectatorPolicy })
     return c.json({
       lobbyId: result.id,
       code: result.code,
       format,
       gameFormat: family,
       gameRotation: rotation,
-      public: isPublic,
       spectatorPolicy,
     })
   } catch (err) {
     const e = err as Error & { issues?: unknown }
-    if (e.message === "ILLEGAL_DECK" || e.message === "ILLEGAL_DECK_P1" || e.message === "ILLEGAL_DECK_P2") {
-      return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
-    }
     if (e.message?.startsWith("Unknown rotation")) {
       return c.json({ error: e.message }, 400)
     }
@@ -82,24 +74,21 @@ lobby.post("/create", requireAuth, async (c) => {
   }
 })
 
-// POST /lobby/join
+// POST /lobby/join — guest joins by 6-char code. Pre-cutover this also
+// took a deck arg + spawned the game synchronously; new flow flips status
+// to 'lobby' (middle-screen state) and waits for both players to ready up
+// via /lobby/:id/ready.
 lobby.post("/join", requireAuth, async (c) => {
   const userId = c.get("userId")
-  const body = await c.req.json<{ code: string; deck: DeckEntry[] }>()
+  const body = await c.req.json<{ code: string }>()
 
   if (!body.code) return c.json({ error: "code is required" }, 400)
-  if (!Array.isArray(body.deck) || body.deck.length === 0) {
-    return c.json({ error: "deck is required" }, 400)
-  }
 
   try {
-    const result = await joinLobby(userId, body.code, body.deck)
-    return c.json({ lobbyId: result.lobbyId, gameId: result.gameId, myPlayerId: result.guestSide })
+    const result = await joinLobby(userId, body.code)
+    return c.json({ lobbyId: result.lobbyId })
   } catch (err) {
     const e = err as Error & { issues?: unknown }
-    if (e.message === "ILLEGAL_DECK" || e.message === "ILLEGAL_DECK_P1" || e.message === "ILLEGAL_DECK_P2") {
-      return c.json({ error: "illegal deck for format", issues: e.issues ?? [] }, 400)
-    }
     if (e.message?.startsWith("QUEUED_ELSEWHERE")) {
       return c.json({ error: e.message.replace(/^QUEUED_ELSEWHERE: ?/, "") }, 409)
     }
@@ -108,6 +97,20 @@ lobby.post("/join", requireAuth, async (c) => {
     if (msg.includes("own lobby")) return c.json({ error: msg }, 400)
     return c.json({ error: msg }, 500)
   }
+})
+
+// GET /lobby/resolve/:code — look up the gameId (lobby UUID) for a 6-char
+// code without joining. Used by the /lobby/:code share-link redirect path
+// to navigate to /game/{lobbyId} where the middle screen renders. Doesn't
+// mutate state, doesn't require the caller to be the host or guest yet.
+//
+// MUST be registered before /:id so Hono's param route doesn't swallow "resolve".
+lobby.get("/resolve/:code", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const code = c.req.param("code")!
+  const result = await resolveLobbyCode(userId, code)
+  if (result.ok) return c.json({ lobbyId: result.lobbyId })
+  return c.json({ error: result.error }, result.status)
 })
 
 // POST /lobby/rematch — create a rematch lobby from a just-finished match
@@ -148,17 +151,8 @@ lobby.get("/", requireAuth, async (c) => {
   return c.json({ lobbies })
 })
 
-// GET /lobby/public — browser of public waiting lobbies (MP UX Phase 1).
-// Excludes caller's own lobbies; no deck fields in response (no scouting).
-// MUST be registered before /:id so Hono's param route doesn't swallow "public".
-lobby.get("/public", requireAuth, async (c) => {
-  const userId = c.get("userId")
-  const lobbies = await listPublicLobbies(userId)
-  return c.json({ lobbies })
-})
-
-// POST /lobby/:id/cancel — host cancels their waiting lobby (MP UX Phase 1).
-// Only valid on status='waiting'. Sets status='cancelled'.
+// POST /lobby/:id/cancel — host cancels their waiting/lobby-state lobby.
+// Only valid on status='waiting' or 'lobby'. Sets status='cancelled'.
 lobby.post("/:id/cancel", requireAuth, async (c) => {
   const userId = c.get("userId")
   const lobbyId = c.req.param("id")!
@@ -167,7 +161,69 @@ lobby.post("/:id/cancel", requireAuth, async (c) => {
   return c.json({ error: result.error }, result.status as 404 | 403 | 409 | 500)
 })
 
-// GET /lobby/:id — MUST be last so it doesn't shadow /public or fixed routes.
+// POST /lobby/:id/deck — attach (or swap) the caller's deck. Validates
+// against the lobby's stamped format. Caller must be host or guest. Resets
+// caller's ready flag to false (deck swap implicitly un-readies; the player
+// re-acknowledges via /lobby/:id/ready).
+lobby.post("/:id/deck", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbyId = c.req.param("id")!
+  const body = await c.req.json<{ deck: DeckEntry[] }>().catch(() => ({} as { deck?: DeckEntry[] }))
+  if (!body.deck) {
+    return c.json({ error: "deck is required" }, 400)
+  }
+  const result = await setDeckInLobby(userId, lobbyId, body.deck)
+  if (result.ok) return c.json({ ok: true, slot: result.slot })
+  if ("issues" in result) {
+    return c.json({ error: result.error, issues: result.issues ?? [] }, result.status)
+  }
+  return c.json({ error: result.error }, result.status)
+})
+
+// POST /lobby/:id/ready — toggle the caller's ready flag. When both players
+// are ready with decks attached, server atomically transitions to status='active'
+// + spawns the games row in the same call. The acting player gets gameId on
+// the response; the opponent observes via the lobby:{id} broadcast channel
+// (and the postgres-changes UPDATE event as fallback).
+lobby.post("/:id/ready", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbyId = c.req.param("id")!
+  const body = await c.req.json<{ ready: boolean }>().catch(() => ({} as { ready?: boolean }))
+  if (typeof body.ready !== "boolean") {
+    return c.json({ error: "ready (boolean) is required" }, 400)
+  }
+  const result = await setReadyInLobby(userId, lobbyId, body.ready)
+  if (result.ok) {
+    return c.json({
+      ok: true,
+      gameStarted: result.gameStarted,
+      ...(result.gameId ? { gameId: result.gameId } : {}),
+    })
+  }
+  return c.json({ error: result.error }, result.status)
+})
+
+// GET /lobby/:id/info — privacy-safe middle-screen snapshot. Returns format,
+// presence + ready flags, has-deck booleans, and (when game has started)
+// the spawned gameId. NEVER returns deck contents. Caller must be the host
+// or guest. Used by the middle-screen mount call and the /lobby/:code
+// redirect path.
+lobby.get("/:id/info", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbyId = c.req.param("id")!
+  const info = await getLobbyInfo(lobbyId)
+  if (!info) return c.json({ error: "Lobby not found" }, 404)
+  if (info.hostId !== userId && info.guestId !== userId) {
+    return c.json({ error: "You are not in this lobby" }, 403)
+  }
+  return c.json({ lobby: info })
+})
+
+// GET /lobby/:id — MUST be last so it doesn't shadow /resolve, /:id/info, or
+// other fixed routes. Pre-cutover this returned the raw lobby row (incl.
+// host_deck/guest_deck). UI consumers should migrate to /:id/info — kept
+// for backwards compat with existing callers; RLS still gates deck columns
+// to the host+guest, but the /info endpoint is the privacy-safer surface.
 lobby.get("/:id", requireAuth, async (c) => {
   const lobbyData = await getLobby(c.req.param("id")!)
   if (!lobbyData) return c.json({ error: "Lobby not found" }, 404)
