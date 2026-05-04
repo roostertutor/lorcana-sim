@@ -458,6 +458,93 @@ Reference screenshots are in `C:\Users\Ryan\Downloads\other app screenshots\` (n
 
 ---
 
+### Regional formats (Japan / Chinese constructed)
+
+**Considered (2026-05-04)**: Lorcana ships with regional differences — Japan and China have their own set release calendars and (sometimes) different card pools / banlists than the EN core release. Adding regional formats means players in those regions can play their actual constructed metas; analytics surface regional meta data; future partnerships can localize.
+
+**Why parked**: No active demand pre-launch. Pure expansion of the existing `GameFormat` model — designed to scale without architecture changes:
+
+```ts
+GameFormat = { family: GameFormatFamily, rotation: RotationId }
+GameFormatFamily = "core" | "infinity"   // ← extend per region
+RotationId = "s11" | "s12"               // ← extend per region's calendar
+```
+
+Path of least resistance: treat each region as additional family values (`core_jp`, `infinity_jp`, `core_cn`, etc.). Existing rotation registry pattern absorbs it. ELO keys multiply combinatorially (8 → 24 → 48 as regions stack), but the JSONB-backed `elo_ratings` + `games_played_by_format` storage is already shape-flexible.
+
+**What needs touching**:
+- **Engine** (`legality.ts`): extend `GameFormatFamily` union, add region-specific `LEGAL_SETS` constants, register new rotations. Existing decks unaffected (their stamps still resolve).
+- **Server**: schema migration — same pattern as the `games_played_by_format` add (one ALTER + a default extension). ~10 lines TS for default seeding.
+- **Card data**: each card needs a `legal_in: string[]` field (or analogous) so the legality engine knows where each card is playable. Either Ravensburger publishes regional pools as separate APIs (probable for big regions) or we synthesize from card lists.
+- **UI**:
+  - `/me` ratings table would need region grouping (currently a hard-coded 2×2 Core/Infinity × Set 11/12 grid). Could expand to N rows or group-by-region with collapsible regions.
+  - Lobby's match-config strip needs a region selector — likely a third segmented toggle: `Region [EN|JP|CN]` next to Match and Rotation. Same pattern, more options.
+  - Card images / rules-text might be region-specific (different translations) — separate concern, not strictly format work.
+
+**Trigger to reconsider** (any one):
+- A regional partnership opportunity surfaces (Lorcana JP community / event organizer asks for tournament hosting).
+- User-base reaches a point where regional players are explicitly requesting their pools (likely 1k+ users with non-EN audience signal).
+- Lorcana official localization launches a market we want to serve before others have client coverage.
+
+**Expected scope**: ~1–2 sessions per region once the card data is acquirable. Engine + server work is mechanical (extend registries + one schema migration); the bulk is UI region-awareness on `/me` and the lobby strip.
+
+**Decisions explicitly NOT to revisit**:
+- Don't attempt machine-translate card rules text — same logic as the i18n entry above. Game correctness is load-bearing.
+
+---
+
+### Limited formats (Draft / Sealed / Pack Rush)
+
+**Considered (2026-05-04)**: Lorcana has Limited formats — Draft (players take turns picking cards from packs), Sealed (each player opens N packs and builds from those cards), Pack Rush (a Lorcana-specific Limited variant). These are first-class formats in the game's tournament structure. duels.ink and most clients today are constructed-only; offering Limited would be a meaningful product differentiator AND aligns with the analytics flywheel (Limited generates rich data — pack contents, pick orders, deck builds).
+
+**Why parked**: Major new subsystem. The fundamental difference from constructed:
+
+| | Constructed | Limited |
+|---|---|---|
+| **Deck source** | Pre-built, attached pre-game | Built INSIDE the lobby session from a randomized pool |
+| **Lobby state machine** | `waiting → lobby → active` | `waiting → packs_opening → drafting/picking → deck_building → active` |
+| **Per-player state** | `deck` (ref) | `pack_pool, picks_made, drafted_cards, final_deck` |
+| **Engine impact** | None new | Pack generation only; engine just plays the resulting deck |
+| **Real-time coordination** | Just ready states | Pick timer, simultaneous-pick state, opponent-picking indicators |
+
+**Why the engine is mostly unaffected**: the existing engine plays whatever deck you hand it. The "Limited" complexity lives entirely in the **container** (lobby + middle screen + new draft sub-screens) — pack generation, pick coordination, deck building. Once the deck is finalized, the existing game engine takes over unchanged.
+
+**What needs touching**:
+- **Engine**: pack generation logic — given `setId` + rarity distribution, return 12 random cards weighted by rarity. Small new module; no core engine changes. Can use the existing seeded-RNG primitives for reproducibility (replays).
+- **Server** (the bulk of the work):
+  - New tables / columns for draft sessions: pack pool per player, picks made, pick deadlines, finalized-deck flag.
+  - New endpoints: `openPack(lobbyId)`, `submitPick(lobbyId, cardId)`, `finalizeDeck(lobbyId, deckEntries)`.
+  - Pick timer enforcement — server-side timer prevents grief-stalling.
+  - New realtime broadcast events on the lobby channel: `pack_revealed`, `pick_made`, `pack_round_complete`.
+  - Deck legality check — final deck must be ≥ N cards, all cards from the player's drafted pool.
+- **UI**: new `/play/{lobbyId}` sub-screens during draft state:
+  - Pack-opening view (cards face-down, animated reveal — visual polish, not load-bearing).
+  - Pick view: grid of cards from current pack + opponent-is-picking indicator + timer.
+  - Deck-building view: drag/drop drafted cards into deck slots, see card counts, validate min-deck-size.
+  - Final deck preview before Ready.
+  - Reuses existing `<GameCard>` component; needs new layout containers.
+- **ELO**: new match-format dimension. `EloKey` becomes `${matchFormat}_${draftType}_${family}_${rotation}` or similar. Sealed and Draft are typically rated separately (different skill curves).
+
+**Trigger to reconsider** (any one):
+- User volume / engagement signals support investing in non-constructed formats (active monthly players >5k who play >1 game/week).
+- Lorcana official Limited tournaments become prominent enough to support fan-tooling (community organizers asking for online-Sealed).
+- Strategic decision to invest in events / tournament hosting where Limited is the dominant format.
+- A specific high-value partnership (LGS, league organizer) explicitly needs Limited support.
+
+**Expected scope**: 5–10 sessions across all three layers.
+- Server: ~3–5 sessions (new tables, draft session state machine, pack generation, pick coordination, realtime).
+- UI: ~3–4 sessions (pack-opening view, pick view, deck-building view, plus polish).
+- Engine: ~1 session (pack generation module).
+- Plus QA / playtesting, especially around pick-timer edge cases and disconnect handling mid-draft.
+
+**Decisions explicitly NOT to revisit**:
+- Don't try to bolt Limited into the existing constructed lobby flow. The state machine is genuinely different — packs_opening / drafting / deck_building are real states, not sub-states of `waiting`. Forcing them into the constructed shape will create bug-class confusion.
+- Don't ship Sealed without disconnect/reconnect tested end-to-end. A 6-pack Sealed session is 30+ minutes of investment per player; losing that to a network blip is a much sharper UX failure than constructed.
+
+**Decision shape**: when this comes up for real, expect to break it into phases — Sealed first (simpler: open all packs at once, build, play), Draft second (harder: live coordination between players), Pack Rush third (variant rules on top of one of the above).
+
+---
+
 ## Data / DB
 
 ### Soft-delete on `decks` table for post-hoc analysis
