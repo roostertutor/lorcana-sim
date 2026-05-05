@@ -280,11 +280,15 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
   return (
     <div className="space-y-2">
       {/* Top row: search + filter toggle (mobile) + clear */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-0">
         <input
           // type="search" gives mobile keyboards a "Search" key + the
           // browser-rendered ✕ clear control. autoCapitalize="words"
           // matches how card names are written ("Mickey Mouse").
+          // min-w-0 lets flex-1 actually shrink the input below its
+          // default intrinsic width on narrow phones — without it, the
+          // input + Filters button + count overflow the viewport and
+          // cause horizontal scroll on small mobile portrait screens.
           type="search"
           placeholder="Search card name..."
           value={filters.query}
@@ -293,7 +297,7 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
           autoComplete="off"
           enterKeyHint="search"
           aria-label="Search card name"
-          className="flex-1 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
+          className="flex-1 min-w-0 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
         />
         {/* Mobile-only filter sheet toggle */}
         <button
