@@ -10,10 +10,13 @@ import type {
   Condition,
   GameState,
   Keyword,
+  PendingTrigger,
   PlayerID,
   PlayerTarget,
   ResolvedRef,
   RestrictedAction,
+  TriggerEvent,
+  TriggeredAbility,
   ZoneName,
 } from "../types/index.js";
 
@@ -795,12 +798,50 @@ export function updateInstance(
   };
 }
 
-/** Move a card from one zone to another immutably */
+/** Lightweight local mirror of reducer.ts's findMatchingTriggerSpec — pulled
+ *  inline here so moveCard can queue `card_leaves_discard` triggers without
+ *  importing from the reducer (utils → reducer would be a circular dep). The
+ *  reducer's copy stays the source of truth for cross-card / self-trigger
+ *  dispatch in queueTrigger; this one only services the inline by-event scan
+ *  below. Keep the two in sync. */
+function findMatchingTriggerSpecInline(
+  ability: TriggeredAbility,
+  eventType: string,
+): TriggerEvent | null {
+  const t = ability.trigger;
+  if ("anyOf" in t) {
+    for (const spec of t.anyOf) {
+      if (spec.on === eventType) return spec;
+    }
+    return null;
+  }
+  return t.on === eventType ? t : null;
+}
+
+/** Move a card from one zone to another immutably.
+ *
+ *  `definitions` is required because `card_leaves_discard` triggers (Kristoff
+ *  Icy Explorer STROKE OF LUCK) are queued inline whenever a card transitions
+ *  out of any player's discard. Producer-side discipline: the only place that
+ *  actually moves cards out of discard is here, so the trigger is queued at
+ *  the lowest level. Cross-card watchers (`player: self` resolves vs. the
+ *  moved card's owner — i.e. the discard's owner) are appended directly to
+ *  `state.triggerStack`, mirroring `queueTriggersByEvent`'s semantics for
+ *  by-event triggers. Self-triggers on `card_leaves_discard` aren't wired by
+ *  any current card; if they ever are, add a self-trigger scan above the
+ *  cross-card loop (see reducer.ts's queueTrigger for the canonical shape).
+ *
+ *  Required (not optional with a default) to make the producer side hard to
+ *  forget — adding a new moveCard call without `definitions` is a compile
+ *  error, not a silent missing-trigger bug. The audit improvement in
+ *  scripts/card-status.ts (trigger-without-producer check) closes the same
+ *  gap from the JSON consumer side. */
 export function moveCard(
   state: GameState,
   instanceId: string,
   targetPlayerId: PlayerID,
   targetZone: ZoneName,
+  definitions: Record<string, CardDefinition>,
   position: "top" | "bottom" | number = "bottom"
 ): GameState {
   const instance = getInstance(state, instanceId);
@@ -886,6 +927,63 @@ export function moveCard(
     };
   }
 
+  // Producer for `card_leaves_discard` triggers (Kristoff Icy Explorer STROKE
+  // OF LUCK: "Once during your turn, whenever a card leaves your discard,
+  // draw a card."). Fires on EVERY transition where a card leaves discard —
+  // bounce-back-to-hand from `banished_in_challenge` → `return_to_hand` (HeiHei
+  // Persistent Presence sets 2 + 11; Will o' the Wisp Forest Spirit set 12),
+  // `put_card_on_bottom_of_deck` from:"discard" (Kristoff's own HIDDEN DEPTHS
+  // self-combo, Lonely Grave), search-from-discard, play-from-discard via
+  // reveal, and any future return-from-discard primitive. Mirrors `cardsLeft\
+  // DiscardThisTurn` (the boolean condition flag set just above) — that flag
+  // backs Anna Soothing Sister UNUSUAL TRANSFORMATION. Pre-fix the JSON
+  // declared the trigger correctly and `card-status` accepted it (valid
+  // discriminator), but no producer ever queued it, so STROKE OF LUCK was
+  // silently inert. This is the producer-side mirror of the Hidden Inkcaster
+  // failure mode documented in CLAUDE.md.
+  //
+  // Owner-scoped: the trigger fires for each watcher whose `player: self`
+  // matches the discard's owner (= the moved card's `instance.ownerId` since
+  // the card hasn't been moved yet at this point). `player: opponent` matches
+  // the inverse; no `player` field means fire for any discard's owner. Mirrors
+  // the player-target resolution in queueTriggersByEvent (reducer.ts:6766).
+  let triggerStack = state.triggerStack;
+  if (sourceZone === "discard" && targetZone !== "discard") {
+    const discardOwnerId = instance.ownerId;
+    const newTriggers: PendingTrigger[] = [];
+    for (const [watcherId, watcher] of Object.entries(state.cards)) {
+      if (watcher.zone !== "play") continue;
+      const watcherDef = definitions[watcher.definitionId];
+      if (!watcherDef) continue;
+      for (const ability of watcherDef.abilities) {
+        if (ability.type !== "triggered") continue;
+        const matched = findMatchingTriggerSpecInline(ability, "card_leaves_discard");
+        if (!matched) continue;
+        // CRD 6.3-ish: triggered abilities default to in-play. Card is in
+        // play (filtered above), so the activeZones check is satisfied —
+        // included for parity with queueTriggersByEvent.
+        const activeZones = ability.activeZones ?? ["play"];
+        if (!activeZones.includes(watcher.zone)) continue;
+        // player target: self → watcher must own the discard the card left.
+        if ("player" in matched && matched.player) {
+          const cardOwner = watcher.ownerId;
+          const opponent = cardOwner === "player1" ? "player2" : "player1";
+          if (matched.player.type === "self" && discardOwnerId !== cardOwner) continue;
+          if (matched.player.type === "opponent" && discardOwnerId !== opponent) continue;
+        }
+        newTriggers.push({
+          ability,
+          sourceInstanceId: watcherId,
+          context: { triggeringPlayerId: discardOwnerId, triggeringCardInstanceId: instanceId },
+          matchedEvent: matched,
+        });
+      }
+    }
+    if (newTriggers.length > 0) {
+      triggerStack = [...triggerStack, ...newTriggers];
+    }
+  }
+
   return {
     ...state,
     cards: {
@@ -902,6 +1000,7 @@ export function moveCard(
     },
     players: updatedPlayers,
     cardsLeftDiscardThisTurn,
+    triggerStack,
   };
 }
 

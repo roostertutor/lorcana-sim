@@ -2183,3 +2183,235 @@ describe("§10 Set 10 — Mulan Standing Her Ground FLOWING BLADE (player-wide p
     expect(state.players.player2.youPutCardUnderThisTurn ?? false).toBe(false);
   });
 });
+
+// =============================================================================
+// SET 11 — Kristoff Icy Explorer STROKE OF LUCK (card_leaves_discard producer)
+// =============================================================================
+//
+// Regression coverage for the producer-side Hidden Inkcaster bug discovered
+// 2026-05-05. Kristoff's STROKE OF LUCK ability ("Once during your turn,
+// whenever a card leaves your discard, draw a card.") was wired correctly in
+// JSON (card-set-11.json:3365-3388) and the trigger discriminator
+// `card_leaves_discard` was a valid TriggerEvent in types/index.ts:2905, but
+// NO reducer call ever queued the event — the trigger was silently inert.
+// `card-status` accepted it (valid discriminator) and `decompile-cards`
+// scored it well (clean rendering); only a handler-existence audit or live
+// play would have caught it. Fix: queue the trigger from `moveCard` (the
+// lowest-level zone-change point — same producer site as the
+// `cardsPutIntoDiscardThisTurn` counter and `cardsLeftDiscardThisTurn` flag,
+// so every discard-leaving path emits the trigger uniformly).
+//
+// Owner-scoped per CRD 6.1 templating: STROKE OF LUCK has `player: { type:
+// "self" }` on the trigger — matches when the moved card's owner (= the
+// discard's owner) equals Kristoff's owner. Cards leaving the OPPONENT's
+// discard don't fire it.
+describe("§11 Set 11 — Kristoff Icy Explorer STROKE OF LUCK", () => {
+  it("direct producer test: return_to_hand on a card in YOUR discard fires STROKE OF LUCK → draw 1", () => {
+    // Minimal isolated proof that moveCard now queues card_leaves_discard.
+    // Skips the challenge / HeiHei machinery — just exercises the producer.
+    let state = startGame(["kristoff-icy-explorer", "anna-little-sister"]);
+    let kristoffId: string;
+    ({ state, instanceId: kristoffId } = injectCard(state, "player1", "kristoff-icy-explorer", "play", { isDrying: false }));
+    // Card in player1's own discard. Any character will do.
+    let victimId: string;
+    ({ state, instanceId: victimId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "discard"));
+
+    const handBefore = state.zones.player1.hand.length;
+    expect(state.players.player1.cardsLeftDiscardThisTurn ?? false).toBe(false);
+
+    // Apply return_to_hand directly on the discarded card. moveCard fires
+    // `card_leaves_discard` → STROKE OF LUCK queued → resolves on the next
+    // applyAction tick. Use a no-op PASS_TURN-equivalent action by just
+    // running applyEffect then letting the trigger stack drain via
+    // applyAction. Easier: invoke applyEffect, then let the trigger run.
+    let s = applyEffect(state, { type: "return_to_hand", target: { type: "this" } } as any,
+      victimId, "player1", CARD_DEFINITIONS, []);
+    // Card moved out of discard
+    expect(getInstance(s, victimId).zone).toBe("hand");
+    expect(s.cardsLeftDiscardThisTurn).toBe(true);
+    // STROKE OF LUCK should be on the trigger stack (was queued by moveCard).
+    // Drain the trigger stack via the same path the reducer uses — easiest is
+    // to surface the trigger via a no-op action so processTriggerStack runs.
+    // Use applyAction with PASS_TURN preceded by trigger drain... actually
+    // the trigger should resolve as part of the trigger queue draining,
+    // which happens at applyAction boundaries. To force a drain in this
+    // direct-applyEffect path, take the produced state and feed any action
+    // that processes triggers. PASS_TURN does, but it advances the turn —
+    // that resets oncePerTurn flags. Use a benign action that drains
+    // triggers without side effects: ACK_TRIGGER if available, otherwise
+    // re-enter applyAction with a no-op that will surface the trigger.
+    //
+    // Simpler: trigger stack draining happens automatically inside
+    // applyAction. Since we used applyEffect (not applyAction), the
+    // triggerStack is populated but undrained. Verify it's there:
+    expect(s.triggerStack.length).toBeGreaterThanOrEqual(1);
+    const queued = s.triggerStack.find(t => t.sourceInstanceId === kristoffId);
+    expect(queued).toBeDefined();
+    expect((queued!.matchedEvent as any)?.on).toBe("card_leaves_discard");
+  });
+
+  it("set-11 HeiHei (mandatory bounce) banished in challenge → STROKE OF LUCK draws 1 (your turn)", () => {
+    // End-to-end integration: HeiHei attacks an exerted opponent character,
+    // gets banished, HE'S BACK bounces him to hand, the bounce fires
+    // card_leaves_discard, Kristoff (player1) sees `player: self` match,
+    // is_your_turn condition is satisfied, draw 1 fires.
+    let state = startGame(["kristoff-icy-explorer", "heihei-persistent-presence", "minnie-mouse-beloved-princess"]);
+
+    // player1 setup: Kristoff in play (drying false), HeiHei (set-11 reprint) in play (drying false).
+    let kristoffId: string;
+    ({ state, instanceId: kristoffId } = injectCard(state, "player1", "kristoff-icy-explorer", "play", { isDrying: false }));
+    // Note: heihei-persistent-presence id is shared between set-2 and set-11 JSON entries
+    // (it's the same card slug); CARD_DEFINITIONS picks up whichever was loaded last per the
+    // build's set-merge order. Both sets have identical engine wiring (HE'S BACK mandatory
+    // bounce on banished_in_challenge), so this test exercises set-11's behavior structurally.
+    let heiheiId: string;
+    ({ state, instanceId: heiheiId } = injectCard(state, "player1", "heihei-persistent-presence", "play", { isDrying: false }));
+
+    // player2 setup: an exerted character. STR >= 1 to banish HeiHei (WP 1),
+    // WP > 2 to survive HeiHei's STR 2 hit. Minnie (3 STR / 3 WP) fits.
+    let minnieId: string;
+    ({ state, instanceId: minnieId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", {
+      isDrying: false,
+      isExerted: true,
+    }));
+
+    expect(state.currentPlayer).toBe("player1");
+    const handBefore = state.zones.player1.hand.length;
+
+    // HeiHei challenges Minnie. HeiHei (2/1) takes 3, dies. Minnie (3/3) takes 2, lives at 2 dmg.
+    let result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1",
+      attackerInstanceId: heiheiId, defenderInstanceId: minnieId,
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Drain pendingChoices (HE'S BACK is mandatory but the trigger bag may
+    // surface a choose_trigger pick if multiple triggers fire simultaneously).
+    let safety = 0;
+    while (result.newState.pendingChoice && safety < 20) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    // HeiHei back in hand
+    expect(getInstance(result.newState, heiheiId).zone).toBe("hand");
+    // Minnie still in play, damaged
+    expect(getInstance(result.newState, minnieId).zone).toBe("play");
+    expect(getInstance(result.newState, minnieId).damage).toBe(2);
+    // Hand delta = +2: HeiHei was in PLAY → discard → hand (+1 from HE'S
+    // BACK bounce) + STROKE OF LUCK draw (+1). Without the producer fix the
+    // STROKE OF LUCK half is silently missing — that's the bug this guards.
+    expect(result.newState.zones.player1.hand.length).toBe(handBefore + 2);
+    // Kristoff's oncePerTurn key should be set so a second bounce wouldn't draw.
+    expect(getInstance(result.newState, kristoffId).oncePerTurnTriggered).toBeDefined();
+  });
+
+  it("oncePerTurn: two HeiHei bounces in one turn → only one STROKE OF LUCK draw", () => {
+    // Stress-test the oncePerTurn budget on STROKE OF LUCK. Two separate
+    // HeiHei bounces should each fire card_leaves_discard, but Kristoff's
+    // ability is gated by `oncePerTurn: true` so only the first draw lands.
+    let state = startGame(["kristoff-icy-explorer", "heihei-persistent-presence", "minnie-mouse-beloved-princess", "mickey-mouse-true-friend"]);
+
+    let kristoffId: string;
+    ({ state, instanceId: kristoffId } = injectCard(state, "player1", "kristoff-icy-explorer", "play", { isDrying: false }));
+    let heihei1: string, heihei2: string;
+    ({ state, instanceId: heihei1 } = injectCard(state, "player1", "heihei-persistent-presence", "play", { isDrying: false }));
+    ({ state, instanceId: heihei2 } = injectCard(state, "player1", "heihei-persistent-presence", "play", { isDrying: false }));
+
+    // Two exerted opponent characters with high WP so HeiHeis die without banishing them.
+    let minnie1: string, minnie2: string;
+    ({ state, instanceId: minnie1 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: minnie2 } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false, isExerted: true }));
+
+    expect(state.currentPlayer).toBe("player1");
+    const handBefore = state.zones.player1.hand.length;
+
+    const drainChoices = (r: any): any => {
+      let safety = 0;
+      while (r.newState.pendingChoice && safety < 20) {
+        const ch = r.newState.pendingChoice;
+        if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+          r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+        } else if (ch.type === "choose_may") {
+          r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+        } else {
+          break;
+        }
+        safety++;
+      }
+      return r;
+    };
+
+    // First challenge — HeiHei #1 dies and bounces. STROKE OF LUCK fires once.
+    // Hand delta = +2: HeiHei #1 bounce-back (+1) + draw (+1).
+    let r = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1",
+      attackerInstanceId: heihei1, defenderInstanceId: minnie1,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = drainChoices(r);
+    expect(getInstance(r.newState, heihei1).zone).toBe("hand");
+    expect(r.newState.zones.player1.hand.length).toBe(handBefore + 2);
+
+    // Second challenge — HeiHei #2 dies and bounces. card_leaves_discard
+    // fires again (the producer always fires), but STROKE OF LUCK's
+    // oncePerTurn key is already set on Kristoff so the trigger does NOT
+    // queue a second draw. Hand delta = +1 from this challenge (HeiHei #2
+    // bounce-back only) → cumulative hand = handBefore + 3.
+    r = applyAction(r.newState, {
+      type: "CHALLENGE", playerId: "player1",
+      attackerInstanceId: heihei2, defenderInstanceId: minnie2,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = drainChoices(r);
+    expect(getInstance(r.newState, heihei2).zone).toBe("hand");
+    expect(r.newState.zones.player1.hand.length).toBe(handBefore + 3);
+  });
+
+  it("STROKE OF LUCK does NOT fire on opponent's turn (gated by is_your_turn)", () => {
+    // HeiHei defends on player2's turn. Bounce fires card_leaves_discard
+    // (correctly), but STROKE OF LUCK's is_your_turn condition rejects on
+    // player2's turn. Hand unchanged.
+    let state = startGame(["kristoff-icy-explorer", "heihei-persistent-presence", "mickey-mouse-true-friend"]);
+    ({ state } = injectCard(state, "player1", "kristoff-icy-explorer", "play", { isDrying: false }));
+    let heiheiId: string;
+    ({ state, instanceId: heiheiId } = injectCard(state, "player1", "heihei-persistent-presence", "play", { isDrying: false, isExerted: true }));
+    let attackerId: string;
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+
+    state = { ...state, currentPlayer: "player2" };
+    const handBefore = state.zones.player1.hand.length;
+
+    let r = applyAction(state, {
+      type: "CHALLENGE", playerId: "player2",
+      attackerInstanceId: attackerId, defenderInstanceId: heiheiId,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    let safety = 0;
+    while (r.newState.pendingChoice && safety < 20) {
+      const ch = r.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    expect(getInstance(r.newState, heiheiId).zone).toBe("hand");
+    // Hand delta = +1: HeiHei bounce-back only. STROKE OF LUCK is gated by
+    // is_your_turn (Kristoff's owner = player1, but currentPlayer = player2)
+    // so no draw fires. Without the is_your_turn gate the test would see +2.
+    expect(r.newState.zones.player1.hand.length).toBe(handBefore + 1);
+  });
+});

@@ -214,7 +214,7 @@ export function applyAction(
       newState.triggerStack.length === 0 &&
       !newState.pendingEffectQueue
     ) {
-      newState = cleanupPendingAction(newState, action.playerId);
+      newState = cleanupPendingAction(newState, action.playerId, definitions);
     }
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
@@ -767,7 +767,7 @@ function applyPlayCard(
       const names: string[] = [];
       for (const costId of altShiftCostInstanceIds) {
         names.push(getDefinition(state, costId, definitions).fullName);
-        state = moveCard(state, costId, playerId, "discard");
+        state = moveCard(state, costId, playerId, "discard", definitions);
         events.push({ type: "card_discarded" as any, instanceId: costId, playerId });
       }
       state = appendLog(state, {
@@ -2212,7 +2212,7 @@ function applyDraw(
     if (deck.length === 0) break;
     const topCardId = deck[0];
     if (!topCardId) break;
-    state = moveCard(state, topCardId, playerId, "hand");
+    state = moveCard(state, topCardId, playerId, "hand", definitions);
     events.push({ type: "card_drawn", playerId, instanceId: topCardId });
     const cardName = getDefinition(state, topCardId, definitions)?.fullName ?? "a card";
     state = appendLog(state, {
@@ -2335,7 +2335,7 @@ function applyResolveChoice(
 
     // Put chosen cards at bottom of deck
     for (const cardId of cardsToReturn) {
-      state = moveCard(state, cardId, playerId, "deck", "bottom");
+      state = moveCard(state, cardId, playerId, "deck", definitions, "bottom");
     }
 
     // Draw same number of replacements
@@ -2430,7 +2430,7 @@ function applyResolveChoice(
       // (and any nested may-prompts on either player's reveal) is fully done.
       // Without this, Let's Get Dangerous "stayed on the field" whenever any
       // player's revealed character triggered a matchIsMay prompt.
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
     if (choice === "accept") {
@@ -2452,7 +2452,7 @@ function applyResolveChoice(
     // CRD 4.3.3.2: same rationale as the reveal-continuation path — the action
     // source moves to discard once any may-prompt it surfaced is resolved and
     // no further pendingChoice / effect-queue work is outstanding.
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2476,7 +2476,7 @@ function applyResolveChoice(
     // 6.1.5.2 cards like Madam Mim - Snake / Megara SHADY DEAL / Containment
     // Unit) hit the same RESOLVE_CHOICE path — cleanupPendingAction no-ops
     // for them because `state.pendingActionInstanceId` is undefined.
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2502,7 +2502,7 @@ function applyResolveChoice(
       const inst = state.cards[cardId];
       if (inst && inst.zone === "hand") {
         discardingPlayerId = inst.ownerId;
-        state = moveCard(state, cardId, inst.ownerId, "discard");
+        state = moveCard(state, cardId, inst.ownerId, "discard", definitions);
       }
     }
     // Queue cards_discarded trigger (Prince John - Greediest of All) — but DO NOT
@@ -2523,7 +2523,7 @@ function applyResolveChoice(
       });
     }
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2550,13 +2550,13 @@ function applyResolveChoice(
       // Move unpicked cards per restPlacement.
       const restPlacement = pendingEff.restPlacement ?? "bottom";
       if (restPlacement === "discard") {
-        for (const id of rest) state = moveCard(state, id, owner, "discard");
+        for (const id of rest) state = moveCard(state, id, owner, "discard", definitions);
       } else if (restPlacement === "bottom") {
         state = reorderDeckTopToBottom(state, owner, rest, []);
       }
       // "top" placement: cards stay in position — no action needed.
       state = resumePendingEffectQueue(state, definitions, events);
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
 
@@ -2567,12 +2567,12 @@ function applyResolveChoice(
         events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       }
       if (pendingEff.putInto === "deck" && pendingEff.position === "top") {
-        state = moveCard(state, chosenId, owner, "deck", "top");
+        state = moveCard(state, chosenId, owner, "deck", definitions, "top");
       } else {
-        state = moveCard(state, chosenId, owner, pendingEff.putInto);
+        state = moveCard(state, chosenId, owner, pendingEff.putInto, definitions);
       }
       state = resumePendingEffectQueue(state, definitions, events);
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
 
@@ -2599,14 +2599,14 @@ function applyResolveChoice(
         events.push({ type: "card_revealed", instanceId: chosenId, playerId: owner, sourceInstanceId: pendingChoice.sourceInstanceId ?? "" });
       }
       if (pickDestination === "hand") {
-        state = moveCard(state, chosenId, cardOwner, "hand");
+        state = moveCard(state, chosenId, cardOwner, "hand", definitions);
       } else if (pickDestination === "inkwell_exerted") {
         state = zoneTransition(state, chosenId, "inkwell", definitions, events, { reason: "inked" });
         state = updateInstance(state, chosenId, { isExerted: true });
         // CRD 6.2: fire card_put_into_inkwell so Oswald et al. pick it up.
         state = queueTriggersByEvent(state, "card_put_into_inkwell", cardOwner, definitions, {});
       } else if (pickDestination === "discard") {
-        state = moveCard(state, chosenId, cardOwner, "discard");
+        state = moveCard(state, chosenId, cardOwner, "discard", definitions);
       }
       // "deck_top": chosen stays in place. With restPlacement "bottom" (moving
       // the rest to bottom), the chosen card ends up at top naturally.
@@ -2617,7 +2617,7 @@ function applyResolveChoice(
     if (restPlacement === "discard") {
       for (const id of rest) {
         const cardOwner = state.cards[id]?.ownerId ?? owner;
-        state = moveCard(state, id, cardOwner, "discard");
+        state = moveCard(state, id, cardOwner, "discard", definitions);
       }
     } else if (restPlacement === "bottom") {
       if (rest.length > 1 && state.interactive) {
@@ -2647,7 +2647,7 @@ function applyResolveChoice(
     }
     // "top" placement: cards stay where they were after chosen is removed — no-op.
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2674,7 +2674,7 @@ function applyResolveChoice(
       // hand → top of deck), we need to actually MOVE them first.
       // reorderDeckTopToBottom only re-orders cards already in deck.
       if (inst.zone !== "deck") {
-        state = moveCard(state, id, owner, "deck");
+        state = moveCard(state, id, owner, "deck", definitions);
       }
     }
     for (const [owner, ids] of byOwner) {
@@ -2685,7 +2685,7 @@ function applyResolveChoice(
       }
     }
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2699,7 +2699,7 @@ function applyResolveChoice(
       state = applyChosenPlayerEffect(state, pendingEffect, chosenPlayer, playerId, sourceId, definitions, events);
     }
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2724,7 +2724,7 @@ function applyResolveChoice(
       state = applyEffect(state, resolved, sourceId, playerId, definitions, events, triggeringId);
     }
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2741,7 +2741,7 @@ function applyResolveChoice(
         if (!inst) continue;
         const def = definitions[inst.definitionId];
         if (def && def.cardType === "character" && def.name === choice) {
-          state = moveCard(state, cid, playerId, "hand");
+          state = moveCard(state, cid, playerId, "hand", definitions);
         }
       }
       return state;
@@ -2759,7 +2759,7 @@ function applyResolveChoice(
           // CRD 6.2: fire card_put_into_inkwell so cross-card watchers see it.
           state = queueTriggersByEvent(state, "card_put_into_inkwell", playerId, definitions, {});
         } else {
-          state = moveCard(state, topId, playerId, "hand");
+          state = moveCard(state, topId, playerId, "hand", definitions);
         }
         // Lore branch on match (Bruno Madrigal Undetected Uncle: "and gain 3 lore").
         const loreOnHit = (pendingEffect as any)?.gainLoreOnHit;
@@ -2787,7 +2787,7 @@ function applyResolveChoice(
       }
     }
     state = resumePendingEffectQueue(state, definitions, events);
-    state = cleanupPendingAction(state, playerId);
+    state = cleanupPendingAction(state, playerId, definitions);
     return state;
   }
 
@@ -2800,7 +2800,7 @@ function applyResolveChoice(
       state = { ...state, pendingChoice: null };
       state = applyPlayCard(state, altShiftCont.playerId, altShiftCont.characterInstanceId, definitions, events, altShiftCont.shiftTargetInstanceId, undefined, undefined, undefined, choice as string[]);
       state = resumePendingEffectQueue(state, definitions, events);
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
     // Granted-free-play alt-cost chooser (Belle, Scrooge). Pay the cost with
@@ -2814,7 +2814,7 @@ function applyResolveChoice(
       } else if (costType === "exert_n_matching") {
         for (const id of choice) state = exertInstance(state, id, definitions);
       } else if (costType === "discard") {
-        for (const id of choice) state = moveCard(state, id, playerId, "discard");
+        for (const id of choice) state = moveCard(state, id, playerId, "discard", definitions);
       }
       state = zoneTransition(state, characterInstanceId, "play", definitions, events, {
         reason: "played", triggeringPlayerId: playerId,
@@ -2831,7 +2831,7 @@ function applyResolveChoice(
       });
       state = applyEnterPlayExertion(state, characterInstanceId, playerId, definitions);
       state = resumePendingEffectQueue(state, definitions, events);
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
     // CRD 6.1.4: optional target choice — empty array = skip. Also set
@@ -2841,7 +2841,7 @@ function applyResolveChoice(
     if (pendingChoice.optional && choice.length === 0) {
       state = { ...state, lastEffectResult: 0 };
       state = resumePendingEffectQueue(state, definitions, events);
-      state = cleanupPendingAction(state, playerId);
+      state = cleanupPendingAction(state, playerId, definitions);
       return state;
     }
     // Hypnotic Deduction "in any order" — when the resolved pendingEffect is
@@ -2974,7 +2974,7 @@ function applyResolveChoice(
   state = resumePendingEffectQueue(state, definitions, events);
 
   // CRD 4.3.3.2: After action effect's choice resolves, move action to discard
-  state = cleanupPendingAction(state, playerId);
+  state = cleanupPendingAction(state, playerId, definitions);
 
   return state;
 }
@@ -3693,7 +3693,7 @@ export function applyEffect(
         const directId = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
         if (directId && state.cards[directId]) {
           const inst = state.cards[directId];
-          return moveCard(state, directId, inst.ownerId, "deck", position);
+          return moveCard(state, directId, inst.ownerId, "deck", definitions, position);
         }
       }
 
@@ -3714,7 +3714,7 @@ export function applyEffect(
           perInstance: (s, id) => {
             const inst = s.cards[id];
             if (!inst) return s;
-            return moveCard(s, id, inst.ownerId, "deck", position);
+            return moveCard(s, id, inst.ownerId, "deck", definitions, position);
           },
         }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
       }
@@ -3763,7 +3763,7 @@ export function applyEffect(
       let moved = 0;
       for (let i = 0; i < moveCount; i++) {
         const cardId = pool[i]!;
-        state = moveCard(state, cardId, targetPlayer, "deck", position);
+        state = moveCard(state, cardId, targetPlayer, "deck", definitions, position);
         moved++;
       }
       // CRD 6.1.5.1: store count for "for each card moved this way" patterns
@@ -3780,7 +3780,7 @@ export function applyEffect(
         const id = targets[0]!;
         const inst = state.cards[id];
         if (!inst) return state;
-        return moveCard(state, id, inst.ownerId, "deck");
+        return moveCard(state, id, inst.ownerId, "deck", definitions);
       }
       // 2+ — surface choose_order for the controller. The choose_order resolver
       // routes each chosen id to its OWN owner's deck.
@@ -4069,7 +4069,7 @@ export function applyEffect(
       const deckNonInt = getZone(state, controllingPlayerId, "deck");
       const topIdNonInt = deckNonInt[0];
       if (!topIdNonInt) return state;
-      state = moveCard(state, topIdNonInt, controllingPlayerId, "hand");
+      state = moveCard(state, topIdNonInt, controllingPlayerId, "hand", definitions);
       // Lore branch on match (Bruno Madrigal Undetected Uncle). Bot always
       // hits, so the lore gain always fires when gainLoreOnHit is set.
       if (typeof (effect as any).gainLoreOnHit === "number" && (effect as any).gainLoreOnHit > 0) {
@@ -4582,7 +4582,7 @@ export function applyEffect(
           const moveRest = (ids: string[]) => {
             if (restPlacement === "discard") {
               for (const id of ids) {
-                state = moveCard(state, id, targetPlayer, "discard");
+                state = moveCard(state, id, targetPlayer, "discard", definitions);
               }
             } else if (restPlacement === "top") {
               // Cards stay on top in original order — no-op.
@@ -4762,7 +4762,7 @@ export function applyEffect(
           let inkwellTriggerPending = false;
           for (const id of picked) {
             if (pickDestination === "hand") {
-              state = moveCard(state, id, targetPlayer, "hand");
+              state = moveCard(state, id, targetPlayer, "hand", definitions);
             } else if (pickDestination === "inkwell_exerted") {
               // Kida Creative Thinker: picked goes to inkwell facedown exerted.
               state = zoneTransition(state, id, "inkwell", definitions, events, { reason: "inked" });
@@ -4770,7 +4770,7 @@ export function applyEffect(
               inkwellTriggerPending = true;
             } else if (pickDestination === "discard") {
               // Mad Hatter Eccentric Host: picked card goes to target player's discard.
-              state = moveCard(state, id, targetPlayer, "discard");
+              state = moveCard(state, id, targetPlayer, "discard", definitions);
             }
             // "deck_top": chosen card stays in deck — no move needed. With
             // restPlacement: "bottom", removing the rest from deck naturally
@@ -4789,7 +4789,7 @@ export function applyEffect(
             state = reorderDeckTopToBottom(state, targetPlayer, rest, []);
           } else if (restMode === "discard") {
             for (const id of rest) {
-              state = moveCard(state, id, targetPlayer, "discard");
+              state = moveCard(state, id, targetPlayer, "discard", definitions);
             }
           } else if (restMode === "inkwell_exerted") {
             // What Else Can I Do? — rest card(s) go into inkwell facedown+exerted.
@@ -4849,7 +4849,7 @@ export function applyEffect(
               state = zoneTransition(state, topId, "discard", definitions, events, { reason: "discarded" });
             }
           } else {
-            state = moveCard(state, topId, targetPlayer, "hand");
+            state = moveCard(state, topId, targetPlayer, "hand", definitions);
           }
           return state;
         }
@@ -4895,7 +4895,7 @@ export function applyEffect(
             events.push({ type: "card_revealed", instanceId: revId, playerId: controllingPlayerId, sourceInstanceId });
           }
           events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
-          state = moveCard(state, matchId, targetPlayer, "hand");
+          state = moveCard(state, matchId, targetPlayer, "hand", definitions);
           // Shuffle revealedNonMatch back into the remaining deck.
           const merged = [...remaining, ...revealedNonMatch];
           for (let i = merged.length - 1; i > 0; i--) {
@@ -4932,7 +4932,7 @@ export function applyEffect(
         if (millCount === 0) continue;
         const topIds = deck.slice(0, millCount);
         for (const id of topIds) {
-          state = moveCard(state, id, pid, "discard");
+          state = moveCard(state, id, pid, "discard", definitions);
         }
         state = { ...state, lastEffectResult: millCount };
         state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
@@ -4992,7 +4992,7 @@ export function applyEffect(
           matchesFilter(revealedInst, revealedDef, c.filter, state, revealTargetPlayer, sourceInstanceId)
         );
         // Move revealed card to destination.
-        state = moveCard(state, revealedId, revealTargetPlayer, destinationZone);
+        state = moveCard(state, revealedId, revealTargetPlayer, destinationZone, definitions);
         if (destination === "bottom") {
           // Append to end of deck rather than default prepend — moveCard
           // places at zone's natural end which for deck is the top. Swap
@@ -5061,7 +5061,7 @@ export function applyEffect(
             const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             pool.splice(idx, 1);
-            state = moveCard(state, id, pid, "hand");
+            state = moveCard(state, id, pid, "hand", definitions);
             returned++;
           }
           // Recount availableInk based on remaining unexerted inkwell cards.
@@ -5092,7 +5092,7 @@ export function applyEffect(
             const idx = rngNextInt(state.rng, pool.length);
             const id = pool[idx]!;
             pool.splice(idx, 1);
-            state = moveCard(state, id, pid, "hand");
+            state = moveCard(state, id, pid, "hand", definitions);
             returned++;
           }
           const remaining = getZone(state, pid, "inkwell")
@@ -5438,7 +5438,7 @@ export function applyEffect(
           bonusTriggered = true;
         }
         // Move to bottom of opponent's deck (their card → their deck).
-        state = moveCard(state, cid, opponentId, "deck");
+        state = moveCard(state, cid, opponentId, "deck", definitions);
       }
       const loreAmount = bonusTriggered ? effect.gainLoreBonus : effect.gainLoreBase;
       return gainLore(state, controllingPlayerId, loreAmount, events, definitions);
@@ -5595,7 +5595,7 @@ export function applyEffect(
           const discardedNames = hand
             .map((id) => definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "?");
           for (const cardId of [...hand]) {
-            state = moveCard(state, cardId, pid, "discard");
+            state = moveCard(state, cardId, pid, "discard", definitions);
           }
           // Queue cards_discarded trigger (Prince John - Greediest of All).
           // Don't processTriggerStack inline — it interrupts the current action's
@@ -5656,7 +5656,7 @@ export function applyEffect(
             picked.push(id);
             pickedNames.push(definitions[state.cards[id]?.definitionId ?? ""]?.fullName ?? "?");
             pool.splice(idx, 1);
-            state = moveCard(state, id, pid, "discard");
+            state = moveCard(state, id, pid, "discard", definitions);
           }
           state = { ...state, lastEffectResult: picked.length };
           // Snapshot the random picks onto lastDiscarded so subsequent
@@ -6150,9 +6150,9 @@ export function applyEffect(
         events.push({ type: "card_revealed", instanceId: matchId, playerId: controllingPlayerId, sourceInstanceId });
       }
       if (effect.putInto === "deck" && effect.position === "top") {
-        return moveCard(state, matchId, targetPlayer, "deck", "top");
+        return moveCard(state, matchId, targetPlayer, "deck", definitions, "top");
       }
-      return moveCard(state, matchId, targetPlayer, effect.putInto);
+      return moveCard(state, matchId, targetPlayer, effect.putInto, definitions);
     }
 
     // "You pay N less for the next X you play this turn"
@@ -6510,7 +6510,7 @@ function applyRevealMatchAction(
 
   switch (config.matchAction) {
     case "to_hand":
-      state = moveCard(state, revealedInstanceId, targetPlayer, "hand");
+      state = moveCard(state, revealedInstanceId, targetPlayer, "hand", definitions);
       break;
     case "play_card": {
       // matchPayCost: controller pays the card's normal ink cost (Kristoff's
@@ -6573,9 +6573,9 @@ function applyRevealNoMatchRoute(
   events: GameEvent[],
 ): GameState {
   if (dest === "bottom") {
-    state = moveCard(state, revealedInstanceId, targetPlayer, "deck");
+    state = moveCard(state, revealedInstanceId, targetPlayer, "deck", definitions);
   } else if (dest === "hand") {
-    state = moveCard(state, revealedInstanceId, targetPlayer, "hand");
+    state = moveCard(state, revealedInstanceId, targetPlayer, "hand", definitions);
   } else if (dest === "discard") {
     state = zoneTransition(state, revealedInstanceId, "discard", definitions, events, { reason: "discarded" });
   }
@@ -7159,13 +7159,17 @@ function resumePendingEffectQueue(
  *  Always moves to the action card's own owner's discard, not the resolving player's
  *  (the resolving player may be the OPPONENT — e.g. Sudden Chill's "each opponent
  *  chooses and discards" surfaces the choose_discard pendingChoice on the opponent). */
-function cleanupPendingAction(state: GameState, _playerId: PlayerID): GameState {
+function cleanupPendingAction(
+  state: GameState,
+  _playerId: PlayerID,
+  definitions: Record<string, CardDefinition>,
+): GameState {
   if (state.pendingActionInstanceId && !state.pendingChoice) {
     const actionInstanceId = state.pendingActionInstanceId;
     // Verify the card is still in play before moving (it might have been moved by an effect)
     const instance = state.cards[actionInstanceId];
     if (instance && instance.zone === "play") {
-      state = moveCard(state, actionInstanceId, instance.ownerId, "discard");
+      state = moveCard(state, actionInstanceId, instance.ownerId, "discard", definitions);
     }
     const { pendingActionInstanceId: _, ...rest } = state;
     state = rest as GameState;
@@ -7412,7 +7416,7 @@ function zoneTransition(
   }
 
   // The actual move (pure, no side effects)
-  state = moveCard(state, instanceId, instance.ownerId, targetZone);
+  state = moveCard(state, instanceId, instance.ownerId, targetZone, definitions);
 
   // CRD 1.9.3 / 7.1.6: leaving play resets all play-only state — card becomes a "new" card
   if (fromZone === "play" && targetZone !== "play") {
@@ -8045,7 +8049,7 @@ function applyEffectToTarget(
       const inst = state.cards[targetInstanceId];
       if (!inst) return state;
       const position: "top" | "bottom" = effect.position ?? "bottom";
-      return moveCard(state, targetInstanceId, inst.ownerId, "deck", position);
+      return moveCard(state, targetInstanceId, inst.ownerId, "deck", definitions, position);
     }
     case "drain_cards_under": {
       // Resolution path for both chosen-source (Come Out and Fight: "drain

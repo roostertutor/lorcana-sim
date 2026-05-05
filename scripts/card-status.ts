@@ -252,6 +252,52 @@ const VALID_STATIC_EFFECT_TYPES = buildStaticEffectTypes(typesSource);
 // the audit forces the conversation.
 const HANDLED_COST_TYPES = new Set(["exert", "pay_ink", "banish_self", "discard", "banish_chosen"]);
 
+// =============================================================================
+// PRODUCER-SIDE AUDIT — Trigger discriminators that have no producer call
+//
+// Mirror of the existing consumer-side check (cards using an undeclared
+// trigger discriminator are flagged via ALL_ON_DISCRIMINATORS). This catches
+// the OPPOSITE failure mode — the discriminator is declared in the
+// TriggerEvent union AND referenced in card JSON, but no engine call site
+// ever queues the event. Such triggers are silently inert: card-status
+// passes because the discriminator is valid, decompile-cards renders the
+// ability cleanly, but the trigger never fires at runtime.
+//
+// Caught (2026-05-05): Kristoff Icy Explorer's STROKE OF LUCK (set-11/51)
+// shipped with `card_leaves_discard` declared in types/index.ts:2905 and
+// wired in card-set-11.json:3370, but no `queueTrigger(state, "card_leaves\
+// _discard"` call existed. Producer-side fix landed in moveCard
+// (utils/index.ts) — every discard-leaving zone change now queues the
+// trigger uniformly. This audit closes the gap so the next missing producer
+// fails the audit on the day the consumer is added.
+//
+// Heuristic: a discriminator is "produced" if its literal string appears
+// in reducer.ts or utils/index.ts (the two files where triggers are queued
+// — either via `queueTrigger(state, "X"` / `queueTriggersByEvent(state, "X"`
+// for the standard path, or via direct `triggerStack` appends for special
+// cases like `card_leaves_discard`'s inline producer in moveCard). False
+// negatives (discriminator mentioned only in a comment) are tolerated as a
+// known-bug escape hatch — easier to remove a stale comment than to
+// hand-maintain an exception list.
+// =============================================================================
+
+function buildProducedTriggers(): Set<string> {
+  const reducerSrc = readFileSync(join(__dirname, "../packages/engine/src/engine/reducer.ts"), "utf-8");
+  const utilsSrc = readFileSync(join(__dirname, "../packages/engine/src/utils/index.ts"), "utf-8");
+  const haystack = reducerSrc + "\n" + utilsSrc;
+  const produced = new Set<string>();
+  for (const discriminator of ALL_ON_DISCRIMINATORS) {
+    // Match the discriminator as a quoted string literal anywhere in the
+    // engine source. Conservative: accepts a producer call OR a deliberate
+    // mention in a producer-adjacent comment (tolerates documentation drift
+    // over a brittle hand-curated list).
+    const re = new RegExp(`"${discriminator}"`);
+    if (re.test(haystack)) produced.add(discriminator);
+  }
+  return produced;
+}
+const PRODUCED_TRIGGER_EVENTS = buildProducedTriggers();
+
 interface FieldError {
   path: string;
   field: string;
@@ -272,8 +318,23 @@ function validateCardFields(card: any): FieldError[] {
 
   function checkOn(obj: any, path: string) {
     const val = obj?.on;
-    if (val && typeof val === "string" && !ALL_ON_DISCRIMINATORS.has(val)) {
-      errors.push({ path, field: "on", value: val, validValues: "TriggerEvent" });
+    if (val && typeof val === "string") {
+      if (!ALL_ON_DISCRIMINATORS.has(val)) {
+        errors.push({ path, field: "on", value: val, validValues: "TriggerEvent" });
+      } else if (!PRODUCED_TRIGGER_EVENTS.has(val)) {
+        // Producer-side Hidden Inkcaster — the discriminator is declared in
+        // types/index.ts and the card wires it correctly, but no engine call
+        // site ever queues it. Trigger silently never fires. Add a producer
+        // call (typically `queueTrigger(state, "<event>", ...)` in reducer.ts
+        // or an inline triggerStack append for special cases) before the
+        // ability can be considered functional.
+        errors.push({
+          path: `${path}.on`,
+          field: "on",
+          value: val,
+          validValues: `trigger discriminator has no producer in reducer.ts or utils/index.ts — silently inert (consumer wired, producer missing). Search for queueTrigger / queueTriggersByEvent / triggerStack append sites that should emit this event.`,
+        });
+      }
     }
   }
 

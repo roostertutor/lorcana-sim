@@ -892,4 +892,65 @@ describe("Mechanic gaps batch — both-players-effect (Show Me More!)", () => {
     expect(state.players.player1.lore).toBe(p1Before + 2);
     expect(state.players.player2.lore).toBe(p2Before + 2);
   });
+
+  // Regression for the user-reported 2026-05-05 crash: Tamatoa Happy as a Clam
+  // (set 7) plays, COOLEST COLLECTION surfaces a choose_target for items in
+  // own discard. Bot resolves the choice via RESOLVE_CHOICE → applyResolveChoice
+  // → applyEffectToTarget("return_to_hand") → zoneTransition → moveCard. The
+  // moveCard call fires the new `card_leaves_discard` producer, which iterates
+  // every in-play card to find watchers. If `definitions` is undefined at that
+  // point, the iteration throws "Cannot read properties of undefined (reading
+  // <id>)" on the first in-play card.
+  //
+  // The concrete reproducer is just: any in-play card on either side + a
+  // return_to_hand of a card in YOUR discard, resolved via the choice path.
+  // No specific card needed — Tamatoa is just the surface symptom.
+  it("regression: return_to_hand from own discard via RESOLVE_CHOICE while ≥1 char in play (no crash)", () => {
+    let state = startGame(["tamatoa-happy-as-a-clam", "minnie-mouse-beloved-princess"]);
+    // Sapphire Coil-shaped baseline — any in-play card on either side
+    // exercises the producer's `definitions[watcher.definitionId]` lookup.
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    // The discarded item Tamatoa pulls back. Pawpsicle (set 7 item) is fine.
+    let discardedItemId: string;
+    ({ state, instanceId: discardedItemId } = injectCard(state, "player1", "pawpsicle", "discard"));
+    // Tamatoa in hand, ready to play.
+    let tamatoaId: string;
+    ({ state, instanceId: tamatoaId } = injectCard(state, "player1", "tamatoa-happy-as-a-clam", "hand"));
+    state = giveInk(state, "player1", 6);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: tamatoaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // COOLEST COLLECTION should surface a choose_target for items in own discard.
+    let s = r.newState;
+    let safety = 0;
+    while (s.pendingChoice && safety < 20) {
+      const ch = s.pendingChoice;
+      if (ch.type === "choose_target") {
+        // Pick the discarded item — exact bot path the agent's stack hits.
+        const next = applyAction(s, {
+          type: "RESOLVE_CHOICE", playerId: "player1",
+          choice: [discardedItemId],
+        } as any, CARD_DEFINITIONS);
+        expect(next.success).toBe(true);
+        s = next.newState;
+      } else if (ch.type === "choose_may") {
+        const next = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as any, CARD_DEFINITIONS);
+        expect(next.success).toBe(true);
+        s = next.newState;
+      } else if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        const next = applyAction(s, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! } as any, CARD_DEFINITIONS);
+        expect(next.success).toBe(true);
+        s = next.newState;
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    // The item is back in player1's hand — no crash, no silently-swallowed throw.
+    expect(getInstance(s, discardedItemId).zone).toBe("hand");
+    expect(getInstance(s, discardedItemId).ownerId).toBe("player1");
+  });
 });

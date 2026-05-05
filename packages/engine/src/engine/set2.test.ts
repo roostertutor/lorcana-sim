@@ -1400,4 +1400,68 @@ describe("§6 Set 2 Card Coverage", () => {
     expect(getZone(state, "player1", "hand").length).toBe(handBefore + 2);
     expect(state.cards[charId]!.zone).toBe("discard");
   });
+
+  // =============================================================================
+  // SET 2 — HeiHei Persistent Presence + Kristoff Icy Explorer (cross-set)
+  //
+  // Companion to the set9-set11.test.ts coverage of STROKE OF LUCK. Both the
+  // set-2 original and the set-11 reprint of HeiHei wire HE'S BACK identically
+  // (mandatory return_to_hand on banished_in_challenge). The user-flagged
+  // bug 2026-05-05: card-set-11.json:3370's `card_leaves_discard` trigger
+  // had no producer in the engine, so the bounce-from-discard never fired
+  // STROKE OF LUCK. Producer fix lives in moveCard (utils/index.ts) so every
+  // discard-leaving zone change emits the trigger uniformly. Verified here
+  // against the set-2 HeiHei specifically — the trigger fires regardless of
+  // which set's HeiHei was banished, since the bounce path goes through the
+  // same `return_to_hand` → `zoneTransition` → `moveCard` chain.
+  // =============================================================================
+  it("set-2 HeiHei banished in challenge → bounces → Kristoff STROKE OF LUCK draws 1", () => {
+    let state = startGame(["kristoff-icy-explorer", "heihei-persistent-presence", "minnie-mouse-beloved-princess"]);
+    let kristoffId: string;
+    ({ state, instanceId: kristoffId } = injectCard(state, "player1", "kristoff-icy-explorer", "play", { isDrying: false }));
+    // heihei-persistent-presence id collides between set-2 and set-11; the
+    // CARD_DEFINITIONS map exposes whichever was loaded last. Both have
+    // identical HE'S BACK wiring (banished_in_challenge → return_to_hand
+    // mandatory) so the test is structurally accurate for either set.
+    let heiheiId: string;
+    ({ state, instanceId: heiheiId } = injectCard(state, "player1", "heihei-persistent-presence", "play", { isDrying: false }));
+    let minnieId: string;
+    ({ state, instanceId: minnieId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", {
+      isDrying: false,
+      isExerted: true,
+    }));
+
+    expect(state.currentPlayer).toBe("player1");
+    const handBefore = getZone(state, "player1", "hand").length;
+
+    let result = applyAction(state, {
+      type: "CHALLENGE", playerId: "player1",
+      attackerInstanceId: heiheiId, defenderInstanceId: minnieId,
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // Drain trigger-bag pendingChoices.
+    let safety = 0;
+    while (result.newState.pendingChoice && safety < 20) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! } as any, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as any, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    expect(getInstance(result.newState, heiheiId).zone).toBe("hand");
+    // STROKE OF LUCK fired — Kristoff drew 1 card. Hand delta = +2:
+    //   • HeiHei was in PLAY → discard → hand (HE'S BACK bounce-back), +1.
+    //   • Kristoff's STROKE OF LUCK saw the discard-leave and drew 1, +1.
+    // Without the producer fix, only the HeiHei bounce would land (+1) and
+    // the draw would be silently missing — that's the bug this test guards.
+    expect(getZone(result.newState, "player1", "hand").length).toBe(handBefore + 2);
+    // oncePerTurn key set on Kristoff so a second bounce same turn would no-op.
+    expect(getInstance(result.newState, kristoffId).oncePerTurnTriggered).toBeDefined();
+  });
 });
