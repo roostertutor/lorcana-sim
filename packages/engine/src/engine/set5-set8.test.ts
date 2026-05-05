@@ -2199,3 +2199,107 @@ describe("§8 Set 8 — Beyond the Horizon (each_player scope:chosen_subset)", (
     expect(getAllLegalActions(state, "player1", CARD_DEFINITIONS)).toEqual([]);
   });
 });
+
+// =============================================================================
+// triggering_card_played_via_shift on SELF-trigger (enters_play "if you used Shift")
+//
+// queueTrigger only populates `triggeringCardInstanceId` for cross-card
+// watchers (Bucky-style card_played triggers); for self-triggers the source
+// IS the played card. The condition handler (utils/index.ts) falls back to
+// `sourceInstanceId` when `triggeringCardInstanceId` is undefined so these
+// "When you play this character, if you used Shift to play him/her" abilities
+// fire correctly. Without that fallback, all three of these silently fizzled
+// (regressed across the entire window when the condition shipped).
+// =============================================================================
+describe("§5 Set 5 — self-trigger 'if you used Shift to play' fires (self-source fallback)", () => {
+  it("Merlin - Intellectual Visionary OVERDEVELOPED BRAIN: surfaces search choice when shifted", () => {
+    let state = startGame(["merlin-intellectual-visionary", "merlin-self-appointed-mentor"]);
+    state = giveInk(state, "player1", 10);
+    // UI flow uses interactive mode — the search effect surfaces a
+    // choose_from_revealed pendingChoice instead of auto-picking.
+    state = { ...state, interactive: true };
+
+    let baseId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "merlin-self-appointed-mentor", "play", { isDrying: false }));
+    let merlinId: string;
+    ({ state, instanceId: merlinId } = injectCard(state, "player1", "merlin-intellectual-visionary", "hand"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: merlinId,
+      shiftTargetInstanceId: baseId,
+    }, CARD_DEFINITIONS);
+
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, merlinId).playedViaShift).toBe(true);
+    // OVERDEVELOPED BRAIN's search ("for any card") matches the entire deck
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player1");
+  });
+
+  it("Minnie Mouse - Drum Major PARADE ORDER: surfaces character search when shifted", () => {
+    let state = startGame(["minnie-mouse-drum-major", "minnie-mouse-beloved-princess"]);
+    state = giveInk(state, "player1", 10);
+    state = { ...state, interactive: true };
+
+    let baseId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    let drumId: string;
+    ({ state, instanceId: drumId } = injectCard(state, "player1", "minnie-mouse-drum-major", "hand"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: drumId,
+      shiftTargetInstanceId: baseId,
+    }, CARD_DEFINITIONS);
+
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, drumId).playedViaShift).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_from_revealed");
+  });
+
+  it("Donald Duck - Pie Slinger HUMBLE PIE: opponent loses 2 lore when shifted", () => {
+    let state = startGame(["donald-duck-pie-slinger", "donald-duck-boisterous-fowl"]);
+    state = giveInk(state, "player1", 10);
+    state = setLore(state, "player2", 5);
+
+    let baseId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "donald-duck-boisterous-fowl", "play", { isDrying: false }));
+    let donaldId: string;
+    ({ state, instanceId: donaldId } = injectCard(state, "player1", "donald-duck-pie-slinger", "hand"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: donaldId,
+      shiftTargetInstanceId: baseId,
+    }, CARD_DEFINITIONS);
+
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, donaldId).playedViaShift).toBe(true);
+    // HUMBLE PIE: each opponent loses 2 lore — 5 → 3
+    expect(r.newState.players.player2.lore).toBe(3);
+  });
+
+  it("Donald Duck - Pie Slinger HUMBLE PIE: does NOT fire when played normally (no Shift)", () => {
+    // Negative case: condition rejects when the played card's playedViaShift is false.
+    let state = startGame(["donald-duck-pie-slinger"]);
+    state = giveInk(state, "player1", 10);
+    state = setLore(state, "player2", 5);
+
+    let donaldId: string;
+    ({ state, instanceId: donaldId } = injectCard(state, "player1", "donald-duck-pie-slinger", "hand"));
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: donaldId,
+    }, CARD_DEFINITIONS);
+
+    expect(r.success).toBe(true);
+    // Lore unchanged — HUMBLE PIE didn't fire.
+    expect(r.newState.players.player2.lore).toBe(5);
+  });
+});

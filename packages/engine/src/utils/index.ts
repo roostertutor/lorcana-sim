@@ -1416,8 +1416,13 @@ export function evaluateCondition(
       return inst?.playedViaShift === true;
     }
     case "triggering_card_played_via_shift": {
-      if (!triggeringCardInstanceId) return false;
-      const inst = state.cards[triggeringCardInstanceId];
+      // For SELF-triggers (e.g. Merlin Intellectual Visionary's enters_play
+      // OVERDEVELOPED BRAIN), queueTrigger leaves triggeringCardInstanceId
+      // undefined — the source IS the played card. Fall back to source.
+      // For CROSS-card triggers (Bucky's card_played watcher), the queue
+      // populates triggeringCardInstanceId with the played card's id.
+      const targetId = triggeringCardInstanceId ?? sourceInstanceId;
+      const inst = state.cards[targetId];
       return inst?.playedViaShift === true;
     }
     case "played_via_sing": {
