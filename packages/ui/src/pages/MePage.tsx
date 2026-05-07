@@ -2,24 +2,29 @@
 // MePage — `/me` profile / account screen.
 //
 // The full version of what the avatar dropdown shows in summary form.
-// Houses identity (username), the per-format ELO grid (8 ratings:
-// bo1/bo3 × 2 families × 2 rotations), games-played count, and a
-// sign-out button.
+// Houses identity (display_name + @username), an inline edit affordance
+// for display_name, the per-format ELO grid (8 ratings: bo1/bo3 × 2
+// families × 2 rotations), and games-played count.
 //
 // Reached via the bottom nav's `Me` tab (mobile) or the top nav's
 // `Me` tab (desktop / landscape phone), and via the avatar dropdown's
 // "Profile" link from anywhere.
 //
-// Email is intentionally NOT rendered anywhere (anti-doxxing on
-// streams) — same rule that drove the UserMenu refactor 2026-05-03.
+// Identity model (Discord split, shipped 2026-05-05):
+// - `display_name` — mutable, free-text, edited inline here.
+// - `username` — stable handle, shown as @username under the display
+//   name. No rename UI yet (deferred).
+// - email — intentionally NOT rendered anywhere (anti-doxxing on
+//   streams) — same rule that drove the UserMenu refactor 2026-05-03.
 // =============================================================================
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
-import { getProfile } from "../lib/serverApi.js";
+import { getProfile, updateDisplayName } from "../lib/serverApi.js";
 import type { Profile, EloKey } from "../lib/serverApi.js";
+import Icon from "../components/Icon.js";
 
 const FAMILIES: GameFormatFamily[] = ["core", "infinity"];
 // Rotation rows shown in the per-format ratings table. s11 was
@@ -90,7 +95,10 @@ export default function MePage() {
     );
   }
 
-  const initial = profile.username[0]?.toUpperCase() ?? "?";
+  // Avatar initial reads from display_name (the rendered identity), not the
+  // stable handle. If display_name is whitespace-only at boot somehow, fall
+  // back to "?".
+  const initial = profile.display_name[0]?.toUpperCase() ?? "?";
 
   return (
     <div className="max-w-md mx-auto py-8 px-4 space-y-6">
@@ -100,12 +108,17 @@ export default function MePage() {
           shipped games_played_by_format in commit e4120a6), so the
           aggregate numbers are redundant on this page. The avatar
           dropdown (App.tsx UserMenu) keeps the overall summary for a
-          quick-glance number from anywhere in the app. */}
+          quick-glance number from anywhere in the app.
+
+          Identity model (Discord split, 2026-05-05): display_name is
+          the rendered label (mutable, editable inline here). @username
+          is the stable handle, shown beneath. Email never rendered. */}
       <div className="text-center space-y-2">
         <div className="w-20 h-20 mx-auto rounded-full bg-amber-600 text-gray-950 text-3xl font-black flex items-center justify-center shadow-lg">
           {initial}
         </div>
-        <h1 className="text-2xl font-black text-amber-400 tracking-tight">{profile.username}</h1>
+        <DisplayNameEditor profile={profile} onUpdated={setProfile} />
+        <div className="text-xs text-gray-500 font-mono">@{profile.username}</div>
       </div>
 
       {/* ELO breakdown — per family, with bo1 / bo3 columns × rotation
@@ -166,6 +179,130 @@ export default function MePage() {
           dropdown is always visible (top-right on desktop, included
           in the Me-tab navigation on mobile), so a duplicate button
           here was redundant chrome. */}
+    </div>
+  );
+}
+
+/** Inline editor for the mutable `display_name` field. Idle mode shows
+ *  the name + a pencil affordance; click flips to an input with save /
+ *  cancel. Validation mirrors the server (1-32 chars after trim, no
+ *  all-whitespace) so the user gets immediate feedback before the round-
+ *  trip. On success, hands the updated profile back to the parent so
+ *  every consumer of `profile` repaints with the new value. */
+function DisplayNameEditor({
+  profile,
+  onUpdated,
+}: {
+  profile: Profile;
+  onUpdated: (next: Profile) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(profile.display_name);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Pop into edit mode → focus + select-all so the user can either type
+  // over the existing value or tweak it without an extra click.
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]);
+
+  const beginEdit = () => {
+    setDraft(profile.display_name);
+    setError(null);
+    setEditing(true);
+  };
+
+  const cancel = () => {
+    setEditing(false);
+    setError(null);
+  };
+
+  const save = async () => {
+    const trimmed = draft.trim();
+    if (trimmed.length < 1 || trimmed.length > 32) {
+      setError("Display name must be 1-32 characters");
+      return;
+    }
+    if (trimmed === profile.display_name) {
+      // No-op — nothing to save.
+      setEditing(false);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const updated = await updateDisplayName(trimmed);
+    setBusy(false);
+    if (!updated) {
+      setError("Couldn't save — try again in a moment");
+      return;
+    }
+    onUpdated(updated);
+    setEditing(false);
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") { e.preventDefault(); void save(); }
+    else if (e.key === "Escape") { e.preventDefault(); cancel(); }
+  };
+
+  if (!editing) {
+    return (
+      <button
+        onClick={beginEdit}
+        className="group inline-flex items-center gap-2 mx-auto hover:bg-gray-900/60 rounded-md px-2 py-1 transition-colors"
+        title="Edit display name"
+        aria-label="Edit display name"
+      >
+        <h1 className="text-2xl font-black text-amber-400 tracking-tight">
+          {profile.display_name}
+        </h1>
+        <Icon
+          name="pencil-square"
+          className="w-4 h-4 text-gray-600 group-hover:text-gray-300 transition-colors"
+        />
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="flex items-center gap-1.5">
+        <input
+          ref={inputRef}
+          type="text"
+          value={draft}
+          maxLength={32}
+          onChange={(e) => { setDraft(e.target.value); setError(null); }}
+          onKeyDown={handleKey}
+          disabled={busy}
+          className="px-2 py-1 bg-gray-900 border border-amber-700 rounded-md text-2xl font-black text-amber-400 tracking-tight text-center w-64 max-w-full focus:outline-none focus:border-amber-500"
+          aria-label="Display name"
+        />
+      </div>
+      <div className="flex items-center gap-2 text-xs">
+        <button
+          onClick={() => void save()}
+          disabled={busy}
+          className="px-3 py-1 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800 disabled:text-gray-600 text-gray-950 rounded-md font-bold transition-colors"
+        >
+          {busy ? "Saving…" : "Save"}
+        </button>
+        <button
+          onClick={cancel}
+          disabled={busy}
+          className="px-3 py-1 text-gray-400 hover:text-gray-200 transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+      {error && (
+        <div className="text-[11px] text-red-400">{error}</div>
+      )}
     </div>
   );
 }

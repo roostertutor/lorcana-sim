@@ -627,8 +627,8 @@ describe("getLobbyInfo — privacy-safe shape", () => {
       game_format: "core",
       game_rotation: "s12",
     })
-    tables.profiles.rows.push({ id: "user-A", username: "alice" })
-    tables.profiles.rows.push({ id: "user-B", username: "bob" })
+    tables.profiles.rows.push({ id: "user-A", username: "alice", display_name: "Alice the Magnificent" })
+    tables.profiles.rows.push({ id: "user-B", username: "bob", display_name: "Bob the Builder" })
 
     const info = await mod.getLobbyInfo("lobby-1")
     expect(info).not.toBeNull()
@@ -638,9 +638,41 @@ describe("getLobbyInfo — privacy-safe shape", () => {
     expect(info!.guestReady).toBe(false)
     expect(info!.hostUsername).toBe("alice")
     expect(info!.guestUsername).toBe("bob")
+    // Discord-style split — UI renders display_name primarily with
+    // @username secondary. Live-current via the profiles join (not
+    // denormalized — lobbies are short-lived).
+    expect(info!.hostDisplayName).toBe("Alice the Magnificent")
+    expect(info!.guestDisplayName).toBe("Bob the Builder")
     // Most important assertion — the response shape itself MUST NOT
     // include any deck-content keys. Anti-cheat for the middle screen.
     expect(JSON.stringify(info)).not.toMatch(/host_deck|guest_deck|definitionId/)
+  })
+
+  it("falls back to null for display_name when the profile join misses", async () => {
+    // Profile row exists for the host but is missing display_name (row was
+    // created before the column landed, or seeded by a path that didn't fill
+    // it). Guest profile row entirely absent. Both branches of the
+    // displayNames.get() coalesce should return null without crashing.
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+      format: "bo1",
+      game_format: "core",
+      game_rotation: "s12",
+    })
+    tables.profiles.rows.push({ id: "user-A", username: "alice", display_name: null })
+    // user-B has NO profiles row at all — join misses entirely.
+
+    const info = await mod.getLobbyInfo("lobby-1")
+    expect(info).not.toBeNull()
+    expect(info!.hostDisplayName).toBeNull()
+    expect(info!.guestDisplayName).toBeNull()
+    // Username fallback for the present row should still resolve.
+    expect(info!.hostUsername).toBe("alice")
+    expect(info!.guestUsername).toBeNull()
   })
 
   it("reports has-deck=false when slot is empty", async () => {

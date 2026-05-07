@@ -184,9 +184,17 @@ export default function ReplaysPage() {
 function ReplayRow({ item, onClick }: { item: ReplayListItem; onClick: () => void }) {
   // Caller-perspective derivations. The server stamps `callerIsP1` so we
   // don't need raw player IDs to compute "your view" winner / opponent.
-  const opponentName = item.callerIsP1
-    ? (item.p2Username ?? "Unknown")
-    : (item.p1Username ?? "Unknown");
+  // Render the opponent's CURRENT display name (live-joined server-side
+  // post-2026-05-05 Discord split) — renames flow forward into match
+  // history per the locked design contract. Fall back to @handle when
+  // the older replay row predates the live-join (display_name null).
+  const opponentDisplay = item.callerIsP1
+    ? (item.p2DisplayName ?? item.p2Username ?? "Unknown")
+    : (item.p1DisplayName ?? item.p1Username ?? "Unknown");
+  const opponentHandle = item.callerIsP1 ? item.p2Username : item.p1Username;
+  // Show "@handle" only when it differs from the rendered display name
+  // (initial profile state has them equal — no point repeating it).
+  const showHandle = opponentHandle && opponentHandle !== opponentDisplay;
   const wonLabel = item.won === null ? "—" : item.won ? "W" : "L";
   const wonColor = item.won === null
     ? "text-gray-500"
@@ -216,7 +224,12 @@ function ReplayRow({ item, onClick }: { item: ReplayListItem; onClick: () => voi
       {/* Main row content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-gray-200 truncate">vs {opponentName}</span>
+          <span className="text-sm text-gray-200 truncate">
+            vs {opponentDisplay}
+            {showHandle && (
+              <span className="ml-1 text-[10px] text-gray-500 font-mono">@{opponentHandle}</span>
+            )}
+          </span>
           {/* Format chip */}
           <span
             className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${

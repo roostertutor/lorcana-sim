@@ -607,3 +607,39 @@ UPDATE lobbies
 --
 -- Pre-cutover lobbies that already have a guest_id and status='active' stay
 -- as-is — they predate the 'lobby' transitional state.
+
+-- ── Discord-style username / display_name split (2026-05-05) ────────────────
+-- `profiles.username` stays as the stable handle (unique, immutable for now,
+-- used in URLs / friend lookups / replay denormalization). `display_name` is
+-- a free-text mutable label rendered in chrome / opponent tiles / chat. NOT
+-- unique by design — collisions are intentional (Discord model). Backfilled
+-- from username so existing rows have a sane default before NOT NULL is
+-- enforced. Length cap 1-32 chars enforced via CHECK.
+--
+-- Anti-leak rule (App.tsx:369): email is never exposed; this migration
+-- doesn't touch that surface.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS display_name TEXT;
+UPDATE profiles SET display_name = username WHERE display_name IS NULL;
+ALTER TABLE profiles ALTER COLUMN display_name SET NOT NULL;
+
+-- Postgres doesn't support `ADD CONSTRAINT IF NOT EXISTS` for CHECK
+-- constraints, so wrap in a DO block that swallows the duplicate-object
+-- exception. Idempotent — safe to re-run.
+DO $$
+BEGIN
+  ALTER TABLE profiles ADD CONSTRAINT display_name_length
+    CHECK (char_length(display_name) BETWEEN 1 AND 32);
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Replay denormalization — display_name at game-finish time. Replay viewer
+-- chrome shows historical display name with "(now: X)" hover when current
+-- differs (tournament-scorecard semantics). List views (ReplaysPage) live-
+-- join profiles for the current display_name so renames flow forward in
+-- match history. p1_username / p2_username remain the historical handle
+-- alongside (also stable since handles don't currently change).
+ALTER TABLE replays ADD COLUMN IF NOT EXISTS p1_display_name TEXT;
+ALTER TABLE replays ADD COLUMN IF NOT EXISTS p2_display_name TEXT;
+UPDATE replays SET p1_display_name = p1_username WHERE p1_display_name IS NULL;
+UPDATE replays SET p2_display_name = p2_username WHERE p2_display_name IS NULL;

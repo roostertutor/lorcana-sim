@@ -634,12 +634,21 @@ async function saveReplayForGame(
 ) {
   const winnerId = winner === "player1" ? p1Id : winner === "player2" ? p2Id : null
 
-  // Denormalize usernames so share-link reads don't need a profile join.
+  // Denormalize usernames + display_names so share-link reads don't need a
+  // profile join. p1_username / p2_username remain the historical handle
+  // (stable since handles don't currently change). p1_display_name /
+  // p2_display_name capture display_name AT FINISH TIME — replay viewer
+  // chrome shows these with a "(now: X)" hover when current differs.
+  // List views (listMyReplays) override these with current values via a
+  // live profile join so renames flow forward in match history.
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, username")
+    .select("id, username, display_name")
     .in("id", [p1Id, p2Id])
   const usernameById = new Map((profiles ?? []).map((p) => [p.id as string, p.username as string]))
+  const displayNameById = new Map(
+    (profiles ?? []).map((p) => [p.id as string, (p.display_name as string | null) ?? null]),
+  )
 
   await supabase
     .from("replays")
@@ -649,6 +658,8 @@ async function saveReplayForGame(
         winner_player_id: winnerId,
         p1_username: usernameById.get(p1Id) ?? null,
         p2_username: usernameById.get(p2Id) ?? null,
+        p1_display_name: displayNameById.get(p1Id) ?? usernameById.get(p1Id) ?? null,
+        p2_display_name: displayNameById.get(p2Id) ?? usernameById.get(p2Id) ?? null,
         turn_count: state.turnNumber ?? 0,
         format: (lobby.format as string) ?? "bo1",
         game_format: (lobby.game_format as string) ?? "infinity",
@@ -781,12 +792,24 @@ async function handleMatchProgress(
 /** One row in the "My Replays" browse list. Lightweight metadata only — no
  *  state stream, no decks (those cost a full reconstruction or a heavy fetch).
  *  Caller-perspective fields (`callerIsP1`, `won`) are stamped server-side so
- *  the UI doesn't need to re-derive from raw player IDs. */
+ *  the UI doesn't need to re-derive from raw player IDs.
+ *
+ *  Discord-style username/display_name split: `p1Username` / `p2Username` are
+ *  the stable handles (denormalized at finish, but also stable today since
+ *  username rename is deferred). `p1DisplayName` / `p2DisplayName` reflect
+ *  the **current** display_name via a live join with the profiles table —
+ *  so when a player renames, their match history follows them in this list
+ *  view. The replay-viewer endpoint instead surfaces the historical-at-finish
+ *  display name from the replays row directly. */
 export interface ReplayListItem {
   id: string
   gameId: string
   p1Username: string | null
   p2Username: string | null
+  /** Current display_name from a live profile join (renames flow forward). */
+  p1DisplayName: string | null
+  /** Current display_name from a live profile join (renames flow forward). */
+  p2DisplayName: string | null
   /** True if the calling user was player 1 of the parent game. False if they
    *  were player 2. (List is filtered to the caller's own games server-side,
    *  so they're always one of the two.) */
@@ -833,7 +856,7 @@ export async function listMyReplays(
   const { data: replays, error: rErr } = await supabase
     .from("replays")
     .select(
-      "id, game_id, public, p1_username, p2_username, turn_count, format, game_format, game_rotation, created_at",
+      "id, game_id, public, p1_username, p2_username, p1_display_name, p2_display_name, turn_count, format, game_format, game_rotation, created_at",
     )
     .in("game_id", gameIds)
 
@@ -842,6 +865,28 @@ export async function listMyReplays(
   }
 
   const replayByGame = new Map(replays.map((r) => [r.game_id as string, r]))
+
+  // Live-join profiles for the CURRENT display_name across every distinct
+  // player ID in the result set. List view contract (per HANDOFF.md): renames
+  // flow forward into match history — so we ignore the historical denormal-
+  // ized p1_display_name / p2_display_name and surface the current value.
+  // Single IN-query so this is one round-trip regardless of result set size.
+  const playerIds = new Set<string>()
+  for (const g of games) {
+    if (g.player1_id) playerIds.add(g.player1_id as string)
+    if (g.player2_id) playerIds.add(g.player2_id as string)
+  }
+  const displayNameByUserId = new Map<string, string>()
+  if (playerIds.size > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, display_name, username")
+      .in("id", [...playerIds])
+    for (const p of profiles ?? []) {
+      const name = (p.display_name as string | null) ?? (p.username as string | null) ?? null
+      if (name) displayNameByUserId.set(p.id as string, name)
+    }
+  }
 
   // Preserve the games-order (newest-first) and drop any games that don't
   // have a replay row yet (shouldn't happen post-finish, but defensive).
@@ -852,11 +897,25 @@ export async function listMyReplays(
     const callerIsP1 = (g.player1_id as string) === userId
     const winnerId = g.winner_id as string | null
     const won = winnerId == null ? null : winnerId === userId
+    const p1Id = g.player1_id as string | null
+    const p2Id = g.player2_id as string | null
     items.push({
       id: r.id as string,
       gameId: g.id as string,
       p1Username: (r.p1_username as string | null) ?? null,
       p2Username: (r.p2_username as string | null) ?? null,
+      // Live-current display_name (renames flow forward); fall back to the
+      // denormalized historical value, then to handle, then null.
+      p1DisplayName:
+        (p1Id != null ? displayNameByUserId.get(p1Id) : null) ??
+        (r.p1_display_name as string | null) ??
+        (r.p1_username as string | null) ??
+        null,
+      p2DisplayName:
+        (p2Id != null ? displayNameByUserId.get(p2Id) : null) ??
+        (r.p2_display_name as string | null) ??
+        (r.p2_username as string | null) ??
+        null,
       callerIsP1,
       won,
       public: r.public as boolean,
@@ -944,6 +1003,11 @@ export interface ReplayView {
   winnerUsername: string | null
   p1Username: string | null
   p2Username: string | null
+  /** Display name AT FINISH TIME (denormalized). UI compares against the
+   *  live profile to show a "(now: X)" hover when current differs. List
+   *  views use the live-current value via listMyReplays instead. */
+  p1DisplayName: string | null
+  p2DisplayName: string | null
   turnCount: number
   format: string | null
   gameFormat: string | null
@@ -978,6 +1042,11 @@ export async function getReplayById(replayId: string): Promise<
         winner_player_id: string | null
         p1_username: string | null
         p2_username: string | null
+        /** Historical display_name at game-finish time. Replay viewer chrome
+         *  uses this directly; UI compares against the live profile to show
+         *  "(now: X)" hover when the player has since renamed. */
+        p1_display_name: string | null
+        p2_display_name: string | null
         turn_count: number
         format: string | null
         game_format: string | null
@@ -992,7 +1061,7 @@ export async function getReplayById(replayId: string): Promise<
   const { data, error } = await supabase
     .from("replays")
     .select(
-      "id, game_id, public, winner_player_id, p1_username, p2_username, turn_count, format, game_format, game_rotation, created_at, games(player1_id, player2_id)",
+      "id, game_id, public, winner_player_id, p1_username, p2_username, p1_display_name, p2_display_name, turn_count, format, game_format, game_rotation, created_at, games(player1_id, player2_id)",
     )
     .eq("id", replayId)
     .single()
@@ -1011,6 +1080,8 @@ export async function getReplayById(replayId: string): Promise<
       winner_player_id: (data.winner_player_id as string | null) ?? null,
       p1_username: (data.p1_username as string | null) ?? null,
       p2_username: (data.p2_username as string | null) ?? null,
+      p1_display_name: (data.p1_display_name as string | null) ?? null,
+      p2_display_name: (data.p2_display_name as string | null) ?? null,
       turn_count: data.turn_count as number,
       format: (data.format as string | null) ?? null,
       game_format: (data.game_format as string | null) ?? null,
@@ -1064,6 +1135,8 @@ export async function buildReplayView(
     winnerUsername,
     p1Username: replay.row.p1_username,
     p2Username: replay.row.p2_username,
+    p1DisplayName: replay.row.p1_display_name ?? replay.row.p1_username,
+    p2DisplayName: replay.row.p2_display_name ?? replay.row.p2_username,
     turnCount: replay.row.turn_count,
     format: replay.row.format,
     gameFormat: replay.row.game_format,

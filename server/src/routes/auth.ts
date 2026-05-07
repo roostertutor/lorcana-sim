@@ -1,7 +1,7 @@
 import { Hono } from "hono"
 import { supabase } from "../db/client.js"
 import { requireAuth } from "../middleware/auth.js"
-import { getOrCreateProfile } from "../services/authService.js"
+import { getOrCreateProfile, updateDisplayName } from "../services/authService.js"
 
 const auth = new Hono<{ Variables: { userId: string } }>()
 
@@ -36,6 +36,26 @@ auth.post("/profile", requireAuth, async (c) => {
   }
 
   return c.json({ success: true })
+})
+
+// PATCH /auth/profile/display-name — update the caller's mutable display_name.
+// Separate from POST /auth/profile (which writes the stable `username` handle
+// — username rename is intentionally deferred). See docs/HANDOFF.md →
+// "username / display_name split (Discord model)".
+auth.patch("/profile/display-name", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  let body: { display_name?: unknown }
+  try {
+    body = await c.req.json<{ display_name?: unknown }>()
+  } catch {
+    return c.json({ error: "Invalid JSON body" }, 400)
+  }
+
+  const result = await updateDisplayName(userId, body.display_name)
+  if (!result.ok) {
+    return c.json({ error: result.error }, result.status)
+  }
+  return c.json({ profile: result.profile })
 })
 
 export { auth }

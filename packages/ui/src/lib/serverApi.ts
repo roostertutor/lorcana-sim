@@ -103,8 +103,15 @@ export interface LobbyInfo {
   gameRotation: RotationId
   hostId: string
   hostUsername: string | null
+  /** Live-current host display_name from the server's join with `profiles`.
+   *  UI renders this primarily with `@hostUsername` as the secondary tag.
+   *  Discord-style split, see docs/HANDOFF.md → "username / display_name
+   *  split". */
+  hostDisplayName: string | null
   guestId: string | null
   guestUsername: string | null
+  /** Live-current guest display_name. Same semantics as hostDisplayName. */
+  guestDisplayName: string | null
   hostHasDeck: boolean
   guestHasDeck: boolean
   hostReady: boolean
@@ -296,7 +303,15 @@ export type EloKey = `${"bo1" | "bo3"}_${GameFormatFamily}_${RotationId}`
 export type EloRatings = Record<EloKey, number>
 
 export interface Profile {
+  /** Stable handle. Unique, immutable for now (rename is a future feature).
+   *  Used in URLs / friend lookups / replay denormalization / anywhere
+   *  identity stability matters. */
   username: string
+  /** Mutable free-text label rendered in chrome / opponent tiles / chat.
+   *  NOT unique by design (Discord model). Length 1-32, server-validated.
+   *  Seeded equal to `username` on profile creation; user can edit anytime
+   *  via PATCH /auth/profile/display-name. */
+  display_name: string
   elo: number
   elo_ratings: EloRatings
   /** Overall games-played counter across all formats. Kept as the single
@@ -314,6 +329,22 @@ export interface Profile {
 export async function getProfile(): Promise<Profile | null> {
   const res = await fetch(`${SERVER_URL}/auth/me`, {
     headers: await authHeaders(),
+  })
+  if (!res.ok) return null
+  const data = await res.json() as { profile: Profile }
+  return data.profile
+}
+
+/** Update the caller's mutable `display_name` (Discord-style split — separate
+ *  from the stable `username` handle, which has no rename UI yet). Server
+ *  validates 1-32 chars after trim and rejects all-whitespace input.
+ *  Returns the updated profile row on success, or `null` if the request
+ *  failed (the UI surfaces a generic error toast in that case). */
+export async function updateDisplayName(displayName: string): Promise<Profile | null> {
+  const res = await fetch(`${SERVER_URL}/auth/profile/display-name`, {
+    method: "PATCH",
+    headers: await authHeaders(),
+    body: JSON.stringify({ display_name: displayName }),
   })
   if (!res.ok) return null
   const data = await res.json() as { profile: Profile }
@@ -357,6 +388,12 @@ export interface ReplayMeta {
   winnerUsername: string | null
   p1Username: string | null
   p2Username: string | null
+  /** Display name AT FINISH TIME (denormalized on the replay row). Replay
+   *  viewer chrome renders this directly and shows a "(now: X)" hover when
+   *  it differs from the player's current display_name. NOT live-current —
+   *  for that, use `ReplayListItem.p{1,2}DisplayName` from the list endpoint. */
+  p1DisplayName: string | null
+  p2DisplayName: string | null
   turnCount: number
   format: string | null
   gameFormat: string | null
@@ -428,6 +465,11 @@ export interface ReplayListItem {
   gameId: string
   p1Username: string | null
   p2Username: string | null
+  /** CURRENT display_name from a live profile join — renames flow forward
+   *  in match history. (Distinct from `ReplayMeta.p{1,2}DisplayName`, which
+   *  is the historical-at-finish value used by the replay viewer chrome.) */
+  p1DisplayName: string | null
+  p2DisplayName: string | null
   callerIsP1: boolean
   won: boolean | null
   public: boolean

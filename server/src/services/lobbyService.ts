@@ -277,8 +277,17 @@ export interface LobbyInfo {
   gameRotation: RotationId
   hostId: string
   hostUsername: string | null
+  /** Live-current host display_name from a join with `profiles`. Lobbies are
+   *  short-lived so we don't denormalize — a rename mid-lobby flows forward
+   *  on the next getLobbyInfo call. UI renders this primarily with
+   *  `@hostUsername` as the secondary tag. Discord-style split, see
+   *  docs/HANDOFF.md → "username / display_name split". */
+  hostDisplayName: string | null
   guestId: string | null
   guestUsername: string | null
+  /** Live-current guest display_name from a join with `profiles`. Same
+   *  semantics as hostDisplayName. */
+  guestDisplayName: string | null
   hostHasDeck: boolean
   guestHasDeck: boolean
   hostReady: boolean
@@ -328,13 +337,20 @@ export async function getLobbyInfo(
     gameId = (g?.id as string | undefined) ?? null
   }
 
-  // Resolve usernames in one round-trip — host always present, guest may
-  // be null pre-join. Filter to non-null IDs so the IN list isn't empty.
+  // Resolve usernames + display_names in one round-trip — host always
+  // present, guest may be null pre-join. Filter to non-null IDs so the IN
+  // list isn't empty. Lobbies are short-lived so we use a live join (not
+  // denormalization on the lobby row) — a rename mid-lobby reflects on the
+  // next info call. Discord-style split: UI shows display_name primarily
+  // with @username as a secondary tag.
   const ids = [lobby.host_id, lobby.guest_id].filter((v): v is string => Boolean(v))
   const { data: profiles } = ids.length > 0
-    ? await supabase.from("profiles").select("id, username").in("id", ids)
+    ? await supabase.from("profiles").select("id, username, display_name").in("id", ids)
     : { data: [] }
   const usernames = new Map((profiles ?? []).map((p) => [p.id as string, p.username as string]))
+  const displayNames = new Map(
+    (profiles ?? []).map((p) => [p.id as string, (p.display_name as string | null) ?? null]),
+  )
 
   return {
     lobbyId: lobby.id as string,
@@ -344,8 +360,10 @@ export async function getLobbyInfo(
     gameRotation: ((lobby.game_rotation as string) ?? "s12") as RotationId,
     hostId: lobby.host_id as string,
     hostUsername: usernames.get(lobby.host_id as string) ?? null,
+    hostDisplayName: displayNames.get(lobby.host_id as string) ?? null,
     guestId: (lobby.guest_id as string | null) ?? null,
     guestUsername: lobby.guest_id ? usernames.get(lobby.guest_id as string) ?? null : null,
+    guestDisplayName: lobby.guest_id ? displayNames.get(lobby.guest_id as string) ?? null : null,
     hostHasDeck: lobby.host_deck != null,
     guestHasDeck: lobby.guest_deck != null,
     hostReady: Boolean(lobby.host_ready),

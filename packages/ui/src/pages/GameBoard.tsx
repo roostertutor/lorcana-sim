@@ -642,6 +642,8 @@ function toRemoteReplay(meta: ReplayMeta, myPlayerId: "player1" | "player2" | nu
     callerSlot,
     p1Username: meta.p1Username,
     p2Username: meta.p2Username,
+    p1DisplayName: meta.p1DisplayName,
+    p2DisplayName: meta.p2DisplayName,
   };
 }
 
@@ -2416,8 +2418,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 See `handlePerspectiveChange` for the refetch flow. */}
             {replayInput.kind === "remote" && (() => {
               const remote = replayInput.data;
-              const p1Label = remote.p1Username ?? "Player 1";
-              const p2Label = remote.p2Username ?? "Player 2";
+              // Button labels render display_name AT FINISH TIME (the
+              // historical-frozen value the players actually had during
+              // this game) and fall back to the stable @handle when the
+              // older replay row predates the 2026-05-05 denorm. Tooltips
+              // surface the @handle alongside so viewers can identify the
+              // player even after a display_name rename.
+              const p1Label = remote.p1DisplayName ?? remote.p1Username ?? "Player 1";
+              const p2Label = remote.p2DisplayName ?? remote.p2Username ?? "Player 2";
+              const p1HandleSuffix = remote.p1Username && remote.p1Username !== p1Label
+                ? ` (@${remote.p1Username})` : "";
+              const p2HandleSuffix = remote.p2Username && remote.p2Username !== p2Label
+                ? ` (@${remote.p2Username})` : "";
               const baseBtn = "px-2 py-1 text-[11px] rounded border transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
               const activeStyle = "bg-indigo-700/50 border-indigo-500/50 text-indigo-100";
               const inactiveStyle = "bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200 hover:bg-gray-700";
@@ -2439,7 +2451,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                     className={`${baseBtn} ${p1Active ? activeStyle : inactiveStyle}`}
                     disabled={!canPickP1 || perspectivePending || p1Active}
                     onClick={() => void handlePerspectiveChange("p1")}
-                    title={canPickP1 ? `Watch as ${p1Label}` : "Locked to your own perspective on a private replay"}
+                    title={canPickP1 ? `Watch as ${p1Label}${p1HandleSuffix}` : "Locked to your own perspective on a private replay"}
                   >
                     {p1Label}
                   </button>
@@ -2447,7 +2459,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                     className={`${baseBtn} ${p2Active ? activeStyle : inactiveStyle}`}
                     disabled={!canPickP2 || perspectivePending || p2Active}
                     onClick={() => void handlePerspectiveChange("p2")}
-                    title={canPickP2 ? `Watch as ${p2Label}` : "Locked to your own perspective on a private replay"}
+                    title={canPickP2 ? `Watch as ${p2Label}${p2HandleSuffix}` : "Locked to your own perspective on a private replay"}
                   >
                     {p2Label}
                   </button>

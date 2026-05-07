@@ -353,40 +353,48 @@ function UserMenu({ navigate }: { navigate: (path: string) => void }) {
     );
   }
 
-  // First letter of USERNAME (not email). Showing email's first char on the
-  // avatar leaked one bit of identity to anyone watching the screen — fine
-  // most of the time, dox-vector for streamers / screenshares. Fallback to
-  // "?" while profile is loading; "Player" if profile resolved without a
-  // username (shouldn't happen with ensureProfile, but defensive).
-  const displayName = profile?.username ?? "Player";
-  const initial = profile ? (displayName[0]?.toUpperCase() ?? "?") : "?";
+  // First letter of DISPLAY_NAME (not email, not handle). Showing email's
+  // first char on the avatar leaked one bit of identity to anyone watching
+  // the screen — fine most of the time, dox-vector for streamers /
+  // screenshares. Display name is what the user thinks of as "their name"
+  // post-2026-05-05 Discord split; the @handle is shown as secondary text
+  // in the dropdown. Defensive fallback to username during the rollout
+  // window in case an older session predates the display_name backfill.
+  const renderedName = profile?.display_name ?? profile?.username ?? "Player";
+  const handle = profile?.username ?? null;
+  const initial = profile ? (renderedName[0]?.toUpperCase() ?? "?") : "?";
 
   return (
     <div ref={ref} className="relative shrink-0">
       <button
         onClick={() => setOpen((v) => !v)}
         className="w-8 h-8 rounded-full bg-amber-600 hover:bg-amber-500 text-gray-950 text-xs font-bold flex items-center justify-center transition-colors"
-        // Tooltip + aria-label use username, NOT email — same anti-leak rule.
-        title={displayName}
-        aria-label={`Account: ${displayName}`}
+        // Tooltip + aria-label use display name, NOT email — same anti-leak rule.
+        title={renderedName}
+        aria-label={`Account: ${renderedName}`}
       >
         {initial}
       </button>
       {open && (
         <div className="absolute top-full right-0 mt-1 w-56 bg-gray-950 border border-gray-700 rounded-lg shadow-xl py-1 z-30">
-          {/* Identity block — username only. Email deliberately NOT
-               shown anywhere (anti-doxx on streams). The ELO + games
-               summary line that used to live here was dropped 2026-
-               05-03 — profile.elo is the legacy single-rotation
-               field, not a meaningful aggregate of the per-format
-               matrix on /me, and the overall games_played counter
-               became redundant once /me had per-format counts. The
-               dropdown is now identity + navigation + actions; stats
-               live on the Profile page one tap away. */}
+          {/* Identity block — display name primary, @handle secondary.
+               Email deliberately NOT shown anywhere (anti-doxx on
+               streams). The ELO + games summary line that used to
+               live here was dropped 2026-05-03 — profile.elo is the
+               legacy single-rotation field, not a meaningful aggregate
+               of the per-format matrix on /me, and the overall
+               games_played counter became redundant once /me had per-
+               format counts. The dropdown is now identity + navigation
+               + actions; stats live on the Profile page one tap away. */}
           <div className="px-3 py-2 border-b border-gray-800">
-            <div className="text-sm font-semibold text-gray-200 truncate" title={displayName}>
-              {displayName}
+            <div className="text-sm font-semibold text-gray-200 truncate" title={renderedName}>
+              {renderedName}
             </div>
+            {handle && (
+              <div className="text-[10px] text-gray-500 font-mono truncate" title={`@${handle}`}>
+                @{handle}
+              </div>
+            )}
           </div>
           {/* Profile link removed 2026-05-04 — the top-nav `Me` tab
                (desktop / landscape phone) and bottom-nav `Me` tab
@@ -662,6 +670,8 @@ function metaToRemoteReplay(meta: ReplayMeta): RemoteReplay {
     callerSlot: null,
     p1Username: meta.p1Username,
     p2Username: meta.p2Username,
+    p1DisplayName: meta.p1DisplayName,
+    p2DisplayName: meta.p2DisplayName,
   };
 }
 

@@ -274,14 +274,16 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
           </div>
           <PlayerSlot
             label="HOST"
-            username={info.hostUsername ?? "(waiting…)"}
+            displayName={info.hostDisplayName ?? info.hostUsername ?? null}
+            handle={info.hostUsername ?? null}
             isYou={isHost}
             hasDeck={!!info.hostHasDeck}
             ready={!!info.hostReady}
           />
           <PlayerSlot
             label="GUEST"
-            username={info.guestUsername ?? null}
+            displayName={info.guestDisplayName ?? info.guestUsername ?? null}
+            handle={info.guestUsername ?? null}
             isYou={!isHost}
             hasDeck={!!info.guestHasDeck}
             ready={!!info.guestReady}
@@ -372,15 +374,21 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
 
 function PlayerSlot({
   label,
-  username,
+  displayName,
+  handle,
   isYou,
   hasDeck,
   ready,
 }: {
   /** Role label — always "HOST" or "GUEST" regardless of who's viewing. */
   label: string;
-  /** Username if known; null while the slot is empty (guest hasn't joined). */
-  username: string | null;
+  /** Display name (mutable, free-text label). Null while the slot is empty
+   *  (guest hasn't joined). Server live-joins from profiles, so this is the
+   *  current display name — renames reflect as soon as the next 2s poll. */
+  displayName: string | null;
+  /** Stable @username handle. Shown as small muted text next to the display
+   *  name when the two differ. Null while the slot is empty. */
+  handle: string | null;
   /** True when this slot is the calling user's own slot — shows "(you)"
    *  marker so the caller can identify themselves without renaming the
    *  role label. */
@@ -388,7 +396,7 @@ function PlayerSlot({
   hasDeck: boolean;
   ready: boolean;
 }) {
-  const status = !username
+  const status = !displayName
     ? "Waiting for opponent…"
     : ready
       ? "Ready"
@@ -399,6 +407,10 @@ function PlayerSlot({
   // Subtle highlight on the caller's own slot — distinct background so
   // it's obvious "this is me" at a glance.
   const rowBg = isYou ? "bg-gray-900 border-amber-700/50" : "bg-gray-950 border-gray-800";
+  // Show @handle only when it adds info (post-rename). When display name
+  // matches handle (initial profile state) the duplicate would just be
+  // visual noise.
+  const showHandle = handle && handle !== displayName;
 
   return (
     <div className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-md border ${rowBg}`}>
@@ -407,9 +419,12 @@ function PlayerSlot({
           {label}
         </span>
         <span className="text-sm text-gray-200 truncate">
-          {username ?? "(waiting…)"}
+          {displayName ?? "(waiting…)"}
         </span>
-        {isYou && username && (
+        {showHandle && (
+          <span className="text-[10px] text-gray-500 font-mono truncate">@{handle}</span>
+        )}
+        {isYou && displayName && (
           <span className="text-[10px] text-amber-500/80 font-medium shrink-0">(you)</span>
         )}
       </div>

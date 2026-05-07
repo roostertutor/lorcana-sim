@@ -40,7 +40,8 @@ export type IconName =
   | "cog-6-tooth"
   | "share"
   | "clipboard"
-  | "user-circle";
+  | "user-circle"
+  | "pencil-square";
 
 interface IconProps {
   name: IconName;
@@ -186,5 +187,11 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
     // as "your account" at small sizes.
     case "user-circle":
       return outline("M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z");
+
+    // Heroicons "pencil-square" — universal edit affordance (used on the
+    // MePage display_name inline editor and anywhere else inline-edit
+    // is needed).
+    case "pencil-square":
+      return outline("m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10");
   }
 }

@@ -44,8 +44,18 @@ export interface RemoteReplay {
   /** Caller's player slot if they're a player — used to default-select
    *  their own perspective in the toggle UI. */
   callerSlot: "p1" | "p2" | null;
+  /** Stable @handle of each player. Always set for finished MP games (the
+   *  server denormalizes username at finish-time). Used in tooltips and
+   *  perspective-toggle aria-labels alongside the display name. */
   p1Username: string | null;
   p2Username: string | null;
+  /** Display name AT FINISH TIME (denormalized on the replay row). Replay
+   *  viewer chrome renders this directly; UI compares against the live
+   *  profile to show "(now: X)" hover when the player has since renamed.
+   *  Fallback shape: when null (older replays predating the 2026-05-05
+   *  denorm), UI should fall back to p{1,2}Username. */
+  p1DisplayName: string | null;
+  p2DisplayName: string | null;
 }
 
 /** Discriminated union accepted by `useReplaySession`. Local replays
