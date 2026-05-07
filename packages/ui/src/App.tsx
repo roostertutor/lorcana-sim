@@ -16,6 +16,7 @@ import ReplaysPage from "./pages/ReplaysPage.js";
 import DevAddCardPage from "./pages/DevAddCardPage.js";
 import MePage from "./pages/MePage.js";
 import LobbyMiddleScreen from "./components/LobbyMiddleScreen.js";
+import AuthPanel from "./components/AuthPanel.js";
 import { resolveLobbyCode, joinLobby, getLobbyInfo } from "./lib/serverApi.js";
 import Icon, { type IconName } from "./components/Icon.js";
 
@@ -156,9 +157,37 @@ function LobbyJoinPage() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  // undefined = supabase still resolving the cached session; null =
+  // not signed in (render AuthPanel); object = signed in (run flow).
+  // Tri-state avoids the auth-flicker that otherwise shows the
+  // sign-in panel for ~50ms on first paint while supabase reads its
+  // localStorage entry. Same pattern as UserMenu above.
+  const [session, setSession] = useState<{ id: string } | null | undefined>(undefined);
+
+  // Subscribe to auth state. We need both the initial session
+  // (cached restore from localStorage) AND subsequent changes (sign-in
+  // completion via AuthPanel below, or OAuth round-trip return). The
+  // callback fires once with the current session on subscribe, so a
+  // separate getSession() call would race; this listener owns it.
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      setSession(data.session ? { id: data.session.user.id } : null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ? { id: s.user.id } : null);
+    });
+    return () => { cancelled = true; subscription.unsubscribe(); };
+  }, []);
 
   useEffect(() => {
     if (!code) { setError("No lobby code in URL"); return; }
+    // Wait until supabase has resolved its cached session AND the user
+    // is signed in. If session is null we render the AuthPanel below;
+    // when it transitions to a valid session this effect re-runs and
+    // we proceed into the join flow.
+    if (session === undefined || session === null) return;
     let cancelled = false;
 
     async function flow() {
@@ -238,7 +267,7 @@ function LobbyJoinPage() {
 
     flow();
     return () => { cancelled = true; };
-  }, [code, navigate]);
+  }, [code, navigate, session]);
 
   if (error) {
     return (
@@ -254,9 +283,33 @@ function LobbyJoinPage() {
     );
   }
 
+  // Auth gate. First-time visitors arriving via a friend's share link
+  // have no Supabase session yet — render AuthPanel inline so they can
+  // sign in / create an account WITHOUT being bounced to /multiplayer
+  // and confronted with the full Play surface (deck pickers, queue
+  // search, etc.) just to authenticate. Once the session resolves the
+  // join effect above re-runs and pulls them into the lobby. OAuth
+  // redirectTo points back at the current /lobby/:code URL so
+  // round-trips don't lose the lobby code.
+  if (session === null) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 px-4 py-8">
+        <AuthPanel
+          redirectTo={window.location.href}
+          title="Join your friend's lobby"
+          subtitle={code ? `Sign in to join lobby ${code.toUpperCase()}.` : "Sign in to continue."}
+        />
+      </div>
+    );
+  }
+
+  // session === undefined (cached-session resolve in flight) OR signed
+  // in and join request running — same loading copy. The pre-auth
+  // case clears within a frame or two on first paint; the post-auth
+  // case clears once joinLobby resolves and we navigate.
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-500 text-sm animate-pulse">
-      Joining lobby…
+      {session === undefined ? "Loading…" : "Joining lobby…"}
     </div>
   );
 }
