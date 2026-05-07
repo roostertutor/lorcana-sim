@@ -3332,3 +3332,152 @@ describe("Set 12 — Luisa Madrigal I CAN TAKE IT (this_has_damage with amount t
   });
 });
 
+// =============================================================================
+// "Whenever you pay X {I} or less to play" — paidCost vs printed cost
+// (CRD: "pay X or less to play" reads ACTUAL ink paid, not printed cost.
+// Engine threads the post-reduction cost as instance.paidCost in applyPlayCard
+// and trigger filters use stat:"paidCost" instead of stat:"cost".)
+// Affects: Buzz Lightyear - On the Way (SECRET MISSION + WORLD'S GREATEST TOY),
+// Jessie - Lively Cowgirl (YODEL-AY-HEE-HOO!), Babyhead (TIGHTEN THE BOLTS).
+// =============================================================================
+
+describe("Set 12 — paidCost trigger filter (cost-reduction interaction)", () => {
+  it("Buzz On the Way SECRET MISSION fires when 3-cost action is reduced to 2 paid via Dr. Facilier's Cards", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    ({ state } = injectCard(state, "player1", "buzz-lightyear-on-the-way", "play", { isDrying: false }));
+    let facilierId: string;
+    ({ state, instanceId: facilierId } = injectCard(state, "player1", "dr-faciliers-cards", "play", { isDrying: false, isExerted: false }));
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Pad hand so the discard prompt has options.
+    ({ state } = injectCard(state, "player1", "be-our-guest", "hand"));
+    ({ state } = injectCard(state, "player1", "be-our-guest", "hand"));
+
+    // Activate Dr. Facilier's Cards: -1 ink for next action.
+    let r = applyAction(
+      state,
+      { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: facilierId, abilityIndex: 0 },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Play the 3-cost action — paid cost is 2 ink.
+    const inkBefore = state.players.player1.availableInk;
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(state.players.player1.availableInk - r.newState.players.player1.availableInk).toBe(2);
+    void inkBefore;
+    // SECRET MISSION fired: surfaces choose_discard for the discard half.
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+  });
+
+  it("Buzz On the Way SECRET MISSION does NOT fire when a 3-cost action is played at full cost (printed-cost regression guard)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    ({ state } = injectCard(state, "player1", "buzz-lightyear-on-the-way", "play", { isDrying: false }));
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state } = injectCard(state, "player1", "be-our-guest", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Paid 3 ink → above the cost-2 trigger window.
+    expect(state.players.player1.availableInk - r.newState.players.player1.availableInk).toBe(3);
+    expect(r.newState.pendingChoice?.type).not.toBe("choose_discard");
+  });
+
+  it("Jessie YODEL-AY-HEE-HOO! fires under Dr. Facilier's Cards reduction (paid 2 on a 3-cost action)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    ({ state } = injectCard(state, "player1", "jessie-lively-cowgirl", "play", { isDrying: false }));
+    let facilierId: string;
+    ({ state, instanceId: facilierId } = injectCard(state, "player1", "dr-faciliers-cards", "play", { isDrying: false, isExerted: false }));
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    // Drop an opposing character to be debuffed by YODEL-AY-HEE-HOO!.
+    ({ state } = injectCard(state, "player2", "maximus-palace-horse", "play", { isDrying: false }));
+
+    let r = applyAction(
+      state,
+      { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: facilierId, abilityIndex: 0 },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // YODEL-AY-HEE-HOO! fired: surfaces choose_target for the -1 strength debuff.
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+  });
+
+  it("Babyhead TIGHTEN THE BOLTS fires under Dr. Facilier's Cards reduction (paid 2 on a 3-cost action)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    ({ state } = injectCard(state, "player1", "babyhead-leader-of-sids-toys", "play", { isDrying: false }));
+    let facilierId: string;
+    ({ state, instanceId: facilierId } = injectCard(state, "player1", "dr-faciliers-cards", "play", { isDrying: false, isExerted: false }));
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state } = injectCard(state, "player1", "mickey-mouse-brave-little-tailor", "play", { isDrying: false }));
+
+    let r = applyAction(
+      state,
+      { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: facilierId, abilityIndex: 0 },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // TIGHTEN THE BOLTS fired: surfaces choose_target for the +2 strength buff.
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+  });
+
+  it("Sung songs paid 0 ink fire SECRET MISSION (paidCost = 0)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    ({ state } = injectCard(state, "player1", "buzz-lightyear-on-the-way", "play", { isDrying: false }));
+    // Cost-3 character that can sing a 2-cost song for free.
+    let singerId: string;
+    ({ state, instanceId: singerId } = injectCard(state, "player1", "maximus-palace-horse", "play", { isDrying: false }));
+    let songId: string;
+    ({ state, instanceId: songId } = injectCard(state, "player1", "be-our-guest", "hand"));
+    ({ state } = injectCard(state, "player1", "be-our-guest", "hand"));
+
+    const r = applyAction(
+      state,
+      { type: "PLAY_CARD", playerId: "player1", instanceId: songId, singerInstanceId: singerId },
+      CARD_DEFINITIONS
+    );
+    expect(r.success).toBe(true);
+    // No ink deducted (sung).
+    expect(state.players.player1.availableInk).toBe(r.newState.players.player1.availableInk);
+    // SECRET MISSION fires: paidCost = 0 ≤ 2.
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+  });
+
+  it("paidCost is cleared when card leaves play (re-played action re-stamps fresh)", () => {
+    // Regression: a previously-played action returning from discard via an
+    // effect (Tipo, etc.) and replayed at full cost should NOT carry stale
+    // paidCost from the prior play. Indirect check: play action at cost 3
+    // (no Buzz reduction) — instance.paidCost set to 3, then leaves play to
+    // discard, which should clear paidCost.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let actionId: string;
+    ({ state, instanceId: actionId } = injectCard(state, "player1", "friends-on-the-other-side", "hand"));
+    ({ state } = injectCard(state, "player1", "be-our-guest", "hand"));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: actionId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // After play resolution, action moved to discard; paidCost should be cleared.
+    const inst = r.newState.cards[actionId];
+    expect(inst?.zone).toBe("discard");
+    expect(inst?.paidCost).toBeUndefined();
+  });
+});
+

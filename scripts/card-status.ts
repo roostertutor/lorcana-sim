@@ -936,7 +936,7 @@ function validateCardFields(card: any): FieldError[] {
 // =============================================================================
 
 interface FidelityViolation {
-  kind: "duplicate-storyName" | "degenerate-compound" | "redundant-compound";
+  kind: "duplicate-storyName" | "degenerate-compound" | "redundant-compound" | "wrong-cost-stat";
   detail: string;
 }
 
@@ -1013,6 +1013,38 @@ function findFidelityViolations(card: any): FidelityViolation[] {
       kind: "duplicate-storyName",
       detail: `storyName "${name}" appears ${group.length}× — one printed ability should be one JSON ability (consider multi-trigger combinator if oracle uses "X and Y" trigger phrasing)`,
     });
+  }
+
+  // Rule 4: card_played trigger filters using stat:"cost" when the printed
+  // text says "pay X {I} or less to play." Per CRD, "pay X or less to play"
+  // refers to the actual ink paid (post-reduction), not the printed cost —
+  // the engine threads this as instance.paidCost in applyPlayCard. Filters
+  // reading stat:"cost" silently fail to fire when a cost-reducer (Dr.
+  // Facilier's Cards, Maurice, Heart of Atlantis, etc.) brings the card
+  // into the trigger window. Use stat:"paidCost" instead. Flagged in the
+  // 2026-05-07 sweep that fixed Buzz On the Way SECRET MISSION; same shape
+  // applies to Jessie YODEL-AY-HEE-HOO! and Babyhead TIGHTEN THE BOLTS.
+  // "Whenever you play a [card] with cost X or less" (Stitch Rock Star
+  // ADORING FANS) is correctly stat:"cost" — matches printed cost; we only
+  // flag the "pay X or less to play" phrasing.
+  for (let i = 0; i < abilities.length; i++) {
+    const a = abilities[i];
+    if (a?.type !== "triggered") continue;
+    const trig = a.trigger;
+    if (!trig || trig.on !== "card_played") continue;
+    const cmps = trig.filter?.statComparisons;
+    if (!Array.isArray(cmps)) continue;
+    const rulesText: string = a.rulesText ?? "";
+    if (!/\bpay\s+\d+\s*\{?I\}?\s+or less to play\b/i.test(rulesText)) continue;
+    for (let j = 0; j < cmps.length; j++) {
+      const cmp = cmps[j];
+      if (cmp?.stat === "cost") {
+        violations.push({
+          kind: "wrong-cost-stat",
+          detail: `abilities[${i}] (${a.storyName ?? "anon"}): on:card_played filter uses stat:"cost" but rulesText says "pay X or less to play" — should be stat:"paidCost" so cost reductions trigger the ability correctly`,
+        });
+      }
+    }
   }
 
   // Rules 2 + 3: walk every condition in every ability (effect-level too) and

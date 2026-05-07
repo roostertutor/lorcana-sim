@@ -618,6 +618,15 @@ function applyPlayCard(
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
 
+  // Tracks ink actually paid to play this card. Stamped on the instance just
+  // before the entering-play zoneTransition so `card_played` trigger filters
+  // can read it via the `paidCost` stat axis (Jessie YODEL-AY-HEE-HOO!, Buzz
+  // On the Way SECRET MISSION / WORLD'S GREATEST TOY, Babyhead TIGHTEN THE
+  // BOLTS — "Whenever you pay X {I} or less to play"). Defaults to 0 for free
+  // play paths (sing, granted free-play, alt-cost shift); standard play
+  // overwrites with the post-reduction cost in the else branch below.
+  let paidCost = 0;
+
   // CRD 8.12: Sing Together — multiple characters all exert; sings trigger fires per singer
   if (singerInstanceIds && singerInstanceIds.length > 0) {
     state = { ...state, lastSongSingerCount: singerInstanceIds.length, lastSongSingerIds: [...singerInstanceIds] };
@@ -860,6 +869,7 @@ function applyPlayCard(
     }
 
     cost = Math.max(0, cost);
+    paidCost = cost;
 
     // Update remaining one-shot reductions
     if (oneShot.length > 0) {
@@ -875,6 +885,13 @@ function applyPlayCard(
     // Deduct ink
     state = updatePlayerInk(state, playerId, -cost);
   }
+
+  // Stamp paidCost on the instance BEFORE zoneTransition runs — `card_played`
+  // trigger filters that read `stat: "paidCost"` (e.g. Buzz Lightyear -
+  // On the Way) evaluate against state.cards[instanceId] inside queueTrigger,
+  // so the field must already be set. Cleared on leave-play (zoneTransition
+  // cleanup at the bottom of this file).
+  state = updateInstance(state, instanceId, { paidCost });
 
   if (shiftTargetInstanceId) {
     const shiftTarget = getInstance(state, shiftTargetInstanceId);
@@ -2816,6 +2833,11 @@ function applyResolveChoice(
       } else if (costType === "discard") {
         for (const id of choice) state = moveCard(state, id, playerId, "discard", definitions);
       }
+      // Granted free-play pays 0 ink (the cost was the alt-cost item-banish /
+      // exert / discard). Stamp paidCost so a `card_played` trigger filtering
+      // on paidCost reads 0, not the printed cost. Mirrors the stamp in
+      // applyPlayCard's standard-play path.
+      state = updateInstance(state, characterInstanceId, { paidCost: 0 });
       state = zoneTransition(state, characterInstanceId, "play", definitions, events, {
         reason: "played", triggeringPlayerId: playerId,
       });
@@ -7468,6 +7490,9 @@ function zoneTransition(
       challengedThisTurn: false,
       cardsUnder: [],
       boostedThisTurn: false,
+      // Clear paidCost so a re-played card (e.g. action returning from discard
+      // and replayed) re-stamps its own paid amount on the next applyPlayCard.
+      paidCost: undefined,
     });
   }
 

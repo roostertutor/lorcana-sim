@@ -1378,7 +1378,7 @@
             },
             "statComparisons": [
               {
-                "stat": "cost",
+                "stat": "paidCost",
                 "op": "lte",
                 "value": 2
               }
@@ -5997,7 +5997,7 @@
             ],
             "statComparisons": [
               {
-                "stat": "cost",
+                "stat": "paidCost",
                 "op": "lte",
                 "value": 2
               }
@@ -6037,7 +6037,7 @@
             "excludeSelf": true,
             "statComparisons": [
               {
-                "stat": "cost",
+                "stat": "paidCost",
                 "op": "lte",
                 "value": 2
               }
@@ -8484,7 +8484,7 @@
             },
             "statComparisons": [
               {
-                "stat": "cost",
+                "stat": "paidCost",
                 "op": "lte",
                 "value": 2
               }
@@ -16122,7 +16122,7 @@
             },
             "statComparisons": [
               {
-                "stat": "cost",
+                "stat": "paidCost",
                 "op": "lte",
                 "value": 2
               }

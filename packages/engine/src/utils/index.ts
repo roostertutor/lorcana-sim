@@ -583,6 +583,10 @@ export function resolveCardStat(
 ): number {
   switch (stat) {
     case "cost":      return definition.cost;
+    // Actual ink paid to play this card; stamped in applyPlayCard. Falls back
+    // to printed cost when unset (cards not yet played, or in non-play zones)
+    // so filters reading paidCost on hand/discard cards still get a sane number.
+    case "paidCost":  return instance.paidCost ?? definition.cost;
     case "strength":  return getEffectiveStrength(instance, definition);
     case "willpower": return getEffectiveWillpower(instance, definition);
     case "lore":      return getEffectiveLore(instance, definition);

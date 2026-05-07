@@ -2666,8 +2666,17 @@ export type CardTarget =
    *  triggering_card (which would only be one of N). */
   | { type: "last_song_singers" };
 
-/** A numeric stat axis a CardFilter can compare against. */
-export type StatName = "cost" | "strength" | "willpower" | "lore" | "damage";
+/** A numeric stat axis a CardFilter can compare against.
+ *  - `cost`: printed cost from the card definition (`definition.cost`).
+ *  - `paidCost`: actual ink paid to play this card. Stamped on the instance in
+ *    `applyPlayCard` and read by `card_played` trigger filters that need to
+ *    distinguish printed vs paid cost. "Whenever you pay X {I} or less to play"
+ *    triggers (Jessie YODEL-AY-HEE-HOO!, Buzz On the Way SECRET MISSION /
+ *    WORLD'S GREATEST TOY, Babyhead TIGHTEN THE BOLTS) wire `paidCost` so cost
+ *    reductions like Dr. Facilier's Cards correctly bring a 3-cost action down
+ *    into the trigger window. Falls back to printed cost when unstamped (cards
+ *    not in play / before applyPlayCard ran). Cleared on leave-play. */
+export type StatName = "cost" | "paidCost" | "strength" | "willpower" | "lore" | "damage";
 
 /** Comparison operator for StatComparison. `lte` = ≤, `gte` = ≥, etc. */
 export type StatOp = "lte" | "gte" | "lt" | "gt" | "eq";
@@ -3590,6 +3599,13 @@ export interface CardInstance {
   /** CRD 6.1.13: "Once per turn" tracking — keyed by ability storyName.
    *  Cleared at end of turn AND when the card leaves play (CRD 7.1.6 — becomes a "new" card). */
   oncePerTurnTriggered?: Record<string, boolean> | undefined;
+
+  /** Actual ink paid to play this card. Stamped in `applyPlayCard` immediately
+   *  before the entering-play `zoneTransition` so `card_played` trigger filters
+   *  that read `stat: "paidCost"` see the post-reduction cost. 0 for sung
+   *  songs, granted free-plays, and alt-cost shifts. Cleared on leave-play
+   *  (zoneTransition cleanup) so a re-played card starts fresh. See StatName. */
+  paidCost?: number;
 }
 
 // -----------------------------------------------------------------------------
