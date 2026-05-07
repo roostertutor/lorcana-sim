@@ -2922,16 +2922,18 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               }
             : {})}
           {...(
-            // "Back to lobby" appears in the kebab only for sandbox — the
-            // only mode where leaving mid-game has well-defined semantics
-            // (no opponent to abandon, no server-side state to clean up).
+            // "Back to lobby" appears in the kebab for sandbox AND solo —
+            // both have well-defined leave-mid-game semantics (no opponent
+            // to abandon, no server-side state to clean up). The bot in
+            // solo mode is local; quitting just navigates back to the
+            // lobby with no record kept.
             // MP mid-game intentionally omits this item: leaving an active
             // game means resigning, which the "Concede" item above handles
             // explicitly (server-recorded, opponent gets victory screen).
             // MP post-game flow uses the defeat/victory modal's "Back to
             // Lobby" button — BoardMenu itself is hidden via `hidden` when
             // isGameOver, so a kebab item there would be unreachable.
-            onBack && sandboxMode
+            onBack && !multiplayerGame
               ? {
                   onBackOrConcede: () => {
                     session.reset();
