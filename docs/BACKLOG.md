@@ -304,6 +304,48 @@ A Tailwind class like `landscape-phone:aspect-[5/3.5]` lets the crop only engage
 
 ---
 
+### MTGA-style fan shape for hand-held card surfaces
+
+**Considered (2026-05-05)**: Apply the MTG Arena fan layout (cards on a shallow arc, per-card rotation tangent to the arc, hover-lift with un-rotate) to surfaces where the player is *holding* cards. Discussed during a per-modal pass on whether to fan everything, nothing, or some subset.
+
+**Cut line — fan = "cards you are holding right now."** Two surfaces qualify:
+1. **Player hand zone** (inline on the gameboard, not a modal). Highest visual-identity payoff per LOC — duels.ink ships a flat row, so fanning here diverges on chrome without fighting the genre layout (per `feedback_visual_identity.md`).
+2. **`PendingChoiceModal` `choose_mulligan` and `choose_cards` / `choose_discard` from hand.** These ARE your hand at that moment; fanning them carries continuity with the hand zone.
+
+**Everything else stays grid.** Per the per-modal pass:
+- `ZoneViewModal` (discard / deck / Cards Under / sectioned reveals): N=5–60, browsing-a-stack semantics. Grid is correct. ❌
+- `choose_order`: order matters; left-to-right numbered slots and drag-to-reorder read better on a flat row. ❌
+- `choose_from_revealed` / `choose_trigger`: examine-and-pick, not held. Grid is fine and faster to scan. ❌
+- `choose_player`, `choose_players_subset`, `choose_amount`, `choose_option`, `CardInspectModal`, `SettingsModal`: not card grids — n/a.
+
+The principle is legible to players without explanation: when it's *your* hand → fan; when you're *examining* cards → grid.
+
+**Why parked (2026-05-05)**: Functionality before polish (per `feedback_function_before_polish.md`). The hand already fans today — `GameBoard.tsx:2169-2175` applies `transform: rotate(${normalizedPos * 6}deg)` + dynamic margin-left overlap (`overlapPx` compresses based on viewport at 5+ cards). So this entry is about *deepening* the fan / adding MTGA-style polish, not introducing rotation from scratch.
+
+**Important: the badge/overlay caveat I initially raised was misaimed.** The badges I listed — damage counter, drying overlay, exerted rotation, stat-delta badges, active-effects pill, keyword icon badges — are all *play-zone* concerns. Cards in play don't go through a fan; they sit upright and use targeting-mode (`ModeToast` + per-card highlight in-place, see `GameBoard.tsx:2813-2855` and `renderCardWithActions` at line 2122). Hand cards by definition never show damage / drying / exerted / stat-delta / active-effects — those only exist on dried characters in play. Hand cards show cost gem, art, name, inkable indicator, and at most a selection highlight; the cost gem already rides the existing ±6° rotation today without issue.
+
+So real costs of *deepening* the hand fan + extending to `choose_mulligan` / `choose_cards` are smaller than I first wrote:
+- Hover-lift / un-rotate / scale-up on hovered card (MTGA's preview-on-hover behavior). Overlaps technically with the not-yet-shipped "hover preview on play-zone cards" — same component contract.
+- DnD hit-test under deeper rotation: at ±6° today the math holds; at MTGA-style ±15° outer cards drop math may need to un-rotate-on-drag-start (already a likely change anyway for hover preview).
+- Mobile portrait at deeper arc + more cards: the existing dynamic-overlap logic in `GameBoard.tsx:2157-2168` is already doing this work for the current arc — extending it for a deeper arc is incremental, not new infrastructure.
+- `choose_mulligan` / `choose_cards` modal migration: replace the 4/7-col grid with the same fan component used in the hand. Selection (mulligan toggle, choose_cards pick) lifts a card out of the arc.
+
+**Trigger to reconsider** — any one of:
+1. Dedicated visual-identity / chrome-craft session is scheduled (per `project_orientation_bet_reconciled.md` — chrome-craft is the wedge replacement after portrait-first was dropped).
+2. Mobile gameboard redesign (P1 in STRATEGY) lands and hand layout is being touched anyway.
+3. Screenshot-comparison tests start running and the flat-row hand reads as "duels.ink clone" by side-by-side.
+4. Hover-preview on play-zone cards ships (the un-rotate-on-hover behavior overlaps technically — same component contract).
+
+**Expected scope**: ~1–1.5 sessions if shipped well (revised down from initial ~2 estimate now that the badge/overlay caveat is removed and the hand already fans).
+- Session 1: deepen hand fan (deeper arc / wider rotation range), add MTGA-style hover-lift + un-rotate + scale-up + z-promote. DnD un-rotate on drag-start if the deeper rotation breaks current hit-test math. ~half-day to a day.
+- Session 2: migrate `choose_mulligan` and `choose_cards` / `choose_discard` modals to share the fan component. Selection (mulligan toggle, choose_cards pick) lifts the card out of the arc. ~half-day.
+
+**Touched files (estimate)**: `GameBoard.tsx` (existing fan logic at 2169-2175), a new `HandFan` component or extension thereof, `PendingChoiceModal.tsx` (mulligan + choose_cards branches at lines 474, 619). Targeting-mode code (`ModeToast`, `renderCardWithActions` highlight branches) is untouched — it stays the same since play cards don't fan.
+
+**Don't apply fan to anything else** — list above is exhaustive. If a future surface looks fan-eligible, sanity-check it against the cut: "is the player holding these cards right now?"
+
+---
+
 ### Deckbuilder follow-up polish for `/decks/:id`
 
 Captured during the 2026-04-19 GUI session after the MTGA-style split + box-art + variants stack landed. Not blocking — tile view looks good, keep these for a future polish pass:
