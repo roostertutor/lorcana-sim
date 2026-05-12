@@ -2,7 +2,7 @@
 # Stream 4 implementation plan: what exists, what's missing, how to ship it.
 # Three iterations: Anti-Cheat → Deploy → Polish.
 #
-# Last updated: 2026-04-13
+# Last updated: 2026-05-11 (staleness cleanup)
 
 ---
 
@@ -184,7 +184,7 @@ None. Filtering is a server concern.
 
 ---
 
-## Iteration 2: Deploy + Resilience (IN PROGRESS)
+## Iteration 2: Deploy + Resilience (MOSTLY DONE — deploy remaining)
 
 **Goal**: Ship to the public internet. Players anywhere can play. Handle disconnects,
 token expiry, and errors gracefully.

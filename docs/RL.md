@@ -15,6 +15,13 @@
 #
 # Package: packages/simulator/src/rl/
 # Does NOT modify engine, existing bots, or existing analytics.
+#
+# STATUS (2026-05-11): Training paused — architectural ceiling reached.
+# A2C+GAE cannot learn multi-turn sequencing (credit assignment chain
+# too long for per-step TD). More episodes/reward shaping won't fix.
+# Decision: accept RL as "good enough baseline", pivot to multiplayer +
+# supervised learning from human replays.
+# See DECISIONS.md "RL Ceiling and Strategic Pivot" for full analysis.
 
 ---
 

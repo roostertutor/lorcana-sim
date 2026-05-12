@@ -3,7 +3,7 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md, DECISIONS.md, STRATEGY.md.
 #
-# Last updated: 2026-04-14 (nav consistency + saved decks).
+# Last updated: 2026-05-11 (staleness cleanup).
 # Last cross-ref refresh: 2026-04-25 (added BACKLOG.md companion).
 #
 # Companion docs:
@@ -18,16 +18,16 @@
 ## Where We Are
 
 ```
-✅ Rule engine — Sets 1-11 + promos fully implemented, CRD v2.0.1 audited against PDF
+✅ Rule engine — Sets 1-12 + promos fully implemented, CRD v2.0.1 audited against PDF
 ✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
 ✅ Mulligan — engine-level partial mulligan CRD 2.2.2
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
 ✅ Query system — GameCondition language, ref/mulliganed conditions, save/load results
 ✅ CLI — analyze, compare, query, learn
 ✅ Basic UI — 5 pages (DeckInput, CompositionView, SimulationView, ComparisonView)
-✅ Engine tests — 424+ passing (engine) + 46 simulator + 15 analytics = 485+ total
+✅ Engine tests — 662 passing (engine) + 47 simulator + 15 analytics = 724+ total
 ✅ Layer 3 invariants — 1000 RandomBot games, under-zone counted per CRD 5.1.1.5
-✅ Cards — 2652/2652 (100%), 0 stubs, 0 partial, 0 invalid fields, 0 approximations
+✅ Cards — 2896/2896 (100%), 0 stubs, 0 partial, 0 invalid fields, 0 approximations
 ✅ All keywords — Rush, Evasive, Ward, Resist, Bodyguard, Challenger, Reckless, Singer,
            Sing Together, Support, Alert, Boost, Vanish, Shift (normal + Classification + Universal)
 ✅ CRD compliance — full PDF cross-reference done. Only CRD 6.5 (general replacement effects) unimplemented.
@@ -204,7 +204,7 @@ elegantly — deck archetype inferred automatically, no human labeling
 ---
 
 ### Stream 2: Analytics — Generator Not Tester
-*Specs: docs/ANALYTICS_PHILOSOPHY.md, docs/ADVANCED_ANALYTICS.md, docs/GOLDFISH_SIM.md*
+*Spec: docs/ANALYTICS_PHILOSOPHY.md*
 *Goal: queries that discover things, not just confirm what you believe*
 
 Current query system is a hypothesis tester. Stream 2 adds the infrastructure
@@ -532,23 +532,12 @@ the RL bot used in coaching map comparison.
 ## Dependencies Between Streams
 
 ```
-Stream 1 (RL) ✅ done
-  ↓ unlocked
-✅ Stream 2f (RL in query pipeline) — done
-Stream 3f (RL in analysis overlay) — unblocked, not yet built
-Stream 3e (Replay UI) — unblocked (prereqs done), not yet built
-
-Stream 3e-prereqs ✅ both done (seeded RNG + GameAction[] capture)
-
-Stream 3a (useGameSession) ✅ done — prerequisite for
-✅ Stream 4a-4e (multiplayer) — done (server, anti-cheat, lobby, routing, reconnection)
-   Remaining: deploy (4f), token refresh (4g), OAuth (4h), polish (4j)
-
-Stream 1 (RL) + Stream 4 (multiplayer) — both prerequisites for
-Stream 5 (clone bot + coaching map) — Stream 4 core done, Stream 5 unblocked
-  once multiplayer is deployed and generating game logs
-
-Stream 2a-2e — ✅ done (ruby-amethyst + amber-steel queries complete, policies trained)
+Stream 1 (RL) ✅ done — ceiling reached, paused
+Stream 2 (Analytics) ✅ done (2a-2f complete)
+Stream 3 (Game Board) ✅ done (3a-3h complete, replay + undo + DnD)
+Stream 4 (Multiplayer) ✅ core done — remaining: deploy (4n), OAuth (4o), replay viewer (4p), tests (4q)
+Stream 5 (Clone Bot) — unblocked once Stream 4 is deployed and generating game logs
+Stream 6 (Engine) ✅ done — maintenance mode
 
 Everything else — parallel, no blocking dependencies
 ```
@@ -561,8 +550,8 @@ Everything else — parallel, no blocking dependencies
 
 #### 6a. Card implementation ✅
 
-**2326/2326 named-ability cards + 539 vanillas = 2865/2865 (100%) complete.**
-All sets 1–12 + promos (P1, P2, P3, cp, DIS, D23) fully implemented.
+**2353/2353 named-ability cards + 543 vanillas = 2896/2896 (100%) complete.**
+All sets 1–12 + promos (P1, P2, P3, cp, DIS, D23, C1, C2) fully implemented.
 0 stubs, 0 partial, 0 invalid fields, 0 known approximations.
 Two audit scripts (`card-status`, `decompile-cards`) report clean.
 
@@ -584,7 +573,7 @@ Only CRD 6.5 (replacement effects) remains unimplemented — no current cards re
 
 - ✅ Seeded RNG (xoshiro128**)
 - ✅ applyPassTurn split — start/end of turn separated
-- ✅ Cross-set interaction tests — 424 engine tests across 13 test files
+- ✅ Cross-set interaction tests — 662 engine tests across 13 test files
 - ✅ `runGameStateCheck` replaces inline banish checks (CRD 1.8)
 
 #### 6d. Ongoing stewardship
@@ -646,12 +635,12 @@ These are explicitly deferred or cancelled:
 ❌ Opener profiling as a code feature (it's just queries — 2a above)
 ❌ Public matchmaking (Phase 4 followup)
 ❌ Spectator mode (Phase 4 followup)
-❌ Card images (nice to have)
-❌ Mobile layout (desktop first)
+❌ Card images — ✅ DONE (R2 CDN self-hosted)
+❌ Mobile layout — ✅ DONE (responsive Tailwind)
 ❌ SQLite storage (JSON files sufficient until we know what longitudinal questions to ask)
 ❌ Web Workers (add only if performance is actually a problem)
-❌ Ranked/ELO (needs match history, much later)
-❌ Set 2+ full ability implementation (do on demand when cards are needed for analysis)
+❌ Ranked/ELO — ✅ DONE (per-format ELO: bo1/bo3 × core/infinity)
+❌ Set 2+ full ability implementation — ✅ DONE (all sets 1-12 + promos complete)
 ```
 
 ## Pending Cleanup — DONE ✅
@@ -715,4 +704,4 @@ Ask in order:
    See docs/MULTIPLAYER.md for the full phased plan.
 
 5. **Need to fix a card bug or add interactive-mode support?**
-   Stream 6 (maintenance). All 2652 cards are implemented — work is bug fixes only.
+   Stream 6 (maintenance). All 2896 cards are implemented — work is bug fixes only.

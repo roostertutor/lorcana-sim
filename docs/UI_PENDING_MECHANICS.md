@@ -1,10 +1,12 @@
 # UI — Pending Visualizations for New Engine Mechanics
 
+> **Status as of 2026-05-11: ALL ITEMS RESOLVED.** This file is kept as a
+> historical reference for how each mechanic was visualized. No pending items
+> remain. New mechanics should be appended to the top if they arise.
+
 Running list of engine mechanics added during the Phase A.x cleanup that the
 UI does not yet visualize. Each entry: what the engine does, what the UI
 needs to show, and which event/state field to watch.
-
-Append to the top as new mechanics land.
 
 ---
 

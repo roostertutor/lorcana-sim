@@ -3,7 +3,8 @@
 Headless Disney Lorcana TCG analytics engine. Simulates thousands of games
 to produce deck analytics, win rates, and card performance data.
 
-Not a human-playable simulator — built for quantitative deck analysis.
+Also includes an interactive sandbox for solo play vs bot, and a multiplayer
+server for real opponent games.
 
 ## Quick Start
 
@@ -98,17 +99,19 @@ Card names must match the Lorcast card database (case-insensitive). Use the full
 pnpm dev
 ```
 
-Opens at `http://localhost:5173`. Five screens:
+Opens at `http://localhost:5173`. Seven screens:
 
 | Screen | What it does |
 |--------|-------------|
-| **Deck Input** | Paste a decklist, validate it, load the sample deck |
-| **Composition** | Cost curve, ink colors, inkable probability by turn, card types |
+| **Decks** | Saved decks, deckbuilder, composition view |
 | **Simulate** | Mirror match simulation with card performance breakdown |
-| **Compare** | Two-deck head-to-head matchup |
-| **Weight Explorer** | Tune bot weight sliders, compare against preset strategies |
+| **Sandbox** | Interactive game board vs bot with replay, undo, DnD, card injector |
+| **Multiplayer** | Lobby, matchmaking, ELO ratings, Bo1/Bo3, Core/Infinity formats |
+| **Me** | Profile, game history, display name |
+| **Replays** | Browse and share multiplayer replays |
+| **Solo** | Quick solo game without multiplayer setup |
 
-All simulations run in-browser — no server needed.
+Simulations run in-browser. Multiplayer requires the Hono server (`server/`).
 
 ## Project Structure
 
@@ -119,20 +122,20 @@ packages/
   analytics/    Aggregation + composition. Imports engine + simulator.
   cli/          Terminal commands. Imports analytics only.
   ui/           React + Vite. Imports analytics only.
+server/         Hono + Supabase multiplayer server.
 decks/          Sample decklists (.txt)
-sims/        Query sim configs + question files (.json)
+sims/           Query sim configs + question files (.json)
 ```
 
 ## Card Coverage
 
-Set 1 (The First Chapter): 216 cards total, 106 fully implemented, 110 stubs.
-Stub cards are playable as vanilla characters — their named abilities just don't
-trigger yet. Keyword-only cards (Rush, Evasive, Bodyguard, etc.) work correctly.
+Sets 1–12 + promos (P1, P2, P3, cp, DIS, D23, C1, C2): **2896 cards total, 100% implemented.**
+All named abilities wired. 0 stubs, 0 partial, 0 approximations.
 
 ## Tests
 
 ```bash
-pnpm test           # all packages (engine: 49 pass + 5 todo, simulator: 3, analytics: 15)
+pnpm test           # all packages (engine: 662, simulator: 47, analytics: 15)
 pnpm test:watch     # engine TDD mode
-pnpm typecheck      # known errors in cli (missing @types/node) only
+pnpm typecheck      # known errors from exactOptionalPropertyTypes strictness
 ```

@@ -2,7 +2,7 @@
 
 Items flagged by one session for another to pick up.
 
-Last reorganized: 2026-04-25 (5 DONE items deleted, 7 parked-decision items moved to `docs/BACKLOG.md`).
+Last reorganized: 2026-05-11 (9 DONE items deleted, shareable replay entry condensed to follow-up gaps only).
 
 ## Runbook: new CRD revision arrives — diff snapshot & update tracker
 
@@ -116,59 +116,6 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## ~~Engine agent: cross-set wiring bugs surfaced by 2026-04-30 decompile sweep~~ ✅ MOSTLY DONE 2026-04-30
-
-After the renderer-cleanup pass (commits 6c0e68c → f46183b raised avg
-decompile similarity from 0.80 to 0.84), the bottom of the sorted output
-is now mostly real wiring bugs rather than renderer noise. 13 of 15
-items resolved across commits f46183b, f19eeab, 0856a20.
-
-### Resolved
-
-| Card | Set/# | Resolution |
-|------|-------|-----|
-| Mr. Incredible - Super Strong | 12/127 + 226 | ✅ FIXED f46183b — added perMatch:2 |
-| Yao - Snow Warrior | 11/73 | ✅ FIXED f19eeab — added not(is_your_turn) condition |
-| Sudden Scare | 10/164 | ✅ FIXED f19eeab — added 2nd put_into_inkwell with target:opponent, fromZone:deck |
-| Launchpad - Trusty Sidekick | 11/177 | ✅ FIXED f19eeab — rewrote as activated {E}, added discard condition support |
-| Alice - Tea Alchemist | 3/35 | ✅ FIXED f19eeab — added second exert with nameFromLastResolvedTarget filter |
-| Like A Bird In the Sky | 12/131 | ✅ FIXED f19eeab — added grant_keyword:evasive on last_resolved_target |
-| Evil Comes Prepared | 5/128 | ✅ FIXED f19eeab — fixed followUp target + added new condition last_resolved_target_has_trait |
-| The Queen - Jealous Beauty | 7/74 | ✅ FIXED — was correctly wired (gainLoreBase/Bonus/bonusFilter); renderer now emits the bonus clause |
-| Grumpy - Skeptical Knight | 5/186 | ✅ FIXED — was correctly wired (atLocation:"any"); renderer now emits "at a location" qualifier |
-| Belle's House - Maurice's Workshop | 3/168 | ✅ FIXED — was correctly wired (cost_reduction static); renderer now emits ongoing phrasing for static cost_reduction |
-| Hades - Looking for a Deal | 10/56 | ✅ FIXED — was correctly wired (gain_stats +0 is a no-op chooser); renderer now suppresses all-zero stat clauses |
-| Lilo - Escape Artist | 6/2 | ✅ FIXED 0856a20 — was correctly wired (target:this); renderer now emits "play this character from your discard" |
-| Elsa's Ice Palace - Place of Solitude | 5/67 | ✅ FIXED 0856a20 — was correctly wired; renderer now substitutes "this location" via cardType ctx |
-| Rex - Protective Dinosaur | 12/10 | ✅ FIXED 0856a20 — was correctly wired (filter:isSelf); renderer now emits "When this character is banished" for isSelf:true |
-| Goliath - Clan Leader | 10/173 | ✅ FIXED — was correctly wired (fill_hand_to handles both directions); renderer now emits both branches |
-
-### Resolved (2026-04-30 follow-up — user pointed out existing precedents)
-
-| Card | Set/# | Resolution |
-|------|-------|-----|
-| Magica De Spell - The Midas Touch | 3/49 | ✅ FIXED ae9291f — Lucky Dime pattern (self_replacement + stat_ref from:target property:cost, item filter). User flagged: "should be like Lucky Dime except just passed a different value." |
-| One Last Hope | 4/197 + 9/197 + 9/222 | ✅ FIXED ae9291f — all 3 reprints (same id) wired identically with the Hero clause now. Added action-effect form of can_challenge_ready with optional duration + condition. User flagged: set-9/197 was actually One Last Hope (not Stand By Me as I mislabeled), and set-4/197 is the original printing. |
-
-### Renderer issues (low priority — JSON is correct)
-
-These score low but the wiring is fine; renderer just doesn't render the
-shape cleanly. Fix when convenient or accept as cosmetic:
-
-- **Bill the Lizard NOTHING TO IT** (8/90) — "while ANOTHER character has damage" → "While you have other character with damage in play" (word order)
-- **Belle Bookworm** (2/71) — "an opponent has no cards" → "one or more opponents have no cards in their hands" (renderer plurality)
-- **Tiana's Palace** (3/34) — "Characters can't be challenged while here" → "all characters here can't be challenged" (style)
-- **Hera Queen of the Gods** (4/76) — multi-static with named-character grants renders fine; oracle has Ward keyword reminder, may benefit from grouping
-- **Aladdin Barreling Through** (10/123) — keyword reminders + ONLY THE BOLD render fine; oracle wording differs slightly
-- **Mor'du Savage Cursed Prince** (12/57) — "exert all" missing "all" prefix; "at the start of your turn" condition not in rendered wording
-- **Zipper Big Helper** (12/150) — `+this character's {W} {S}` for "may add his {W} to another's {S}" — works semantically, awkward render
-- **Wreck-It Ralph Demolition Dude** (5/104) — "for each 1 damage on him" → "equal to the damage on them" (semantic match, different phrasing)
-- **Fa Zhou Mulan's Father** (4/105) — "She can't quest" rendered as "they can't quest" (pronoun; correct)
-- **Light the Fuse** (8/149) — "Deal 1 damage to chosen character for each exerted character" → "deal damage equal to the number of your exerted characters to chosen character" (semantic match, awkward render)
-- **Diablo Devoted Herald** (4/70) — alt-cost shift renders as "Shift 0 {I}" — needs to read shiftDiscardCost / altShiftCost
-
----
-
 ## Engine agent: Syndrome - Out for Revenge `play OR shift` branch missing
 
 Set 12 #172 GOT ME MONOLOGUING! oracle: "Whenever this character quests,
@@ -261,35 +208,10 @@ option entirely until this is resolved.
 
 ---
 
-## Shareable MP replays — finish the UX
+## Replay follow-up gaps (from Phase B/C shareable replays, shipped 2026-05-01)
 
-**Discovery context (2026-05-01):** while wiring the sandbox state filter, the user asked what's needed for shareable MP replays. Audit showed most plumbing was already built — Phase 2 of the MP UX plan had shipped the server side on 2026-04-22 (replay auto-save, share endpoint, public flag, route + auto-fetch wired). The work split into four phases:
-
-- **Phase A — Server-side per-viewer filtering.** ✅ DONE 2026-05-01 (commit `937fbb8`). Server reconstructs + filters per perspective; access matrix at `decideReplayAccess` in `server/src/services/gameService.ts`. 21 unit tests.
-- **Phase B — Client refactor + perspective toggle.** ✅ DONE 2026-05-01 (commit pending alongside C). `useReplaySession` accepts discriminated union `{ kind: "local" | "remote" }`; `serverApi.getGameReplay` returns the new `ReplayMeta` shape; `getSharedReplay` (public-or-player) + `setReplayPublic` (PATCH) added; new `/replay/share/:replayId` route registers `SharedReplayPage`; replay banner has perspective toggle (P1/P2/Spectator) with affordance gating per the access matrix.
-- **Phase C — Share UI on game-over overlay + privacy chrome.** ✅ DONE 2026-05-01 (commit pending alongside B). Share button + inline confirm flow on game-over overlay (3-button tertiary row when MP+download both apply); privacy chip on replay banner (player click toggles public + copies link; non-player sees read-only "Public replay" badge).
-- **Phase D — "My Replays" browse list.** ✅ DONE 2026-04-29. New `/replays` route + tab + `ReplaysPage` component. Server endpoint `GET /replay/list?user=me&limit=50&offset=0` (registered before `/:id` so Hono's path-matching catches the literal segment). Returns `{ replays: ReplayListItem[]; total }` — lightweight metadata (no state stream / decks). Each row stamps `callerIsP1` server-side so the UI doesn't need raw player IDs to compute "your view" winner / opponent. UI renders W/L badge + opponent + format chip + privacy chip + relative timestamp + turn count; "Load more" pagination. Empty state links to `/multiplayer`. Public-replay browser still deferred until usage data shows public sharing happening.
-
-The active anti-cheat leak (player reviewing their MP game saw opponent hand history) was closed by Phase A. Phase B+C make the existing PATCH /replay/:id/share endpoint reachable from the UI and add the perspective toggle that completes the filter UX.
-
-### Phase D follow-ups (still open)
-
-Phase D shipped the "My Replays" browse list (route, server endpoint, tab). Two related items remain parked:
-
-1. **Public browser** at `/replays/public` — paginated list of public replays. Server endpoint shape would be `GET /replay/list?public=true&limit=50&sort=recent|turn-count`. **Defer** until usage data shows public sharing is happening; otherwise it'll be an empty page.
-2. **Profile screen integration** — link "View replays" on each profile page to `/replays?user=<userId>` (server endpoint already gates on `user=me` only; widening to other users requires the public-browser policy decision first).
-
-Out of scope until those trigger: explicit replay search, replay tagging, replay annotations, replay clipping (Creator tooling track in BACKLOG).
-
-### Known follow-up gaps from Phase B/C (worth a small follow-up commit)
-
-1. **`callerSlot` detection in `App.tsx → metaToRemoteReplay`** is hardcoded to `null` because `ReplayMeta` doesn't carry player IDs (only usernames). Effect: a player visiting their own MP replay via direct `/replay/:gameId` URL gets reduced affordances — no privacy chip toggle, perspective toggle behaves as if anonymous. Server already knows the caller's slot when responding; cleanest fix is to add an optional `callerSlot?: "p1" | "p2" | null` to `ReplayMeta` and stamp it in `buildReplayView`. Then the UI flips both helpers (App.tsx + GameBoard.tsx) to read from the response. The MP game-over Review path is unaffected (callerSlot is sourced from `multiplayerGame.myPlayerId`).
-2. **Privacy chip + share button only render when `mpReplay` is non-null** (the auto-fetched MP context state). They don't render when reviewing via `/replay/:gameId` direct URL or `/replay/share/:replayId`. Once #1 lands, the chip should also work in those paths — the `replayInput.data.replayId` is already present, just need to refactor `handleSharePublic` / `copyShareLink` to read from `replayInput.data.replayId` rather than `mpReplay.replayId`.
-
-### Decisions locked
-- Don't expose raw `seed + actions` to private viewers, even with a "I'll filter client-side, promise" contract. Determined cheats just disable the wrap. The Phase A reconstruct-server-side decision is the only architecturally sound shape.
-- Don't filter the action stream itself. Some action args inherently carry private info (chosen card from a private peek) that's load-bearing for replay correctness. Filter the *state* (already pure), not the *action* (impure, breaks reconstruction).
-- Don't bundle "spectator mode" (live in-game watching) into this work. Different threat model (in-progress game info leaks differently — opponent's hand at decision time rather than post-hoc), different latency requirements. Park it as a follow-up if Phase A's reconstructor pattern proves performant.
+1. **`callerSlot` detection in `App.tsx → metaToRemoteReplay`** is hardcoded to `null` because `ReplayMeta` doesn't carry player IDs (only usernames). Effect: a player visiting their own MP replay via direct `/replay/:gameId` URL gets reduced affordances — no privacy chip toggle, perspective toggle behaves as if anonymous. Cleanest fix: add optional `callerSlot?: "p1" | "p2" | null` to `ReplayMeta` and stamp it in `buildReplayView`.
+2. **Privacy chip + share button only render when `mpReplay` is non-null**. They don't render when reviewing via `/replay/:gameId` direct URL or `/replay/share/:replayId`. Once #1 lands, refactor to read from `replayInput.data.replayId`.
 
 ---
 
@@ -389,78 +311,6 @@ type with no `op` field) prompted the audit improvement, which surfaced these
 8 latent cases. All ship-broken in production but in narrow board states, so
 the bugs likely went unnoticed during play testing — exactly the failure mode
 this audit class targets.
-
----
-
-## ~~Engine agent: add `sourceInstanceId` to `lastRevealedHand` state~~ DONE 2026-04-24
-
-Engine state shape extended; `reveal_hand` / `look_at_hand` now persist
-the source card instance alongside `playerId` / `cardIds` / `privateTo`.
-
-- `packages/engine/src/types/index.ts:3639` — added `sourceInstanceId: string` to the `lastRevealedHand` snapshot interface.
-- `packages/engine/src/engine/reducer.ts:3018` — populated the new field at the existing return site (`sourceInstanceId` was already in lexical scope from the `hand_revealed` event two lines above).
-- `packages/engine/src/engine/set12.test.ts` — extended the existing Dolores Madrigal NO SECRETS tests to assert `sourceInstanceId === doloresId` (PLAY_CARD path) and `=== source.instanceId` (direct `applyEffect` path for both `reveal_hand` and `look_at_hand`).
-
-All 679 engine tests pass. Typecheck shows only pre-existing
-`exactOptionalPropertyTypes` errors unrelated to this change.
-
-UI follow-up (swap "Opponent's hand" → "Revealed by [Source]" in
-GameBoard's hand-reveal section) is now unblocked.
-
----
-
-## ~~Engine agent: shifted character should keep target's play-array slot (visual continuity)~~ ✅ DONE 2026-04-26
-
-Shipped the recommended post-hoc splice. `applyPlayCard()` shift branch
-now captures the target's `play[]` index BEFORE `zoneTransition`, then
-after the existing moves splices the new shifter into that slot:
-
-```
-Before: [A, B, target, D, E]
-After:  [A, B, newShifter, D, E]   ← previously [A, B, D, E, newShifter]
-```
-
-Single-call-site change (no `TransitionContext` API surface added).
-Regression: `reducer.test.ts > §8 Keywords > Shift: new shifter takes
-the target's play-array slot (visual continuity)` — 3 chars in play
-ordered `[L, base, R]`, after PLAY_CARD with shiftTargetInstanceId=base
-asserts `play === [L, shifter, R]` and base.zone === "under".
-UI inherits automatically.
-
----
-
-## ~~UI agent: Sing Together gating misses static-granted Singer (Mickey Amber Champion)~~ ✅ DONE
-
-UI fix landed in `singerEffectiveCost` at `GameBoard.tsx:983-1009` — reads `gameModifiers.grantedKeywords` and OR's static-granted Singer into the keyword check, mirroring the engine validator. CRD 8.11.1 cited in the comment block. Mickey Amber Champion FRIENDLY CHORUS (and any future static-granted Singer keyword) now resolves the Sing Together math correctly.
-
----
-
-## ~~Engine agent: Hypnotic Deduction — honor "in any order" via choose_order~~ ✅ DONE 2026-04-26
-
-Option A landed. Two-step pick → order: after the existing `choose_target`
-resolves with 2 hand cards, the engine now surfaces a `choose_order`
-PendingChoice over those exact 2 cards. New optional
-`position?: "top" | "bottom"` field on `choose_order` (default `"bottom"`
-preserves Vision / Ariel / Under the Sea / look_at_top "rest to bottom"
-behavior). The `choose_order` resolver dispatches on `position`; the
-`reorderDeckTopToBottom` helper now uses its previously-unused
-`cardsToTop` param so `position: "top"` routes the chosen order to the
-top of the deck (first selected = topmost / drawn first). Hypnotic
-Deduction inherits the UI's new preview/reset modal automatically.
-Regression in `set5-set8.test.ts` covers the two-step flow +
-deck-order assertion.
-
----
-
-## ~~Server agent + UI agent: client-side Rematch trigger for MP end-of-match victory modal~~ ✅ DONE
-
-Server endpoint was already in place (`POST /lobby/rematch` at `server/src/routes/lobby.ts:117-142` + `rematchLobby` service at `lobbyService.ts:323-487`) — idempotent on `previousLobbyId`, spawns the first game synchronously, no separate "Waiting for opponent" subscription needed. UI wiring shipped in same commit: `postRematch()` helper in `serverApi.ts`; `getGameInfo()` extended to surface `lobby_id`; one-shot `useEffect` in `GameBoard.tsx` fetches the parent lobby UUID at MP game-over; Rematch button renders in the modal's primary-CTA slot when `multiplayerGame && !hasNextGame && rematchLobbyId`. Inline error surfacing for the 409 ACTIVE_GAME case (only user-resolvable error). Pending-state via local `rematchPending` boolean — disabled button labeled "Waiting for opponent…" between click and navigation. Queue-spawned games (no parent lobby) correctly skip the CTA.
-
----
-
-## ~~UI agent: `choose_play_order` PendingChoiceModal variant~~ ✅ DONE
-
-Both pieces shipped: `choose_play_order` branch in `PendingChoiceModal.tsx:291` (Go First / Go Second buttons; context subtitle for game 1 / Bo3 game N), and sandbox auto-resolve `choose_play_order → "first"` at `GameBoard.tsx:1330` (alongside the mulligan auto-skip). CRD 2.1.3.2 / 2.2.1.1 implemented.
 
 ---
 
@@ -753,30 +603,6 @@ deferred for a follow-up session:
 
 None blocking. The helper already covers ~100 LOC of the hottest duplication.
 
-## ~~GUI agent: render `<Keyword>` tokens in rulesText as styled badges~~ ✅ DONE 2026-04-27 (simplified)
-
-User picked the minimum-viable variant: just bold the keyword content
-WITHOUT the angle brackets, no icon, no accent color. `renderRulesText`
-in `packages/ui/src/utils/rulesTextRender.tsx` now matches both glyph
-braces (`{X}`) and keyword angle brackets (`<Evasive>`, `<Shift: Discard
-an action card>`, `<Sing Together>`) in a single combined token pattern;
-keyword matches emit `<strong>` with the brackets stripped.
-
-All three rulesText consumers (`CardInspectModal`, `CardTextRender`,
-`AbilityTextRender`) call `renderRulesText`, so the bolded-keyword
-treatment applies everywhere automatically. Reminder parens remain plain
-text by design — the normalizer doesn't wrap keywords inside `(...)`,
-so `(Only characters with Evasive can challenge…)` reads as prose.
-
-If we ever decide we DO want icon badges + accent colors, the original
-HANDOFF design intent is preserved in `git log` and the implementation
-sits in one file ready to be expanded.
-
-**Do not** edit the normalizer or card JSONs. The rulesText shape is fixed;
-the UI just needs to parse and render it.
-
----
-
 ## Server agent (first) + GUI agent (follow-up): in-app feedback / bug report system
 
 Planned with user 2026-04-21. Reusable "Report an issue" trigger surfaced
@@ -948,17 +774,15 @@ be picked up without re-reading the full plan.
 
 | Phase | Status | Next action |
 |---|---|---|
-| 1. Lobby polish + public browser + first-player banner | Server ✅ (35061e1), GUI ✅ (15db979 + a55b372). User confirmed end-to-end happy path + cancel + legality. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
-| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | All open — server is the blocker | server agent: pick up Phase 2 prompt below in §Phase 2 |
-| 3. Matchmaking queue (user's two-account test target) | Open, blocked on Phase 2 finishing | Pending; server prompt to be drafted when Phase 2 lands |
+| 1. Lobby polish + public browser + first-player banner | Server ✅, GUI ✅. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
+| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | Server ✅ (2026-04-22), Rematch UI ✅ (client-side). | gameboard-specialist: game-over overlay (prompt below); GUI agent: replay toast + serverApi wrappers (prompt below) |
+| 3. Matchmaking queue (user's two-account test target) | Open | server + engine + GUI coordinated ship (spec below in §Phase 3) |
 | 4. Reconnection + resume hardening | Open | After Phase 3 |
 | 5. Friends + rich presence | Open | After Phase 4 |
 | 6. Emoji reactions (ephemeral) | Open | Can land independently of 5 |
 | 7. Spectator mode (per-side fog-of-war) | Open; Phase 1 plumbing already shipped (`spectator_policy`) | After Phase 5 for friends-feed; public-games feed works without 5 |
 
-**Current bottleneck:** Phase 2 server work. Once that lands, both
-Phase 2 GUI prompts (gameboard-specialist + GUI agent) unblock in
-parallel, and Phase 3 prep can begin.
+**Current bottleneck:** Phase 3 server + engine work. Phase 2 server is done; remaining Phase 2 UI work (game-over overlay, replay toast) can proceed in parallel with Phase 3 planning.
 
 ### Locked design decisions
 
@@ -989,38 +813,7 @@ parallel, and Phase 3 prep can begin.
 
 ### Phase 1 — Lobby polish + public browser + first-player banner
 
-Agent splits:
-- ~~**server agent** (blocking): schema `lobbies.public`,
-  `lobbies.spectator_policy`, `POST /lobby/:id/cancel` endpoint,
-  `GET /lobby/public` for the browser.~~ — **DONE 2026-04-22** (server-specialist).
-  Details:
-  - Schema: `lobbies.public BOOLEAN DEFAULT FALSE`, `lobbies.spectator_policy TEXT
-    DEFAULT 'off'` with CHECK constraint `('off','invite_only','friends','public')`.
-    New status `'cancelled'` documented (column has no CHECK, so no migration needed).
-  - `createLobby` accepts `{ public, spectatorPolicy }` options; `POST /lobby/create`
-    wires them through with validation (unknown policies fall back to `'off'`).
-  - `listPublicLobbies(userId)` — filters `status='waiting' AND public=true AND
-    host_id != userId`, joins `profiles!host_id` for username, returns host
-    username + format metadata only (**NO** deck fields — no scouting vector).
-    Limit 50, ordered by `created_at DESC`.
-  - `cancelLobby(userId, lobbyId)` — host-only (403 otherwise), status='waiting'
-    only (409 otherwise), 404 if lobby missing. Idempotent via race-guarded UPDATE.
-  - Route order fixed: `/public` and `/:id/cancel` registered BEFORE the
-    catch-all `/:id`.
-  - SQL to run in Supabase (idempotent, safe to re-run):
-    ```sql
-    ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS public BOOLEAN NOT NULL DEFAULT FALSE;
-    ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS spectator_policy TEXT NOT NULL DEFAULT 'off'
-      CHECK (spectator_policy IN ('off','invite_only','friends','public'));
-    ```
-- ~~**GUI agent**: client-side legality pre-check in `MultiplayerLobby`,
-  waiting-state countdown, public/private toggle in Host card, public
-  lobby browser section, cancel button wiring.~~ — **DONE 2026-04-22**
-  in commits 15db979 (legality pre-check + wait counter) and a55b372
-  (public toggle + browser + server-side cancel). User confirmed end-
-  to-end happy path + cancel + legality flows in browser.
-- **gameboard-specialist**: first-player banner on GameBoard. **OPEN —
-  prompt below.**
+Server ✅ (35061e1) + GUI ✅ (15db979 + a55b372). Only remaining: first-player banner.
 
 #### Open prompt for gameboard-specialist (Phase 1 banner)
 
@@ -1065,133 +858,9 @@ share-replay button) — separate prompt below in Phase 2.
 
 ### Phase 2 — Post-game polish
 
-Agent splits:
-- ~~**server agent**: ELO delta in game-finish payload, MP replay auto-save,
-  `POST /lobby/rematch` + loser-choice flow, replay public toggle.~~ —
-  **DONE 2026-04-22.** Details in the "Server DONE 2026-04-22" subsection
-  below — includes shape changes, endpoint shapes, and SQL the user needs
-  to run in Supabase.
-- **gameboard-specialist**: game-over overlay (ELO delta, share button,
-  rematch flow). **OPEN — prompt below. UNBLOCKED (server is done).**
-- **GUI agent**: replay-save toast in `useGameSession` + serverApi
-  wrappers for the new endpoints. **OPEN — prompt below. UNBLOCKED (server is done).**
+Server ✅ (2026-04-22), Rematch UI ✅ (client-side wired). Remaining: game-over overlay polish + replay toast.
 
-Sequence: server first (done); now both UI agents can proceed in parallel.
-
-#### Server DONE 2026-04-22 (server-specialist)
-
-Commits land server-side in one slice. SQL the user must run in Supabase
-SQL editor (idempotent — safe to re-run):
-
-```sql
-ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS rematch_of UUID REFERENCES lobbies(id);
-
-CREATE TABLE IF NOT EXISTS replays (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  game_id UUID NOT NULL UNIQUE REFERENCES games(id) ON DELETE CASCADE,
-  winner_player_id UUID REFERENCES profiles(id),
-  p1_username TEXT,
-  p2_username TEXT,
-  turn_count INTEGER NOT NULL DEFAULT 0,
-  format TEXT, game_format TEXT, game_rotation TEXT,
-  public BOOLEAN NOT NULL DEFAULT FALSE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS replays_public_idx ON replays (public, created_at DESC);
-CREATE INDEX IF NOT EXISTS replays_game_idx ON replays (game_id);
-
-ALTER TABLE replays ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "Replays readable by players or if public" ON replays;
-DROP POLICY IF EXISTS "Replays public-toggle by players" ON replays;
-CREATE POLICY "Replays readable by players or if public" ON replays FOR SELECT
-  USING (public = true OR EXISTS (SELECT 1 FROM games WHERE games.id = replays.game_id
-    AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())));
-CREATE POLICY "Replays public-toggle by players" ON replays FOR UPDATE
-  USING (EXISTS (SELECT 1 FROM games WHERE games.id = replays.game_id
-    AND (games.player1_id = auth.uid() OR games.player2_id = auth.uid())));
-
-ALTER TABLE lobbies REPLICA IDENTITY FULL;
-```
-
-**ELO delta shape** — embedded in `GameState` as `_eloDelta` alongside the
-existing `_matchScore` / `_matchNextGameId`. Keyed by Supabase user-id so
-each client extracts its own row. Present only when the match was
-actually decided (Bo3 game 1 with no match decision yet: omitted):
-```ts
-type EloDelta = {
-  [userId: string]: { before: number; after: number; delta: number };
-  _eloKey: `${"bo1"|"bo3"}_${"core"|"infinity"}_${RotationId}`;
-}
-```
-UI rule: `delta > 0` → green, `delta < 0` → red, `delta === 0` → gray
-("Unranked" or "No change"). This trio ships on both `POST /game/:id/action`
-response and the Realtime broadcast (same state blob). `GET /game/:id`
-returns it too once the game is finished.
-
-**Replay auto-save** — every MP game that finishes (natural end OR resign)
-inserts a row into `replays` via `saveReplayForGame()` in gameService.ts.
-Idempotent (game_id UNIQUE → ON CONFLICT DO NOTHING). Bo3 match = up to
-3 replay rows per match.
-
-**Rematch endpoint** — `POST /lobby/rematch { previousLobbyId }`:
-- Auth: must be one of the two players in the previous lobby
-- Previous lobby must be status='finished'
-- Caller must not have another active game
-- Creates new lobby with `rematch_of` → previous, spawns first game
-  immediately with previous-match LOSER in player1 slot (engine's
-  `choose_play_order` surfaces to loser via existing PendingChoiceModal —
-  same UX as CRD 2.1.3.2 Bo3 games 2/3)
-- Idempotent: concurrent clicks from both players converge on one lobby
-  (lookup by rematch_of before insert)
-- Returns: `{ lobbyId, gameId, code, myPlayerId }`
-- Errors: 404 if previous not found, 403 if not a player, 409 if already
-  in a game or status isn't finished
-
-Note on deviation from the original Phase 2 prompt: the prompt called for
-TWO endpoints (`/lobby/rematch` creates a `waiting_loser_choice` lobby,
-`/lobby/:id/loser-choice` transitions to active). We collapsed to one
-endpoint because the engine already has `choose_play_order` (from CRD
-2.1.3.2 work) that handles the loser's play/draw pick. Adding a parallel
-server-side election would be redundant. Winner-waits UX is provided by
-the existing PendingChoiceModal opponent-view variant.
-
-**Replay share endpoint** — new route file `server/src/routes/replay.ts`:
-- `GET /replay/:id` — returns metadata + full replay payload (seed,
-  decks, actions, winner). Auth optional — public=true replays work
-  without a token; private replays require one of the two players.
-- `PATCH /replay/:id/share { public: boolean }` — toggle the public flag.
-  Player-only. Returns `{ ok: true, public: bool }`.
-
-CORS `allowMethods` in `index.ts` now includes `PATCH`.
-
-**Files touched:**
-- `server/src/db/schema.sql` — schema block added
-- `server/src/services/gameService.ts` — updateElo returns deltas;
-  handleMatchProgress/resignGame save replays; ReplayView + getReplayById
-  + setReplayPublic service helpers
-- `server/src/services/lobbyService.ts` — `rematchLobby()` function
-- `server/src/routes/lobby.ts` — POST /lobby/rematch
-- `server/src/routes/replay.ts` — NEW file, GET + PATCH
-- `server/src/index.ts` — registered /replay; added PATCH to CORS
-
-**Typecheck:** 1 pre-existing error (`processAction` nextGameId — unrelated
-to Phase 2, same as before my changes). 0 new errors introduced.
-
-**Deferred:**
-- Rate limits on `/replay/:id/share` (was a nice-to-have in the original
-  prompt). No metrics yet to calibrate a threshold; add if abuse appears.
-- 60s timeout on unaccepted rematches (UI-enforceable; server-side sweep
-  is optional polish).
-- Bo3 resign semantics — resigning currently ends just the game (not the
-  match). Pre-existing gap, flagged in gameService.ts comment. Separate
-  concern.
-
-> **Note (2026-04-25):** Phase 2 server work shipped 2026-04-22 (audited
-> by server-specialist). The original Phase-2 server prompt block has
-> been removed from this section. The gameboard-specialist prompt below
-> is UNBLOCKED.
-
-#### Open prompt for gameboard-specialist (Phase 2 overlay, UNBLOCKED 2026-04-22)
+#### Open prompt for gameboard-specialist (Phase 2 overlay, UNBLOCKED)
 
 ```
 MP UX Phase 2 — game-over overlay enhancements. BLOCKED on server
