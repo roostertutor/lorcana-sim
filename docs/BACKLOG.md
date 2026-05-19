@@ -628,6 +628,56 @@ Noted during a GUI session where the user asked whether Reset should keep deck h
 
 ---
 
+### Persisted event stream on `game_actions`
+
+**Considered (2026-05-16)**: Add `events JSONB` column to `game_actions`, populate from `ActionResult.events` (the 9-variant union at `packages/engine/src/types/index.ts:4400-4410` — `card_moved`, `damage_dealt`, `card_banished`, `lore_gained`, `card_drawn`, `ability_triggered`, `card_revealed`, `hand_revealed`, `turn_passed`) in `recordAction` (`server/src/services/gameService.ts:249`). Backfill old rows by re-running actions via `applyAction(state_before, action, definitions)`.
+
+**Why parked**: No current consumer. Events are derivable from existing `action` + `state_before` + deterministic engine, so deferring loses **no information** — only query speed. The `GameEvent` type union is still evolving (last change: `hand_revealed` added for the reveal-pill UI), so persisting now risks a schema-version migration later when a consumer wants a shape we haven't predicted.
+
+Headless game-understanding is already covered three ways without persisted events:
+1. **`state.actionLog: GameLogEntry[]`** (`types/index.ts:3828`) — engine builds a human-readable log inside state. Every `state_after` snapshot already contains the full game log up to that point.
+2. **Raw action log** — `game_actions` rows are JSON-iterable.
+3. **On-demand event re-derivation** — `applyAction` is deterministic, so re-running any row yields the events again.
+
+Persisted events buy *only* query speed for event-stream aggregations, not capability. That doesn't justify the ongoing decision overhead today (every PR touching the `GameEvent` union has to ask "do we need a migration?").
+
+**Trigger to reconsider**: any one of —
+1. T2 replay viewer adds key-moment auto-tagging (needs efficient `events @> '[...]'` query per game).
+2. Analytics CLI adds an events-stream query (needs efficient cross-game event aggregation; re-running thousands of games per query is the breakpoint).
+3. Audit / dispute tooling needs to surface "why did X happen" per-action to non-engineers without re-running the engine in-browser.
+
+**Expected scope**: ~1 day. One `ALTER TABLE game_actions ADD COLUMN events JSONB`, ~10 lines in `recordAction` to also save `result.events`, one-time backfill script that re-runs the action log for every historical game and populates the column. If we wait until the first consumer ships, we get to design the persisted shape *for that consumer* instead of speculatively.
+
+**Adjacent follow-up (no trigger — file as cleanup)**: `formatAction()` lives in `packages/ui/src/utils/formatAction.ts:8`. Any headless tool that wants pretty per-action labels ("Play Mickey - Brave Little Tailor (3 ink)") can't import it without violating package boundaries. Move to `packages/engine/src/utils/` (or a small shared module) whenever the first non-UI consumer needs it — server-side audit, CLI replay reader, exported-replay viewer. ~30-line refactor; no urgency.
+
+Filed during a four-bucket diff against the offline-session brainstorm doc (`docs/claude-offline-session/diff-vs-current.md`) — decision #1 of that diff's list.
+
+---
+
+### Historical engine + card-data resolution for replays
+
+**Considered (2026-05-18)**: Today every replay re-runs through whatever engine + card JSON is live at replay time. We already stamp `games.engine_version` (`server/src/db/schema.sql:422`, populated in `server/src/services/gameService.ts:140` from `packages/engine/src/version.ts:31`) but no code actually *routes* on it — the stamp is a filter (clone-trainer can drop training rows from a broken engine version) not a router (no path loads engine X to resolve a replay made under engine X). Result: if either the reducer or a card's wiring has changed since the game was played, the replay diverges silently from what the players experienced live.
+
+The candidate fix: store the engine + card-data snapshot per `engine_version` string (git-tag the engine commit, archive the matching `packages/engine/src/cards/*.json` directory tree), and at replay time check out the historical snapshot to resolve actions. The replay viewer either runs the historical engine in a sandbox process server-side, or bundles a stripped engine + cards-by-version blob the client can load.
+
+**Why parked (2026-05-18)**: No errata has shipped yet (Ravensburger has not issued a single behaviorally-significant card change since Set 1). No dispute has ever surfaced where a player needed to re-litigate an old replay against the rules-of-the-time. The expensive cost (engine-snapshot archival, version-routed replay loader, UI to flag "this replay played under engine X, you're watching it through engine Y") is unjustified until at least one of those triggers fires. Until then, we ship the stamp (already done) and accept that replays are best-effort against current rules.
+
+Critically, the engine_version stamp alone — even without machinery — has real value today: clone-trainer can filter training data, and *future* us can know exactly which engine + card snapshot to resurrect when the trigger fires. The expensive work is only the resolver, not the marker; the marker is already in place.
+
+**Trigger to reconsider**: any one of —
+1. **First behaviorally-significant errata** ships from Ravensburger (or we issue one ourselves to fix a card that was wired wrong from day 1 in a way that changes win rates). The bump policy in `packages/engine/src/version.ts:14-26` requires bumping `ENGINE_VERSION` on errata, so the *next* engine_version bump for a card-data reason is itself the trigger.
+2. **Tournament or ladder dispute** that requires producing the rules-as-they-were at game time — e.g., a ranked match where a player claims an engine-fix between game time and dispute time invalidated the outcome.
+3. **Card-history surface** (long-term, T3-ish) that wants to show "Mickey - Brave Little Tailor played 2,400 games before the v2 errata changed his cost from 4 to 5" — needs historical engine+card resolution to render the pre-errata version correctly.
+
+**Expected scope**: ~1-2 weeks if triggered. Phases:
+- Engine + card-data snapshot pipeline (git-tag each `ENGINE_VERSION` bump, archive the matching `packages/engine/src/cards/` tree to R2 or a tarball in-repo). ~2 days.
+- Replay loader that resolves `games.engine_version` → snapshot, instantiates the historical engine. Server-side process pool vs client-bundled engine-by-version is the bigger design call. ~1 week.
+- UI affordance: "This replay was played on engine 2026-04-22. You are watching it through that engine." Optional toggle to also see "as it would play today" for comparison. ~2-3 days.
+
+Filed during decision #2 of the offline-session diff (`docs/claude-offline-session/diff-vs-current.md`). User asked the right framing question: "we're rerunning the replay but with new engine, so it might not be possible, if the engine has changed?" — Yes. The cheap path was widening the existing `ENGINE_VERSION` bump policy to also cover errata (done in this session); the expensive path is this entry.
+
+---
+
 ## Engine / Bot
 
 ### Reveal-info model — bots have oracle access
@@ -752,21 +802,6 @@ Total if all four ship: ~5-6 work-days.
 - Server NEVER trusts client's tier classification — re-classifies every takeback request from the `events: GameEvent[]` stream (any `card_revealed` / `hand_revealed` event in the stream auto-bumps tier).
 - Ranked queue → zero takebacks. Plumbed through the existing `format.rotation.ranked` flag.
 - Animation honesty for Tier 3 — don't lie with reverse-animations; show an honest toast instead.
-
----
-
-### Server-side test infrastructure
-
-**Considered**: Add vitest + `test`/`test:watch` scripts to `server/package.json`. Create `stateFilter.test.ts` (3 cases: public reveal_hand, private look_at_hand, post-reveal drift) and `lobbyService.test.ts` (format legality rejection). Wire `pnpm --filter server test` into CI.
-
-**Why parked**: No CI exists yet; server bug rate is low (~1 fix in last 2 weeks); manual MP testing has caught issues so far; engine has the high-volume test surface.
-
-**Trigger to reconsider**: any one of —
-1. Railway deploy is being set up and we're adding CI in the same pass.
-2. A second server-side anti-cheat / state-filter bug ships without coverage.
-3. We add a >200-LOC server feature that warrants its own test file (matchmaking queue from MP UX Phase 3 is a candidate).
-
-**Expected scope**: ~1 day for scaffolding + the two minimal test files.
 
 ---
 

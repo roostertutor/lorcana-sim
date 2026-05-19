@@ -8,8 +8,14 @@ with known engine behavior shifts.
 **Bump policy** (duplicated in `packages/engine/src/version.ts` for locality):
 bump when a change could make old actions un-replayable — CRD rule wiring,
 reducer handler changes, new PendingChoice types, card-definition schema
-additions that affect runtime. Do NOT bump for pure card-data additions,
-test-only changes, UI/sandbox-only changes, or non-behavioral edits.
+additions that affect runtime, **and errata or any behaviorally-significant
+card-data change** (the engine_version stamp is the single load-bearing
+marker for both engine-code drift AND card-data semantic drift; no parallel
+`card_data_version` column). Do NOT bump for pure card-data additions
+(new sets — existing cards still behave the same; new cards can't appear
+in older games), card-data fixes that align JSON with what the engine was
+already producing, test-only changes, UI/sandbox-only changes, or
+non-behavioral edits.
 
 ## Log (newest first)
 

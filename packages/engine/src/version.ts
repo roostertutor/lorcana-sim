@@ -10,10 +10,19 @@
  *   - New PendingChoice types (older saves may have fields the new engine
  *     doesn't recognize, or vice versa)
  *   - Card-definition schema additions that affect runtime behavior
+ *   - **Errata or any behaviorally-significant card-data change.** A card
+ *     whose effects, cost, stats, ink colors, or ability wiring changes
+ *     produces different replay outcomes for any historical game that
+ *     touched it — same class of un-replayability as a reducer change.
+ *     The engine_version stamp is the single load-bearing marker for both
+ *     engine-code drift AND card-data semantic drift; we don't maintain a
+ *     parallel card_data_version column.
  *
  * Do NOT bump for:
  *   - Pure card-data additions (set expansions — existing cards still behave
- *     the same)
+ *     the same; new cards can't appear in older games)
+ *   - Card-data fixes that align JSON with what the engine was already
+ *     producing (e.g., audit cleanup that doesn't change runtime behavior)
  *   - Test-only changes
  *   - UI/sandbox-only changes
  *   - Non-behavioral comment / rename edits
