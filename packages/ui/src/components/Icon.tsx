@@ -41,7 +41,10 @@ export type IconName =
   | "share"
   | "clipboard"
   | "user-circle"
-  | "pencil-square";
+  | "pencil-square"
+  | "flag"
+  | "chevron-down"
+  | "chevron-up";
 
 interface IconProps {
   name: IconName;
@@ -193,5 +196,20 @@ export default function Icon({ name, className = "w-4 h-4" }: IconProps) {
     // is needed).
     case "pencil-square":
       return outline("m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10");
+
+    // Heroicons "flag" — feedback / report-issue trigger across the app.
+    // Visually neutral (not the red exclamation triangle that reads as
+    // "danger") so the footer link doesn't feel alarming for the common
+    // "I have an idea" case.
+    case "flag":
+      return outline("M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5");
+
+    // Heroicons "chevron-down" / "chevron-up" — expand/collapse affordance
+    // for the FeedbackModal's "What we'll send" disclosure section.
+    case "chevron-down":
+      return outline("m19.5 8.25-7.5 7.5-7.5-7.5");
+
+    case "chevron-up":
+      return outline("m4.5 15.75 7.5-7.5 7.5 7.5");
   }
 }

@@ -8,6 +8,7 @@ import { getInspectCardImage } from "../utils/cardImage.js";
 import CardPlaceholder from "./CardPlaceholder.js";
 import { renderRulesText } from "../utils/rulesTextRender.js";
 import { formatDuration } from "../utils/formatDuration.js";
+import FeedbackButton from "./FeedbackButton.js";
 
 type CardBtn = { label: string; color: string; onClick: (e: React.MouseEvent) => void };
 
@@ -344,7 +345,7 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
 
         {/* Action buttons */}
         {actions.length > 0 && (
-          <div className="flex flex-col gap-2 px-4 pt-3 pb-4">
+          <div className="flex flex-col gap-2 px-4 pt-3 pb-2">
             {actions.map((btn, i) => (
               <button
                 key={i}
@@ -358,7 +359,25 @@ export default function CardInspectModal({ instanceId, gameState, definitions, a
         )}
 
         {/* No actions: just padding */}
-        {actions.length === 0 && <div className="pb-4" />}
+        {actions.length === 0 && <div className="pt-2" />}
+
+        {/* Report-an-issue trigger. Pre-fills type=card_issue and attaches
+             { cardId, fullName } so engine-expert can grep the feedback
+             firehose by card. Inline-style under the action buttons so it
+             reads as a secondary affordance, not competing with primary
+             play actions. Only shown when we have a definition to attach. */}
+        {def && (
+          <div className="px-4 pb-4 pt-1 flex justify-center">
+            <FeedbackButton
+              variant="inline"
+              label="Report issue with this card"
+              injection={{
+                type: "card_issue",
+                context: { cardId: def.id, fullName: def.fullName },
+              }}
+            />
+          </div>
+        )}
       </div>
     </ModalFrame>
   );

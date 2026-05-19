@@ -19,6 +19,8 @@ import LobbyMiddleScreen from "./components/LobbyMiddleScreen.js";
 import AuthPanel from "./components/AuthPanel.js";
 import { resolveLobbyCode, joinLobby, getLobbyInfo } from "./lib/serverApi.js";
 import Icon, { type IconName } from "./components/Icon.js";
+import { FeedbackProvider } from "./lib/feedbackContext.js";
+import FeedbackButton from "./components/FeedbackButton.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 
@@ -566,16 +568,26 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
         className="border-t border-gray-800 bg-gray-950 px-4 py-4"
         style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
       >
-        <p className="max-w-6xl mx-auto text-[10px] leading-relaxed text-gray-600 text-center">
-          This site uses trademarks and/or copyrights associated with Disney Lorcana TCG,
-          used under Ravensburger's Community Code Policy. We are expressly prohibited from
-          charging you to use or access this content. This site is not published, endorsed,
-          or specifically approved by Disney or Ravensburger. For more information about
-          Disney Lorcana TCG, visit{" "}
-          <a href="https://disneylorcana.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 underline">
-            disneylorcana.com
-          </a>.
-        </p>
+        <div className="max-w-6xl mx-auto space-y-2">
+          <p className="text-[10px] leading-relaxed text-gray-600 text-center">
+            This site uses trademarks and/or copyrights associated with Disney Lorcana TCG,
+            used under Ravensburger's Community Code Policy. We are expressly prohibited from
+            charging you to use or access this content. This site is not published, endorsed,
+            or specifically approved by Disney or Ravensburger. For more information about
+            Disney Lorcana TCG, visit{" "}
+            <a href="https://disneylorcana.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-400 underline">
+              disneylorcana.com
+            </a>.
+          </p>
+          {/* Feedback trigger — footer placement per HANDOFF Decision #3
+               (footer over FAB). Renders nothing visible until clicked;
+               opens the shared FeedbackModal mounted by FeedbackProvider
+               at the root. No injection — this is the generic "report
+               anything" entry point. */}
+          <div className="text-center">
+            <FeedbackButton variant="inline" />
+          </div>
+        </div>
       </footer>
 
       {/* Bottom nav — all-mobile thumb-zone navigation (portrait +
@@ -838,6 +850,17 @@ function SharedReplayPage() {
 // ---------------------------------------------------------------------------
 
 export default function App() {
+  return (
+    <FeedbackProvider>
+      <AppRoutes />
+    </FeedbackProvider>
+  );
+}
+
+// Routes split into a sibling so FeedbackProvider wraps the entire route
+// tree (including full-screen game pages without Shell). Any component
+// anywhere can call useFeedback().
+function AppRoutes() {
   return (
     <Routes>
       {/* Tab pages */}
