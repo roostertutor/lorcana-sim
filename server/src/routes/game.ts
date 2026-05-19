@@ -11,6 +11,8 @@ import {
   getGameActions,
   getFilteredGameReplay,
   decideReplayAccess,
+  recordHeartbeat,
+  projectClockForRow,
   type ReplayPerspective,
 } from "../services/gameService.js"
 
@@ -36,7 +38,18 @@ game.get("/history", requireAuth, async (c) => {
   return c.json({ games })
 })
 
-// GET /game/:id — reconnect / page refresh
+// GET /game/:id — reconnect / page refresh.
+//
+// Side effects: getGame runs the lazy clock check — if the active player's
+// bank or grace exhausted since the last interaction, this fetch will trigger
+// the timeout/disconnect finalization and return the finished game. Clients
+// that poll this endpoint act as the disconnect-detection driver for active
+// games (no cron needed).
+//
+// Response shape: adds a `clock` field with projected-for-display values
+// (live countdown for the decision player, frozen for the inactive player;
+// disconnect flags per player). Null when the game predates the clock
+// rollout (legacy untimed game). Phase 2 UI consumers render from this.
 game.get("/:id", requireAuth, async (c) => {
   const gameData = await getGame(c.req.param("id")!)
   if (!gameData) return c.json({ error: "Game not found" }, 404)
@@ -49,8 +62,38 @@ game.get("/:id", requireAuth, async (c) => {
   // Filter hidden information before sending to client
   const playerSide: PlayerID = gameData.player1_id === userId ? "player1" : "player2"
   const filteredState = filterStateForPlayer(gameData.state as GameState, playerSide)
+  const clock = projectClockForRow(gameData as Record<string, unknown>)
 
-  return c.json({ game: { ...gameData, state: filteredState }, playerSide })
+  return c.json({ game: { ...gameData, state: filteredState }, playerSide, clock })
+})
+
+// POST /game/:id/heartbeat — client presence ping.
+//
+// Clients should call every ~10s while the game tab is active and the game
+// is still 'active'. Server uses heartbeat timestamps to detect disconnects
+// (>30s without ping = treated as disconnected, both clocks pause, grace
+// countdown begins). Reconnect within grace clears the disconnect flag AND
+// deducts the disconnect duration from grace.
+//
+// Returns the up-to-date clock for client display. 404 if game doesn't
+// exist; 403 if caller isn't a player; 409 if game has already finished or
+// pre-dates the clock rollout.
+game.post("/:id/heartbeat", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const result = await recordHeartbeat(c.req.param("id")!, userId)
+  if (!result.ok) return c.json({ error: result.error }, result.status)
+  // Return the raw clock state — client renders countdowns from these.
+  return c.json({
+    ok: true,
+    clock: {
+      p1TimeRemainingMs: result.clock.p1TimeRemainingMs,
+      p2TimeRemainingMs: result.clock.p2TimeRemainingMs,
+      p1GraceRemainingMs: result.clock.p1GraceRemainingMs,
+      p2GraceRemainingMs: result.clock.p2GraceRemainingMs,
+      p1Disconnected: result.clock.p1DisconnectedSince !== null,
+      p2Disconnected: result.clock.p2DisconnectedSince !== null,
+    },
+  })
 })
 
 // GET /game/:id/actions — ordered action list for replay reconstruction

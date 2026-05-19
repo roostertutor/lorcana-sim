@@ -18,6 +18,19 @@ import {
   type RotationId,
 } from "@lorcana-sim/engine"
 import { supabase } from "../db/client.js"
+import {
+  applyActionTick,
+  applyHeartbeat,
+  checkGraceExhausted,
+  checkTimeout,
+  detectDisconnect,
+  getDecisionPlayer,
+  initialClockState,
+  MATCH_CLOCK_CONFIG,
+  projectClockForDisplay,
+  type ClockState,
+  type MatchFormat as ClockMatchFormat,
+} from "./matchClock.js"
 
 // Card definitions are cached at startup — don't reload per request
 const definitions = CARD_DEFINITIONS
@@ -50,6 +63,12 @@ export interface CreateGameOptions {
    *  callers also pre-validate; queue callers pre-validate AND defensively
    *  re-check inside `tryPairEntry`. Throws ILLEGAL_DECK_P{1,2} on rejection. */
   format?: GameFormat
+  /** Match format ("bo1" | "bo3"). Drives per-game clock parameters
+   *  (bank size + Fischer increment) via MATCH_CLOCK_CONFIG. Each game in a
+   *  Bo3 gets a fresh bank — Bo3 doesn't share a clock across games. Default
+   *  "bo1" matches the column default; queue and lobby paths thread the real
+   *  value through. */
+  matchFormat?: ClockMatchFormat
 }
 
 /**
@@ -120,6 +139,18 @@ export async function createNewGame(
   // ANDs queueKind=='ranked' with rotation.ranked=true at the call site).
   const ranked = matchSource === "private" ? false : (options.ranked ?? false)
 
+  // Initialize the match clock from MATCH_CLOCK_CONFIG. Each game (including
+  // Bo3 games 2/3) gets a fresh bank — Bo3 doesn't share a clock across
+  // games. activePlayerSince=now means the clock starts the moment the
+  // games row is created; in practice the chooser_play_order pendingChoice
+  // is the first interaction so player1 (the chooser) is on the clock from
+  // game-creation. If anyone abandons the game before the first action,
+  // they'll timeout via the lazy check on the next GET /game/:id.
+  const matchFormat: ClockMatchFormat = options.matchFormat ?? "bo1"
+  const clockConfig = MATCH_CLOCK_CONFIG[matchFormat]
+  const now = new Date()
+  const clock = initialClockState(clockConfig, now)
+
   const { data, error } = await supabase
     .from("games")
     .insert({
@@ -138,6 +169,15 @@ export async function createNewGame(
       // to the engine that can correctly replay them. See
       // packages/engine/src/version.ts for the bump policy.
       engine_version: ENGINE_VERSION,
+      // Match clock — see server/src/services/matchClock.ts for semantics.
+      match_format: matchFormat,
+      p1_time_remaining_ms: clock.p1TimeRemainingMs,
+      p2_time_remaining_ms: clock.p2TimeRemainingMs,
+      active_player_since: clock.activePlayerSince,
+      p1_grace_remaining_ms: clock.p1GraceRemainingMs,
+      p2_grace_remaining_ms: clock.p2GraceRemainingMs,
+      p1_last_heartbeat_at: clock.p1LastHeartbeatAt,
+      p2_last_heartbeat_at: clock.p2LastHeartbeatAt,
     })
     .select()
     .single()
@@ -146,11 +186,67 @@ export async function createNewGame(
   return data as { id: string }
 }
 
+// =============================================================================
+// MATCH CLOCK — DB row ↔ ClockState marshalling
+// =============================================================================
+
+/** Read clock fields off a `games` row into a ClockState. Supabase returns
+ *  TIMESTAMPTZ as ISO strings (or null); convert to Date. BIGINT comes back
+ *  as a JS number (safe for our duration ranges — 25 min = 1.5M ms, well
+ *  under Number.MAX_SAFE_INTEGER). */
+function readClockFromRow(row: Record<string, unknown>): ClockState | null {
+  // Pre-cutover rows have null clock columns. Caller decides whether to
+  // backfill (initial-action path) or skip (read-only path).
+  if (row["p1_time_remaining_ms"] == null) return null
+
+  const parseTimestamp = (v: unknown): Date | null => {
+    if (v == null) return null
+    if (v instanceof Date) return v
+    return new Date(v as string)
+  }
+
+  return {
+    p1TimeRemainingMs: Number(row["p1_time_remaining_ms"]),
+    p2TimeRemainingMs: Number(row["p2_time_remaining_ms"]),
+    p1GraceRemainingMs: Number(row["p1_grace_remaining_ms"]),
+    p2GraceRemainingMs: Number(row["p2_grace_remaining_ms"]),
+    activePlayerSince: parseTimestamp(row["active_player_since"]),
+    p1DisconnectedSince: parseTimestamp(row["p1_disconnected_since"]),
+    p2DisconnectedSince: parseTimestamp(row["p2_disconnected_since"]),
+    p1LastHeartbeatAt: parseTimestamp(row["p1_last_heartbeat_at"]),
+    p2LastHeartbeatAt: parseTimestamp(row["p2_last_heartbeat_at"]),
+  }
+}
+
+/** Build the partial games-row UPDATE payload from a ClockState. Used by
+ *  every callsite that needs to persist clock changes. */
+function clockToRowUpdate(clock: ClockState): Record<string, unknown> {
+  return {
+    p1_time_remaining_ms: clock.p1TimeRemainingMs,
+    p2_time_remaining_ms: clock.p2TimeRemainingMs,
+    p1_grace_remaining_ms: clock.p1GraceRemainingMs,
+    p2_grace_remaining_ms: clock.p2GraceRemainingMs,
+    active_player_since: clock.activePlayerSince,
+    p1_disconnected_since: clock.p1DisconnectedSince,
+    p2_disconnected_since: clock.p2DisconnectedSince,
+    p1_last_heartbeat_at: clock.p1LastHeartbeatAt,
+    p2_last_heartbeat_at: clock.p2LastHeartbeatAt,
+  }
+}
+
+/** Read the games row's match_format column with a safe default. Coerces any
+ *  unexpected value to "bo1" (the default) — defensive against legacy rows
+ *  that pre-date the column or got a non-canonical write. */
+function getMatchFormat(row: Record<string, unknown>): ClockMatchFormat {
+  const raw = row["match_format"]
+  return raw === "bo3" ? "bo3" : "bo1"
+}
+
 export async function processAction(
   gameId: string,
   userId: string,
   action: GameAction,
-): Promise<{ success: boolean; newState?: GameState; error?: string; nextGameId?: string }> {
+): Promise<{ success: boolean; newState?: GameState; error?: string; nextGameId?: string; timedOut?: PlayerID }> {
   // Load current game state
   const { data: game, error: loadError } = await supabase
     .from("games")
@@ -172,6 +268,40 @@ export async function processAction(
         : null
 
   if (!playerSide) return { success: false, error: "You are not a player in this game" }
+
+  // CLOCK CHECK — pre-action. If the active player's bank has run out OR
+  // someone's grace has expired, the game ended via the clock before this
+  // action was attempted. Finalize the game and reject the action.
+  //
+  // Read the clock state from the row. Pre-clock-rollout games have null
+  // clock columns (readClockFromRow returns null) — skip the check for
+  // those; they remain on the legacy untimed path.
+  const matchFormat = getMatchFormat(game as Record<string, unknown>)
+  const clockConfig = MATCH_CLOCK_CONFIG[matchFormat]
+  let clockBefore = readClockFromRow(game as Record<string, unknown>)
+  const now = new Date()
+  if (clockBefore) {
+    // Detect any disconnects that may have crossed the threshold since the
+    // last fetch. This populates pX_disconnected_since so the timeout /
+    // grace checks below see the correct paused state.
+    clockBefore = detectDisconnect(clockBefore, now, clockConfig)
+
+    // Grace exhaustion takes precedence over time-bank exhaustion (a
+    // disconnected player's bank is paused, so the only way to lose during
+    // a disconnect is via grace running out).
+    const graceLoser = checkGraceExhausted(clockBefore, now)
+    if (graceLoser) {
+      await finalizeClockLoss(gameId, game as Record<string, unknown>, graceLoser, "disconnect", clockBefore)
+      return { success: false, error: "Game ended — opponent disconnect grace expired.", timedOut: graceLoser }
+    }
+
+    const decisionPlayerBefore = getDecisionPlayer(state)
+    const timeLoser = checkTimeout(clockBefore, decisionPlayerBefore, now)
+    if (timeLoser) {
+      await finalizeClockLoss(gameId, game as Record<string, unknown>, timeLoser, "timeout", clockBefore)
+      return { success: false, error: "Game ended — your time bank expired.", timedOut: timeLoser }
+    }
+  }
 
   // Verify it's this player's turn
   const activePlayerId = state.pendingChoice
@@ -210,6 +340,27 @@ export async function processAction(
 
   let newState = result.newState
 
+  // CLOCK TICK — post-action. Decrement the OLD decision player's bank for
+  // think time consumed, optionally add Fischer increment if state.currentPlayer
+  // flipped, re-anchor activePlayerSince. The Sudden Chill case ("p1 plays,
+  // p2 must discard") is handled correctly: decisionPlayer flips p1→p2 with
+  // no increment (currentPlayer unchanged), p2's clock starts ticking from
+  // this instant. See matchClock.ts → "Sudden Chill round trip" test.
+  let clockAfter: ClockState | null = null
+  if (clockBefore) {
+    const oldDecision = getDecisionPlayer(stateBefore)
+    const newDecision = getDecisionPlayer(newState)
+    clockAfter = applyActionTick(
+      clockBefore,
+      oldDecision,
+      newDecision,
+      stateBefore.currentPlayer,
+      newState.currentPlayer,
+      clockConfig,
+      now,
+    )
+  }
+
   // Save new state (triggers Supabase Realtime broadcast to both clients)
   const isFinished = newState.isGameOver
   await supabase
@@ -224,6 +375,7 @@ export async function processAction(
             ? game.player2_id
             : null,
       updated_at: new Date(),
+      ...(clockAfter ? clockToRowUpdate(clockAfter) : {}),
     })
     .eq("id", gameId)
 
@@ -530,7 +682,174 @@ export async function getGame(gameId: string) {
     .single()
 
   if (error) return null
+
+  // CLOCK CHECK — lazy on read. If the active player's bank or grace has run
+  // out since the last action, finalize the game now so the caller sees the
+  // finished state. Only fires for clocked games (legacy untimed games skip).
+  if (data.status === "active") {
+    const clock = readClockFromRow(data as Record<string, unknown>)
+    if (clock) {
+      const matchFormat = getMatchFormat(data as Record<string, unknown>)
+      const config = MATCH_CLOCK_CONFIG[matchFormat]
+      const now = new Date()
+      const detected = detectDisconnect(clock, now, config)
+
+      const graceLoser = checkGraceExhausted(detected, now)
+      if (graceLoser) {
+        await finalizeClockLoss(gameId, data as Record<string, unknown>, graceLoser, "disconnect", detected)
+        // Re-fetch so the caller sees the finalized state. Cheap — single PK lookup.
+        const { data: refreshed } = await supabase.from("games").select("*").eq("id", gameId).single()
+        return refreshed ?? data
+      }
+
+      const decision = getDecisionPlayer(data.state as GameState)
+      const timeLoser = checkTimeout(detected, decision, now)
+      if (timeLoser) {
+        await finalizeClockLoss(gameId, data as Record<string, unknown>, timeLoser, "timeout", detected)
+        const { data: refreshed } = await supabase.from("games").select("*").eq("id", gameId).single()
+        return refreshed ?? data
+      }
+
+      // Persist any newly-detected disconnect flags (so the next read doesn't
+      // re-detect from scratch — keeps grace accounting honest across reads).
+      if (
+        detected.p1DisconnectedSince !== clock.p1DisconnectedSince ||
+        detected.p2DisconnectedSince !== clock.p2DisconnectedSince
+      ) {
+        await supabase
+          .from("games")
+          .update(clockToRowUpdate(detected))
+          .eq("id", gameId)
+        // Reflect the persisted state into the returned row so the caller
+        // doesn't see stale disconnect flags.
+        Object.assign(data as Record<string, unknown>, clockToRowUpdate(detected))
+      }
+    }
+  }
+
   return data
+}
+
+/** Finalize a game that ended via the clock (timeout or grace exhaustion).
+ *  Writes the loser's clock state, the outcome_reason, and the winner_id; sets
+ *  status='finished'. Also embeds isGameOver/winner into state.state so
+ *  clients see the finished state via Realtime + GET.
+ *
+ *  Does NOT update ELO or close the parent lobby — those flows (Bo3
+ *  progression, ELO settle, replay save) happen via handleMatchProgress
+ *  triggered by isGameOver. For now we leave that integration as a TODO
+ *  hooked from a separate path; the immediate behavior is "game ends and
+ *  both players see the right outcome." */
+async function finalizeClockLoss(
+  gameId: string,
+  game: Record<string, unknown>,
+  loser: PlayerID,
+  reason: "timeout" | "disconnect",
+  clock: ClockState,
+): Promise<void> {
+  const winner: PlayerID = loser === "player1" ? "player2" : "player1"
+  const winnerId = winner === "player1" ? game["player1_id"] : game["player2_id"]
+  const existingState = (game["state"] as GameState | undefined) ?? null
+  // wonBy carries the clock-loss reason on the engine state so client overlays
+  // can render the right copy ("opponent ran out of time" vs "opponent
+  // disconnected"). Distinct from the canonical engine `wonBy` of
+  // "lore" | "deckout" | "concede" — extending the union here goes
+  // through `unknown` because we're stamping a server-only field that the
+  // engine doesn't declare. UI consumers branch on the server-side
+  // games.outcome_reason column rather than this field for type safety.
+  const wonBy = reason === "timeout" ? "timeout" : "disconnect"
+  const updatedState = existingState
+    ? ({ ...(existingState as unknown as Record<string, unknown>), isGameOver: true, winner, wonBy } as unknown as GameState)
+    : null
+
+  await supabase
+    .from("games")
+    .update({
+      status: "finished",
+      winner_id: winnerId ?? null,
+      outcome_reason: reason,
+      updated_at: new Date(),
+      ...(updatedState ? { state: updatedState } : {}),
+      ...clockToRowUpdate(clock),
+    })
+    .eq("id", gameId)
+}
+
+/** Record a heartbeat from a player. Updates pX_last_heartbeat_at, clears any
+ *  pX_disconnected_since flag (deducting the disconnect duration from grace),
+ *  persists. Returns the up-to-date clock for caller display, or null if the
+ *  game/player combo is invalid.
+ *
+ *  Called from POST /game/:id/heartbeat. Clients should call this every ~10s
+ *  while the game tab is active (config.heartbeatTimeoutMs = 30s, so the
+ *  caller has 3 ping intervals of slack before disconnect detection fires). */
+export async function recordHeartbeat(
+  gameId: string,
+  userId: string,
+): Promise<{ ok: true; clock: ClockState } | { ok: false; error: string; status: 403 | 404 | 409 }> {
+  const { data: game, error } = await supabase
+    .from("games")
+    .select("*")
+    .eq("id", gameId)
+    .single()
+  if (error || !game) return { ok: false, status: 404, error: "Game not found" }
+
+  const player: PlayerID | null =
+    game.player1_id === userId ? "player1" : game.player2_id === userId ? "player2" : null
+  if (!player) return { ok: false, status: 403, error: "Not a player in this game" }
+
+  if (game.status !== "active") {
+    return { ok: false, status: 409, error: "Game is not active" }
+  }
+
+  const existing = readClockFromRow(game as Record<string, unknown>)
+  if (!existing) {
+    // Legacy untimed game — no clock to update. Treat as a no-op so the
+    // client can fail-soft (won't crash on heartbeating into a pre-clock game).
+    return { ok: false, status: 409, error: "Game has no clock (pre-clock-rollout legacy row)" }
+  }
+
+  const now = new Date()
+  // Detect any pending disconnects FIRST so a long-stale player's existing
+  // gap is captured into pX_disconnected_since before applyHeartbeat clears
+  // it and ratchets grace. Without this, a player who was disconnected for
+  // 60s but never had detectDisconnect run against their gap would get
+  // their grace ratcheted by 0 instead of 60s.
+  const detected = detectDisconnect(existing, now, MATCH_CLOCK_CONFIG[getMatchFormat(game as Record<string, unknown>)])
+  const updated = applyHeartbeat(detected, player, now)
+
+  await supabase.from("games").update(clockToRowUpdate(updated)).eq("id", gameId)
+  return { ok: true, clock: updated }
+}
+
+/** Project the clock state forward to `now` for read-only client display.
+ *  Pure read — does not persist anything. Returns null for legacy rows
+ *  without a clock. Use in GET /game/:id response shaping so the client
+ *  sees the live countdown rather than a stale stored bank. */
+export function projectClockForRow(
+  game: Record<string, unknown>,
+  now: Date = new Date(),
+): {
+  p1TimeRemainingMs: number
+  p2TimeRemainingMs: number
+  p1GraceRemainingMs: number
+  p2GraceRemainingMs: number
+  p1Disconnected: boolean
+  p2Disconnected: boolean
+  matchFormat: ClockMatchFormat
+} | null {
+  const clock = readClockFromRow(game)
+  if (!clock) return null
+  const state = game["state"] as GameState | undefined
+  if (!state) return null
+  const decision = getDecisionPlayer(state)
+  const projection = projectClockForDisplay(clock, decision, now)
+  return {
+    ...projection,
+    p1Disconnected: clock.p1DisconnectedSince !== null,
+    p2Disconnected: clock.p2DisconnectedSince !== null,
+    matchFormat: getMatchFormat(game),
+  }
 }
 
 export async function resignGame(gameId: string, userId: string) {
@@ -772,6 +1091,11 @@ async function handleMatchProgress(
     rotation: (lobby.game_rotation as RotationId) ?? "s12",
   }
 
+  // Bo3 next-game inherits the lobby's match format for the clock config.
+  // Each game in a Bo3 gets a FRESH 25-min bank (tournament convention) —
+  // initialClockState resets bank from MATCH_CLOCK_CONFIG[matchFormat] every
+  // call, so no shared-clock-across-games risk.
+  const bo3MatchFormat = (lobby.format as string) === "bo3" ? "bo3" : "bo1"
   const nextGame = await createNewGame(
     lobbyId,
     loserId,
@@ -783,6 +1107,7 @@ async function handleMatchProgress(
       matchSource: "private",
       ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
       format: lobbyFormat,
+      matchFormat: bo3MatchFormat,
     },
   )
 
@@ -817,6 +1142,10 @@ export interface ReplayListItem {
   /** Did the calling user win? Null if the game ended without a recorded winner
    *  (resign-with-no-valid-state is the documented case in the schema). */
   won: boolean | null
+  /** Outcome discriminator from `games.outcome_reason` (chess-clock rollout
+   *  Phase 2). Null for pre-rollout finished games — UI renders only the
+   *  primary W/L badge in that case. */
+  outcomeReason: "normal" | "concede" | "timeout" | "disconnect" | null
   public: boolean
   format: string | null
   gameFormat: string | null
@@ -842,7 +1171,7 @@ export async function listMyReplays(
   // work but the filter-by-player-id syntax is cleaner from the games side.
   const { data: games, error: gErr, count } = await supabase
     .from("games")
-    .select("id, player1_id, player2_id, winner_id, status", { count: "exact" })
+    .select("id, player1_id, player2_id, winner_id, status, outcome_reason", { count: "exact" })
     .or(`player1_id.eq.${userId},player2_id.eq.${userId}`)
     .eq("status", "finished")
     .order("updated_at", { ascending: false })
@@ -918,6 +1247,9 @@ export async function listMyReplays(
         null,
       callerIsP1,
       won,
+      // Pre-rollout finished games carry null in this column; the UI renders
+      // no outcome annotation in that case (W/L badge tells the whole story).
+      outcomeReason: (g.outcome_reason as ReplayListItem["outcomeReason"] | undefined) ?? null,
       public: r.public as boolean,
       format: (r.format as string | null) ?? null,
       gameFormat: (r.game_format as string | null) ?? null,

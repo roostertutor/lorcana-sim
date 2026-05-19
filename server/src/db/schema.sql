@@ -642,4 +642,38 @@ END $$;
 ALTER TABLE replays ADD COLUMN IF NOT EXISTS p1_display_name TEXT;
 ALTER TABLE replays ADD COLUMN IF NOT EXISTS p2_display_name TEXT;
 UPDATE replays SET p1_display_name = p1_username WHERE p1_display_name IS NULL;
+
+-- ── Match clock (chess clock + disconnect grace) — 2026-05-18 ─────────────
+-- Per-game time bank (Fischer increment) + disconnect grace + heartbeat
+-- presence. Shape mirrors ClockState in server/src/services/matchClock.ts.
+-- All fields are nullable on pre-cutover games (legacy rows have no clock);
+-- gameService.processAction backfills the columns on first action through
+-- the new code path. New games initialize them in createNewGame from
+-- MATCH_CLOCK_CONFIG[match_format].
+--
+-- BIGINT for ms values (instead of INTEGER) — INTEGER tops out at ~24
+-- days; ms-precision durations stay well within that today but BIGINT is
+-- the no-think-twice choice for "duration in ms" and aligns with
+-- TIMESTAMPTZ for arithmetic.
+--
+-- outcome_reason distinguishes the four ways a game can end:
+--   'normal'     — natural win (state.isGameOver via lore/concede-via-deck)
+--   'concede'    — player resigned (resignGame)
+--   'timeout'    — active player's time bank reached 0 (clock authoritative)
+--   'disconnect' — disconnected player's grace exhausted (presence authoritative)
+-- Default 'normal' so existing finished rows keep their semantic without a
+-- backfill UPDATE. Stored alongside `status='finished'` + `winner_id` —
+-- the trio gives clients enough to render game-end overlays appropriately.
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p1_time_remaining_ms BIGINT;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_time_remaining_ms BIGINT;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS active_player_since TIMESTAMPTZ;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p1_grace_remaining_ms BIGINT;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_grace_remaining_ms BIGINT;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p1_last_heartbeat_at TIMESTAMPTZ;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_last_heartbeat_at TIMESTAMPTZ;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p1_disconnected_since TIMESTAMPTZ;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_disconnected_since TIMESTAMPTZ;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS match_format TEXT NOT NULL DEFAULT 'bo1';
+ALTER TABLE games ADD COLUMN IF NOT EXISTS outcome_reason TEXT NOT NULL DEFAULT 'normal'
+  CHECK (outcome_reason IN ('normal', 'concede', 'timeout', 'disconnect'));
 UPDATE replays SET p2_display_name = p2_username WHERE p2_display_name IS NULL;

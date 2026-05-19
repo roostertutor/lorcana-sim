@@ -88,3 +88,10 @@ export type {
   LegalityIssue,
   LegalityResult,
 } from "./formats/legality.js";
+
+// Match-clock config (chess-clock-rollout Phase 2). The runtime state machine
+// lives server-side; only the per-format constants + display helper are here
+// so the UI's pre-game clock-info label and the server's clock initializer
+// read the same source of truth without crossing the package boundary.
+export { MATCH_CLOCK_CONFIG, formatClockConfigLabel } from "./formats/matchClockConfig.js";
+export type { MatchFormat, ClockConfig } from "./formats/matchClockConfig.js";

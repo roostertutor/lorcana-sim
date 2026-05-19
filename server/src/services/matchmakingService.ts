@@ -435,10 +435,14 @@ async function tryPairEntry(entry: QueueEntryRow): Promise<PairAttemptResult | {
   const p1Deck = aGoesFirst ? entry.decklist : peer.decklist
   const p2Deck = aGoesFirst ? peer.decklist : entry.decklist
 
+  // Match format ("bo1" | "bo3") drives chess-clock parameters via
+  // MATCH_CLOCK_CONFIG. Queue rows carry the format on entry.match_format.
+  const matchFormat = entry.match_format === "bo3" ? "bo3" : "bo1"
   const game = await createNewGame(null, p1Id, p2Id, p1Deck, p2Deck, 1, {
     matchSource: "queue",
     ranked,
     format: { family: entry.format_family as GameFormatFamily, rotation: entry.format_rotation as RotationId },
+    matchFormat,
   })
 
   // Two-channel notification:

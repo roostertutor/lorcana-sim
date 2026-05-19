@@ -597,6 +597,10 @@ async function startGameIfReady(
     rotation: (lobby.game_rotation as RotationId) ?? "s12",
   }
 
+  // Match format ("bo1" | "bo3") drives chess-clock parameters via
+  // MATCH_CLOCK_CONFIG. Default "bo1" preserves pre-clock behavior for any
+  // legacy lobby rows missing the format column.
+  const matchFormat = (lobby.format as string) === "bo3" ? "bo3" : "bo1"
   const game = await createNewGame(
     lobby.id as string,
     p1Id,
@@ -608,6 +612,7 @@ async function startGameIfReady(
       matchSource: "private",
       ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
       format: lobbyFormat,
+      matchFormat,
     },
   )
 
@@ -937,6 +942,9 @@ export async function rematchLobby(
     family: prev.game_format as GameFormatFamily,
     rotation: prev.game_rotation as RotationId,
   }
+  // Rematch inherits the previous lobby's match format (bo1/bo3) for the
+  // clock config (MATCH_CLOCK_CONFIG bank/increment).
+  const rematchMatchFormat = (prev.format as string) === "bo3" ? "bo3" : "bo1"
   const game = await createNewGame(
     newLobby.id as string,
     loserId,
@@ -948,6 +956,7 @@ export async function rematchLobby(
       matchSource: "private",
       ranked: false, // Anti-collusion: private lobbies are unconditionally unranked.
       format: rematchFormat,
+      matchFormat: rematchMatchFormat,
     },
   )
 
