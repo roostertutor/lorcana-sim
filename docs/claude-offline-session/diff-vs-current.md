@@ -272,6 +272,36 @@ conversation.
   low-time warning / heartbeat client wiring, ui-specialist for pre-game lobby
   clock info + history-page outcome labels. Both handoff entries filed in
   `docs/HANDOFF.md`.
+- **2026-05-19** — Decision #7 (bug-report flow with replay attached) → **A
+  (full Phase 1 MVP)**, shipped end-to-end. Discovered the system was already
+  designed in detail (HANDOFF entry from 2026-04-21, locked with user) — just
+  unbuilt. Built per the existing spec: server-side `feedbackService.ts` +
+  `feedback` table (anonymous-allowed, type enum with 7 buckets, length-bounded
+  validation, rate-limit 10/hr authenticated / 3/hr anonymous via IP /24
+  prefix, optional Discord webhook env-gated), `POST /feedback` route (optional
+  auth — invalid tokens silently fall back to anonymous rather than blocking
+  bug reports), 26 unit tests covering ipToPrefix / validation / rate limit /
+  end-to-end submit with supabase double. Phase 2 UI handed off to
+  ui-specialist: `feedbackApi.ts` + `feedbackContext.tsx` provider +
+  `FeedbackModal.tsx` form (with "What we'll send" privacy-forward disclosure)
+  + `FeedbackButton.tsx` (variants: fab/inline/icon/menuItem) + footer trigger
+  in App.tsx + "Report issue with this card" in CardInspectModal with
+  auto-injected `{ cardId, fullName }` context. 156/156 server tests pass.
+  Brainstorm's narrow "bug report with replay attached" framing is a subset —
+  gameboard trigger with `{ replay_id, seed, turnNumber }` injection is the
+  Phase 2+ gameboard-specialist follow-up, captured in HANDOFF.
+- **2026-05-19** — Decision #6 (deck text-import re-add) → **A (already
+  shipped)**. Discovered the deckbuilder already has a full paste-decklist
+  Import modal (`packages/ui/src/components/DeckBuilder.tsx:188-200,497-527`)
+  using the engine's `parseDecklist` — the `9ff1348` commit that "removed
+  paste mode" only removed it from the LOBBY, leaving the deckbuilder's
+  import textarea intact (commit message: "DeckBuilder owns deck import").
+  Engine already normalizes curly/straight quotes, supports `4x Card Name`
+  syntax, surfaces per-line parse errors. Brainstorm's "one-click deck
+  import from Dreamborn/Inkdecks" is a subset — the functional ask is met
+  for any tool exporting plain `4 Card Name` format. URL-fetch one-click
+  import (paste a Dreamborn URL) is a future polish, BACKLOG-shaped not
+  ship-now.
 - **2026-05-18** — Decision #3 (`deckSize` on `RotationEntry`) → **A**, shipped.
   Discovered the diff doc's premise was wrong: no `validateDeck` function ever
   existed, and engine + server enforced per-card legality only — deck size was
@@ -299,16 +329,23 @@ conversation.
    (45-card deck could previously queue) and preps for Limited.
 
 ### T1-level decisions (v1-floor — what blocks calling v1 done?)
-4. ~~**Chess clock / turn timer**~~ ⏳ Phase 1 shipped (server substrate),
-   2026-05-18. Engine stays clock-free; new `matchClock.ts` service
-   implements Fischer-increment + disconnect-grace state machine. Schema +
-   `gameService` integration + heartbeat route landed. 24 new clock unit
-   tests + 130/130 server tests pass. Phase 2 (UI: in-game clock components,
-   disconnect overlay, heartbeat client wiring, pre-game lobby info,
-   history-page outcome labels) handed off to gameboard-specialist +
-   ui-specialist via `docs/HANDOFF.md`. Decision #5 (reconnect grace UI)
-   substantively absorbed — server-side grace ratcheting + heartbeat
-   detection ships here, just needs the UI overlay.
+4. ~~**Chess clock / turn timer**~~ ✅ Shipped end-to-end (Phase 1 server +
+   Phase 2 UI), 2026-05-18/19. Engine stays clock-free; new `matchClock.ts`
+   service implements Fischer-increment + disconnect-grace state machine.
+   Schema + `gameService` integration + heartbeat route + UI components
+   (MatchClock, DisconnectOverlay, heartbeat client wiring, pre-game lobby
+   info, history outcome labels) all landed. 24 clock unit tests + 130/130
+   server tests pass. Decision #5 (reconnect grace UI) absorbed.
+5. ~~**Reconnect grace-window UI**~~ ✅ Shipped as part of #4 — disconnect
+   overlay, grace countdown, heartbeat wiring all in the same rollout.
+6. ~~**Deck text-import re-add**~~ ✅ Already shipped — the deckbuilder's
+   paste-decklist modal was preserved through the lobby cleanup; engine's
+   `parseDecklist` handles the format. URL-fetch one-click import deferred.
+7. ~~**Bug-report flow with replay attached**~~ ✅ Shipped end-to-end as the
+   full Phase 1 MVP per the 2026-04-21 design (server `feedback` table +
+   POST /feedback + UI provider/modal/button + footer trigger + card-issue
+   trigger in CardInspectModal). Gameboard-trigger with replay context is
+   Phase 2+ follow-up captured in HANDOFF.
 
 ### T1-level decisions (v1-floor — what blocks calling v1 done?)
 4. **Chess clock / turn timer** — required for ranked credibility. ROADMAP slot?
@@ -360,34 +397,54 @@ conversation.
 
 ## Where we left off (pickup notes)
 
-**Last session (2026-05-18):** worked through Decisions #2, #3, and #4 (Phase 1)
-in one sitting. Decision #2 (errata versioning) discovered the existing
-`ENGINE_VERSION` stamp and widened its bump policy to cover errata; filed the
-expensive replay-resolver work as a BACKLOG entry. Decision #3 (`deckSize` on
-`RotationEntry`) discovered the diff doc's premise was wrong — no deck-size
-enforcement existed anywhere; shipped option A end-to-end with 9 new tests.
-Decision #4 (chess clock) Phase 1: server-side `matchClock.ts` substrate +
-schema columns + `gameService.ts` integration + heartbeat route. 24 new clock
-unit tests including explicit Sudden Chill round-trip (user-flagged decision-
-player-vs-current-player split). Phase 2 (UI) handed off to gameboard-
-specialist + ui-specialist via `docs/HANDOFF.md`. Decision #5 (reconnect
-grace) substantively rolled into #4's server substrate — only UI remains.
+**Last session (2026-05-19):** swept through Decisions #4 Phase 2, #6, and #7
+end-to-end. Decision #4 Phase 2 dispatched to gameboard-specialist (in-game
+clock UI) + ui-specialist (lobby + history surfaces) per CLAUDE.md routing.
+Decision #5 absorbed by Phase 2's disconnect overlay + grace UI. Decision #6
+discovered to be already-shipped (deckbuilder paste-mode preserved through the
+lobby cleanup; engine's parseDecklist handles the format). Decision #7
+discovered to be already-designed (HANDOFF entry from 2026-04-21); built the
+server Phase 1 MVP + dispatched ui-specialist for the UI MVP. All 1053 tests
+pass across all packages. Prior session (2026-05-18) shipped Decisions #2/#3
++ #4 Phase 1.
 
-**Resume here next session:** Decision #6 — **deck text-import re-add
-(Dreamborn / Inkdecks compatibility)**. Decisions #4 and #5 are blocked on
-the UI specialists for completion; #6 is independent and ships clean.
+**Resume here next session:** Decision #8 — **T2 sequencing: replay viewer
+scrub + branching vs meta dashboard**. The T1 floor is now complete (#1-#7
+all resolved or shipped). Remaining items are T2 ranked-credibility work +
+T3-T4 platform features. Sequencing is the real question — the brainstorm
+calls replay-scrub + branching the highest-leverage T2 ("competitive players
+live in this; branching is differentiated because of our deterministic engine
++ undo support"), and the meta dashboard the biggest differentiation wedge
+(turns internal analytics CLI into public surface). Both are multi-week. Most
+useful next conversation: pick one as the "T2 north star" and BACKLOG the
+other with a trigger for when it gets sequenced in.
 
-Context to bring back into the resume conversation for Decision #6:
-- The paste-mode workflow was *removed* in `9ff1348 refactor(ui): remove paste-mode workflow from lobby; saved decks only`. Today there's no text-import path at all — every deck must be built card-by-card in `DeckBuilderPage`.
-- Brainstorm doc differentiation point #8: "One-click deck import from Dreamborn/Inkdecks — friction kills adoption."
-- The engine has `parseDecklist()` at `packages/engine/src/engine/initializer.ts:79` — it's already used by the engine but no UI surface currently exposes it post-`9ff1348`.
-- Question: re-add to lobby (where it was removed), to deckbuilder (more natural home for "import a deck"), or both? Probably deckbuilder — separates "import" from "play this specific deck right now" semantics.
+Context to bring back into the resume conversation for Decision #8:
+- Brainstorm doc Bucket 2 (T2-level gaps) lists both replay-scrub and meta
+  dashboard as marquee T2 work. Neither has been started; both have rough
+  spec sketches in the brainstorm doc.
+- **Replay viewer scrub + branching** is differentiated because of substrate
+  we already have: deterministic engine + undo support + per-viewer-filtered
+  state stream (`getFilteredGameReplay` shipped 2026-05-01). Branching ("what
+  if I'd played X on turn 5") is technically possible by handing the replay's
+  pre-action state to the sandbox engine + letting the user make different
+  choices. UI: scrubber + key-moment auto-tagging + annotations + share-with-
+  annotations.
+- **Meta dashboard** turns the internal analytics CLI (`pnpm analyze`,
+  `pnpm query`) into a public surface. Aggregated anonymous stats —
+  archetype win rates, ink-pair distributions, turn metrics, opening hand
+  analysis. The analytics package is already capable; what's missing is
+  the public-facing rendering + privacy-safe aggregation (anonymize before
+  serving) + cron job to refresh.
+- Both are multi-week. Sequencing call: which is the "T2 north star"?
+  Brainstorm's view: replay-scrub first (immediate competitive-player value),
+  meta dashboard second (marketing wedge that needs ladder population to be
+  meaningful anyway). My read: same order — replay-scrub leans into substrate
+  we already have, meta dashboard benefits from waiting until there's more
+  data to aggregate.
 
-After Decision #6, the queue is:
-- #7: bug-report-with-replay flow (T1 / trust signal).
-- #8-12: T2 sequencing + drift-watch items (replay viewer scrub, meta
-  dashboard, seasons, deck-sharing creep watch, AI-opponent surfacing).
-
-Decisions #4 (clock) and #5 (reconnect) are blocked on UI specialists — see
-HANDOFF.md entries for gameboard-specialist and ui-specialist. Server-side
-substrate for both is complete; UI is the remaining work.
+After Decision #8, the queue is:
+- #9: meta dashboard (T2 / differentiation wedge)
+- #10: seasons + placement matches (T2 / trigger-conditioned defer)
+- #11: deck-sharing platform creep watch (drift monitor)
+- #12: AI opponent surfacing (T4-substrate-ready / strategic call)
