@@ -856,6 +856,45 @@ function validateCardFields(card: any): FieldError[] {
     });
   }
 
+  // "play or shift" oracle wording requires a shift_card effect somewhere in
+  // the card's abilities (Syndrome - Out for Revenge GOT ME MONOLOGUING! is
+  // case zero). Without it, the shift branch silently drops — the play_card
+  // half resolves alone and the player never sees the shift option. Caught
+  // Syndrome shipping with only play_card on import; this audit closes the
+  // gap so any future "play or shift" card fails loudly at import time.
+  // The render side (decompile-cards) wouldn't catch this — its play_card
+  // renderer would emit "you may play a Robot character" and silently drop
+  // the "or shift" half because the JSON has no shift effect at all, so
+  // similarity drops just enough to look like renderer noise. This audit
+  // makes the wiring gap explicit.
+  const rulesTextForShift = String(card.rulesText ?? "");
+  if (/\bplay\s+or\s+shift\b/i.test(rulesTextForShift)) {
+    const subtreeHasShift = (n: any): boolean => {
+      if (!n || typeof n !== "object") return false;
+      if (Array.isArray(n)) return n.some(subtreeHasShift);
+      if (n.type === "shift_card") return true;
+      for (const k of Object.keys(n)) if (subtreeHasShift(n[k])) return true;
+      return false;
+    };
+    let found = subtreeHasShift(card.actionEffects ?? []);
+    if (!found) {
+      for (const ab of (card.abilities ?? [])) {
+        if (subtreeHasShift(ab.effects ?? null) || subtreeHasShift(ab.effect ?? null)) {
+          found = true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      errors.push({
+        path: card.actionEffects?.length ? "actionEffects" : "abilities",
+        field: "shift_card",
+        value: "missing",
+        validValues: `oracle says "play or shift" but no shift_card effect is wired — the shift branch silently drops, players only see the play option (Syndrome - Out for Revenge GOT ME MONOLOGUING! is the case-zero card; wire shift_card inside a choose combinator alongside play_card to express the oracle's "or")`,
+      });
+    }
+  }
+
   // Check for old-format fields (trigger.event instead of trigger.on, name instead of storyName)
   (card.abilities ?? []).forEach((ab: any, i: number) => {
     if (ab.trigger?.event) {

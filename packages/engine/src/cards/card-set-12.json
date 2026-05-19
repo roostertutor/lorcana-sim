@@ -12517,22 +12517,49 @@
             }
           },
           {
-            "type": "play_card",
+            "type": "choose",
             "isMay": true,
-            "sourceZone": "hand",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Robot",
-              "statComparisons": [
+            "count": 1,
+            "options": [
+              [
                 {
-                  "stat": "cost",
-                  "op": "lte",
-                  "value": 8
+                  "type": "play_card",
+                  "sourceZone": "hand",
+                  "filter": {
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasTrait": "Robot",
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 8
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "shift_card",
+                  "sourceZone": "hand",
+                  "filter": {
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasTrait": "Robot",
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 8
+                      }
+                    ]
+                  }
                 }
               ]
-            }
+            ]
           }
         ]
       }
@@ -17469,22 +17496,49 @@
             }
           },
           {
-            "type": "play_card",
+            "type": "choose",
             "isMay": true,
-            "sourceZone": "hand",
-            "filter": {
-              "cardType": [
-                "character"
-              ],
-              "hasTrait": "Robot",
-              "statComparisons": [
+            "count": 1,
+            "options": [
+              [
                 {
-                  "stat": "cost",
-                  "op": "lte",
-                  "value": 8
+                  "type": "play_card",
+                  "sourceZone": "hand",
+                  "filter": {
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasTrait": "Robot",
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 8
+                      }
+                    ]
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "shift_card",
+                  "sourceZone": "hand",
+                  "filter": {
+                    "cardType": [
+                      "character"
+                    ],
+                    "hasTrait": "Robot",
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 8
+                      }
+                    ]
+                  }
                 }
               ]
-            }
+            ]
           }
         ]
       }

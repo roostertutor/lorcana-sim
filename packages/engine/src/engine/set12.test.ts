@@ -3481,3 +3481,189 @@ describe("Set 12 — paidCost trigger filter (cost-reduction interaction)", () =
   });
 });
 
+describe("Set 12 — Syndrome - Out for Revenge GOT ME MONOLOGUING!", () => {
+  // Oracle: "Whenever this character quests, return a Robot character card
+  // from your discard to your hand. Then, you may play or shift a Robot
+  // character with cost 8 or less for free."
+  //
+  // Wired as `choose isMay:[[play_card], [shift_card]]` — the `shift_card`
+  // primitive composes with `play_card` via CRD 6.1.3 "choose one of." Tests
+  // exercise both branches plus the engine bug fix where a `choose` with
+  // isMay reached via resumePendingEffectQueue (after an earlier sibling
+  // effect pended) now correctly surfaces the may-prompt.
+
+  it("shift branch: pick the shift option → phase-1 hand picker → phase-2 target picker → applyPlayCard shifts", () => {
+    // interactive:true so the choose combinator surfaces choose_option
+    // instead of auto-picking the first feasible option (non-interactive
+    // mode is the bot fallback path — see reducer.ts choose case).
+    let state = { ...startGame(), interactive: true };
+    state = giveInk(state, "player1", 0); // free shift should not need ink
+
+    // Syndrome on the board, drying off so QUEST is legal.
+    let syndromeId: string;
+    ({ state, instanceId: syndromeId } = injectCard(state, "player1", "syndrome-out-for-revenge", "play", { isDrying: false }));
+    // Omnidroid V.8 in play — eligible same-name shift target for V.9.
+    let omniV8Id: string;
+    ({ state, instanceId: omniV8Id } = injectCard(state, "player1", "omnidroid-v-8", "play", { isDrying: false }));
+    // Omnidroid V.9 in player1's hand — matches Syndrome's filter
+    // (Robot character, cost 4 ≤ 8); shares name "Omnidroid" with V.8.
+    let omniV9Id: string;
+    ({ state, instanceId: omniV9Id } = injectCard(state, "player1", "omnidroid-v-9", "hand"));
+    // The Leviathan in player1's discard — Robot character returned to hand
+    // by the return_to_hand step (cost 10, doesn't fit the play/shift filter,
+    // so it won't appear as a play/shift candidate after returning).
+    let leviathanId: string;
+    ({ state, instanceId: leviathanId } = injectCard(state, "player1", "the-leviathan-guardian-of-atlantis", "discard"));
+
+    // Quest Syndrome to fire GOT ME MONOLOGUING!
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: syndromeId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // ===== STEP 1: return_to_hand chooser (chosen Robot in discard) =====
+    // First pendingChoice is for the return_to_hand step. Pick Leviathan.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(leviathanId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [leviathanId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Leviathan moved to hand.
+    expect(state.cards[leviathanId]?.zone).toBe("hand");
+
+    // ===== STEP 2: choose_may surfaces (engine bug-fix regression guard) =====
+    // The outer choose has isMay:true and sits at effects[1]. Pre-fix,
+    // resumePendingEffectQueue ran the choose directly via applyEffect,
+    // bypassing the may-gate at processTriggerStack:7112 and silently
+    // resolving the choose. Post-fix, resumePendingEffectQueue surfaces a
+    // choose_may here before the choose runs.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+
+    // Accept the outer may.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // ===== STEP 3: choose_option surfaces with both [play, shift] feasible =====
+    expect(state.pendingChoice?.type).toBe("choose_option");
+    expect(state.pendingChoice?.options?.length).toBe(2);
+
+    // Pick the SHIFT option (index 1 — second element of the choose's options[]).
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // ===== STEP 4: shift_card phase 1 — pick hand card to shift =====
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // Validator pre-filter: hand cards matching filter AND with ≥ 1 valid
+    // same-name shift target. Omnidroid V.9 qualifies; Leviathan doesn't
+    // (cost 10 > filter cap 8 — fails filter check before shift enumeration).
+    expect(state.pendingChoice?.validTargets).toContain(omniV9Id);
+    expect(state.pendingChoice?.validTargets).not.toContain(leviathanId);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [omniV9Id] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // ===== STEP 5: shift_card phase 2 — pick shift target =====
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    expect(state.pendingChoice?.validTargets).toContain(omniV8Id);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [omniV8Id] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // ===== ASSERT: shift completed =====
+    // CRD 8.10.4 — V.9 is in play, shifted onto V.8; V.8 went under V.9.
+    expect(state.cards[omniV9Id]?.zone).toBe("play");
+    expect(state.cards[omniV9Id]?.shiftedOntoInstanceId).toBe(omniV8Id);
+    expect(state.cards[omniV9Id]?.playedViaShift).toBe(true);
+    expect(state.cards[omniV9Id]?.cardsUnder).toContain(omniV8Id);
+    expect(state.cards[omniV8Id]?.zone).toBe("under");
+    // CRD 8.10.4 — paidCost stamped to 0 (free shift via granted-free-play path).
+    expect(state.cards[omniV9Id]?.paidCost).toBe(0);
+    // No ink should have been deducted (player1.availableInk was 0 going in).
+    expect(state.players.player1.availableInk).toBe(0);
+  });
+
+  it("play branch only (no same-name shift target in play): choose auto-resolves to play, CRD 6.1.5.2 feasibility filter drops shift_card", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 0);
+
+    let syndromeId: string;
+    ({ state, instanceId: syndromeId } = injectCard(state, "player1", "syndrome-out-for-revenge", "play", { isDrying: false }));
+    // NO Omnidroid V.8 in play — shift_card has no valid same-name target.
+    let omniV9Id: string;
+    ({ state, instanceId: omniV9Id } = injectCard(state, "player1", "omnidroid-v-9", "hand"));
+    let leviathanId: string;
+    ({ state, instanceId: leviathanId } = injectCard(state, "player1", "the-leviathan-guardian-of-atlantis", "discard"));
+
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: syndromeId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // return_to_hand chooser.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [leviathanId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Outer choose_may.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // CRD 6.1.5.2 — shift_card branch is infeasible (no in-play same-name
+    // target). Only play_card remains feasible. Single feasible option →
+    // auto-resolve, no choose_option chooser surfaced. The play_card chooser
+    // surfaces directly.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    // The hand card eligible for play_card is Omnidroid V.9 (cost ≤ 8).
+    expect(state.pendingChoice?.validTargets).toContain(omniV9Id);
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [omniV9Id] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // V.9 played for free, no shift. paidCost stays undefined on this path
+    // because applyEffectToTarget's play_card branch (reducer.ts:8421) writes
+    // the card to play directly via zoneTransition — it doesn't stamp
+    // paidCost (only applyPlayCard does, which is the path used by the shift
+    // branch). Both paths log "for free" and deduct 0 ink; only the
+    // applyPlayCard path threads paidCost = 0 for downstream trigger filters.
+    expect(state.cards[omniV9Id]?.zone).toBe("play");
+    expect(state.cards[omniV9Id]?.shiftedOntoInstanceId).toBeUndefined();
+    expect(state.cards[omniV9Id]?.playedViaShift).toBeFalsy();
+    expect(state.players.player1.availableInk).toBe(0);
+  });
+
+  it("declining the outer may skips both branches (return_to_hand still resolved)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 0);
+
+    let syndromeId: string;
+    ({ state, instanceId: syndromeId } = injectCard(state, "player1", "syndrome-out-for-revenge", "play", { isDrying: false }));
+    let omniV9Id: string;
+    ({ state, instanceId: omniV9Id } = injectCard(state, "player1", "omnidroid-v-9", "hand"));
+    let leviathanId: string;
+    ({ state, instanceId: leviathanId } = injectCard(state, "player1", "the-leviathan-guardian-of-atlantis", "discard"));
+
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: syndromeId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // return_to_hand still fires regardless of the outer may (it's a separate
+    // effect at index 0).
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [leviathanId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.cards[leviathanId]?.zone).toBe("hand");
+
+    // Outer choose_may — DECLINE.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // No further pending choice; Omnidroid V.9 still in hand, not played.
+    expect(state.pendingChoice).toBeFalsy();
+    expect(state.cards[omniV9Id]?.zone).toBe("hand");
+  });
+});
+

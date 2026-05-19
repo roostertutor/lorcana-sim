@@ -1486,6 +1486,25 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
     return `${maybe(e)}play ${filter}${costClause}${enterExClause}${kwClause}`;
   },
 
+  // shift_card — granted free Shift primitive (CRD 8.10.1). Pairs with
+  // play_card inside a `choose` combinator for Syndrome - Out for Revenge
+  // GOT ME MONOLOGUING!'s "play or shift" oracle. The inner choose handles
+  // the "or" composition; this renderer just handles the standalone shift
+  // half. `${maybe(e)}` reads effect.isMay (always false for Syndrome's
+  // composition — the may is on the outer choose, not this inner effect).
+  shift_card: (e) => {
+    const filter = e.filter ? renderFilter(e.filter) : "a card";
+    const sz = e.sourceZone;
+    if (sz === "discard") {
+      return `${maybe(e)}shift ${filter} from your discard for free`;
+    }
+    if (Array.isArray(sz) && sz.length > 1) {
+      const zones = sz.map((z: string) => z).join(" or ");
+      return `${maybe(e)}shift ${filter} from your ${zones} for free`;
+    }
+    return `${maybe(e)}shift ${filter} for free`;
+  },
+
   look_at_top: (e) => {
     // count can be literal number or DynamicAmount object (Bambi Ethereal
     // Fawn: {type: "cards_under_count"}) — use renderAmount to stringify.

@@ -282,6 +282,7 @@ export type Effect =
   | PutIntoInkwellEffect
   | SelfReplacementEffect
   | PlayCardEffect
+  | ShiftCardEffect
   | ShuffleIntoDeckEffect
   | PayInkEffect
   | SequentialEffect
@@ -1746,6 +1747,45 @@ export interface PlayCardEffect {
    * emission.
    */
   revealed?: boolean;
+}
+
+/**
+ * Free-cost Shift — pick a card from a private zone (hand by default) and
+ * shift it onto a same-named in-play character owned by the player. Pays
+ * 0 ink; runs the existing CRD 8.10.4 cards-under-stack + CRD 8.10.5
+ * effect-transfer shift logic by dispatching through
+ * `applyPlayCard(viaGrantedFreePlay=true, shiftTargetInstanceId=…)`.
+ *
+ * Two-phase chooser:
+ *   Phase 1 — pick a hand card matching `filter` AND having ≥ 1 valid
+ *             in-play same-name shift target (per CRD 6.1.5.2 the chooser
+ *             never surfaces a card you can't actually shift).
+ *   Phase 2 — pick the in-play target to shift onto.
+ *
+ * The `canShiftOnto` validator helper drives target enumeration so this
+ * primitive correctly handles alternateNames, Universal Shift (Baymax),
+ * Classification Shift (Thunderbolt), and MIMICRY (Morph - Space Goo).
+ *
+ * Today's only producer: Syndrome - Out for Revenge GOT ME MONOLOGUING!
+ * (set 12 #172 / #238) composes this with `play_card` inside a `choose`
+ * combinator to express oracle "play OR shift a Robot character with cost
+ * 8 or less for free." Other future "shift X for free" cards can reuse
+ * this primitive standalone — no need for `play_card`-style hand-zone
+ * routing extensions, and no need to wrap in `choose` when the oracle
+ * doesn't offer the play alternative.
+ */
+export interface ShiftCardEffect {
+  type: "shift_card";
+  /** Source zone for phase 1. Defaults to "hand." Mirrors
+   *  PlayCardEffect.sourceZone so future cards can surface "shift from your
+   *  hand or discard" options without re-touching the primitive. */
+  sourceZone?: ZoneName | ZoneName[];
+  /** Filter for phase 1 candidates (Syndrome: Robot characters cost ≤ 8). */
+  filter?: CardFilter;
+  /** CRD 6.1.4 — when true, phase 1 is declinable (empty choice array).
+   *  Syndrome's `isMay` lives on the outer `choose` combinator, not this
+   *  inner effect, so the standalone use case is the primary user. */
+  isMay?: boolean;
 }
 
 /** Move a card from one zone into its owner's deck, then shuffle. */
@@ -4153,6 +4193,31 @@ export interface PendingChoice {
     playerId: PlayerID;
     costType: "discard" | "banish_chosen";
     exactCount: number;
+  };
+  /** Internal: two-phase continuation for `shift_card` (granted free Shift —
+   *  Syndrome - Out for Revenge GOT ME MONOLOGUING! composes this with
+   *  `play_card` inside a `choose` combinator). Held on a choose_target
+   *  pendingChoice.
+   *
+   *   - stage:"pick_hand" — phase 1 chooser. validTargets is the eligible
+   *     hand card pool (cards matching the shift_card filter AND having ≥ 1
+   *     valid in-play same-name shift target per CRD 8.10.1). On resolve,
+   *     the reducer enumerates shift targets for the chosen hand card and
+   *     surfaces phase 2.
+   *   - stage:"pick_target" — phase 2 chooser. validTargets is the set of
+   *     in-play same-name shift targets owned by the player. On resolve,
+   *     dispatches applyPlayCard(viaGrantedFreePlay=true,
+   *     shiftTargetInstanceId=picked) — pays 0 ink and runs the existing
+   *     shift logic at reducer.ts:896 (CRD 8.10.4 / 8.10.5).
+   *
+   *  Reuses existing choose_target UI surface (no new PendingChoice variant
+   *  needed). Validator's count cap defaults to 1; phase 2 is non-optional
+   *  (the player already committed in phase 1 to using shift). */
+  _shiftCardContinuation?: {
+    stage: "pick_hand" | "pick_target";
+    playerId: PlayerID;
+    /** Phase 2 only — the hand card picked in phase 1. */
+    handCardInstanceId?: string;
   };
 }
 

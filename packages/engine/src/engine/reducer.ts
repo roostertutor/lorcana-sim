@@ -31,7 +31,7 @@ import type {
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { dealOpeningHands } from "./initializer.js";
-import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions } from "./validator.js";
+import { validateAction, applyMoveCostReduction, getEffectiveCostWithReductions, canShiftOnto } from "./validator.js";
 import {
   appendLog,
   canSingSong,
@@ -2855,6 +2855,97 @@ function applyResolveChoice(
       state = resumePendingEffectQueue(state, definitions, events);
       state = cleanupPendingAction(state, playerId, definitions);
       return state;
+    }
+    // shift_card two-phase continuation (CRD 8.10.1 granted free Shift).
+    // Phase 1 picks the hand card; phase 2 picks the in-play same-name target.
+    // Phase 2 resolve dispatches applyPlayCard(viaGrantedFreePlay=true,
+    // shiftTargetInstanceId=picked), which pays 0 ink and runs the existing
+    // shift logic at reducer.ts:896 (CRD 8.10.4 cards-under stack, CRD 8.10.5
+    // effect transfer). See ShiftCardEffect / _shiftCardContinuation JSDoc
+    // for design rationale (separate primitive composes with play_card in a
+    // `choose` combinator for Syndrome's "play or shift" oracle).
+    const shiftCardCont = pendingChoice._shiftCardContinuation;
+    if (shiftCardCont) {
+      state = { ...state, pendingChoice: null };
+      const contPlayerId = shiftCardCont.playerId;
+
+      if (shiftCardCont.stage === "pick_hand") {
+        // Optional (isMay) — empty submission means "decline shift." When
+        // shift_card sits inside a choose-isMay combinator (Syndrome), the
+        // outer may handles the decline path; here `optional: false` is the
+        // default and an empty array can't reach this handler. Guard anyway.
+        if (!Array.isArray(choice) || (choice as string[]).length === 0) {
+          state = resumePendingEffectQueue(state, definitions, events);
+          state = cleanupPendingAction(state, contPlayerId, definitions);
+          return state;
+        }
+        const handCardId = (choice as string[])[0]!;
+        const handInst = state.cards[handCardId];
+        const handDef = handInst ? definitions[handInst.definitionId] : undefined;
+        if (!handInst || !handDef) {
+          state = resumePendingEffectQueue(state, definitions, events);
+          state = cleanupPendingAction(state, contPlayerId, definitions);
+          return state;
+        }
+        // CRD 8.10.1 — enumerate same-name in-play shift targets owned by
+        // the same player. canShiftOnto handles alternateNames + variants.
+        const shiftModsP2 = getGameModifiers(state, definitions);
+        const myPlayP2 = getZone(state, contPlayerId, "play");
+        const shiftTargets: string[] = [];
+        for (const targetId of myPlayP2) {
+          if (targetId === handCardId) continue;
+          const targetInst = state.cards[targetId];
+          const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
+          if (!targetInst || !targetDef || targetDef.cardType !== "character") continue;
+          if (canShiftOnto(handCardId, handDef, targetId, targetDef, { mimicryTargets: shiftModsP2.mimicryTargets })) {
+            shiftTargets.push(targetId);
+          }
+        }
+        // Phase 1 candidate filter guaranteed ≥ 1 valid target existed at
+        // chooser-surface time, but board changes mid-trigger could have
+        // removed all of them. Guard defensively — fizzle silently if so.
+        if (shiftTargets.length === 0) {
+          state = resumePendingEffectQueue(state, definitions, events);
+          state = cleanupPendingAction(state, contPlayerId, definitions);
+          return state;
+        }
+        // Phase 2 — pick the shift target.
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: contPlayerId,
+            prompt: `Shift ${handDef.fullName} onto which character?`,
+            validTargets: shiftTargets,
+            ...(pendingChoice.sourceInstanceId ? { sourceInstanceId: pendingChoice.sourceInstanceId } : {}),
+            ...(pendingChoice.triggeringCardInstanceId !== undefined ? { triggeringCardInstanceId: pendingChoice.triggeringCardInstanceId } : {}),
+            _shiftCardContinuation: {
+              stage: "pick_target",
+              playerId: contPlayerId,
+              handCardInstanceId: handCardId,
+            },
+          },
+        };
+      }
+
+      // stage === "pick_target" — phase 2 resolved.
+      if (shiftCardCont.stage === "pick_target" && shiftCardCont.handCardInstanceId) {
+        const handCardId = shiftCardCont.handCardInstanceId;
+        const pickedId = Array.isArray(choice) ? (choice as string[])[0] : undefined;
+        if (!pickedId) {
+          state = resumePendingEffectQueue(state, definitions, events);
+          state = cleanupPendingAction(state, contPlayerId, definitions);
+          return state;
+        }
+        // Dispatch via viaGrantedFreePlay so applyPlayCard pays 0 ink AND
+        // the shift logic at reducer.ts:896 runs (CRD 8.10.4 — cards-under
+        // stack, shifted_onto trigger). No extra shift primitive needed —
+        // free-shift composes through the existing applyPlayCard branches.
+        state = applyPlayCard(state, contPlayerId, handCardId, definitions, events, pickedId, undefined, undefined, true);
+        state = resumePendingEffectQueue(state, definitions, events);
+        state = cleanupPendingAction(state, contPlayerId, definitions);
+        return state;
+      }
     }
     // CRD 6.1.4: optional target choice — empty array = skip. Also set
     // lastEffectResult to 0 so a follow-up "for each X" DynamicAmount (Royal
@@ -5961,6 +6052,70 @@ export function applyEffect(
       };
     }
 
+    // CRD 8.10.1 / 6.1.4 — granted free Shift. Picks a card from a private
+    // zone (hand) and shifts it onto a same-named in-play character. Today's
+    // only producer is Syndrome - Out for Revenge GOT ME MONOLOGUING!
+    // composing this with `play_card` inside a `choose` combinator to
+    // express oracle "play OR shift a Robot character with cost 8 or less
+    // for free." Two-phase chooser via _shiftCardContinuation:
+    //   phase 1: enumerate hand cards matching filter AND having ≥ 1 valid
+    //            shift target (CRD 6.1.5.2 feasibility pre-filter — never
+    //            surface a card you can't shift)
+    //   phase 2: enumerate same-name in-play shift targets for that card
+    // Phase 2 dispatches to applyPlayCard(viaGrantedFreePlay=true,
+    // shiftTargetInstanceId=picked), which pays 0 ink AND runs the existing
+    // shift logic at reducer.ts:896 (CRD 8.10.4 cards-under stack, CRD 8.10.5
+    // effect transfer, shifted_onto trigger queuing).
+    case "shift_card": {
+      const sourceZoneRaw = effect.sourceZone ?? "hand";
+      const sourceZones: string[] = Array.isArray(sourceZoneRaw) ? sourceZoneRaw : [sourceZoneRaw];
+      const filter = effect.filter;
+      const candidatePool: string[] = [];
+      for (const sz of sourceZones) {
+        candidatePool.push(...getZone(state, controllingPlayerId, sz as any));
+      }
+      const shiftMods = getGameModifiers(state, definitions);
+      const myPlay = getZone(state, controllingPlayerId, "play");
+      // Phase 1 candidate filter — match the effect's CardFilter AND verify
+      // at least one valid shift target exists in play (CRD 8.10.1 via
+      // canShiftOnto: base name match, alternateNames, Universal Shift,
+      // Classification Shift, MIMICRY). Without the second check the chooser
+      // would surface cards that can't actually shift; the apply path would
+      // fizzle silently on phase 2 with no targets to pick.
+      const validHandCards = candidatePool.filter((id) => {
+        const inst = state.cards[id];
+        if (!inst) return false;
+        const def = definitions[inst.definitionId];
+        if (!def) return false;
+        if (filter && !matchesFilter(inst, def, filter, state, controllingPlayerId, sourceInstanceId, definitions)) return false;
+        for (const targetId of myPlay) {
+          if (targetId === id) continue;
+          const targetInst = state.cards[targetId];
+          const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
+          if (!targetInst || !targetDef || targetDef.cardType !== "character") continue;
+          if (canShiftOnto(id, def, targetId, targetDef, { mimicryTargets: shiftMods.mimicryTargets })) return true;
+        }
+        return false;
+      });
+      if (validHandCards.length === 0) return state;
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_target",
+          choosingPlayerId: controllingPlayerId,
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card to shift for free."),
+          validTargets: validHandCards,
+          sourceInstanceId,
+          ...(triggeringCardInstanceId !== undefined ? { triggeringCardInstanceId } : {}),
+          optional: effect.isMay ?? false,
+          _shiftCardContinuation: {
+            stage: "pick_hand",
+            playerId: controllingPlayerId,
+          },
+        },
+      };
+    }
+
     // CRD 6.1.5: Pay ink as an effect (used as cost in sequential effects)
     case "pay_ink": {
       const player = state.players[controllingPlayerId];
@@ -6449,6 +6604,64 @@ function canPerformChooseOption(
         : true;
     case "pay_ink":
       return state.players[controllingPlayerId].availableInk >= (typeof effect.amount === "number" ? effect.amount : 0);
+    // CRD 6.1.5.2 feasibility — play_card branch of a `choose` combinator
+    // is feasible iff at least one card in the source zone matches the
+    // filter. Without this check, Syndrome's "play OR shift" combinator
+    // would surface the play option even when the player has no eligible
+    // Robot in hand. isMay branches stay feasible (the may-decline path is
+    // always available within the chosen option).
+    case "play_card": {
+      if (effect.isMay) return true;
+      if (effect.target) return true; // direct-target form (Jafar etc.) — always considered feasible
+      if (!definitions) return true;
+      const sourceZoneRaw = effect.sourceZone ?? "hand";
+      const sourceZones: string[] = Array.isArray(sourceZoneRaw) ? sourceZoneRaw : [sourceZoneRaw];
+      for (const sz of sourceZones) {
+        const pool = getZone(state, controllingPlayerId, sz as any);
+        for (const id of pool) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def) continue;
+          if (!effect.filter || matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId ?? "", definitions)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    // CRD 6.1.5.2 feasibility — shift_card branch is feasible iff at least
+    // one hand card matches the filter AND has ≥ 1 valid same-name shift
+    // target in play (CRD 8.10.1 via canShiftOnto). Mirrors the phase-1
+    // candidate pre-filter inside the shift_card applyEffect case.
+    case "shift_card": {
+      if (effect.isMay) return true;
+      if (!definitions) return true;
+      const sourceZoneRaw = effect.sourceZone ?? "hand";
+      const sourceZones: string[] = Array.isArray(sourceZoneRaw) ? sourceZoneRaw : [sourceZoneRaw];
+      const mods = getGameModifiers(state, definitions);
+      const myPlay = getZone(state, controllingPlayerId, "play");
+      for (const sz of sourceZones) {
+        const pool = getZone(state, controllingPlayerId, sz as any);
+        for (const id of pool) {
+          const inst = state.cards[id];
+          if (!inst) continue;
+          const def = definitions[inst.definitionId];
+          if (!def) continue;
+          if (effect.filter && !matchesFilter(inst, def, effect.filter, state, controllingPlayerId, sourceInstanceId ?? "", definitions)) continue;
+          for (const targetId of myPlay) {
+            if (targetId === id) continue;
+            const targetInst = state.cards[targetId];
+            const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
+            if (!targetInst || !targetDef || targetDef.cardType !== "character") continue;
+            if (canShiftOnto(id, def, targetId, targetDef, { mimicryTargets: mods.mimicryTargets })) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
     case "put_card_on_bottom_of_deck": {
       // When a choose option's cost-step moves a card from hand/discard
       // (Wrong Lever!'s option B: "Put a Pull the Lever! card from your
@@ -7165,6 +7378,35 @@ function resumePendingEffectQueue(
 
   for (let i = 0; i < effects.length; i++) {
     const effect = effects[i]!;
+    // CRD 6.1.4 — mirror the processTriggerStack may-gate at reducer.ts:7112
+    // for queued effects. Without this, a triggered ability whose effects[]
+    // is [A, B-with-isMay] silently drops the may-gate on B: A pends, B
+    // resumes here via applyEffect direct call, bypassing the trigger-level
+    // gate. First card to hit this gap is Syndrome - Out for Revenge GOT ME
+    // MONOLOGUING! (effects: [return_to_hand chosen, choose isMay [play, shift]]
+    // — the return_to_hand chooser pends, and pre-fix the choose resumed
+    // without the may-prompt). Same exception as processTriggerStack:
+    // each_player.isMay binds per-iteration, not per-trigger.
+    if ("isMay" in effect && effect.isMay && effect.type !== "each_player") {
+      const remainingAfterMay = effects.slice(i + 1);
+      const mayPrompt = buildPrompt(state, sourceInstanceId, definitions, abilitySource, "use this effect?");
+      state = {
+        ...state,
+        pendingChoice: {
+          type: "choose_may",
+          choosingPlayerId: controllingPlayerId,
+          prompt: mayPrompt,
+          pendingEffect: effect,
+          optional: true,
+          sourceInstanceId,
+          ...(triggeringCardInstanceId !== undefined ? { triggeringCardInstanceId } : {}),
+        },
+      };
+      if (remainingAfterMay.length > 0) {
+        state = { ...state, pendingEffectQueue: { effects: remainingAfterMay, sourceInstanceId, controllingPlayerId, ...(abilitySource ? { abilitySource } : {}), ...(triggeringCardInstanceId ? { triggeringCardInstanceId } : {}) } };
+      }
+      return state;
+    }
     state = applyEffect(state, effect, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
     if (state.pendingChoice) {
       const remaining = effects.slice(i + 1);
