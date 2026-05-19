@@ -7,6 +7,7 @@ import { lobby } from "./routes/lobby.js"
 import { game } from "./routes/game.js"
 import { matchmaking } from "./routes/matchmaking.js"
 import { replay } from "./routes/replay.js"
+import { feedback } from "./routes/feedback.js"
 import { startMatchmakingPoller } from "./services/matchmakingService.js"
 
 const app = new Hono()
@@ -32,6 +33,7 @@ app.route("/lobby", lobby)
 app.route("/game", game)
 app.route("/matchmaking", matchmaking)
 app.route("/replay", replay)
+app.route("/feedback", feedback)
 
 import { serve } from "@hono/node-server"
 

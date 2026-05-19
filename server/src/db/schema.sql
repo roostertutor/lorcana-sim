@@ -676,4 +676,89 @@ ALTER TABLE games ADD COLUMN IF NOT EXISTS p2_disconnected_since TIMESTAMPTZ;
 ALTER TABLE games ADD COLUMN IF NOT EXISTS match_format TEXT NOT NULL DEFAULT 'bo1';
 ALTER TABLE games ADD COLUMN IF NOT EXISTS outcome_reason TEXT NOT NULL DEFAULT 'normal'
   CHECK (outcome_reason IN ('normal', 'concede', 'timeout', 'disconnect'));
+
+-- ── Feedback / bug reports — 2026-05-19 ──────────────────────────────────
+-- Single backend for the in-app "Report an issue" trigger surfaced across
+-- the app (footer link, card-inspect modal, gameboard, eventually error
+-- boundaries). Value over a generic email link: each trigger auto-injects
+-- the user's current context (cardId, gameSeed, replay_id, deck_id, URL,
+-- viewport) into the `context` JSONB.
+--
+-- See docs/HANDOFF.md — design spec (2026-04-21, shipped 2026-05-19).
+--
+-- user_id is nullable so anonymous submissions are allowed (removes
+-- signup friction for bug reports). status drives a triage workflow that
+-- isn't yet exposed via UI (no admin dashboard in MVP) but the column
+-- shape supports it from day one.
+--
+-- type enum keeps high-level buckets — 'bug' / 'crash' for engine or UI
+-- failures, 'card_issue' for "this card behaves wrong" feeding the
+-- card-issue backlog by `context->>'cardId'`, 'idea' for feature requests,
+-- 'general'/'ui'/'performance' for everything else. Adding a new type
+-- means dropping + recreating the CHECK constraint; intentional friction
+-- so the bucket list stays small.
+CREATE TABLE IF NOT EXISTS feedback (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  type TEXT NOT NULL
+    CHECK (type IN ('bug', 'card_issue', 'idea', 'general', 'ui', 'performance', 'crash')),
+  title TEXT NOT NULL CHECK (length(title) BETWEEN 3 AND 200),
+  description TEXT NOT NULL CHECK (length(description) BETWEEN 3 AND 5000),
+  context JSONB NOT NULL DEFAULT '{}'::jsonb,
+  url TEXT,
+  user_agent TEXT,
+  viewport JSONB,
+  app_version TEXT,
+  -- screenshot_data is reserved for Phase 2 (base64 data URL upload).
+  -- MVP route rejects submissions that include it.
+  screenshot_data TEXT,
+  status TEXT NOT NULL DEFAULT 'open'
+    CHECK (status IN ('open', 'triaged', 'in_progress', 'resolved', 'wontfix', 'duplicate')),
+  assigned_to UUID REFERENCES auth.users(id),
+  admin_notes TEXT,
+  duplicate_of UUID REFERENCES feedback(id),
+  -- IP captured for anonymous rate limiting. Truncated to /24 (IPv4) or
+  -- /48 (IPv6) network prefix to avoid storing the full visitor IP; rate
+  -- limit accuracy is unchanged because the prefix still uniquely
+  -- identifies a household-or-ISP-CGNAT bucket. Nullable so authenticated
+  -- submissions don't carry it (user_id is the rate-limit key there).
+  caller_ip_prefix TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  resolved_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS feedback_status_idx ON feedback (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS feedback_user_idx ON feedback (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS feedback_type_idx ON feedback (type, status);
+-- Window index for rate-limit queries (per-user or per-IP-prefix within the
+-- last hour). created_at is in both window queries; coalesced into one
+-- partial index covering the open-status row scan path.
+CREATE INDEX IF NOT EXISTS feedback_ip_window_idx
+  ON feedback (caller_ip_prefix, created_at DESC) WHERE caller_ip_prefix IS NOT NULL;
+
+ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
+
+-- INSERT: anyone, including unauthenticated. RLS still applies — we use
+-- the service-role key server-side which bypasses RLS for the actual write.
+-- The policy here is for completeness (and future direct-from-client paths).
+DO $$
+BEGIN
+  CREATE POLICY "Anyone can insert feedback"
+    ON feedback FOR INSERT WITH CHECK (true);
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+-- SELECT: user reads only their own rows (future "My tickets" view).
+-- Admin role reads everything via service-role bypass.
+DO $$
+BEGIN
+  CREATE POLICY "Users read their own feedback"
+    ON feedback FOR SELECT USING (auth.uid() = user_id);
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+-- UPDATE / DELETE: service-role only — no policy needed (RLS denies all
+-- writes by default when no policy matches).
 UPDATE replays SET p2_display_name = p2_username WHERE p2_display_name IS NULL;
