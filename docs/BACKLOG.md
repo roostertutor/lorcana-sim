@@ -433,6 +433,27 @@ Modal: `onReorder` updates choice resolution targets. Hand: `onReorder` writes t
 
 ---
 
+### Replay key-moment auto-tagging — rejected as editorial
+
+**Considered (2026-05-19, Decision #8 scope)**: Engine-event scan (`ActionResult.events` — lore_gained, damage_dealt, banish, etc.) → markers on the replay scrub bar highlighting "important" moments. Heuristic candidates: lore swings ≥2, multi-banish challenges, last decision before defeat, mulligan choice, key plays per perspective. Auto-tags would render as colored ticks on the scrubber with hover labels ("Key banish T6," "Lore swing T9").
+
+**Why rejected (not parked)**: Editorial judgment. The "importance" of a moment is the viewer's call, not the app's. A heuristic that says "this turn was important because lore swung 3" is the app inserting opinion into a tool that should surface facts. Mirrors the `feedback_facts_only_from_logs` discipline applied to replay UX: the app provides infrastructure (scrub, timestamps, turn boundaries), the viewer provides interpretation. Building a content-creator product whose USP is annotated replays — but having the app pre-annotate them — is also self-defeating: the value the creator adds IS the editorial judgment.
+
+Replaced in Decision #8 with two narrower lanes (both objective): turn-boundary ticks on the scrub bar (position-only) and `?step=N` deep-link URLs (YouTube-timestamp model — share a link to a specific moment without claiming it's important).
+
+**Trigger to reconsider**: any one of —
+1. ≥5 users explicitly request auto-tagging via feedback / Discord / forums, OR
+2. A non-judgmental signal emerges — e.g., aggregating user-marked moments across many viewers (a moment becomes "key" because real viewer behavior says so, not because a heuristic guesses), OR
+3. A streamer / content creator workflow specifically needs auto-tag pre-population (e.g., "clip the 3 biggest lore swings into a highlight reel"), AND a partner is willing to validate the heuristic before it ships to all users.
+
+**Expected scope if revived**: ~1-2 sessions. Engine-side: classifier reading the existing event stream (no new event types needed). UI-side: tag-marker rendering on `ReplayControls` scrub bar + hover labels. The reason this is cheap is precisely why it was tempting — substrate is paid for. The objection is product, not technical.
+
+**Decisions explicitly NOT to revisit**:
+- Pre-shipping heuristics ("lore swing ≥ N is important") without user-marked validation. The heuristic must come from observed viewer behavior, not designer guessing.
+- Per-card "this card is the MVP of the turn" tags — same editorial objection, sharper.
+
+---
+
 ## Strategy / Product
 
 ### Illumineer's Quest co-op mode as a unique feature
@@ -454,6 +475,38 @@ Fits the strategic direction: the moat is the engine + bot + analytics flywheel,
 - Replays + analytics generalize — Quest games are still seed-deterministic, so the creator-tool flywheel applies.
 
 **Trigger to reconsider**: Quest import task lands (lower bar) OR multiplayer is deployed and we want a non-PvP onboarding ramp (higher bar).
+
+---
+
+### Meta dashboard (user-facing analytics)
+
+**Considered (offline-session brainstorm Bucket 2 + Decision #9, deferred by Decision #8 resolution 2026-05-19)**: Convert the internal analytics CLI (`pnpm analyze`, `pnpm query`, `pnpm compare` — `packages/analytics/`) into a public-facing dashboard. Aggregated anonymous stats: archetype win rates, ink-pair distributions, turn-count metrics, opening-hand analysis, card play-rates by format / rotation. Listed as differentiation point #4 in `lorcana-sim-handoff.md` (T2 gap, marketing-wedge tier).
+
+**Substrate already exists**:
+- Analytics package runs against `simulator/`-produced GameResults and `engine/`-stamped game outcomes.
+- Query system supports cross-deck / cross-archetype comparisons (`docs/QUERY_SYSTEM.md`).
+- Server-side: `games` + `game_actions` tables capture every MP game with format / rotation / outcome metadata.
+- Engine: `engine_version` stamping (shipped 2026-04-22 per Decision #2 widening) means we can filter aggregates to engine-current data only — no historical-resolver dependency.
+
+**What's missing**: user-facing surface (page on the app), privacy-safe aggregation pipeline (no `username` / `user_id` leak into aggregate stats), cron / scheduled refresh strategy (recompute archetype aggregates daily — not per-request), schema for "what do we serve" (which slices are public vs internal-only).
+
+**Why parked (2026-05-19, Decision #8 resolution)**: T2 sequencing call. Replay viewer scrub + branching (Decision #8) won the T2 north-star slot because (a) its substrate is also already shipped — leverage is high — AND (b) it doesn't depend on a population threshold to be meaningful. Meta dashboard, by contrast, has an empty-cell failure mode: shipping a public dashboard pre-ladder-population means archetype stats are either empty or skewed by a tiny sample, which *hurts* credibility instead of building it. Better to wait for matchmaking to accumulate sustained weekly games.
+
+**Trigger to reconsider**: any one of —
+1. ≥4 weeks of sustained weekly ranked-queue activity (concretely: at least 20 ranked queue matches per week, for 4 consecutive weeks — enough to populate archetype slices with a non-trivial sample), OR
+2. First content creator / theorycrafter asks for archetype data (signal that the audience exists and would link to us), OR
+3. A specific tournament / event organizer asks for format-snapshot data (e.g., "what's the meta look like for the upcoming Set 12 release event") — focused, time-bounded ship that doesn't require sustained population.
+
+**Expected scope**: ~2-3 weeks first ship. Lanes:
+- **Aggregation pipeline** (~1 week, server + analytics): cron job that runs analytics queries against `games` + `game_actions`, writes results to a `meta_snapshots` table with date stamp + engine_version stamp. Privacy: enforce minimum-cell-size threshold (e.g., suppress archetypes with <10 games to prevent identification).
+- **Public API endpoint** (~2 days, server): `GET /meta/snapshot?format=core-s12&period=last7d` returns the precomputed JSON. Cache aggressively (snapshot is daily, not per-request).
+- **Dashboard UI** (~1 week, ui-specialist): new `/meta` page. Archetype win-rate bars, ink-pair heatmap, turn-count distribution. Filter chips: format / rotation / time window. Mobile-responsive (chrome-craft principle).
+- **Privacy + opt-out** (~1-2 days): TOS update; opt-out toggle on MePage ("exclude my games from aggregate stats"); enforce at aggregation time, not serving time.
+
+**Decisions explicitly NOT to revisit**:
+- Per-user game history surfacing in the public dashboard. That's a privacy leak; users opt into MePage stats individually, but aggregate is aggregate.
+- Showing raw counts under the minimum-cell-size threshold. If a slice has <10 games, suppress entirely; don't show "1 game, 100% WR."
+- Surfacing in-progress / unfinished games. Aggregate is over finished games only — partial games distort win rates AND could leak info about live matches.
 
 ---
 
@@ -802,6 +855,34 @@ Total if all four ship: ~5-6 work-days.
 - Server NEVER trusts client's tier classification — re-classifies every takeback request from the `events: GameEvent[]` stream (any `card_revealed` / `hand_revealed` event in the stream auto-bumps tier).
 - Ranked queue → zero takebacks. Plumbed through the existing `format.rotation.ranked` flag.
 - Animation honesty for Tier 3 — don't lie with reverse-animations; show an honest toast instead.
+
+---
+
+### Multiplayer resume — fork a replay into a new persisted game
+
+**Considered (2026-05-19, Decision #8 scope discovery)**: "SC2-style resume from replay" is already shipped for **sandbox/solo** (per `docs/ROADMAP.md:379-382`, `docs/DECISIONS.md:716-719` — the "Take over here" button in `ReplayControls.tsx:103-110` installs the replay's state as a fresh live baseline via `GameBoard.tsx:2702` → `useGameSession.patchState`, and subsequent undo / quicksave / play-against-bot work from that point). What's NOT shipped is the **multiplayer** variant: forking a replay into a NEW persisted game where TWO authenticated users continue play from the replay state.
+
+Conceptually: pick a replay step → invite opponent → both consent → server creates a new game in the `games` table with the chosen state as starting state → game proceeds normally from there. Replays of the resumed game are independent of the parent replay.
+
+**Why parked (2026-05-19, Decision #8 resolution)**: Out of Decision #8 scope. The solo/sandbox resume path covers ~80% of the actual use case (theorycrafting, "what if I'd played differently" exploration vs. the bot). The MP variant requires substantial server-side work AND a UX-flow design pass:
+- **Engine**: `createGame` (`packages/engine/src/engine/initializer.ts:181`) builds from deck definitions, not arbitrary state — needs a sibling `createGameFromState(state, p1, p2, rotation, ranked: false)` entry point. Validate the state is internally consistent (no negative lore, no card in two zones, deck/hand/discard partition is legal — Layer 3 invariants).
+- **Server**: new endpoint `POST /lobby/resume-from-replay { replayId, stepNumber, inviteeUserId }`. Opponent invite UX. `games.source_replay_id` + `games.source_step` columns to record fork provenance.
+- **Anti-collusion / ELO**: resumed games are **always unranked** (`ranked: false` — same logic as private lobbies per Decision #3 work). Otherwise you could ELO-game by re-rolling losing positions.
+- **UI**: opponent-invite flow, source-replay link surfaced on the resumed game's chrome, consent prompt with explicit unranked warning, hidden-info disclosure ("opponent will see your hand from this point — accept?").
+
+**Trigger to reconsider**: any one of —
+1. User / creator explicitly asks for "fork this replay into a game I can finish playing" — solo-vs-bot resume already works, so the ask must specifically be human-vs-human, OR
+2. ≥3 unprompted requests via the in-app feedback channel (shipped Decision #7), OR
+3. A tournament-organizer use case appears — e.g., "rescheduled-match-from-state" for a disconnected tournament round. Tournament tooling is T3, so this trigger is contingent on T3 work landing first.
+
+**Expected scope**: ~1-2 weeks if approved.
+- **Engine** (~2 days): `createGameFromState` entry point + state-validation pass. Tests: round-trip (replay-state → resumed-game → first action → expected state).
+- **Server** (~3-5 days): lobby endpoints, invite + consent flow, `source_replay_id` + `source_step` columns, provenance enforcement (resumed games can't be ranked), tests.
+- **UI** (~3-5 days): "Resume vs. opponent" button on ReplayControls (alongside existing "Take over here" which becomes "Resume solo"), invite-pick flow, accept-prompt with unranked warning, source-replay link on resumed-game chrome.
+
+**Decisions explicitly NOT to revisit**:
+- Ranked resumed games. Anti-collusion blocks this permanently.
+- Three-or-more-player resumes. Lorcana is 1v1; not in scope.
 
 ---
 

@@ -302,6 +302,38 @@ conversation.
   for any tool exporting plain `4 Card Name` format. URL-fetch one-click
   import (paste a Dreamborn URL) is a future polish, BACKLOG-shaped not
   ship-now.
+- **2026-05-19** — Decision #8 (T2 sequencing: replay viewer scrub + branching
+  vs meta dashboard) → **A locked + scope narrowed**, in flight. Major
+  discovery during scoping: the resume-from-state idea AND the SC2-style
+  branching path are ALREADY shipped for sandbox/solo (per
+  `docs/ROADMAP.md:379-396` and `docs/DECISIONS.md:716-719` — `ReplayControls`
+  has the "Take over here" button at `ReplayControls.tsx:103-110`,
+  `GameBoard.tsx:2702` wires it via `setReplayInput(null)` +
+  `patchState(state)`, branch analysis runs via `useAnalysis` +
+  `runSimulation({ startingState })`, and `useReplaySession` already serves
+  both local AND remote replays via its `ReplayInput` discriminated union).
+  Work is polish + MP-parity verification, not greenfield. Scope narrowed
+  to three lanes (all small — days each, not weeks):
+  - **B. Verify MP-replay takeover + branch analysis** — manual test pass
+    on remote replays; fix gaps. Derisks downstream lane work.
+  - **A3. Turn-boundary ticks on scrub bar** — objective markers only.
+    No event markers (subjective).
+  - **A2. Step-deep-link URL** — `/replay/share/:id?step=N`, YouTube-
+    timestamp model. Copy-link-with-step button. No annotation overlay,
+    no text-note persistence schema (user explicitly dropped annotations).
+  **A1 (key-moment auto-tagging) explicitly rejected** as editorial — the
+  app should surface facts (turn boundaries, timestamps), not judgments
+  (which moment was "important"). Filed as BACKLOG under UI / Design with
+  rejection rationale + trigger to reconsider (≥5 explicit user asks, OR
+  user-marked-moments aggregation signal, OR partner-validated creator
+  workflow). Decision #9 (meta dashboard) parked to BACKLOG under
+  Strategy / Product with trigger "≥4 weeks sustained weekly ranked queue
+  activity (≥20 matches/wk × 4 wks) OR first creator asks for archetype
+  data OR tournament-event organizer asks for format-snapshot data."
+  MP-resume-into-new-persisted-game filed as separate BACKLOG entry under
+  Server (solo/sandbox resume already works; MP variant requires
+  createGameFromState + invite/consent flow + unranked-only provenance).
+  Sequence to execute: B → A3 → A2.
 - **2026-05-18** — Decision #3 (`deckSize` on `RotationEntry`) → **A**, shipped.
   Discovered the diff doc's premise was wrong: no `validateDeck` function ever
   existed, and engine + server enforced per-card legality only — deck size was
@@ -357,10 +389,15 @@ conversation.
 7. **Bug report flow with replay attached** — easy win, high trust signal.
 
 ### T2-level decisions (competitive credibility — sequencing)
-8. **Replay viewer scrub + branching** — highest-leverage T2 feature, only
-   possible because of our deterministic engine. Sequence vs meta dashboard.
-9. **Meta dashboard (user-facing)** — convert internal analytics CLI into public
-   wedge. Sequence vs replay viewer.
+8. ~~**Replay viewer scrub + branching**~~ ✅ A locked + scope narrowed
+   (2026-05-19). Discovered substrate already shipped (sandbox/solo
+   "Take over here" + branch analysis per ROADMAP 3e-ii/iii); work is
+   polish + MP-parity. Scope = B (verify MP takeover) → A3 (turn-boundary
+   ticks) → A2 (step-deep-link URL). A1 (auto-tagging) rejected as
+   editorial, filed BACKLOG with trigger.
+9. ~~**Meta dashboard (user-facing)**~~ → BACKLOG (2026-05-19), filed under
+   Strategy / Product with trigger "≥4 weeks sustained ranked queue OR
+   first creator asks for archetype data OR tournament-event ask."
 10. **Seasons + placement matches** — defer until ladder population justifies
     it; agree on trigger condition.
 
@@ -397,54 +434,74 @@ conversation.
 
 ## Where we left off (pickup notes)
 
-**Last session (2026-05-19):** swept through Decisions #4 Phase 2, #6, and #7
-end-to-end. Decision #4 Phase 2 dispatched to gameboard-specialist (in-game
-clock UI) + ui-specialist (lobby + history surfaces) per CLAUDE.md routing.
-Decision #5 absorbed by Phase 2's disconnect overlay + grace UI. Decision #6
-discovered to be already-shipped (deckbuilder paste-mode preserved through the
-lobby cleanup; engine's parseDecklist handles the format). Decision #7
-discovered to be already-designed (HANDOFF entry from 2026-04-21); built the
-server Phase 1 MVP + dispatched ui-specialist for the UI MVP. All 1053 tests
-pass across all packages. Prior session (2026-05-18) shipped Decisions #2/#3
-+ #4 Phase 1.
+**Last session (2026-05-19):** resolved Decisions #4 Phase 2, #6, #7, and #8.
+- #4 Phase 2 dispatched (gameboard-specialist for in-game clock UI,
+  ui-specialist for lobby + history surfaces).
+- #5 absorbed by #4 (disconnect overlay + grace UI rolled into the clock work).
+- #6 (deck text-import) discovered already-shipped — deckbuilder's paste-mode
+  Import modal survived the `9ff1348` lobby cleanup.
+- #7 (bug-report flow) shipped end-to-end as full Phase 1 MVP per the
+  2026-04-21 design (server `feedback` table + POST /feedback + UI + footer
+  trigger + card-issue trigger in CardInspectModal).
+- #8 (T2 sequencing) resolved by **narrowing scope** after discovering
+  substrate already shipped for sandbox/solo. A1 (key-moment auto-tagging)
+  rejected as editorial; #9 (meta dashboard) + MP-resume filed BACKLOG with
+  triggers. Three execution lanes remaining: B → A3 → A2.
 
-**Resume here next session:** Decision #8 — **T2 sequencing: replay viewer
-scrub + branching vs meta dashboard**. The T1 floor is now complete (#1-#7
-all resolved or shipped). Remaining items are T2 ranked-credibility work +
-T3-T4 platform features. Sequencing is the real question — the brainstorm
-calls replay-scrub + branching the highest-leverage T2 ("competitive players
-live in this; branching is differentiated because of our deterministic engine
-+ undo support"), and the meta dashboard the biggest differentiation wedge
-(turns internal analytics CLI into public surface). Both are multi-week. Most
-useful next conversation: pick one as the "T2 north star" and BACKLOG the
-other with a trigger for when it gets sequenced in.
+All 1053+ tests pass across packages. Prior session (2026-05-18) shipped
+Decisions #2/#3/#4 Phase 1.
 
-Context to bring back into the resume conversation for Decision #8:
-- Brainstorm doc Bucket 2 (T2-level gaps) lists both replay-scrub and meta
-  dashboard as marquee T2 work. Neither has been started; both have rough
-  spec sketches in the brainstorm doc.
-- **Replay viewer scrub + branching** is differentiated because of substrate
-  we already have: deterministic engine + undo support + per-viewer-filtered
-  state stream (`getFilteredGameReplay` shipped 2026-05-01). Branching ("what
-  if I'd played X on turn 5") is technically possible by handing the replay's
-  pre-action state to the sandbox engine + letting the user make different
-  choices. UI: scrubber + key-moment auto-tagging + annotations + share-with-
-  annotations.
-- **Meta dashboard** turns the internal analytics CLI (`pnpm analyze`,
-  `pnpm query`) into a public surface. Aggregated anonymous stats —
-  archetype win rates, ink-pair distributions, turn metrics, opening hand
-  analysis. The analytics package is already capable; what's missing is
-  the public-facing rendering + privacy-safe aggregation (anonymize before
-  serving) + cron job to refresh.
-- Both are multi-week. Sequencing call: which is the "T2 north star"?
-  Brainstorm's view: replay-scrub first (immediate competitive-player value),
-  meta dashboard second (marketing wedge that needs ladder population to be
-  meaningful anyway). My read: same order — replay-scrub leans into substrate
-  we already have, meta dashboard benefits from waiting until there's more
-  data to aggregate.
+**Resume here next session:** Decision #8 execution — three small lanes
+(B → A3 → A2). Each is days, not weeks; could fit in one focused session
+each, or 2-3 sessions total.
 
-After Decision #8, the queue is:
-- #9: meta dashboard (T2 / differentiation wedge)
+- **Lane B (verify MP-replay takeover + branch analysis)**: manual test pass
+  starting from a multiplayer shared replay. Steps:
+  1. Open `/replay/share/:id` for any MP game.
+  2. Scrub to a mid-game step.
+  3. Click "Take over here" — confirm session transitions to a live
+     sandbox-mode game with the replay state as baseline, hands populated
+     correctly, undo / quicksave reconstruct from this point not the
+     original game's seed.
+  4. Play through to game end. Confirm game-over overlay surfaces correctly
+     (no orphan replay-banner chrome, no stale `replayId` provenance).
+  5. From the same remote replay, click the branch-analysis button →
+     confirm 200-game sim runs cleanly and produces a win% comparison.
+  If either path errors, the gap is most likely in the `setReplayInput(null)`
+  + `patchState` path in `GameBoard.tsx:2702-` where remote-replay
+  provenance (server `replayId`, perspective filtering, `RemoteReplay`
+  shape from `useReplaySession.ts`) doesn't fully unwire when transitioning
+  to the live sandbox session. Fix scope is likely ~1 day.
+
+- **Lane A3 (turn-boundary ticks on scrub bar)**: render objective tick
+  marks at every turn boundary in the `ReplayControls` scrub bar. Source
+  the turn-boundary step indices from the action log
+  (`useReplaySession.ts` — the hook already has step→state reconstruction;
+  needs to expose step→turn-number for the scrub bar to overlay tick
+  marks). Numbered T1, T2, ... with the current turn highlighted. No event
+  markers, no scoring, no hover labels beyond "Turn N." Pure readability
+  win. Mobile: ticks must remain tap-targetable (or at least scrub-
+  snappable) at small scrub-bar widths.
+
+- **Lane A2 (step-deep-link URL)**: add a `step` query param to
+  `/replay/share/:id?step=N` and `/replay/:gameId?step=N`. On load, jump
+  the scrubber to step N (fall back to step 0 if N is out of range or
+  malformed). Add a "Copy link to this step" affordance next to the
+  existing share button — copies the current scrubber position into the
+  URL clipboard. YouTube `?t=42s` model. Toast on copy success ("Link
+  copied to step N").
+
+**Pre-Lane-B priority**: re-check Syndrome - Out for Revenge HANDOFF entry
+status. Engine-expert was dispatched 2026-05-19 but blocked on Edit
+permissions; full design (Option 2 — new `play_or_shift_card` effect,
+composes with existing `viaGrantedFreePlay` + shift handler — verified to
+need no new shift primitive) is documented in that day's conversation
+transcript and as a re-dispatch prompt. Decision: re-dispatch with
+permissions, hand-execute the documented plan, OR defer until A/B lane
+work is done.
+
+After Decision #8 ships, the queue is:
 - #10: seasons + placement matches (T2 / trigger-conditioned defer)
 - #11: deck-sharing platform creep watch (drift monitor)
 - #12: AI opponent surfacing (T4-substrate-ready / strategic call)
+- #9 (meta dashboard) waits for its BACKLOG trigger to fire.
