@@ -22,7 +22,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, isLegalFor, parseDecklist, MATCH_CLOCK_CONFIG, formatClockConfigLabel } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat } from "@lorcana-sim/engine";
 import {
   getLobbyInfo,
@@ -241,6 +241,14 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
             </span>
             <span className="text-xs text-gray-500">·</span>
             <span className="text-xs text-gray-300">{info.format.toUpperCase()}</span>
+          </div>
+          {/* Match-clock caption — chess-clock rollout Phase 2 surface.
+              Subtle, sits below the format chips so competitive players know
+              what they're signing up for before readying up. Reads from the
+              engine-exported MATCH_CLOCK_CONFIG so the label tracks any
+              future config edit. */}
+          <div className="text-[10px] text-gray-500 font-mono">
+            {formatClockConfigLabel(MATCH_CLOCK_CONFIG[info.format])}
           </div>
           <div className="flex items-center justify-center gap-3">
             <span className="text-3xl font-mono font-black tracking-[0.3em] text-amber-400">

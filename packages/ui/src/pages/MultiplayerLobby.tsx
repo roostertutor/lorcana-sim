@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { CARD_DEFINITIONS, isLegalFor, parseDecklist } from "@lorcana-sim/engine";
+import { CARD_DEFINITIONS, isLegalFor, parseDecklist, MATCH_CLOCK_CONFIG, formatClockConfigLabel } from "@lorcana-sim/engine";
 import type { DeckEntry, GameFormat, GameFormatFamily, RotationId } from "@lorcana-sim/engine";
 import { supabase } from "../lib/supabase.js";
 import { createLobby, joinLobby, ensureProfile, getProfile, joinMatchmaking, getMatchmakingStatus, cancelMatchmaking, subscribeMatchmakingPairFound, getGameInfo } from "../lib/serverApi.js";
@@ -707,6 +707,15 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
           )}
         </div>
 
+        {/* Match-clock caption — chess-clock rollout Phase 2. Subtle
+             pre-game info so competitive players know what they're
+             signing up for. Reads from MATCH_CLOCK_CONFIG so it tracks
+             any future config edit (bank or increment). */}
+        <div className="text-[10px] text-gray-500 font-mono px-1">
+          <span className="uppercase tracking-wider text-gray-600 font-bold mr-1.5 not-italic">Clock</span>
+          {formatClockConfigLabel(MATCH_CLOCK_CONFIG[format])}
+        </div>
+
         {/* ELO + ranked-availability caption below the config strip.
              Updates per the currently-selected rotation. Bo1/Bo3 shown
              together (server tracks separate ratings) so users can see
@@ -982,6 +991,9 @@ export default function MultiplayerLobby({ onGameStart, onPlaySolo, initialJoinC
                     </div>
                     <div className="text-[10px] text-gray-500 mt-0.5">
                       {queueStatus.format.family === "core" ? "Core" : "Infinity"} {queueStatus.format.rotation} · {queueStatus.matchFormat === "bo1" ? "Bo1" : "Bo3"}
+                    </div>
+                    <div className="text-[10px] text-gray-600 mt-0.5 font-mono">
+                      {formatClockConfigLabel(MATCH_CLOCK_CONFIG[queueStatus.matchFormat])}
                     </div>
                   </div>
                   <div className="text-2xl font-mono text-amber-400 tabular-nums">

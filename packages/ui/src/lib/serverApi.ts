@@ -248,6 +248,32 @@ export async function joinLobby(code: string) {
   return res.json() as Promise<{ lobbyId: string }>
 }
 
+/** Server-projected live clock snapshot included on `GET /game/:id` responses.
+ *  Pre-projected for display: the decision player's bank reflects elapsed
+ *  thinking time since the last action; the inactive player's bank is frozen.
+ *  When either player is disconnected, BOTH banks are frozen and the
+ *  disconnected player's grace ticks instead.
+ *
+ *  Null on legacy rows that pre-date the chess-clock rollout — UI fails soft
+ *  by rendering no clock surfaces. */
+export interface ClockSnapshot {
+  p1TimeRemainingMs: number
+  p2TimeRemainingMs: number
+  p1GraceRemainingMs: number
+  p2GraceRemainingMs: number
+  p1Disconnected: boolean
+  p2Disconnected: boolean
+  matchFormat: "bo1" | "bo3"
+}
+
+/** Outcome-reason discriminator from `games.outcome_reason`.
+ *  - "normal"     — lore threshold reached (or deckout, the canonical engine win).
+ *  - "concede"    — player resigned via the kebab/Concede.
+ *  - "timeout"    — decision player's clock bank exhausted.
+ *  - "disconnect" — disconnected player's grace budget exhausted.
+ *  Older finished games (pre-rollout) may carry null. */
+export type GameOutcomeReason = "normal" | "concede" | "timeout" | "disconnect" | null
+
 export async function getGame(gameId: string) {
   const res = await fetch(`${SERVER_URL}/game/${gameId}`, {
     headers: await authHeaders(),
@@ -255,6 +281,49 @@ export async function getGame(gameId: string) {
   if (!res.ok) throw new Error(await extractError(res))
   const data = await res.json() as { game: { state: GameState; status?: string }; playerSide?: "player1" | "player2" }
   return data.game.state
+}
+
+/** Variant of `getGame` that returns the full game payload including the
+ *  server-projected clock and outcome_reason. Used by `useGameSession` so the
+ *  clock store stays in lock-step with the filtered state install. */
+export async function getGameWithClock(gameId: string): Promise<{
+  state: GameState
+  clock: ClockSnapshot | null
+  outcomeReason: GameOutcomeReason
+  status?: string
+}> {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}`, {
+    headers: await authHeaders(),
+  })
+  if (!res.ok) throw new Error(await extractError(res))
+  const data = await res.json() as {
+    game: { state: GameState; status?: string; outcome_reason?: GameOutcomeReason }
+    clock: ClockSnapshot | null
+  }
+  return {
+    state: data.game.state,
+    clock: data.clock,
+    outcomeReason: data.game.outcome_reason ?? null,
+    ...(data.game.status !== undefined ? { status: data.game.status } : {}),
+  }
+}
+
+/** Heartbeat ping — call every ~10s while the game tab is visible to keep
+ *  the server's disconnect-grace timer fresh. Returns the up-to-date clock
+ *  (without `matchFormat`, which is established at game creation and doesn't
+ *  change). Throws on transport error; the caller should swallow and retry
+ *  on the next interval rather than failing user-visibly. */
+export async function postHeartbeat(gameId: string): Promise<Omit<ClockSnapshot, "matchFormat">> {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}/heartbeat`, {
+    method: "POST",
+    headers: await authHeaders(),
+  })
+  if (!res.ok) throw new Error(await extractError(res))
+  const data = await res.json() as {
+    ok: true
+    clock: Omit<ClockSnapshot, "matchFormat">
+  }
+  return data.clock
 }
 
 export async function getGameInfo(gameId: string) {
@@ -472,6 +541,10 @@ export interface ReplayListItem {
   p2DisplayName: string | null
   callerIsP1: boolean
   won: boolean | null
+  /** Outcome discriminator from `games.outcome_reason` (chess-clock rollout
+   *  Phase 2). Null on pre-rollout finished games. Renders as a subtle
+   *  annotation alongside the W/L badge in the history view. */
+  outcomeReason: GameOutcomeReason
   public: boolean
   format: string | null
   gameFormat: string | null

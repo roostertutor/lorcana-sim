@@ -29,7 +29,12 @@ export interface ReplayData {
 }
 import type { BotStrategy } from "@lorcana-sim/simulator";
 import { supabase } from "../lib/supabase.js";
-import { sendAction, getGame } from "../lib/serverApi.js";
+import { sendAction, getGameWithClock, postHeartbeat } from "../lib/serverApi.js";
+import type { ClockSnapshot, GameOutcomeReason } from "../lib/serverApi.js";
+
+// Re-export for downstream UI consumers (GameBoard) so they don't need to
+// reach into serverApi directly — the session hook is the single MP surface.
+export type { ClockSnapshot, GameOutcomeReason };
 
 // -----------------------------------------------------------------------------
 // Types
@@ -69,6 +74,16 @@ export interface GameSession {
   connectionStatus: "connected" | "reconnecting" | null;
   /** Next game ID in a Bo3 match (set when current game ends and match continues) */
   nextGameId: string | null;
+  /** Server-projected match-clock snapshot (multiplayer only). Null in local /
+   *  sandbox mode and on legacy pre-clock MP rows. Refreshed on every state
+   *  install (action result, getGame fetch, Realtime push) AND on each
+   *  heartbeat tick — the UI can layer a smooth 100ms local prediction on top
+   *  while server syncs correct drift. */
+  clock: ClockSnapshot | null;
+  /** Outcome reason from the server's `games.outcome_reason` column. Drives
+   *  the game-over overlay copy for timeout / disconnect cases that the
+   *  engine's `wonBy` field doesn't capture (server-procedural finishes). */
+  outcomeReason: GameOutcomeReason;
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -149,6 +164,17 @@ export function useGameSession(): GameSession {
   const [nextGameId, setNextGameId] = useState<string | null>(null);
   // actionCount drives canUndo reactivity — refs alone don't trigger re-renders
   const [actionCount, setActionCount] = useState(0);
+  // MP-only: server-projected clock snapshot. We persist the matchFormat (which
+  // the heartbeat response doesn't echo) by carrying it forward across
+  // heartbeat-only updates — only the GET /game/:id response re-asserts it.
+  const [clock, setClock] = useState<ClockSnapshot | null>(null);
+  // MP-only: server's outcome_reason for the game-over overlay copy. Refreshed
+  // alongside `clock` (same source — both come from GET /game/:id).
+  const [outcomeReason, setOutcomeReason] = useState<GameOutcomeReason>(null);
+  // Ref-mirror of clock so the heartbeat interval can read the prior
+  // matchFormat without re-creating the interval on every clock update.
+  const clockRef = useRef<ClockSnapshot | null>(null);
+  clockRef.current = clock;
 
   // Store config in a ref so effects don't retrigger on identity changes
   const configRef = useRef<GameSessionConfig | null>(null);
@@ -190,10 +216,12 @@ export function useGameSession(): GameSession {
    *  - The post-reconnect catch-up (we may have missed updates while the
    *    channel was down). */
   const fetchAndApplyGameState = useCallback((gameId: string) => {
-    return getGame(gameId)
-      .then((filtered) => {
-        gameStateRef.current = filtered;
-        setGameState(filtered);
+    return getGameWithClock(gameId)
+      .then(({ state, clock: nextClock, outcomeReason: nextReason }) => {
+        gameStateRef.current = state;
+        setGameState(state);
+        setClock(nextClock);
+        setOutcomeReason(nextReason);
         setError(null);
         // Bump actionCount so reveal-detection in GameBoard fires on
         // server-pushed state changes (existing behavior; preserved here).
@@ -362,14 +390,9 @@ export function useGameSession(): GameSession {
         })
         .catch((err: unknown) => {
           setError(String(err));
-          // Re-sync with server truth on error
-          getGame(mp.gameId)
-            .then((state) => {
-              gameStateRef.current = state;
-              setGameState(state);
-              setActionCount((c) => c + 1);
-            })
-            .catch(() => {});
+          // Re-sync with server truth on error — pulls clock too so the
+          // post-error countdown picks up the authoritative server state.
+          void fetchAndApplyGameState(mp.gameId);
         });
       return;
     }
@@ -403,7 +426,7 @@ export function useGameSession(): GameSession {
         turnCount: result.newState.turnNumber,
       });
     }
-  }, []);
+  }, [fetchAndApplyGameState]);
 
   // ---------------------------------------------------------------------------
   // legalActions (derived)
@@ -541,6 +564,76 @@ export function useGameSession(): GameSession {
   }, []);
 
   // ---------------------------------------------------------------------------
+  // Heartbeat — MP-only presence ping
+  //
+  // Calls POST /game/:id/heartbeat every 10s while the tab is visible AND the
+  // game is still active. Server uses heartbeat staleness (>30s = 3 missed
+  // pings) to detect disconnects, which pauses both clocks and starts the
+  // disconnected player's grace countdown. Reconnect within grace clears the
+  // flag and ratchets grace by the disconnect duration.
+  //
+  // Design:
+  // - setInterval (not recursive setTimeout) — fires on a fixed cadence and is
+  //   cheaper to reason about for cleanup.
+  // - visibilitychange listener sends an immediate ping on hidden→visible
+  //   transitions to short-circuit the grace window after a tab-switch.
+  // - We update `clock` (the live snapshot the UI reads) on every successful
+  //   ping so countdowns refresh between action-driven state installs.
+  //   matchFormat isn't echoed by the heartbeat endpoint — we carry it forward
+  //   from the prior `clock` (set at startGame via getGameWithClock).
+  // - Errors are swallowed: a transient network blip shouldn't surface as a
+  //   user-visible toast. The next tick (or the next action) re-syncs.
+  // - Game-over gating: stop pinging once isGameOver is true. Server returns
+  //   409 for non-active games anyway, but skipping the call avoids noisy
+  //   404/409 logging in dev consoles.
+  // ---------------------------------------------------------------------------
+  const isMultiplayer = !!configRef.current?.multiplayer;
+  const gameStatusForHeartbeat = gameState?.isGameOver ?? false;
+  useEffect(() => {
+    const mp = configRef.current?.multiplayer;
+    if (!mp) return; // sandbox / solo — no clock at all
+    if (gameStatusForHeartbeat) return; // game over — server won't accept heartbeats
+
+    const ping = () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      void postHeartbeat(mp.gameId)
+        .then((next) => {
+          // Carry forward matchFormat from the last full clock snapshot —
+          // heartbeats don't echo it (it's immutable for the game).
+          const prevFormat = clockRef.current?.matchFormat ?? "bo1";
+          setClock({ ...next, matchFormat: prevFormat });
+        })
+        .catch(() => { /* swallow — next tick or action will re-sync */ });
+    };
+
+    // Initial ping on mount of this MP game (after state is loaded).
+    // The first GET /game/:id during startGame already set the clock; this
+    // ping ensures the server's heartbeat timestamp is fresh too (it bumps
+    // on every getGame, but a hard refresh on a long-stale row would
+    // otherwise wait the full 10s before its first ping).
+    ping();
+    const intervalId = setInterval(ping, 10_000);
+
+    const onVisChange = () => {
+      if (document.visibilityState === "visible") ping();
+    };
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", onVisChange);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", onVisChange);
+      }
+    };
+    // configRef.current?.multiplayer is captured at effect-setup time. We rely
+    // on `isMultiplayer` / `gameStatusForHeartbeat` to re-run on the relevant
+    // boolean flips (start of MP session, game-over).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMultiplayer, gameStatusForHeartbeat]);
+
+  // ---------------------------------------------------------------------------
   // selectCard
   // ---------------------------------------------------------------------------
   const selectCard = useCallback((instanceId: string | null) => {
@@ -637,6 +730,8 @@ export function useGameSession(): GameSession {
     setError(null);
     setCompletedGame(null);
     setActionCount(0);
+    setClock(null);
+    setOutcomeReason(null);
     seedRef.current = 0;
     initialStateRef.current = null;
     actionHistoryRef.current = [];
@@ -727,6 +822,8 @@ export function useGameSession(): GameSession {
     actionCount,
     connectionStatus,
     nextGameId,
+    clock,
+    outcomeReason,
     startGame,
     dispatch,
     selectCard,

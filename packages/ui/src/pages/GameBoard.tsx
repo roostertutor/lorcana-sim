@@ -37,6 +37,8 @@ import ReplayControls from "../components/ReplayControls.js";
 import ZoneViewModal from "../components/ZoneViewModal.js";
 import RevealPill from "../components/RevealPill.js";
 import BoardMenu from "../components/BoardMenu.js";
+import MatchClock from "../components/MatchClock.js";
+import DisconnectOverlay from "../components/DisconnectOverlay.js";
 import ActiveEffectsPill from "../components/ActiveEffectsPill.js";
 import TopToast from "../components/TopToast.js";
 import InfoToast from "../components/InfoToast.js";
@@ -2363,8 +2365,21 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       }}
     >
       {/* ======================= Main game area ======================= */}
-      <div className="min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-0.5 landscape-phone:!pb-0.5 landscape-phone:!gap-0.5">
+      <div className="relative min-w-0 flex flex-col gap-2 min-h-0 overflow-hidden px-3 md:pl-4 md:pr-0 pt-3 pb-3 landscape-phone:!px-2 landscape-phone:!pt-0.5 landscape-phone:!pb-0.5 landscape-phone:!gap-0.5">
 
+        {/* Disconnect overlay — passive, MP-only, hides on game over. Sits
+            inside the main area's relative container so it overlays the
+            board without blocking the kebab / sidebar. The board stays
+            visible underneath (spec: "should not block the underlying
+            board entirely; opponents might want to still see the
+            position"). */}
+        {multiplayerGame && session.clock && !isGameOver && (
+          <DisconnectOverlay
+            clock={session.clock}
+            myId={myId}
+            isGameOver={isGameOver}
+          />
+        )}
 
         {/* Replay mode banner */}
         {replayInput && (
@@ -2534,7 +2549,40 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           )}
         </div>
 
-        {/* ---- Play zone divider (also drop target for quest) ---- */}
+        {/* ---- Play zone divider (also drop target for quest) ----
+             Stacked: top row hosts the per-player match clock badges
+             (MP only); bottom row is the existing Undo / Quest pill /
+             Pass strip. Clock row is suppressed in solo/sandbox to keep
+             the layout identical to the no-clock case. */}
+        {(() => {
+          // Decision player = who owes the next input. CRITICAL: this is the
+          // pendingChoice.choosingPlayerId when set (Sudden Chill: I play
+          // the card, my turn doesn't end, but the opponent owes the discard
+          // — so the OPPONENT'S clock pulses active even though it's MY
+          // turn). Falls back to currentPlayer when no choice is pending.
+          // Mirrors `getDecisionPlayer` in server/src/services/matchClock.ts.
+          const decisionPlayer: PlayerID = pendingChoice
+            ? pendingChoice.choosingPlayerId
+            : gameState.currentPlayer;
+          return session.clock && multiplayerGame ? (
+            <div className="shrink-0 flex items-center justify-between gap-2 px-1 -mb-0.5 landscape-phone:!hidden">
+              {/* Opponent clock — left side, aligns under the opponent zone above. */}
+              <MatchClock
+                clock={session.clock}
+                player={opponentId}
+                decisionPlayer={decisionPlayer}
+                isMe={false}
+              />
+              {/* Player clock — right side, aligns over the player zone below. */}
+              <MatchClock
+                clock={session.clock}
+                player={myId}
+                decisionPlayer={decisionPlayer}
+                isMe={true}
+              />
+            </div>
+          ) : null;
+        })()}
         <div className="shrink-0 flex items-center gap-2 py-0.5 landscape-phone:!py-0">
           {/* Undo — left side */}
           <div className="w-16 flex justify-start">
@@ -3015,22 +3063,34 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         const oppLore = gameState.players[oppId]?.lore ?? 0;
         const turnCount = gameState.turnNumber;
 
-        // Win-condition subtitle from engine's wonBy field (lore / deckout /
-        // concede). Phrasing differs by perspective: e.g. "by deckout" reads
-        // as your loss when you ran out of cards; from the winner's POV
-        // we surface "opponent ran out of cards" instead. Concede follows
-        // the same pattern. wonBy is null on draws or if the engine didn't
+        // Win-condition subtitle. Two sources, in priority order:
+        //   1. `outcomeReason` from games.outcome_reason — server-procedural
+        //      finishes (timeout, disconnect) that the engine doesn't model.
+        //      These trump the engine's wonBy field since they're the
+        //      actual game-end cause when set.
+        //   2. Engine's `wonBy` (lore / deckout / concede) — natural finishes.
+        // Phrasing differs by perspective ("opponent ran out of cards" vs
+        // "by deckout"). wonBy is null on draws or if the engine didn't
         // tag the cause — render nothing in that case.
         const wonBy = gameState.wonBy;
         const isWinner = winner === myId;
         const isLoser = winner != null && winner !== myId;
         let causeText: string | null = null;
-        if (wonBy === "lore") {
+        // Outcome reason takes precedence — server-procedural game-end.
+        // "normal" falls through to the engine's wonBy phrasing (deckout
+        // vs lore vs concede).
+        if (session.outcomeReason === "timeout") {
+          causeText = isWinner ? "opponent ran out of time" : isLoser ? "you ran out of time" : "by timeout";
+        } else if (session.outcomeReason === "disconnect") {
+          causeText = isWinner ? "opponent disconnected" : isLoser ? "you disconnected" : "by disconnect";
+        } else if (session.outcomeReason === "concede" || wonBy === "concede") {
+          // outcome_reason="concede" and wonBy="concede" are the same case
+          // routed through different writers (resign endpoint vs engine).
+          causeText = isWinner ? "opponent conceded" : isLoser ? "you conceded" : "by concede";
+        } else if (wonBy === "lore") {
           causeText = "by reaching the lore threshold";
         } else if (wonBy === "deckout") {
           causeText = isWinner ? "opponent ran out of cards" : "by deckout";
-        } else if (wonBy === "concede") {
-          causeText = isWinner ? "opponent conceded" : isLoser ? "you conceded" : "by concede";
         }
 
         return (

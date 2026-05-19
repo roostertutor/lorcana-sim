@@ -11,9 +11,48 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { getMyReplays } from "../lib/serverApi.js";
-import type { ReplayListItem } from "../lib/serverApi.js";
+import type { ReplayListItem, GameOutcomeReason } from "../lib/serverApi.js";
 import { FORMAT_FAMILY_ACCENT } from "../utils/deckRules.js";
 import type { GameFormatFamily } from "@lorcana-sim/engine";
+
+/** Translate a finished game's outcome reason into a short caption + tooltip
+ *  for the history list (chess-clock rollout Phase 2). Returns null for the
+ *  default "normal" case (or null reason on pre-rollout rows) — the W/L badge
+ *  already tells that story; we only annotate when the outcome was unusual
+ *  (concede / timeout / disconnect). Caller-perspective (`won`) flips
+ *  timeout's wording so winners see "on time" and losers see "timeout". */
+function describeOutcomeReason(
+  reason: GameOutcomeReason,
+  won: boolean | null,
+): { short: string; title: string; tone: string } | null {
+  if (reason == null || reason === "normal") return null;
+  switch (reason) {
+    case "concede":
+      return {
+        short: won ? "by concede" : "concede",
+        title: won
+          ? "Opponent conceded the game."
+          : "You conceded the game.",
+        tone: "text-gray-500 italic",
+      };
+    case "timeout":
+      return {
+        short: won ? "on time" : "timeout",
+        title: won
+          ? "You won — opponent's clock ran out."
+          : "You lost — your clock ran out.",
+        tone: "text-amber-500/80 italic",
+      };
+    case "disconnect":
+      return {
+        short: won ? "by disconnect" : "disconnect",
+        title: won
+          ? "You won — opponent disconnected past the grace window."
+          : "You lost — you disconnected past the grace window.",
+        tone: "text-red-400/80 italic",
+      };
+  }
+}
 
 const PAGE_SIZE = 50;
 
@@ -202,6 +241,13 @@ function ReplayRow({ item, onClick }: { item: ReplayListItem; onClick: () => voi
       ? "text-green-400"
       : "text-red-400";
 
+  // Chess-clock rollout Phase 2 — surface the outcome reason alongside W/L
+  // when it's anything other than "normal". W/L is still the primary signal;
+  // this is a small qualifier ("on time" / "timeout" / "disconnect" /
+  // "concede") so a glance distinguishes a clean lore-win from a forfeit.
+  // Tooltip on hover spells out the full sentence for accessibility.
+  const outcomeAnnotation = describeOutcomeReason(item.outcomeReason, item.won);
+
   // Format chip — use the deckRules accent helper when gameFormat is one of
   // the recognized families, otherwise neutral grey. Older replays may have
   // null gameFormat (column added mid-implementation); the chip degrades.
@@ -256,6 +302,17 @@ function ReplayRow({ item, onClick }: { item: ReplayListItem; onClick: () => voi
           <span>{formatRelative(item.createdAt)}</span>
           <span className="text-gray-700">·</span>
           <span>{item.turnCount} turn{item.turnCount === 1 ? "" : "s"}</span>
+          {outcomeAnnotation && (
+            <>
+              <span className="text-gray-700">·</span>
+              <span
+                className={outcomeAnnotation.tone}
+                title={outcomeAnnotation.title}
+              >
+                {outcomeAnnotation.short}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
