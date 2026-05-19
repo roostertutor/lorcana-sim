@@ -47,6 +47,18 @@ export interface RotationEntry {
   /** Card definitionIds banned in this rotation. Separate from legalSets —
    *  a card can be in a legal set and still be banned. */
   readonly banlist: ReadonlySet<string>;
+  /** Required deck size for this rotation. Lorcana sanctioned Constructed
+   *  (Core, Infinity) is exactly 60. Limited formats (Sealed, Draft, Pack
+   *  Rush) will land with smaller counts (35-40) when they ship — those
+   *  rotations override this field. `isLegalFor` enforces equality against
+   *  the sum of `DeckEntry.count`.
+   *
+   *  Field is exact-N today (treat as both min and max). If a future format
+   *  needs a min+max range or sideboard handling, rename to `deckSizeMin`
+   *  + `deckSizeMax?` rather than overloading this field with a richer
+   *  shape. Migration cost is trivial (4 rotation entries) and keeps the
+   *  current Constructed read-path one numeric comparison. */
+  readonly deckSize: number;
   /** When true, the UI offers this rotation in the "new deck" dropdown.
    *  Stored decks stamped with a rotation where this is now `false` still
    *  validate against that rotation — they just can't be CREATED with it. */
@@ -76,6 +88,7 @@ export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11"]),
     banlist: new Set<string>([]),
+    deckSize: 60,
     offeredForNewDecks: false,
     ranked: false,
     displayName: "Set 11 Core",
@@ -83,6 +96,7 @@ export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s12: {
     legalSets: new Set(["5", "6", "7", "8", "9", "10", "11", "12"]),
     banlist: new Set<string>([]),
+    deckSize: 60,
     offeredForNewDecks: true,
     ranked: true,
     displayName: "Set 12 Core",
@@ -113,6 +127,7 @@ export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
     legalSets: INFINITY_S11_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
+    deckSize: 60,
     offeredForNewDecks: false,
     ranked: false,
     displayName: "Set 11 Infinity",
@@ -120,6 +135,7 @@ export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s12: {
     legalSets: INFINITY_S12_SETS,
     banlist: new Set<string>(["hiram-flaversham-toymaker"]),
+    deckSize: 60,
     offeredForNewDecks: true,
     ranked: true,
     displayName: "Set 12 Infinity",
@@ -135,11 +151,18 @@ export interface GameFormat {
   readonly rotation: RotationId;
 }
 
-/** A single legality problem for a deck entry. */
+/** A single legality problem.
+ *
+ *  Most issues are per-card (`banned`, `set_not_legal`, `unknown_card`) and
+ *  carry the offending card's identity. The `wrong_count` issue is deck-wide
+ *  (sum of `DeckEntry.count` ≠ `RotationEntry.deckSize`) — it sets
+ *  `definitionId` and `fullName` to empty strings since no single card owns
+ *  the violation. UI surfaces should branch on `reason === "wrong_count"`
+ *  rather than display per-card metadata for that case. */
 export interface LegalityIssue {
   readonly definitionId: string;
   readonly fullName: string;
-  readonly reason: "banned" | "set_not_legal" | "unknown_card";
+  readonly reason: "banned" | "set_not_legal" | "unknown_card" | "wrong_count";
   /** Human-readable message for UI surfacing — includes the rotation name. */
   readonly message: string;
 }
@@ -201,7 +224,14 @@ export function isCardLegalInFormat(
 }
 
 /** Validate a parsed decklist against a format. Returns ok=true when every
- *  entry is legal; issues[] enumerates each failure with a UI-ready message. */
+ *  entry is legal AND the total card count matches the rotation's required
+ *  deckSize; issues[] enumerates each failure with a UI-ready message.
+ *
+ *  Count enforcement was added 2026-05-18. Previously the engine validated
+ *  per-card legality only; deck-size was a soft nudge in the deckbuilder UI
+ *  and a 45-card deck could queue into ranked. Now `wrong_count` issues are
+ *  emitted at most once per call (deck-wide, not per-card) and surface as a
+ *  400 from `assertDeckLegal` → lobby/matchmaker rejection. */
 export function isLegalFor(
   entries: DeckEntry[],
   definitions: Record<string, CardDefinition>,
@@ -210,6 +240,19 @@ export function isLegalFor(
   const entry = resolveRotation(format);
   const issues: LegalityIssue[] = [];
   const rotationLabel = entry.displayName;
+
+  // Deck-wide count check. Emitted alongside (not instead of) per-card issues
+  // so the UI can show "wrong count AND illegal cards" in one pass — the
+  // user fixes both without re-submitting.
+  const totalCount = entries.reduce((s, e) => s + e.count, 0);
+  if (totalCount !== entry.deckSize) {
+    issues.push({
+      definitionId: "",
+      fullName: "",
+      reason: "wrong_count",
+      message: `${rotationLabel} requires exactly ${entry.deckSize} cards; deck has ${totalCount}.`,
+    });
+  }
 
   for (const deckEntry of entries) {
     const def = definitions[deckEntry.definitionId];

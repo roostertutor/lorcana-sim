@@ -405,6 +405,29 @@ describe("setDeckInLobby", () => {
     if (!r.ok) expect(r.status).toBe(400)
   })
 
+  // Engine-level deck-size enforcement added 2026-05-18 — a 45-card deck of
+  // otherwise-legal cards must be rejected at the lobby boundary, not silently
+  // initialized into a balanced game. The engine emits a wrong_count issue;
+  // assertDeckLegal forwards it as 400 with the issues list. Per CLAUDE.md
+  // testing rule: validateX rejection paired with the deeper engine test
+  // (legality.test.ts → "flags 45-card deck as wrong_count").
+  it("rejects with 400 when deck has wrong card count (engine wrong_count)", async () => {
+    seedLobby()
+    const undersized: DeckEntry[] = [{ definitionId: legalDeck()[0]!.definitionId, count: 45 }]
+    const r = await mod.setDeckInLobby("user-A", "lobby-1", undersized)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.status).toBe(400)
+      expect(r.error).toMatch(/illegal deck/)
+      // The wrong_count issue must surface in the structured issues list so
+      // the UI can render "deck has 45/60 cards" alongside per-card issues.
+      const issues = ("issues" in r ? r.issues : null) as { reason: string }[] | null
+      expect(issues).toBeTruthy()
+      expect(issues!.some((i) => i.reason === "wrong_count")).toBe(true)
+    }
+    expect(tables.lobbies.rows[0]!.host_deck).toBeUndefined()
+  })
+
   it("rejects with 403 when caller is not in this lobby", async () => {
     seedLobby()
     const r = await mod.setDeckInLobby("user-C", "lobby-1", legalDeck())

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { DeckEntry } from "../engine/initializer.js";
 import { CARD_DEFINITIONS } from "../cards/cardDefinitions.js";
 import {
   CORE_ROTATIONS,
@@ -97,6 +98,17 @@ describe("rotation registry", () => {
     expect(INFINITY_ROTATIONS.s11.ranked).toBe(false);
     expect(INFINITY_ROTATIONS.s12.ranked).toBe(true);
   });
+
+  it("deckSize is 60 across every sanctioned-Constructed rotation", () => {
+    // All four current rotations are Lorcana sanctioned Constructed (Core +
+    // Infinity), which Ravensburger OP rules specify as exactly 60 cards.
+    // Limited formats (Sealed, Draft, Pack Rush — BACKLOG) will land with
+    // smaller counts on their own rotation entries.
+    expect(CORE_ROTATIONS.s11.deckSize).toBe(60);
+    expect(CORE_ROTATIONS.s12.deckSize).toBe(60);
+    expect(INFINITY_ROTATIONS.s11.deckSize).toBe(60);
+    expect(INFINITY_ROTATIONS.s12.deckSize).toBe(60);
+  });
 });
 
 describe("isRankedFormat", () => {
@@ -181,9 +193,28 @@ describe("isCardLegalInFormat", () => {
 describe("isLegalFor", () => {
   const defs = CARD_DEFINITIONS;
 
-  it("accepts an s12 Core deck of only Core-legal cards", () => {
+  // Most tests below construct small decks that exercise per-card legality
+  // (banned / set_not_legal / unknown_card). The deck-wide count check
+  // (added 2026-05-18) would otherwise flag every such deck with a
+  // wrong_count issue, drowning out the per-card signal we're actually
+  // testing. `padToLegalSize` pads with a known-legal card to hit the
+  // rotation's required deckSize so per-card assertions stay clean.
+  function padToLegalSize(
+    entries: DeckEntry[],
+    format: GameFormat,
+    padCardId: string = "koda-talkative-cub", // set 5 — legal in every current rotation
+  ): DeckEntry[] {
+    const entry =
+      format.family === "core" ? CORE_ROTATIONS[format.rotation] : INFINITY_ROTATIONS[format.rotation];
+    const have = entries.reduce((s, e) => s + e.count, 0);
+    const need = entry.deckSize - have;
+    if (need <= 0) return entries;
+    return [...entries, { definitionId: padCardId, count: need }];
+  }
+
+  it("accepts an s12 Core deck of only Core-legal cards (padded to 60)", () => {
     const result = isLegalFor(
-      [{ definitionId: "koda-talkative-cub", count: 4 }],
+      padToLegalSize([{ definitionId: "koda-talkative-cub", count: 4 }], CORE_S12),
       defs,
       CORE_S12,
     );
@@ -193,7 +224,7 @@ describe("isLegalFor", () => {
 
   it("flags set-12 card in s11 Core with set_not_legal + rotation-specific message", () => {
     const result = isLegalFor(
-      [{ definitionId: "dale-excited-friend", count: 4 }],
+      padToLegalSize([{ definitionId: "dale-excited-friend", count: 4 }], CORE_S11),
       defs,
       CORE_S11,
     );
@@ -205,7 +236,7 @@ describe("isLegalFor", () => {
 
   it("accepts the same set-12 card in s12 Core", () => {
     const result = isLegalFor(
-      [{ definitionId: "dale-excited-friend", count: 4 }],
+      padToLegalSize([{ definitionId: "dale-excited-friend", count: 4 }], CORE_S12),
       defs,
       CORE_S12,
     );
@@ -215,7 +246,7 @@ describe("isLegalFor", () => {
   it("flags set-1-only card as set_not_legal in Core (either rotation)", () => {
     for (const fmt of [CORE_S11, CORE_S12]) {
       const result = isLegalFor(
-        [{ definitionId: "ariel-on-human-legs", count: 4 }],
+        padToLegalSize([{ definitionId: "ariel-on-human-legs", count: 4 }], fmt),
         defs,
         fmt,
       );
@@ -226,7 +257,7 @@ describe("isLegalFor", () => {
 
   it("accepts a reprinted card in Core via its newer printing", () => {
     const result = isLegalFor(
-      [{ definitionId: "captain-hook-forceful-duelist", count: 4 }],
+      padToLegalSize([{ definitionId: "captain-hook-forceful-duelist", count: 4 }], CORE_S12),
       defs,
       CORE_S12,
     );
@@ -238,7 +269,7 @@ describe("isLegalFor", () => {
   // and matchmaker — confirms the snapshot fix flows through both layers.
   it("rejects an Infinity-s11 deck containing a set-12 card (frozen-snapshot regression)", () => {
     const result = isLegalFor(
-      [{ definitionId: "dale-excited-friend", count: 4 }],
+      padToLegalSize([{ definitionId: "dale-excited-friend", count: 4 }], INF_S11),
       defs,
       INF_S11,
     );
@@ -250,7 +281,7 @@ describe("isLegalFor", () => {
 
   it("accepts an Infinity-s12 deck containing a set-12 card", () => {
     const result = isLegalFor(
-      [{ definitionId: "dale-excited-friend", count: 4 }],
+      padToLegalSize([{ definitionId: "dale-excited-friend", count: 4 }], INF_S12),
       defs,
       INF_S12,
     );
@@ -261,10 +292,13 @@ describe("isLegalFor", () => {
     // ariel-on-human-legs is set 1 only; captain-hook-forceful-duelist is
     // set 1 + set 8 reprint. Both are in INFINITY_S11_SETS.
     const result = isLegalFor(
-      [
-        { definitionId: "ariel-on-human-legs", count: 4 },
-        { definitionId: "captain-hook-forceful-duelist", count: 4 },
-      ],
+      padToLegalSize(
+        [
+          { definitionId: "ariel-on-human-legs", count: 4 },
+          { definitionId: "captain-hook-forceful-duelist", count: 4 },
+        ],
+        INF_S11,
+      ),
       defs,
       INF_S11,
     );
@@ -274,7 +308,7 @@ describe("isLegalFor", () => {
   it("flags Hiram Flaversham Toymaker as banned in both Infinity rotations", () => {
     for (const fmt of [INF_S11, INF_S12]) {
       const result = isLegalFor(
-        [{ definitionId: "hiram-flaversham-toymaker", count: 4 }],
+        padToLegalSize([{ definitionId: "hiram-flaversham-toymaker", count: 4 }], fmt),
         defs,
         fmt,
       );
@@ -287,33 +321,75 @@ describe("isLegalFor", () => {
 
   it("flags unknown defId", () => {
     const result = isLegalFor(
-      [{ definitionId: "nonexistent-card-slug", count: 4 }],
+      padToLegalSize([{ definitionId: "nonexistent-card-slug", count: 4 }], INF_S12),
       defs,
       INF_S12,
     );
     expect(result.ok).toBe(false);
-    expect(result.issues[0]!.reason).toBe("unknown_card");
+    expect(result.issues.some((i) => i.reason === "unknown_card")).toBe(true);
   });
 
-  it("empty deck is trivially legal in every rotation", () => {
+  it("empty deck is rejected as wrong_count (0 ≠ 60) in every rotation", () => {
     for (const fmt of [CORE_S11, CORE_S12, INF_S11, INF_S12]) {
-      expect(isLegalFor([], defs, fmt).ok).toBe(true);
+      const result = isLegalFor([], defs, fmt);
+      expect(result.ok).toBe(false);
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0]!.reason).toBe("wrong_count");
+      expect(result.issues[0]!.message).toMatch(/exactly 60 cards/);
     }
   });
 
-  it("collects multiple issues in one pass", () => {
+  it("flags 45-card deck as wrong_count with the deficit in the message", () => {
+    const entries: DeckEntry[] = [{ definitionId: "koda-talkative-cub", count: 45 }];
+    const result = isLegalFor(entries, defs, CORE_S12);
+    expect(result.ok).toBe(false);
+    const wrongCount = result.issues.find((i) => i.reason === "wrong_count");
+    expect(wrongCount).toBeDefined();
+    expect(wrongCount!.message).toContain("60");
+    expect(wrongCount!.message).toContain("45");
+  });
+
+  it("flags 61-card deck as wrong_count (overshoot, not just undershoot)", () => {
+    const entries: DeckEntry[] = [{ definitionId: "koda-talkative-cub", count: 61 }];
+    const result = isLegalFor(entries, defs, CORE_S12);
+    expect(result.ok).toBe(false);
+    expect(result.issues.some((i) => i.reason === "wrong_count")).toBe(true);
+  });
+
+  it("emits both wrong_count AND per-card issues in the same pass (no early-exit)", () => {
+    // 4 + 4 = 8 cards (wrong_count) AND ariel-on-human-legs not legal in Core
+    // (set_not_legal). UI relies on both showing up so the user fixes
+    // everything before re-submitting.
     const result = isLegalFor(
       [
-        { definitionId: "koda-talkative-cub", count: 4 },          // ok
-        { definitionId: "ariel-on-human-legs", count: 4 },         // set_not_legal
-        { definitionId: "hiram-flaversham-toymaker", count: 4 },   // set_not_legal for Core
+        { definitionId: "koda-talkative-cub", count: 4 },
+        { definitionId: "ariel-on-human-legs", count: 4 },
       ],
       defs,
       CORE_S12,
     );
     expect(result.ok).toBe(false);
-    expect(result.issues).toHaveLength(2);
-    expect(result.issues.every((i) => i.reason === "set_not_legal")).toBe(true);
+    expect(result.issues.some((i) => i.reason === "wrong_count")).toBe(true);
+    expect(result.issues.some((i) => i.reason === "set_not_legal")).toBe(true);
+  });
+
+  it("collects multiple per-card issues in one pass (60-card padded baseline)", () => {
+    const result = isLegalFor(
+      padToLegalSize(
+        [
+          { definitionId: "ariel-on-human-legs", count: 4 },         // set_not_legal in Core
+          { definitionId: "hiram-flaversham-toymaker", count: 4 },   // set_not_legal in Core (set 2 not in s12 legal sets)
+        ],
+        CORE_S12,
+      ),
+      defs,
+      CORE_S12,
+    );
+    expect(result.ok).toBe(false);
+    const setNotLegalCount = result.issues.filter((i) => i.reason === "set_not_legal").length;
+    expect(setNotLegalCount).toBe(2);
+    // Padding hit 60 → no wrong_count.
+    expect(result.issues.some((i) => i.reason === "wrong_count")).toBe(false);
   });
 });
 
