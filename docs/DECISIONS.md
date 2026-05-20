@@ -712,11 +712,19 @@ state, rather than storing full `GameState` snapshots at each step.
 - **State snapshots**: Too large, especially at RL training volume.
 
 ### Three features, not one
-1. **Visual replay** — read-only scrubbing through a past game on GameBoard
+1. **Visual replay** — read-only scrubbing through a past game on GameBoard.
 2. **Human takeover** — fork from any replay point into a live game (SC2-style
-   "resume from replay"). `runGame` already supports `startingState`.
-3. **Branch analysis** — fork, sim 200 games both ways, compare win%. Already
-   works via `useAnalysis` + `runSimulation({ startingState })`.
+   "resume from replay"). `runGame` already supports `startingState`. Works
+   for sandbox-finished-game review AND (as of 2026-05-19, Decision #8 Lane B)
+   direct-replay-link entry via `/replay/share/:id` and `/replay/:gameId`.
+3. **Branch analysis** — substrate-only as of 2026-05-19. The
+   `useAnalysis + runSimulation({ startingState })` machinery exists at
+   `packages/ui/src/hooks/useAnalysis.ts:77-90` and is functional in
+   isolation, but the "Branch analysis" button was REMOVED in commit
+   `1eb0f58` (2026-04-18, "wire or remove" chrome audit) — it had been
+   declared as a prop but never wired to a handler. No UI affordance
+   currently exposes the substrate. Resurrection is a separate decision
+   gated on a future chrome audit.
 
 Replaying one game does NOT train the RL bot. RL needs volume (thousands of
 games). Replay is for human interpretability; "what if" is for human exploration.

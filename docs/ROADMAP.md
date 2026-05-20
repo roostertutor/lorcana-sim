@@ -381,9 +381,15 @@ to be useful — even GreedyBot as an opponent is enough to test card interactio
       Injects replay state as live game state via patchState()
       Human takes over P1 from that board position
 
-    ✅ 3e-iii. "What if" — automated branch analysis
-      "Branch analysis" button in ReplayControls (wired to onBranchAnalysis callback)
-      Already works via useAnalysis + runSimulation({ startingState })
+    ⚠️ 3e-iii. "What if" — automated branch analysis (substrate-only, NO affordance)
+      The `useAnalysis + runSimulation({ startingState })` substrate exists at
+      `packages/ui/src/hooks/useAnalysis.ts:77-90` and is functional in isolation,
+      but the "Branch analysis" button was REMOVED in commit `1eb0f58`
+      (2026-04-18, "wire or remove" chrome audit) because it had been declared
+      as a prop but never wired to a handler. As of 2026-05-19 grep shows zero
+      callers of the substrate from any UI surface. Resurrection requires a
+      separate decision — file as BACKLOG entry when chrome audit revisits
+      "what tools should a replay viewer have."
 
     ✅ 3e-iv. Undo (mid-game)
       useGameSession tracks seed + initialState snapshot + actionHistory[]
