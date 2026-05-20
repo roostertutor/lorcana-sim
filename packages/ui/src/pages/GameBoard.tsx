@@ -2699,6 +2699,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         {replayInput && (
           <ReplayControls
             session={replaySession}
+            // Block take-over when viewing a remote replay through a player
+            // perspective (`p1` / `p2`). The server filters opponent's hand
+            // + deck to `definitionId: "hidden"` in those views (see
+            // `packages/engine/src/engine/stateFilter.ts:46-61`), so the
+            // bot opponent would face a hand of `HIDDEN_DEFINITION` stubs
+            // (0 cost, no abilities — `utils/index.ts:58-72`). Spectator
+            // ("neutral") perspective is full-info and safe to fork.
+            // Local replays (sandbox completed games, uploaded JSON) are
+            // never filtered — the viewer is also the data owner.
+            takeoverBlockedReason={
+              replayInput.kind === "remote" && replayInput.data.perspective !== "neutral"
+                ? "Take over disabled — opponent info is hidden in this perspective."
+                : undefined
+            }
             onTakeOver={(state) => {
               // Fork: install the replay state as a fresh live baseline so
               // subsequent undos reconstruct from here, not from the original

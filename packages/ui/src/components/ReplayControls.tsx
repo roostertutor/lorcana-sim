@@ -13,9 +13,16 @@ interface Props {
   session: ReplaySession;
   /** 3e-ii: Fork the current replay position into a live game */
   onTakeOver?: (state: GameState) => void;
+  /** When set, the "Take over here" affordance is replaced by a muted
+   *  info line stating the reason. Used to block take-over from a
+   *  filtered remote-replay perspective (`p1` / `p2` views have the
+   *  opponent's hand redacted to `definitionId: "hidden"`, so the
+   *  resulting bot opponent would have no playable hand). See the
+   *  Decision #8 Lane B follow-up in HANDOFF for context. */
+  takeoverBlockedReason?: string;
 }
 
-export default function ReplayControls({ session, onTakeOver }: Props) {
+export default function ReplayControls({ session, onTakeOver, takeoverBlockedReason }: Props) {
   const { step, totalSteps, goTo, stepBack, stepForward, isPlaying, togglePlay, playbackSpeed, setPlaybackSpeed, state } = session;
 
   const atStart = step === 0;
@@ -102,13 +109,22 @@ export default function ReplayControls({ session, onTakeOver }: Props) {
       {/* Fork */}
       {onTakeOver && state && (
         <div className="flex items-center gap-2 pt-0.5 border-t border-gray-800/60">
-          <button
-            onClick={() => onTakeOver(state)}
-            className="flex-1 px-2 py-1.5 rounded text-[11px] bg-green-900/30 hover:bg-green-900/50 text-green-400 border border-green-700/40 transition-colors"
-            title="Take over from this position — play out the game yourself"
-          >
-            Take over here
-          </button>
+          {takeoverBlockedReason ? (
+            <div
+              className="flex-1 px-2 py-1.5 text-[10px] text-gray-500 italic text-center"
+              title={takeoverBlockedReason}
+            >
+              {takeoverBlockedReason}
+            </div>
+          ) : (
+            <button
+              onClick={() => onTakeOver(state)}
+              className="flex-1 px-2 py-1.5 rounded text-[11px] bg-green-900/30 hover:bg-green-900/50 text-green-400 border border-green-700/40 transition-colors"
+              title="Take over from this position — play out the game yourself"
+            >
+              Take over here
+            </button>
+          )}
         </div>
       )}
     </div>
