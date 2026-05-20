@@ -180,6 +180,26 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
+## Gameboard agent: Replay take-over from filtered remote state (filed 2026-05-19, Decision #8 Lane B)
+
+**Symptom:** A player who opens their own MP replay via `/replay/share/:id` (or `/replay/:gameId`) — without it being publicly shared / `perspective: "neutral"` — gets a server-filtered state where the opponent's hand and deck cards have `definitionId: "hidden"` (per `packages/engine/src/engine/stateFilter.ts:46-61`). Clicking "Take over here" now correctly installs the state and starts a sandbox session (Lane B fix, `useGameSession.ts:657-695` + `GameBoard.tsx:2702-2741`), but the bot opponent will face a hand of `HIDDEN_DEFINITION` stubs (0 cost, no abilities, per `packages/engine/src/utils/index.ts:58-72`). The engine doesn't crash — `HIDDEN_DEFINITION` is a graceful placeholder — but the resulting game isn't a faithful continuation: the bot effectively has no playable hand.
+
+**Why it surfaced:** Lane B fixed the no-op bug in `forkFrom` so take-over now actually installs the state from any replay (remote or local). That exposed the filtered-state problem, which was previously masked by the no-op.
+
+**Three reasonable resolutions, pick one and ship:**
+
+1. **Gate the "Take over here" button** on the state being unfiltered — only render the affordance when `replayInput.kind === "remote" && replayInput.data.perspective === "neutral"`. Spectator-mode public-share replays remain take-over-capable; player-self-replay loses the affordance until they make the replay public. Cleanest UX, least implementation. Caveat: `ReplayControls.tsx` doesn't currently know perspective; thread it through Props.
+
+2. **Surface a confirm modal before fork** explaining "opponent's hand isn't visible; the bot will play with placeholder cards." Lets the user override if they want to play out THEIR side regardless. Less clean but more flexible.
+
+3. **Auto-swap perspective to neutral** before forking — only possible for `isPublic` replays (gated by `decideReplayAccess` server-side). Refetch via the existing perspective-swap mechanism (`GameBoard.tsx:1421-1436`) before calling `forkFrom`. Most invisible to the user but adds latency and a UX edge case (what if the public-share toggle was off?).
+
+**Recommendation:** Option 1 (gate the button) for now — least surface area, least surprise. Filed as a separate HANDOFF rather than rolled into Lane B because it's a design decision and the Lane B fix is already valuable on its own (local-replay take-over still works fine; spectator take-over of public replays now works correctly for the first time).
+
+**Out of scope for the fix:** MP-resume into a new persisted game (BACKLOG entry — separate problem, requires server-side `createGameFromState` + invite/consent flow).
+
+---
+
 ## Replay follow-up gaps (from Phase B/C shareable replays, shipped 2026-05-01)
 
 1. **`callerSlot` detection in `App.tsx → metaToRemoteReplay`** is hardcoded to `null` because `ReplayMeta` doesn't carry player IDs (only usernames). Effect: a player visiting their own MP replay via direct `/replay/:gameId` URL gets reduced affordances — no privacy chip toggle, perspective toggle behaves as if anonymous. Cleanest fix: add optional `callerSlot?: "p1" | "p2" | null` to `ReplayMeta` and stamp it in `buildReplayView`.

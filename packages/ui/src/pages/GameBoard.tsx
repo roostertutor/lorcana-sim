@@ -24,7 +24,7 @@ import {
   pointerWithin,
 } from "@dnd-kit/core";
 import { useGameSession, getSavedSnapshot } from "../hooks/useGameSession.js";
-import type { ReplayData } from "../hooks/useGameSession.js";
+import type { ReplayData, GameSessionConfig } from "../hooks/useGameSession.js";
 import type { ReplayInput, RemoteReplay } from "../hooks/useReplaySession.js";
 import type { ReplayPerspective, ReplayMeta } from "../lib/serverApi.js";
 import { useReplaySession } from "../hooks/useReplaySession.js";
@@ -2704,8 +2704,33 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
               // subsequent undos reconstruct from here, not from the original
               // game's seed+actions (which would land back on the victory
               // screen).
+              //
+              // Two entry paths into this handler:
+              //   1. Sandbox / solo replay-review: `session` already has a
+              //      config (startGame was called when the original game
+              //      started). forkFrom installs `state` directly.
+              //   2. Direct-from-replay link (`/replay/share/:id` or
+              //      `/replay/:gameId`): GameBoard mounted with
+              //      initialReplayInput but never called startGame, so
+              //      configRef.current is null. Pass a minimal sandbox
+              //      config so forkFrom can install one and the bot loop
+              //      has something to drive. Decks are empty (the state
+              //      already has the decks materialized into zones; we
+              //      never reach createGame after a fork). MP guard
+              //      doesn't apply — direct-from-link is a sandbox-style
+              //      session, even if the underlying replay was MP.
               setReplayInput(null);
-              session.forkFrom(state);
+              const bootstrapConfig: GameSessionConfig | undefined = session.gameState
+                ? undefined
+                : {
+                    player1Deck: [],
+                    player2Deck: [],
+                    definitions,
+                    botStrategy: GreedyBot,
+                    player1IsHuman: true,
+                    player2IsHuman: false,
+                  };
+              session.forkFrom(state, bootstrapConfig);
             }}
           />
         )}

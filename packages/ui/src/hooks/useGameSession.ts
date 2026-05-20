@@ -92,8 +92,17 @@ export interface GameSession {
   patchState: (updater: (prev: GameState) => GameState) => void;
   /** Install `state` as the new live game baseline — used by the replay
    *  take-over fork. Resets undo history, action count, and completedGame
-   *  so subsequent undos reconstruct from this state, not the pre-fork one. */
-  forkFrom: (state: GameState) => void;
+   *  so subsequent undos reconstruct from this state, not the pre-fork one.
+   *
+   *  `config` is optional and only consumed when no session is active yet —
+   *  forking directly from a remote replay (`/replay/share/:id`) lands in
+   *  GameBoard with `initialReplayInput` set but no prior `startGame()` call,
+   *  so `configRef.current` is null and the bot loop has nothing to drive.
+   *  Pass a minimal config (definitions + botStrategy + human flags) in that
+   *  case so the take-over installs a runnable sandbox-style session. When a
+   *  session is already active (sandbox in-progress, MP game just ended),
+   *  pass `undefined` and the existing config is preserved. */
+  forkFrom: (state: GameState, config?: GameSessionConfig) => void;
   /** Replay to N-1 actions. No-op in multiplayer or when canUndo is false. */
   undo: () => void;
   reset: () => void;
@@ -653,9 +662,30 @@ export function useGameSession(): GameSession {
 
   // ---------------------------------------------------------------------------
   // forkFrom — install `state` as a fresh live baseline (replay take-over)
+  //
+  // Two entry paths:
+  //   1. Sandbox / solo: a session was already started, so `configRef.current`
+  //      exists. We install `state` directly, ignore the optional config arg.
+  //   2. Direct from remote-replay link (`/replay/share/:id`,
+  //      `/replay/:gameId`): GameBoard mounts with `initialReplayInput` set
+  //      but never calls `startGame()`, so `configRef.current` is null and
+  //      the bot loop / dispatch path has nothing to drive. The caller must
+  //      pass a minimal `config` (definitions + botStrategy + human flags)
+  //      so we can install one before forking.
+  //
+  // MP sessions never fork (server is authoritative). The early-return guards
+  // against re-forking an active MP game; pass-through happens for the no-
+  // config-yet case (configRef is null, not multiplayer).
   // ---------------------------------------------------------------------------
-  const forkFrom = useCallback((state: GameState) => {
-    if (!configRef.current || configRef.current.multiplayer) return;
+  const forkFrom = useCallback((state: GameState, config?: GameSessionConfig) => {
+    if (configRef.current?.multiplayer) return;
+    if (!configRef.current) {
+      // Direct-from-replay path — install a minimal config so the bot loop +
+      // dispatch can run. Without this, fork was a silent no-op.
+      if (!config) return;
+      if (config.multiplayer) return;
+      configRef.current = config;
+    }
     gameStateRef.current = state;
     initialStateRef.current = state;
     actionHistoryRef.current = [];

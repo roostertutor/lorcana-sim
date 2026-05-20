@@ -434,6 +434,91 @@ conversation.
 
 ## Where we left off (pickup notes)
 
+**Last session (2026-05-19, continued):** Lane B of Decision #8 shipped + two
+premise corrections to the prior pickup notes.
+
+**Lane B outcome (gameboard-specialist, 2026-05-19):**
+
+- **Bug fixed: `forkFrom` silent no-op when entering replay viewer directly
+  by URL** (`/replay/share/:id` or `/replay/:gameId`).
+  - Root cause: `useGameSession.forkFrom` (`packages/ui/src/hooks/useGameSession.ts:657-672`
+    before fix) had `if (!configRef.current || configRef.current.multiplayer) return`
+    as its first line. When GameBoard mounts with `initialReplayInput` set but
+    `startGame()` never called, `configRef.current` is null, so clicking "Take
+    over here" cleared the replay viewer (`setReplayInput(null)`) and then
+    did nothing — leaving the user looking at a blank board.
+  - Fix: `forkFrom` now accepts an optional `config: GameSessionConfig`.
+    When `configRef.current` is null, the caller can pass a bootstrap config
+    (definitions + botStrategy + human flags) so a runnable sandbox-style
+    session is installed alongside the state. When `configRef.current` is
+    already set (the sandbox-finished-game review path), the new config arg
+    is ignored — behavior is identical to before.
+  - Hook signature update: `forkFrom: (state: GameState, config?: GameSessionConfig) => void`
+    in `useGameSession.ts:88-105` (interface) and `:657-695` (impl).
+  - Caller update: `GameBoard.tsx:2702-2741` builds a `bootstrapConfig` iff
+    `session.gameState` is currently null (i.e., we mounted directly into
+    replay mode), threads it into `forkFrom`. Sandbox path unchanged.
+  - No new test infra (existing UI package has no test harness). Engine
+    tests still pass (824). Typecheck delta: zero new errors (pre-existing
+    `exactOptionalPropertyTypes` errors unchanged).
+
+- **Pickup-notes premise correction #1 — Lane B's "branch analysis" test
+  (Test 3) is moot.** The Branch Analysis button in `ReplayControls.tsx`
+  was deliberately **removed** in commit `1eb0f58` (2026-04-18) as part of
+  the "wire or remove" chrome audit: it had been declared as a prop but
+  never wired to a handler. `useAnalysis + runSimulation({ startingState })`
+  still exists in the codebase (`packages/ui/src/hooks/useAnalysis.ts:77-90`)
+  but isn't called from anywhere in `GameBoard.tsx` — verified via grep.
+  ROADMAP.md:384-386's "3e-iii" claim and DECISIONS.md:716-719 are stale:
+  the substrate exists, the affordance does not. **Lane A3 / A2 don't
+  resurrect this** — it's a separate decision (file as a BACKLOG entry
+  if/when the chrome audit revisits "what tools should a replay viewer
+  have"). For now, Lane B's verification reduces to Tests 1 + 2 (take-over
+  from remote replay → play to end → game-over overlay clean).
+
+- **Pickup-notes premise correction #2 — manual test pass deferred.**
+  Tests 1 + 2 require two browser sessions + two real MP accounts + a
+  played-to-completion MP game to produce a `/replay/share/:id` link. That
+  workflow needs human-in-the-loop browser interaction; I don't have
+  browser-automation tooling in this dispatch. The fix above directly
+  addresses the most likely failure point named in the original pickup
+  notes ("the gap is most likely in the `setReplayInput(null)` +
+  `patchState` path"), which I traced and verified is `forkFrom`'s no-op.
+  User to run the manual flow next session:
+  1. Open `/replay/share/:id` (use any MP shared replay; produce one via
+     a Bo1 game in two browser windows if none exists).
+  2. Scrub to a mid-game step → click "Take over here" → confirm the
+     board transitions to a live sandbox session with the replay state
+     installed (no longer a no-op). Confirm undo works from the take-over
+     point (not the original game's seed).
+  3. Play through to game end → confirm the game-over modal appears with
+     NO Share/Download/Review row (because `mpReplay` is null and
+     `session.completedGame` is null in this direct-from-link entry path
+     — the modal collapses cleanly to "Play Again + Back to Lobby").
+  4. (Optional) Quick-save / quick-load — confirm the saved state is the
+     take-over chain.
+
+- **Followup gap surfaced, not fixed in Lane B — hidden-info in filtered
+  remote replays.** When `/replay/share/:id` returns a state filtered for
+  a `p1` or `p2` perspective (caller is one of the two players, replay not
+  public), the opponent's hand + deck cards have
+  `definitionId: "hidden"` (per `packages/engine/src/engine/stateFilter.ts:46-61`).
+  Take-over now installs the state cleanly, but the bot opponent will face
+  a hand of `HIDDEN_DEFINITION` stubs (0 cost, no abilities) — i.e., the
+  opponent effectively has no playable hand. The engine doesn't crash
+  (`HIDDEN_DEFINITION` exists as a graceful placeholder in
+  `packages/engine/src/utils/index.ts:58-72`), but the resulting game
+  isn't a faithful continuation. Three reasonable resolutions, all
+  parked for a future lane / BACKLOG:
+  - Gate the "Take over here" button on the state being unfiltered
+    (only `perspective === "neutral"`, i.e. public-share spectator view).
+  - Surface a warning before fork ("opponent's hand isn't visible; the
+    bot will play with placeholder cards") and require explicit confirm.
+  - Allow the caller to swap perspectives to neutral before taking over
+    (only possible for `isPublic` replays).
+  Filed as a HANDOFF entry below for the next dispatch — see "Replay
+  take-over from filtered remote state".
+
 **Last session (2026-05-19):** resolved Decisions #4 Phase 2, #6, #7, and #8.
 - #4 Phase 2 dispatched (gameboard-specialist for in-game clock UI,
   ui-specialist for lobby + history surfaces).
@@ -446,32 +531,16 @@ conversation.
 - #8 (T2 sequencing) resolved by **narrowing scope** after discovering
   substrate already shipped for sandbox/solo. A1 (key-moment auto-tagging)
   rejected as editorial; #9 (meta dashboard) + MP-resume filed BACKLOG with
-  triggers. Three execution lanes remaining: B → A3 → A2.
+  triggers. Three execution lanes remaining: B → A3 → A2. **B now shipped
+  (above).** Next: A3.
 
 All 1053+ tests pass across packages. Prior session (2026-05-18) shipped
 Decisions #2/#3/#4 Phase 1.
 
-**Resume here next session:** Decision #8 execution — three small lanes
-(B → A3 → A2). Each is days, not weeks; could fit in one focused session
-each, or 2-3 sessions total.
-
-- **Lane B (verify MP-replay takeover + branch analysis)**: manual test pass
-  starting from a multiplayer shared replay. Steps:
-  1. Open `/replay/share/:id` for any MP game.
-  2. Scrub to a mid-game step.
-  3. Click "Take over here" — confirm session transitions to a live
-     sandbox-mode game with the replay state as baseline, hands populated
-     correctly, undo / quicksave reconstruct from this point not the
-     original game's seed.
-  4. Play through to game end. Confirm game-over overlay surfaces correctly
-     (no orphan replay-banner chrome, no stale `replayId` provenance).
-  5. From the same remote replay, click the branch-analysis button →
-     confirm 200-game sim runs cleanly and produces a win% comparison.
-  If either path errors, the gap is most likely in the `setReplayInput(null)`
-  + `patchState` path in `GameBoard.tsx:2702-` where remote-replay
-  provenance (server `replayId`, perspective filtering, `RemoteReplay`
-  shape from `useReplaySession.ts`) doesn't fully unwire when transitioning
-  to the live sandbox session. Fix scope is likely ~1 day.
+**Resume here next session:** Decision #8 — **Lane A3** (turn-boundary
+ticks on scrub bar), then Lane A2. Lane B's fix is in; manual MP-replay
+verification deferred to user (steps documented above under "premise
+correction #2").
 
 - **Lane A3 (turn-boundary ticks on scrub bar)**: render objective tick
   marks at every turn boundary in the `ReplayControls` scrub bar. Source
