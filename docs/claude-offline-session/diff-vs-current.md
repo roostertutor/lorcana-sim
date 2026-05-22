@@ -434,7 +434,88 @@ conversation.
 
 ## Where we left off (pickup notes)
 
-**Last session (2026-05-19, continued):** Lane B of Decision #8 shipped + two
+**Last session (2026-05-22):** Lane A3 of Decision #8 shipped — turn-boundary
+ticks on the replay scrub bar.
+
+**Lane A3 outcome (gameboard-specialist, 2026-05-22):**
+
+- **New `turnBoundaries` field on `ReplaySession`.**
+  - Interface addition: `useReplaySession.ts:80-87` —
+    `turnBoundaries: Array<{ step: number; turnNumber: number }>`.
+    Optional-by-shape additive change; existing consumers unaffected
+    (TS unions widen, not narrow).
+  - Derivation: state-derived, not action-log-derived, per the brief's
+    recommended sub-decision. `useReplaySession.ts:135-147` walks the
+    `states` array via `useMemo`, seeds with `{step:0, turnNumber:
+    states[0].turnNumber}` (start of T1 always included), and pushes
+    a boundary whenever `states[i].turnNumber !== states[i-1].turnNumber`.
+    Single pass, cheap. Robust to any cause of turn change (END_TURN
+    action, engine-internal phase transitions on game-end, anything else).
+  - Wired into return object at `useReplaySession.ts:195`.
+
+- **Tick overlay in `ReplayControls`.**
+  - Read at `ReplayControls.tsx:26` (destructured from session).
+  - Visibility gate: `ReplayControls.tsx:39` —
+    `showTicks = totalSteps > 0 && turnBoundaries.length >= 2`.
+    Single-turn games skip the row entirely (saves empty space).
+  - Overlay container at `ReplayControls.tsx:64-106` wraps the existing
+    `<input type="range">` in a `relative` div, with an
+    absolutely-positioned ticks row above. Each tick is a clickable
+    `<button>` that calls `goTo(tb.step)` — gives users a jump-to-turn
+    affordance for free.
+  - Position math: `left: ${(tb.step / totalSteps) * 100}%`. Edge-tick
+    handling at `ReplayControls.tsx:71-73` — first tick (T1 at step 0)
+    anchors left-edge (`translate-x-0`), last tick at step=totalSteps
+    anchors right-edge (`-translate-x-full`), middles center via
+    `-translate-x-1/2`. Prevents label spill off the rail.
+  - Active-turn highlight: `tb.turnNumber === state.turnNumber` →
+    `bg-amber-500 text-amber-400` (mirrors existing scrubber accent
+    tokens, no new palette entries). Inactive: `bg-gray-600 text-gray-600`
+    with hover→gray-400 fade. Tick: 2px wide × 8px tall. Label: 9px,
+    monospace, 1px margin-top, gated behind `md:` breakpoint so it
+    drops on narrow viewports (ticks remain visible + clickable).
+
+- **Files touched (2 only, +60 LOC net):**
+  - `packages/ui/src/hooks/useReplaySession.ts` — interface + memo
+  - `packages/ui/src/components/ReplayControls.tsx` — overlay JSX
+
+- **Scope discipline:** Stayed strictly in Lane A3. No event markers
+  (Lane A1, rejected). No URL handling (Lane A2). No scrubber redesign.
+  Overlay sits above the native range input; doesn't fight it.
+
+- **Tests:** No new UI tests (package has no test harness per Lane B's
+  finding). `pnpm typecheck` — zero new errors on touched files
+  (verified via grep filter; pre-existing `exactOptionalPropertyTypes`
+  errors in engine + GameBoard.tsx unchanged). `pnpm test` — 1056 tests
+  pass across packages (engine 824, server 156, simulator 61,
+  analytics 15).
+
+- **Manual visual check:** still requires a human looking at the dev
+  server — the package has no DOM-snapshot harness. The implementation
+  is conservative (existing palette tokens, additive layout, edge-cases
+  handled in the translate-x math, mobile labels gracefully drop).
+
+**Resume here next session:** Decision #8 — **Lane A2** (step-deep-link
+URL). Lane B + Lane A3 both shipped; Lane A1 explicitly rejected as
+editorial (per BACKLOG entry "Replay key-moment auto-tagging").
+
+- **Lane A2 (step-deep-link URL)**: add a `step` query param to
+  `/replay/share/:id?step=N` and `/replay/:gameId?step=N`. On load, jump
+  the scrubber to step N (fall back to step 0 if N is out of range or
+  malformed). Add a "Copy link to this step" affordance next to the
+  existing share button — copies the current scrubber position into the
+  URL clipboard. YouTube `?t=42s` model. Toast on copy success ("Link
+  copied to step N").
+
+After Decision #8 fully ships, the queue is:
+- #10: seasons + placement matches (T2 / trigger-conditioned defer)
+- #11: deck-sharing platform creep watch (drift monitor)
+- #12: AI opponent surfacing (T4-substrate-ready / strategic call)
+- #9 (meta dashboard) waits for its BACKLOG trigger to fire.
+
+---
+
+**Prior session (2026-05-19, continued):** Lane B of Decision #8 shipped + two
 premise corrections to the prior pickup notes.
 
 **Lane B outcome (gameboard-specialist, 2026-05-19):**
@@ -535,42 +616,14 @@ premise corrections to the prior pickup notes.
   (above).** Next: A3.
 
 All 1053+ tests pass across packages. Prior session (2026-05-18) shipped
-Decisions #2/#3/#4 Phase 1.
+Decisions #2/#3/#4 Phase 1. (Resume sequencing now lives at the top of
+this section — see the 2026-05-22 Lane A3 writeup.)
 
-**Resume here next session:** Decision #8 — **Lane A3** (turn-boundary
-ticks on scrub bar), then Lane A2. Lane B's fix is in; manual MP-replay
-verification deferred to user (steps documented above under "premise
-correction #2").
-
-- **Lane A3 (turn-boundary ticks on scrub bar)**: render objective tick
-  marks at every turn boundary in the `ReplayControls` scrub bar. Source
-  the turn-boundary step indices from the action log
-  (`useReplaySession.ts` — the hook already has step→state reconstruction;
-  needs to expose step→turn-number for the scrub bar to overlay tick
-  marks). Numbered T1, T2, ... with the current turn highlighted. No event
-  markers, no scoring, no hover labels beyond "Turn N." Pure readability
-  win. Mobile: ticks must remain tap-targetable (or at least scrub-
-  snappable) at small scrub-bar widths.
-
-- **Lane A2 (step-deep-link URL)**: add a `step` query param to
-  `/replay/share/:id?step=N` and `/replay/:gameId?step=N`. On load, jump
-  the scrubber to step N (fall back to step 0 if N is out of range or
-  malformed). Add a "Copy link to this step" affordance next to the
-  existing share button — copies the current scrubber position into the
-  URL clipboard. YouTube `?t=42s` model. Toast on copy success ("Link
-  copied to step N").
-
-**Pre-Lane-B priority**: re-check Syndrome - Out for Revenge HANDOFF entry
-status. Engine-expert was dispatched 2026-05-19 but blocked on Edit
-permissions; full design (Option 2 — new `play_or_shift_card` effect,
-composes with existing `viaGrantedFreePlay` + shift handler — verified to
-need no new shift primitive) is documented in that day's conversation
-transcript and as a re-dispatch prompt. Decision: re-dispatch with
-permissions, hand-execute the documented plan, OR defer until A/B lane
-work is done.
-
-After Decision #8 ships, the queue is:
-- #10: seasons + placement matches (T2 / trigger-conditioned defer)
-- #11: deck-sharing platform creep watch (drift monitor)
-- #12: AI opponent surfacing (T4-substrate-ready / strategic call)
-- #9 (meta dashboard) waits for its BACKLOG trigger to fire.
+**Pre-Lane-A2 / standalone priority**: re-check Syndrome - Out for Revenge
+HANDOFF entry status. Engine-expert was dispatched 2026-05-19 but blocked
+on Edit permissions; full design (Option 2 — new `play_or_shift_card`
+effect, composes with existing `viaGrantedFreePlay` + shift handler —
+verified to need no new shift primitive) is documented in that day's
+conversation transcript and as a re-dispatch prompt. Decision:
+re-dispatch with permissions, hand-execute the documented plan, OR defer
+until A2 lane work is done.

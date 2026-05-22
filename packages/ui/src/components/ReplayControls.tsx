@@ -23,12 +23,20 @@ interface Props {
 }
 
 export default function ReplayControls({ session, onTakeOver, takeoverBlockedReason }: Props) {
-  const { step, totalSteps, goTo, stepBack, stepForward, isPlaying, togglePlay, playbackSpeed, setPlaybackSpeed, state } = session;
+  const { step, totalSteps, goTo, stepBack, stepForward, isPlaying, togglePlay, playbackSpeed, setPlaybackSpeed, state, turnBoundaries } = session;
 
   const atStart = step === 0;
   const atEnd = step === totalSteps;
 
   const speedLabels = ["1x", "1.5x", "3x"] as const;
+
+  // Lane A3: turn-boundary tick marks above the scrub rail. The current turn
+  // (whatever turn `state.turnNumber` is on) gets an accent color so viewers
+  // can spot where they are. Clicking a tick jumps to that turn's first step.
+  // At very short games (≤2 turns) we render nothing — saves a row of empty
+  // space. At narrow widths we keep ticks but drop labels (md: gate).
+  const currentTurnNumber = state?.turnNumber ?? null;
+  const showTicks = totalSteps > 0 && turnBoundaries.length >= 2;
 
   return (
     <div className="shrink-0 rounded-xl bg-gray-900/80 border border-gray-700/50 px-3 py-2.5 space-y-2">
@@ -53,15 +61,52 @@ export default function ReplayControls({ session, onTakeOver, takeoverBlockedRea
         </div>
       </div>
 
-      {/* Scrubber */}
-      <input
-        type="range"
-        min={0}
-        max={totalSteps}
-        value={step}
-        onChange={(e) => goTo(Number(e.target.value))}
-        className="w-full h-1.5 accent-amber-500 cursor-pointer"
-      />
+      {/* Scrubber + turn-boundary ticks (Lane A3 of Decision #8) */}
+      <div className="relative">
+        {showTicks && (
+          <div className="relative h-3 pointer-events-none select-none">
+            {turnBoundaries.map((tb) => {
+              const pct = totalSteps > 0 ? (tb.step / totalSteps) * 100 : 0;
+              const isActive = tb.turnNumber === currentTurnNumber;
+              // Anchor edge ticks (within 2% of left/right) so the label
+              // doesn't spill off the rail. Middle ticks center over the tick.
+              const translateClass =
+                pct < 2 ? "translate-x-0" : pct > 98 ? "-translate-x-full" : "-translate-x-1/2";
+              return (
+                <button
+                  key={tb.step}
+                  type="button"
+                  onClick={() => goTo(tb.step)}
+                  title={`Jump to Turn ${tb.turnNumber}`}
+                  className={`absolute top-0 ${translateClass} pointer-events-auto flex flex-col items-center group`}
+                  style={{ left: `${pct}%` }}
+                >
+                  <span
+                    className={`block w-[2px] h-2 ${
+                      isActive ? "bg-amber-500" : "bg-gray-600 group-hover:bg-gray-400"
+                    }`}
+                  />
+                  <span
+                    className={`hidden md:block text-[9px] font-mono leading-none mt-px ${
+                      isActive ? "text-amber-400" : "text-gray-600 group-hover:text-gray-400"
+                    }`}
+                  >
+                    T{tb.turnNumber}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <input
+          type="range"
+          min={0}
+          max={totalSteps}
+          value={step}
+          onChange={(e) => goTo(Number(e.target.value))}
+          className="w-full h-1.5 accent-amber-500 cursor-pointer"
+        />
+      </div>
 
       {/* Playback buttons */}
       <div className="flex items-center justify-center gap-1">

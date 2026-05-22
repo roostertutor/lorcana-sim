@@ -79,6 +79,14 @@ export interface ReplaySession {
   togglePlay: () => void;
   playbackSpeed: number;
   setPlaybackSpeed: (ms: number) => void;
+  /** Step indices at which `state.turnNumber` changes vs the previous step.
+   *  Index 0 is always included (start of T1). Derived state-first (not from
+   *  the action log) so it picks up any cause of turn change — END_TURN
+   *  actions, engine-internal phase transitions on game-end, anything else.
+   *  Used by `ReplayControls` to render T1/T2/... tick marks on the scrub
+   *  bar so viewers can jump between turns without scrubbing through every
+   *  action. Lane A3 of Decision #8. */
+  turnBoundaries: Array<{ step: number; turnNumber: number }>;
 }
 
 export const PLAYBACK_SPEEDS = [800, 500, 250] as const;
@@ -131,6 +139,22 @@ export function useReplaySession(
   const totalSteps = states.length > 0 ? states.length - 1 : 0;
   const state = states[step] ?? null;
 
+  // Compute turn-boundary step indices from the reconstructed state stream.
+  // State-derived (not action-log-derived) so any cause of turn change is
+  // picked up — see Decision #8 Lane A3 sub-decision rationale.
+  const turnBoundaries = useMemo<Array<{ step: number; turnNumber: number }>>(() => {
+    if (states.length === 0) return [];
+    const out: Array<{ step: number; turnNumber: number }> = [
+      { step: 0, turnNumber: states[0]!.turnNumber },
+    ];
+    for (let i = 1; i < states.length; i++) {
+      if (states[i]!.turnNumber !== states[i - 1]!.turnNumber) {
+        out.push({ step: i, turnNumber: states[i]!.turnNumber });
+      }
+    }
+    return out;
+  }, [states]);
+
   const goTo = useCallback((n: number) => {
     setStep(Math.max(0, Math.min(n, totalSteps)));
   }, [totalSteps]);
@@ -181,5 +205,6 @@ export function useReplaySession(
     togglePlay,
     playbackSpeed,
     setPlaybackSpeed,
+    turnBoundaries,
   };
 }
