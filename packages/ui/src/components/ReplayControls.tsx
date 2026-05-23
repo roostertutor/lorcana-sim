@@ -3,11 +3,12 @@
 // Rendered below the game board when reviewing a completed game.
 // =============================================================================
 
-import React from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import type { GameState } from "@lorcana-sim/engine";
 import type { ReplaySession } from "../hooks/useReplaySession.js";
 import { PLAYBACK_SPEEDS } from "../hooks/useReplaySession.js";
 import Icon from "./Icon.js";
+import InfoToast from "./InfoToast.js";
 
 interface Props {
   session: ReplaySession;
@@ -37,6 +38,41 @@ export default function ReplayControls({ session, onTakeOver, takeoverBlockedRea
   // space. At narrow widths we keep ticks but drop labels (md: gate).
   const currentTurnNumber = state?.turnNumber ?? null;
   const showTicks = totalSteps > 0 && turnBoundaries.length >= 2;
+
+  // Lane A2 of Decision #8: "Copy link to step" affordance. Builds a URL with
+  // `?step=N` capturing the current scrubber position and writes to the
+  // clipboard. Toast on success (fades after 2.5s). The URL is a one-shot
+  // snapshot at copy time, not a live mirror of scrub position — matches the
+  // YouTube `?t=42s` mental model (Sub-decision #2 locked option 1).
+  //
+  // Reuses the existing `InfoToast` (passive top-pill with pulse) for the
+  // success message — no new toast infra. If clipboard write fails (rare:
+  // user denied permission, or non-secure context), we show a brief
+  // gray-themed error instead.
+  const [copyToast, setCopyToast] = useState<{ text: string; theme: "yellow" | "gray" } | null>(null);
+  useEffect(() => {
+    if (!copyToast) return;
+    const id = window.setTimeout(() => setCopyToast(null), 2500);
+    return () => window.clearTimeout(id);
+  }, [copyToast]);
+
+  const copyLinkToStep = useCallback(async () => {
+    // Build URL from current location so it works for `/replay/share/:id`,
+    // `/replay/:gameId`, and any other replay-viewer route the app gains
+    // later. We rewrite the search component entirely to set `step=N` and
+    // strip anything else — the only shareable handle in a replay URL is
+    // the step (perspective is implicit in the route + caller identity).
+    const url = `${window.location.origin}${window.location.pathname}?step=${step}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyToast({ text: `Link copied to step ${step}`, theme: "yellow" });
+    } catch {
+      // Fallback for non-secure contexts / permission denial: surface the
+      // failure rather than swallow it. User can still copy from address
+      // bar if they navigate to the URL manually.
+      setCopyToast({ text: "Copy failed — clipboard unavailable", theme: "gray" });
+    }
+  }, [step]);
 
   return (
     <div className="shrink-0 rounded-xl bg-gray-900/80 border border-gray-700/50 px-3 py-2.5 space-y-2">
@@ -151,10 +187,13 @@ export default function ReplayControls({ session, onTakeOver, takeoverBlockedRea
         </button>
       </div>
 
-      {/* Fork */}
-      {onTakeOver && state && (
-        <div className="flex items-center gap-2 pt-0.5 border-t border-gray-800/60">
-          {takeoverBlockedReason ? (
+      {/* Bottom row — Fork affordance + Lane A2 share-step button.
+          Take-over slot is conditional on `onTakeOver` being wired (sandbox
+          + replay-viewer entry path); copy-link is always shown in replay
+          mode (every step is shareable, regardless of perspective). */}
+      <div className="flex items-center gap-2 pt-0.5 border-t border-gray-800/60">
+        {onTakeOver && state && (
+          takeoverBlockedReason ? (
             <div
               className="flex-1 px-2 py-1.5 text-[10px] text-gray-500 italic text-center"
               title={takeoverBlockedReason}
@@ -169,9 +208,19 @@ export default function ReplayControls({ session, onTakeOver, takeoverBlockedRea
             >
               Take over here
             </button>
-          )}
-        </div>
-      )}
+          )
+        )}
+        <button
+          onClick={copyLinkToStep}
+          disabled={totalSteps === 0}
+          className="flex-1 px-2 py-1.5 rounded text-[11px] bg-gray-800/70 hover:bg-gray-700/70 text-gray-300 border border-gray-600/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+          title={`Copy a shareable link to step ${step}`}
+        >
+          <Icon name="clipboard" className="w-3 h-3" />
+          <span>Copy link to step</span>
+        </button>
+      </div>
+      {copyToast && <InfoToast text={copyToast.text} theme={copyToast.theme} />}
     </div>
   );
 }

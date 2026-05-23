@@ -12,7 +12,8 @@
 //                docs/HANDOFF.md → "Shareable MP replays …".
 // =============================================================================
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import type { CardDefinition, GameState, PlayerID } from "@lorcana-sim/engine";
 import { createGame, applyAction } from "@lorcana-sim/engine";
 import type { ReplayData } from "./useGameSession.js";
@@ -95,9 +96,32 @@ export function useReplaySession(
   input: ReplayInput | null,
   definitions: Record<string, CardDefinition>,
 ): ReplaySession {
-  const [step, setStep] = useState(0);
+  // Lane A2 of Decision #8 — read `?step=N` deep-link on initial mount so a
+  // shared URL like `/replay/share/:id?step=42` lands the scrubber at step 42.
+  // YouTube `?t=42s` model: the URL is a snapshot captured at copy time, not a
+  // live mirror. We never write back on scrub (Sub-decision #2 locked option
+  // 1) — so this is read-once, not bidirectional. `useSearchParams` is always
+  // safe here because the app is mounted under `<BrowserRouter>` at root.
+  //
+  // Parsing rules: missing / non-numeric / negative / NaN → fall back to 0.
+  // Out-of-range (> totalSteps) is clamped in the effect below, once the
+  // state cache is built and we know totalSteps.
+  const [searchParams] = useSearchParams();
+  const initialStepFromUrl = useMemo(() => {
+    const raw = searchParams.get("step");
+    if (raw === null) return 0;
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }, [searchParams]);
+  const [step, setStep] = useState(initialStepFromUrl);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(800);
+
+  // Track whether we've already applied the deep-link for the current input,
+  // so that subsequent input changes (perspective swap, new replay loaded)
+  // reset to step 0 cleanly without re-jumping to the URL's step. The URL
+  // anchor only applies to the FIRST replay this hook sees.
+  const deepLinkAppliedRef = useRef(false);
 
   // Build the state cache during render (not in an effect) so the first
   // render with a new `input` already shows the initial state at step 0 —
@@ -131,10 +155,22 @@ export function useReplaySession(
   // Reset step + playback whenever a new replay loads. Keyed on the
   // discriminator + the underlying data identity — perspective swaps
   // produce a new RemoteReplay object so this fires correctly.
+  //
+  // First-time deep-link handling (Lane A2): on the very first input the
+  // hook receives, honor `?step=N` from the URL (clamped to the actual
+  // state-cache range, which we now know). Subsequent input changes
+  // (perspective swap, fresh replay) reset to step 0 — the URL anchor is
+  // a one-shot initial-load behavior, not a sticky setting.
   useEffect(() => {
-    setStep(0);
+    if (!deepLinkAppliedRef.current && input && states.length > 0) {
+      const maxStep = Math.max(0, states.length - 1);
+      setStep(Math.min(initialStepFromUrl, maxStep));
+      deepLinkAppliedRef.current = true;
+    } else {
+      setStep(0);
+    }
     setIsPlaying(false);
-  }, [input]);
+  }, [input, states.length, initialStepFromUrl]);
 
   const totalSteps = states.length > 0 ? states.length - 1 : 0;
   const state = states[step] ?? null;

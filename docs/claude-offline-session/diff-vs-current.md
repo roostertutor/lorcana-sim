@@ -434,7 +434,91 @@ conversation.
 
 ## Where we left off (pickup notes)
 
-**Last session (2026-05-22):** Lane A3 of Decision #8 shipped — turn-boundary
+**Last session (2026-05-23):** Lane A2 of Decision #8 shipped — step-deep-link
+URL on replay routes. **Decision #8 is now fully shipped** (lanes B → A3 → A2
+all complete; A1 explicitly rejected as editorial).
+
+**Lane A2 outcome (gameboard-specialist, 2026-05-23):**
+
+- **URL param read on route load.** `useReplaySession` now reads `?step=N` via
+  `react-router-dom`'s `useSearchParams` on initial mount and seeds the
+  scrubber state from it. Parsing fall-back chain: missing / non-numeric /
+  negative / NaN → step 0. Out-of-range (> totalSteps) → clamped to
+  `totalSteps`. Per Sub-decision #1 (option 3 locked), the read happens in the
+  hook — close to the consumer, no prop-thread, and `useSearchParams` is
+  always safe because the app is mounted under `<BrowserRouter>` at root
+  (`main.tsx:9`).
+  - Hook addition: `useReplaySession.ts:99-116` reads + parses param;
+    `useState` is seeded with the parsed value so the FIRST render is already
+    at the URL's step (no flash-to-zero-then-jump).
+  - One-shot ref gate: `useReplaySession.ts:124` + `:164-173` — `deepLinkAppliedRef`
+    ensures the URL anchor applies only to the FIRST replay this hook sees.
+    Subsequent input changes (perspective swap, fresh replay loaded) reset to
+    step 0 cleanly. Avoids the "swap perspective and the scrubber jumps back
+    to the URL's step" surprise.
+- **"Copy link to step" button.** Added to `ReplayControls.tsx` bottom row
+  alongside (and below) the existing "Take over here" affordance. Builds the
+  URL from `window.location.origin + .pathname + "?step=" + step` and writes
+  to clipboard via `navigator.clipboard.writeText()`. Snapshot model per
+  Sub-decision #2: URL is captured at copy time, not a live mirror — no
+  history thrash, no `replaceState` on scrub.
+  - Button render: `ReplayControls.tsx:213-221` — gray treatment (gray-800
+    bg, gray-300 text, gray-600 border) so it doesn't compete with the green
+    take-over button visually. `clipboard` Heroicons icon (the existing icon
+    set has no `link` glyph; clipboard is more semantically apt for "copy"
+    anyway).
+  - Disabled when `totalSteps === 0` (empty replay edge case).
+  - Always renders in the bottom row (independent of `onTakeOver` wiring) —
+    every replay step is shareable regardless of perspective; share doesn't
+    leak hidden info beyond what the URL's route already implies.
+- **Toast pattern.** Reused existing `InfoToast` component
+  (`components/InfoToast.tsx:33`) — passive top-pill with `TopToast` wrapper
+  (safe-area-aware positioning, Dynamic Island clearance). No new toast
+  infra needed. Auto-dismisses via `useEffect` + 2.5s timeout
+  (`ReplayControls.tsx:53-59`). Two themes: `yellow` on success ("Link
+  copied to step N"), `gray` on clipboard failure ("Copy failed — clipboard
+  unavailable"). No HANDOFF needed.
+- **Scope discipline.** Strictly Lane A2. No A1 (annotation overlay), no A3
+  (turn-boundary ticks were already shipped 5d7026a), no URL-history-thrash
+  (Sub-decision #2 locked option 1), no share-button refactor, no toast-infra
+  build-out. Files touched: 2 (`useReplaySession.ts`, `ReplayControls.tsx`),
+  ~70 LOC net.
+- **Tests.** `pnpm typecheck` — zero new errors on touched files (filtered
+  via grep against pre-existing `exactOptionalPropertyTypes` errors). `pnpm
+  test` — 1056 tests pass across packages (engine 824 + 1 skipped, server
+  156, simulator 61, analytics 15). No new UI tests (package has no
+  harness; manual round-trip verification deferred to user).
+- **Manual verification deferred to user.**
+  1. Load `/replay/share/<id>?step=5` → scrubber should land at step 5 on
+     first paint.
+  2. Load `/replay/share/<id>?step=99999` → clamps to `totalSteps`.
+  3. Load `/replay/share/<id>?step=abc` → falls back to step 0.
+  4. Scrub to step 8 → click "Copy link to step" → clipboard contains
+     `<origin><pathname>?step=8`. Toast says "Link copied to step 8" and
+     fades after 2.5s.
+  5. Perspective swap (if available on a public replay) → scrubber resets
+     to step 0, NOT back to the URL's step.
+
+**Resume here next session:** Decision #8 fully shipped. Suggested next-up
+queue (per the Decisions list above):
+
+- **Lane B Tests 1 + 2 manual verification** — still on user's plate from
+  the 2026-05-19 dispatch. Two browser sessions + MP shared replay →
+  take-over flow + game-over modal cleanliness.
+- **#10: seasons + placement matches** — T2 / trigger-conditioned defer.
+- **#11: deck-sharing platform creep watch** — drift monitor (strategy-
+  analyst surface).
+- **#12: AI opponent surfacing** — T4-substrate-ready / strategic call.
+- **#9 (meta dashboard)** waits for its BACKLOG trigger to fire.
+
+Also still on the **Pre-Lane-A2 / standalone priority** list:
+re-check Syndrome - Out for Revenge HANDOFF entry status (engine-expert
+dispatched 2026-05-19 but blocked on Edit permissions; full design
+documented for re-dispatch).
+
+---
+
+**Prior session (2026-05-22):** Lane A3 of Decision #8 shipped — turn-boundary
 ticks on the replay scrub bar.
 
 **Lane A3 outcome (gameboard-specialist, 2026-05-22):**
@@ -495,23 +579,8 @@ ticks on the replay scrub bar.
   is conservative (existing palette tokens, additive layout, edge-cases
   handled in the translate-x math, mobile labels gracefully drop).
 
-**Resume here next session:** Decision #8 — **Lane A2** (step-deep-link
-URL). Lane B + Lane A3 both shipped; Lane A1 explicitly rejected as
-editorial (per BACKLOG entry "Replay key-moment auto-tagging").
-
-- **Lane A2 (step-deep-link URL)**: add a `step` query param to
-  `/replay/share/:id?step=N` and `/replay/:gameId?step=N`. On load, jump
-  the scrubber to step N (fall back to step 0 if N is out of range or
-  malformed). Add a "Copy link to this step" affordance next to the
-  existing share button — copies the current scrubber position into the
-  URL clipboard. YouTube `?t=42s` model. Toast on copy success ("Link
-  copied to step N").
-
-After Decision #8 fully ships, the queue is:
-- #10: seasons + placement matches (T2 / trigger-conditioned defer)
-- #11: deck-sharing platform creep watch (drift monitor)
-- #12: AI opponent surfacing (T4-substrate-ready / strategic call)
-- #9 (meta dashboard) waits for its BACKLOG trigger to fire.
+**(Resume pointer from this session has rolled forward — see the 2026-05-23
+Lane A2 writeup above. Lane A2 shipped, Decision #8 now fully complete.)**
 
 ---
 
