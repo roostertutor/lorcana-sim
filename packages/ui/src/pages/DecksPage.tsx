@@ -94,11 +94,14 @@ export default function DecksPage() {
                Skip rendering the inner "Loading decks…" branch — it was
                showing as the second flash. */}
           {(
+            // Stacked column on phone (sm-), grid on tablet+ (sm+).
+            // Phone full-width tiles are richer (bigger art, easier
+            // scan); above sm the grid uses auto-fill with a 160px
+            // minimum (2-col on tablet, 3-col on small desktop, 4-col
+            // on lg+). F1 of the mobile-UX punch list (Section F,
+            // 2026-05-25).
             <div
-              className="grid gap-3"
-              // 160px min gives mobile (~390px wide) a 2-column grid instead
-              // of one big full-width tile per deck.
-              style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }}
+              className="grid gap-3 grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(160px,1fr))]"
             >
               {/* "+ New Deck" tile — always first. Matches 5:4 tile aspect of
                    the deck tiles (art-crop) so the grid reads uniformly. */}

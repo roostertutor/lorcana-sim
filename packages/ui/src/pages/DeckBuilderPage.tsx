@@ -456,7 +456,11 @@ export default function DeckBuilderPage() {
                         Empty
                       </div>
                     )}
-                    <div className="absolute inset-x-0 bottom-0 bg-black/70 text-[8px] text-center text-gray-300 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* "Change" caption — always visible on touch (no
+                         :hover state), reveal-on-hover on devices that
+                         expose a pointer. E1 of the mobile-UX punch list
+                         (Section E, 2026-05-25). */}
+                    <div className="absolute inset-x-0 bottom-0 bg-black/70 text-[8px] text-center text-gray-300 py-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       Change
                     </div>
                   </button>

@@ -531,14 +531,22 @@ function Shell({ children, activeTab, navigate }: { children: React.ReactNode; a
                Top + bottom nav are roughly the same height (~50px),
                so the trade is mostly relocating chrome, not adding/
                removing it. */}
+          {/* Top nav (md+). Icon + label inline — same Heroicons as the
+               bottom-nav (rectangle-stack / clock / play / wrench / user-
+               circle) so the same visual vocabulary works on both surfaces.
+               Inline (icon-left, label-right) instead of stacked-above to
+               keep the consolidated chrome height ~45px; stacking would
+               inflate the bar past its 2026-04-25 consolidation target.
+               D1 of the mobile-UX punch list (Section D, 2026-05-25). */}
           <nav className="hidden md:block flex-1 min-w-0 overflow-x-auto scrollbar-none">
             <div className="flex gap-1 flex-nowrap">
               {TABS.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => navigate(t.path)}
-                  className={`shrink-0 ${activeTab === t.id ? "tab-active" : "tab-inactive"}`}
+                  className={`shrink-0 inline-flex items-center gap-1.5 ${activeTab === t.id ? "tab-active" : "tab-inactive"}`}
                 >
+                  <Icon name={t.icon} className="w-4 h-4" />
                   {t.label}
                 </button>
               ))}
@@ -768,8 +776,8 @@ function ReplayPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
         <div className="text-center space-y-3">
           <div className="text-red-400">{error}</div>
-          <button className="text-amber-400 text-sm hover:underline" onClick={() => navigate("/multiplayer")}>
-            Back to Lobby
+          <button className="text-amber-400 text-sm hover:underline" onClick={() => navigate("/replays")}>
+            Back to Replays
           </button>
         </div>
       </div>
@@ -784,11 +792,14 @@ function ReplayPage() {
     );
   }
 
+  // onBack goes to /replays — the player-only replay viewer is reached
+  // from the user's replay history list, so back should return there
+  // (was /multiplayer; fixed 2026-05-25 in Section D2 back-button audit).
   return (
     <GameBoard
       definitions={CARD_DEFINITIONS}
       initialReplayInput={replayInput}
-      onBack={() => navigate("/multiplayer")}
+      onBack={() => navigate("/replays")}
     />
   );
 }

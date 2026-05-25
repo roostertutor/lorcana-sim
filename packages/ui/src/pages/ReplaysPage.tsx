@@ -196,13 +196,14 @@ export default function ReplaysPage() {
               </div>
 
               {/* "Load more" pagination — simpler than numbered pages and
-                   matches the casual list-feel of the rest of the app. */}
+                   matches the casual list-feel of the rest of the app.
+                   min-h-[44px] clears WCAG tap-target floor (F2). */}
               {hasMore && (
                 <div className="text-center pt-2">
                   <button
                     onClick={() => void loadPage(offset + PAGE_SIZE, true)}
                     disabled={loading}
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm text-gray-300 rounded-lg transition-colors"
+                    className="min-h-[44px] px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm text-gray-300 rounded-lg transition-colors"
                   >
                     {loading ? "Loading…" : `Load more (${total - replays.length} remaining)`}
                   </button>
@@ -257,10 +258,14 @@ function ReplayRow({ item, onClick }: { item: ReplayListItem; onClick: () => voi
   const accent = family ? FORMAT_FAMILY_ACCENT[family] : null;
   const chipLabel = formatChipLabel(item.format, item.gameFormat, item.gameRotation);
 
+  // min-h-[56px] floor on mobile clears the 44px WCAG 2.5.5 / iOS HIG
+  // tap-target requirement with breathing room (F2 of the mobile-UX
+  // punch list, 2026-05-25). Desktop sees the same height — list rows
+  // benefit from a comfortable click zone everywhere.
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gray-900 border border-gray-800 hover:border-amber-500/70 hover:bg-gray-800/70 transition-colors text-left"
+      className="w-full min-h-[56px] flex items-center gap-3 px-3 py-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-amber-500/70 hover:bg-gray-800/70 transition-colors text-left"
     >
       {/* Win/loss indicator */}
       <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-black ${wonColor} bg-gray-950 border border-gray-800`}>
