@@ -798,6 +798,35 @@ function validateCardFields(card: any): FieldError[] {
       ab.effects.forEach((e: any, j: number) => walkMayConsistency(e, `abilities[${i}].effects[${j}]`, oracle));
     }
     if (ab.effect) walkMayConsistency(ab.effect, `abilities[${i}].effect`, oracle);
+
+    // Trigger-scope consistency: oracle says "chosen" (no "by an opponent")
+    // but trigger is wired as `chosen_by_opponent` — the trigger will only
+    // fire when the chooser is the opponent, missing self-chooser cases.
+    // Tod Knows All the Tricks IMPRESSIVE LEAPS shipped with this bug
+    // (oracle: "Whenever this character is chosen for an action or an item's
+    // ability" — no opponent restriction); use the new `chosen` event
+    // (chooser-agnostic) with sourceCardType filter instead.
+    const triggerOn = ab.trigger?.on;
+    const triggerOnSet = triggerOn === "chosen_by_opponent"
+      ? new Set(["chosen_by_opponent"])
+      : Array.isArray(ab.trigger?.anyOf)
+        ? new Set(ab.trigger.anyOf.map((t: any) => t?.on))
+        : new Set<string>();
+    if (triggerOnSet.has("chosen_by_opponent") && ab.rulesText) {
+      const text = String(ab.rulesText).toLowerCase();
+      // Oracle says "chosen" without the qualifier "by an opponent" /
+      // "by opposing" / "opponent chooses" anywhere in the ability text.
+      const mentionsOpponent = /\b(?:by\s+an?\s+opponent|opposing|opponent\s+(?:chose|chooses))\b/i.test(text);
+      const mentionsChosen = /\bchose(?:n|s)?\b/.test(text);
+      if (mentionsChosen && !mentionsOpponent) {
+        errors.push({
+          path: `abilities[${i}].trigger`,
+          field: "on",
+          value: "chosen_by_opponent",
+          validValues: `oracle says "chosen" without "by an opponent" qualifier — chosen_by_opponent fires only on opponent choices, missing self-chooser cases. Use trigger "chosen" (chooser-agnostic) with sourceCardType filter as needed`,
+        });
+      }
+    }
   });
 
   // Card-level reveal-hand consistency: if oracle says "reveals their/your

@@ -147,7 +147,7 @@ describe("§5 Set 5 — reveal_top_conditional", () => {
     // Activated ability granted
     const activated = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
     expect(activated.length).toBeGreaterThanOrEqual(1);
-    expect(activated[0]?.costs?.length).toBe(2); // exert + 1 ink
+    expect(activated[0]?.ability?.costs?.length).toBe(2); // exert + 1 ink
   });
 
   it("Sugar Rush Speedway ON YOUR MARKS!: exerts chosen here, deals 1 damage, moves to another location, excludes current loc", () => {

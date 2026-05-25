@@ -28,6 +28,7 @@ import type {
   PlayerMetric,
   RestrictedAction,
   BanishCause,
+  CardType,
 } from "../types/index.js";
 import { getGameModifiers, type GameModifiers } from "./gameModifiers.js";
 import { dealOpeningHands } from "./initializer.js";
@@ -1776,11 +1777,14 @@ function applyActivateAbility(
   if (abilityIndex < def.abilities.length) {
     ability = def.abilities[abilityIndex];
   } else {
-    // Granted by static effect (e.g. Cogsworth - Talking Clock)
+    // Granted by static effect (e.g. Cogsworth - Talking Clock, Dumbo MAKING
+    // HISTORY) or turn-scoped action grant (Food Fight!). Grant entries are
+    // GrantedActivatedAbility records carrying the ability plus source
+    // attribution; unwrap `.ability` to get the activated ability itself.
     const modifiers = getGameModifiers(state, definitions);
     const grantedAbilities = modifiers.grantedActivatedAbilities.get(instanceId);
     const grantedIndex = abilityIndex - def.abilities.length;
-    ability = grantedAbilities?.[grantedIndex];
+    ability = grantedAbilities?.[grantedIndex]?.ability;
   }
   if (!ability || ability.type !== "activated") throw new Error("Invalid ability");
 
@@ -3046,29 +3050,40 @@ function applyResolveChoice(
       // resolves so any damage/etc. still goes through.
       const targetInst = state.cards[targetId];
       const targetDef = targetInst ? definitions[targetInst.definitionId] : undefined;
-      if (targetInst && targetDef && targetInst.zone === "play" && targetInst.ownerId !== playerId) {
-        // Queue chosen_by_opponent self-triggers so cards like Archimedes
-        // can react. These fire on BOTH actions and abilities — oracle on
-        // Archimedes: "whenever an opponent chooses this character for an
-        // action or ability, you may draw a card." Card-level conditions
-        // (e.g. Tod's `is_your_turn` gate) narrow further per-card.
-        state = queueTrigger(state, "chosen_by_opponent", targetId, definitions, {
+      if (targetInst && targetDef && targetInst.zone === "play") {
+        // Queue `chosen` self-triggers for BOTH chooser identities (self +
+        // opponent). The trigger spec may carry a `sourceCardType` filter
+        // (e.g. Tod Knows All the Tricks IMPRESSIVE LEAPS, "chosen for an
+        // action or an item's ability" → sourceCardType: ["action","item"])
+        // applied inside queueTrigger.
+        state = queueTrigger(state, "chosen", targetId, definitions, {
           triggeringPlayerId: targetInst.ownerId,
           triggeringCardInstanceId: srcId,
         });
-        // CRD 8.14.1: Vanish fires ONLY when the choice is part of resolving
-        // an ACTION card's effect. Reminder text on every Vanish card (Iago,
-        // Giant Cobra, Rajah, Palace Guard, Abu, The Sultan, Magic Carpet):
-        // "When an opponent chooses this character for an action, banish them."
-        // Choices made by characters' / items' / locations' triggered or
-        // activated abilities DON'T trigger Vanish — that's an explicit
-        // carve-out in the CRD. Gate on source card's cardType.
-        const srcInst = srcId ? state.cards[srcId] : undefined;
-        const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
-        if (srcDef?.cardType === "action") {
-          const vanishMods = getGameModifiers(state, definitions);
-          if (hasKeyword(targetInst, targetDef, "vanish", vanishMods)) {
-            state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
+        if (targetInst.ownerId !== playerId) {
+          // Queue chosen_by_opponent self-triggers so cards like Archimedes
+          // can react. These fire on BOTH actions and abilities — oracle on
+          // Archimedes: "whenever an opponent chooses this character for an
+          // action or ability, you may draw a card." Card-level conditions
+          // (e.g. Tod's `is_your_turn` gate) narrow further per-card.
+          state = queueTrigger(state, "chosen_by_opponent", targetId, definitions, {
+            triggeringPlayerId: targetInst.ownerId,
+            triggeringCardInstanceId: srcId,
+          });
+          // CRD 8.14.1: Vanish fires ONLY when the choice is part of resolving
+          // an ACTION card's effect. Reminder text on every Vanish card (Iago,
+          // Giant Cobra, Rajah, Palace Guard, Abu, The Sultan, Magic Carpet):
+          // "When an opponent chooses this character for an action, banish them."
+          // Choices made by characters' / items' / locations' triggered or
+          // activated abilities DON'T trigger Vanish — that's an explicit
+          // carve-out in the CRD. Gate on source card's cardType.
+          const srcInst = srcId ? state.cards[srcId] : undefined;
+          const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+          if (srcDef?.cardType === "action") {
+            const vanishMods = getGameModifiers(state, definitions);
+            if (hasKeyword(targetInst, targetDef, "vanish", vanishMods)) {
+              state = zoneTransition(state, targetId, "discard", definitions, events, { reason: "banished", triggeringPlayerId: targetInst.ownerId });
+            }
           }
         }
       }
@@ -5234,14 +5249,27 @@ export function applyEffect(
 
     case "grant_activated_ability_timed": {
       // Food Fight! et al — push a turn-scoped grant onto the controller.
+      // Stamp source attribution so the UI activate button on recipients
+      // labels the granting card / ability instead of generic "Activate".
+      // Prefer the ability's storyName (when present on abilitySource); fall
+      // back to the source card's fullName (action cards typically have no
+      // ability storyName but their card name is the natural label).
       const existing = state.players[controllingPlayerId].timedGrantedActivatedAbilities ?? [];
+      const srcInst = state.cards[sourceInstanceId];
+      const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+      const sourceStoryName = abilitySource?.storyName ?? srcDef?.fullName;
       return {
         ...state,
         players: {
           ...state.players,
           [controllingPlayerId]: {
             ...state.players[controllingPlayerId],
-            timedGrantedActivatedAbilities: [...existing, { filter: effect.filter, ability: effect.ability }],
+            timedGrantedActivatedAbilities: [...existing, {
+              filter: effect.filter,
+              ability: effect.ability,
+              ...(sourceStoryName !== undefined && { sourceStoryName }),
+              ...(sourceInstanceId && { sourceInstanceId }),
+            }],
           },
         },
       };
@@ -6850,6 +6878,23 @@ function queueTrigger(
     return matchesFilter(srcInst, srcDef, trigger.sourceFilter, state, watcherOwnerId);
   };
 
+  // Tod Knows All the Tricks IMPRESSIVE LEAPS: `chosen` triggers may include a
+  // `sourceCardType` array restricting the trigger to choices made BY a card
+  // of one of those types (e.g. ["action", "item"] excludes character/location
+  // ability choosers). The chooser's source card lives on
+  // context.triggeringCardInstanceId — set by the RESOLVE_CHOICE site.
+  const matchChosenSourceCardType = (
+    trigger: { sourceCardType?: CardType[] } & { on: string }
+  ): boolean => {
+    if (!trigger.sourceCardType) return true;
+    const chooserSrcId = context?.triggeringCardInstanceId;
+    if (!chooserSrcId) return false;
+    const srcInst = state.cards[chooserSrcId];
+    const srcDef = srcInst ? definitions[srcInst.definitionId] : undefined;
+    if (!srcInst || !srcDef) return false;
+    return trigger.sourceCardType.includes(srcDef.cardType);
+  };
+
   // Queue self-triggers (the source card's own triggered abilities + any
   // abilities granted via `grant_triggered_ability` static — Flotsam
   // Ursula's "Baby" grants a banished_in_challenge bounce to Jetsam cards;
@@ -6905,6 +6950,7 @@ function queueTrigger(
       if (!matchesFilter(defInst, defDef, matched.defenderFilter, state, instance.ownerId)) continue;
     }
     if (!matchSourceFilter(matched as { sourceFilter?: CardFilter } & { on: string }, instance.ownerId)) continue;
+    if (!matchChosenSourceCardType(matched as { sourceCardType?: CardType[] } & { on: string })) continue;
     selfTriggers.push({
       ability: a,
       sourceInstanceId,
@@ -6950,6 +6996,9 @@ function queueTrigger(
       // sourceFilter check for damage_dealt_to triggers — Merida Formidable
       // Archer STEADY AIM watches "whenever ONE OF YOUR ACTIONS deals damage".
       if (!matchSourceFilter(matched as { sourceFilter?: CardFilter } & { on: string }, watcher.ownerId)) continue;
+      // sourceCardType check for `chosen` triggers — Tod Knows All the Tricks
+      // IMPRESSIVE LEAPS gates on sourceCardType: ["action", "item"].
+      if (!matchChosenSourceCardType(matched as { sourceCardType?: CardType[] } & { on: string })) continue;
 
       state = {
         ...state,

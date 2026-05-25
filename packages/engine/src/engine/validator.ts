@@ -702,11 +702,14 @@ function validateActivateAbility(
   if (abilityIndex < def.abilities.length) {
     ability = def.abilities[abilityIndex];
   } else {
-    // Granted by static effect (e.g. Cogsworth - Talking Clock)
+    // Granted by static effect (Cogsworth - Talking Clock, Dumbo MAKING
+    // HISTORY) or turn-scoped action grant (Food Fight!). Grant entries are
+    // GrantedActivatedAbility records — unwrap `.ability` to read the
+    // activated ability itself.
     const modifiers = getGameModifiers(state, definitions);
     const grantedAbilities = modifiers.grantedActivatedAbilities.get(instanceId);
     const grantedIndex = abilityIndex - def.abilities.length;
-    ability = grantedAbilities?.[grantedIndex];
+    ability = grantedAbilities?.[grantedIndex]?.ability;
   }
   if (!ability || ability.type !== "activated") return fail("No activated ability at that index.");
 

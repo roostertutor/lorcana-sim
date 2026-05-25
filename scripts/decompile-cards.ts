@@ -507,6 +507,17 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
                                           : "Whenever the Boost ability is used",
   shifted_onto:                  ()  => "Whenever a character is shifted onto this character",
   chosen_by_opponent:            ()  => "Whenever an opponent chooses this character for an action or ability",
+  chosen:                        (t) => {
+                                          // Tod Knows All the Tricks IMPRESSIVE LEAPS: when sourceCardType
+                                          // is ["action","item"], render the printed phrasing exactly.
+                                          const types = (t.sourceCardType ?? []) as string[];
+                                          const isActionItem = types.length === 2
+                                            && types.includes("action") && types.includes("item");
+                                          if (isActionItem) return "Whenever this character is chosen for an action or an item's ability";
+                                          if (types.length === 1 && types[0] === "action") return "Whenever this character is chosen for an action";
+                                          if (types.length === 1 && types[0] === "item") return "Whenever this character is chosen for an item's ability";
+                                          return "Whenever this character is chosen for an action or ability";
+                                        },
   character_exerted:             ()  => "Whenever a character is exerted",
   chosen_for_support:            (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters is chosen for support"

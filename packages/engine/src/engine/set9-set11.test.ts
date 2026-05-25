@@ -2415,3 +2415,247 @@ describe("§11 Set 11 — Kristoff Icy Explorer STROKE OF LUCK", () => {
     expect(r.newState.zones.player1.hand.length).toBe(handBefore + 1);
   });
 });
+
+// Tod Knows All the Tricks (card-set-11.json:5858, set 11 #92; reprint at
+// card-set-11.json:15262, set 11 #230 enchanted) — IMPRESSIVE LEAPS oracle:
+// "Twice during your turn, whenever this character is chosen for an action
+// or an item's ability, you may ready him."
+//
+// Two bugs in the pre-fix wiring (HANDOFF Tod entry):
+//   1. Under-fires: trigger was `chosen_by_opponent` — only fired when chooser
+//      was opposing. Misses the self-chooser case (own action / own item's
+//      ability picks Tod).
+//   2. Over-fires: no source-cardType filter — any opposing pick (including
+//      character/location abilities) fired the trigger, but oracle restricts
+//      to "action or an item's ability".
+//
+// Fix: new `chosen` trigger event (chooser-agnostic, both sides) with
+// `sourceCardType: ["action", "item"]` filter applied inside queueTrigger.
+// Precedents used by these tests:
+//   - Fire the Cannons! (card-set-1.json:10892, set 1 #197) — action that
+//     deals 2 damage to chosen character. Stand-in for "action picks Tod".
+//   - Plasma Blaster (card-set-1.json:11262, set 1 #209) — item with QUICK
+//     SHOT activated ability that picks any character. Stand-in for "item
+//     ability picks Tod".
+//   - Cinderella - Gentle and Kind (card-set-1.json:131, set 1 #5) — char
+//     with activated ability that picks own character. Stand-in for "char
+//     ability picks Tod" (negative case — must NOT fire trigger).
+describe("§11 Set 11 — Tod Knows All the Tricks IMPRESSIVE LEAPS (chosen + sourceCardType)", () => {
+  it("readies Tod when own ACTION picks him (self-chooser case)", () => {
+    let state = startGame(["fire-the-cannons", "tod-knows-all-the-tricks"]);
+    state.currentPlayer = "player1"; // Tod's turn → is_your_turn passes
+    state = giveInk(state, "player1", 5);
+
+    let todId: string, cannonId: string, dummyTargetId: string;
+    ({ state, instanceId: todId } = injectCard(state, "player1", "tod-knows-all-the-tricks",
+      "play", { isDrying: false, isExerted: true })); // exerted so we can see ready fire
+    ({ state, instanceId: cannonId } = injectCard(state, "player1", "fire-the-cannons", "hand"));
+    // Dummy second target so the test is robust to multi-target validation;
+    // Tod will still be picked by the explicit RESOLVE_CHOICE choice.
+    ({ state, instanceId: dummyTargetId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    void dummyTargetId;
+
+    let result = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: cannonId }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [todId],
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // IMPRESSIVE LEAPS is "may ready" — pendingChoice should be choose_may.
+    // Drain through accept; Tod readies.
+    let safety = 0;
+    while (result.newState.pendingChoice && safety < 5) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    expect(getInstance(result.newState, todId).isExerted).toBe(false); // Tod readied
+    expect(getInstance(result.newState, todId).damage).toBe(2); // damage still applied
+  });
+
+  it("readies Tod when own ITEM ABILITY picks him (self-chooser case)", () => {
+    let state = startGame(["plasma-blaster", "tod-knows-all-the-tricks"]);
+    state.currentPlayer = "player1"; // Tod's turn
+    state = giveInk(state, "player1", 5);
+
+    let todId: string, blasterId: string;
+    ({ state, instanceId: todId } = injectCard(state, "player1", "tod-knows-all-the-tricks",
+      "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: blasterId } = injectCard(state, "player1", "plasma-blaster",
+      "play", { isDrying: false }));
+
+    let result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: blasterId, abilityIndex: 0,
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [todId],
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    let safety = 0;
+    while (result.newState.pendingChoice && safety < 5) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    expect(getInstance(result.newState, todId).isExerted).toBe(false); // Tod readied via item-ability pick
+    expect(getInstance(result.newState, todId).damage).toBe(1);
+  });
+
+  it("does NOT ready Tod when a CHARACTER ability picks him (over-fire fix)", () => {
+    let state = startGame(["cinderella-gentle-and-kind", "tod-knows-all-the-tricks"]);
+    state.currentPlayer = "player1"; // Tod's turn
+    state = giveInk(state, "player1", 5);
+
+    let todId: string, cinderellaId: string;
+    ({ state, instanceId: cinderellaId } = injectCard(state, "player1", "cinderella-gentle-and-kind",
+      "play", { isDrying: false }));
+    // Give Tod damage so remove_damage has a valid target to make picking him meaningful
+    ({ state, instanceId: todId } = injectCard(state, "player1", "tod-knows-all-the-tricks",
+      "play", { isDrying: false, isExerted: true, damage: 3 }));
+
+    let result = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: cinderellaId, abilityIndex: 1,
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+    expect(result.newState.pendingChoice?.type).toBe("choose_target");
+    result = applyAction(result.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [todId],
+    }, CARD_DEFINITIONS);
+    expect(result.success).toBe(true);
+
+    // No IMPRESSIVE LEAPS trigger should queue — Cinderella is a character,
+    // not an action/item. Drain any other pending choices defensively.
+    let safety = 0;
+    while (result.newState.pendingChoice && safety < 5) {
+      const ch = result.newState.pendingChoice;
+      if (ch.type === "choose_trigger" && ch.validTargets?.length) {
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: ch.validTargets[0]! }, CARD_DEFINITIONS);
+      } else if (ch.type === "choose_may") {
+        // If IMPRESSIVE LEAPS leaked through, accepting would ready Tod —
+        // the assertion below catches it either way.
+        result = applyAction(result.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+      } else {
+        break;
+      }
+      safety++;
+    }
+
+    expect(getInstance(result.newState, todId).isExerted).toBe(true); // Tod stays exerted — no ready
+    expect(getInstance(result.newState, todId).damage).toBe(0); // Cinderella healed all 3
+  });
+});
+
+// `grantedActivatedAbilities` map entries are GrantedActivatedAbility records
+// — the activated ability itself plus optional source attribution (storyName
+// + instanceId of the granting card / ability). UI uses sourceStoryName to
+// label the activate button on the recipient (e.g. show "MAKING HISTORY"
+// instead of generic "Activate" on the granted draw-and-lore button Dumbo
+// hands out to evasive friendlies). Tests below cover all three writer sites:
+//   - static grant_activated_ability (Dumbo MAKING HISTORY, gameModifiers.ts)
+//   - timed grant_activated_ability_timed (Food Fight!, reducer.ts handler)
+//   - per-player timed-grant merge into the map (gameModifiers.ts)
+// And the reader-side unwrap at ACTIVATE_ABILITY (`.ability` access).
+//
+// Precedents (file:line cited per CLAUDE.md card-claim discipline):
+//   - Dumbo - Ninth Wonder of the Universe (card-set-9.json:2916, set 9 #45)
+//     — static MAKING HISTORY granting activated to friendly evasives.
+//   - Jetsam - Ursula's Spy (card-set-1.json:2553, set 1 #71) — has evasive
+//     keyword; valid MAKING HISTORY recipient.
+//   - Food Fight! (card-set-5.json:12867, set 5 #199) — action with
+//     grant_activated_ability_timed (turn-scoped).
+describe("§Engine — GrantedActivatedAbility source attribution", () => {
+  it("Making History records sourceStoryName + sourceInstanceId on granted evasive recipients", () => {
+    let state = startGame();
+    let dumboId: string, jetsamId: string;
+    ({ state, instanceId: dumboId } = injectCard(state, "player1", "dumbo-ninth-wonder-of-the-universe",
+      "play", { isDrying: false }));
+    ({ state, instanceId: jetsamId } = injectCard(state, "player1", "jetsam-ursulas-spy",
+      "play", { isDrying: false }));
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const granted = mods.grantedActivatedAbilities.get(jetsamId) ?? [];
+    expect(granted.length).toBe(1);
+    expect(granted[0]?.sourceStoryName).toBe("MAKING HISTORY");
+    expect(granted[0]?.sourceInstanceId).toBe(dumboId);
+    expect(granted[0]?.ability?.type).toBe("activated");
+  });
+
+  it("Food Fight! timed grant records source attribution on each recipient", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let foodId: string, mickeyId: string;
+    ({ state, instanceId: foodId } = injectCard(state, "player1", "food-fight", "hand"));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend",
+      "play", { isDrying: false }));
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: foodId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    const granted = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
+    expect(granted.length).toBe(1);
+    // Source attribution flows through the timed-grant writer (reducer.ts
+    // grant_activated_ability_timed handler) into the merge site
+    // (gameModifiers.ts). The action card's fullName is the natural label
+    // since the action has no ability-level storyName at the grant site.
+    expect(granted[0]?.sourceStoryName).toBe("Food Fight!");
+    expect(granted[0]?.sourceInstanceId).toBe(foodId);
+    expect(granted[0]?.ability?.storyName).toBe("FOOD FIGHT");
+  });
+
+  it("ACTIVATE_ABILITY resolves granted abilities through .ability unwrap (reader-side)", () => {
+    // Regression for the readers (reducer.ts:1782 and validator.ts:707) that
+    // changed from grantedAbilities[grantedIndex] to grantedAbilities[grantedIndex].ability.
+    // Activating Mickey's Food-Fight-granted ability should deal 1 damage to
+    // a chosen character. If the unwrap is missing, ACTIVATE_ABILITY throws
+    // "Invalid ability" because the GrantedActivatedAbility wrapper has no
+    // `.type === "activated"`.
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let foodId: string, mickeyId: string, victimId: string;
+    ({ state, instanceId: foodId } = injectCard(state, "player1", "food-fight", "hand"));
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend",
+      "play", { isDrying: false }));
+    ({ state, instanceId: victimId } = injectCard(state, "player2", "mickey-mouse-true-friend",
+      "play", { isDrying: false }));
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: foodId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Mickey's own abilities: 0. The granted Food Fight ability is at
+    // abilityIndex = 0 (Mickey has no own activated abilities).
+    const mickeyDef = CARD_DEFINITIONS["mickey-mouse-true-friend"]!;
+    const grantedIndex = mickeyDef.abilities.length; // first granted slot
+    r = applyAction(state, {
+      type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: mickeyId, abilityIndex: grantedIndex,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, {
+      type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId],
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, victimId).damage).toBe(1);
+  });
+});

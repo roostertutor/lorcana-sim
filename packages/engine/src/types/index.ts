@@ -2937,6 +2937,21 @@ export type TriggerEvent =
    *  Owl ("Whenever an opponent chooses this character for an action or
    *  ability, you may draw a card") and the Vanish keyword. */
   | { on: "chosen_by_opponent"; filter?: CardFilter }
+  /** Fires when a card is selected as the target of a chosen-target effect by
+   *  EITHER player (chooser-agnostic — distinct from `chosen_by_opponent` which
+   *  is opponent-only). Source is the chosen target; triggering card is the
+   *  source card whose effect is doing the choosing.
+   *
+   *  `sourceCardType` (optional) restricts the trigger to choices made by a
+   *  specific card type — e.g. Tod Knows All the Tricks IMPRESSIVE LEAPS
+   *  ("whenever this character is chosen for an action or an item's ability")
+   *  sets `sourceCardType: ["action", "item"]` so character/location abilities
+   *  picking Tod don't fire the trigger. Without `sourceCardType`, all chooser
+   *  source types fire.
+   *
+   *  `filter` (optional) matches the chosen target (the source of the event),
+   *  same shape as other chosen_* triggers. */
+  | { on: "chosen"; filter?: CardFilter; sourceCardType?: CardType[] }
   /** Fires when a character transitions from unexerted to exerted (via quest,
    *  challenge, sing, activated-ability cost, or `exert` effect). Does NOT
    *  fire for cards entering play exerted, since they're not transitioning.
@@ -3764,8 +3779,18 @@ export interface PlayerState {
 
   /** Turn-scoped granted activated abilities (Food Fight!, Donald Duck Coin
    *  Collector, Walk the Plank!): each entry grants `ability` to all of this
-   *  player's in-play cards matching `filter`. Cleared on PASS_TURN. */
-  timedGrantedActivatedAbilities?: { filter: CardFilter; ability: ActivatedAbility }[];
+   *  player's in-play cards matching `filter`. Cleared on PASS_TURN.
+   *
+   *  `sourceStoryName` (optional) is the granting card / ability's storyName —
+   *  used by UI to label the activate button on recipients with the granting
+   *  card's name. `sourceInstanceId` (optional) is the granter's instance ID
+   *  for future UI hover-highlight tooling. */
+  timedGrantedActivatedAbilities?: {
+    filter: CardFilter;
+    ability: ActivatedAbility;
+    sourceStoryName?: string;
+    sourceInstanceId?: string;
+  }[];
 }
 
 export interface PlayRestrictionEntry {

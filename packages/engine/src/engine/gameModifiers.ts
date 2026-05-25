@@ -49,6 +49,27 @@ export type CostReductionModifier =
       oncePerTurnKey?: string;
     };
 
+/**
+ * One entry in `GameModifiers.grantedActivatedAbilities`. Carries the
+ * activated ability plus optional source attribution. The attribution is
+ * cosmetic — UI uses `sourceStoryName` to label the activate button with
+ * the granting ability's name (e.g. "MAKING HISTORY" instead of "Activate"
+ * for Dumbo - Ninth Wonder of the Universe's evasive grant) and may use
+ * `sourceInstanceId` for future "hover granted button → highlight source
+ * card" tooling. Both fields are optional: turn-scoped grants from action
+ * cards may omit them when the source card isn't in play at activation time.
+ */
+export interface GrantedActivatedAbility {
+  ability: import("../types/index.js").ActivatedAbility;
+  /** storyName of the static ability (or action card) that produced this
+   *  grant. Undefined for grants whose source ability has no storyName. */
+  sourceStoryName?: string;
+  /** Instance ID of the card whose ability produced this grant. Undefined for
+   *  turn-scoped grants from action cards (the action is in the discard pile
+   *  by the time the grant is consumed). */
+  sourceInstanceId?: string;
+}
+
 export interface GameModifiers {
   /**
    * Characters that cannot be challenged (or only by certain attackers).
@@ -162,10 +183,14 @@ export interface GameModifiers {
   damagePreventionCharges: Map<string, number>;
 
   /**
-   * Activated abilities granted by static effects (Cogsworth - Talking Clock).
-   * Key = instanceId, value = list of granted activated abilities.
+   * Activated abilities granted by static effects (Cogsworth - Talking Clock,
+   * Dumbo - Ninth Wonder of the Universe MAKING HISTORY) and turn-scoped grants
+   * (Food Fight!, Donald Duck Coin Collector). Key = instanceId, value = list
+   * of GrantedActivatedAbility records (each carries the ability plus optional
+   * source-card attribution so UI can label the activate button with the
+   * granting ability's storyName instead of a generic "Activate").
    */
-  grantedActivatedAbilities: Map<string, import("../types/index.js").ActivatedAbility[]>;
+  grantedActivatedAbilities: Map<string, GrantedActivatedAbility[]>;
 
   /**
    * Permanent self-restrictions from static `cant_action_self` effects (Maui - Whale).
@@ -1208,7 +1233,11 @@ export function getGameModifiers(
         }
 
         case "grant_activated_ability": {
-          // Cogsworth - Talking Clock: grant activated ability to matching characters
+          // Cogsworth - Talking Clock, Dumbo - Ninth Wonder of the Universe
+          // MAKING HISTORY: grant activated ability to matching characters.
+          // Attribute the grant to the outer static ability's storyName so
+          // UI can render the activate button with the granting ability's
+          // name on the recipient instead of a generic "Activate".
           if (effect.target.type === "all") {
             for (const candidate of Object.values(state.cards)) {
               if (candidate.zone !== "play") continue;
@@ -1216,7 +1245,11 @@ export function getGameModifiers(
               if (!candidateDef) continue;
               if (matchesFilter(candidate, candidateDef, effect.target.filter, state, instance.ownerId, instance.instanceId)) {
                 const existing = modifiers.grantedActivatedAbilities.get(candidate.instanceId) ?? [];
-                existing.push(effect.ability);
+                existing.push({
+                  ability: effect.ability,
+                  ...(ability.storyName !== undefined && { sourceStoryName: ability.storyName }),
+                  sourceInstanceId: instance.instanceId,
+                });
                 modifiers.grantedActivatedAbilities.set(candidate.instanceId, existing);
               }
             }
@@ -1232,7 +1265,8 @@ export function getGameModifiers(
   // Turn-scoped granted activated abilities (Food Fight!, Donald Duck Coin
   // Collector, Walk the Plank!): merge per-player timed grants into the same
   // grantedActivatedAbilities map. Each entry's filter is matched against
-  // that player's in-play cards.
+  // that player's in-play cards. Forward optional source attribution from
+  // the timed entry (stamped at the grant_activated_ability_timed handler).
   for (const playerId of ["player1", "player2"] as PlayerID[]) {
     const grants = state.players[playerId].timedGrantedActivatedAbilities ?? [];
     if (grants.length === 0) continue;
@@ -1243,7 +1277,11 @@ export function getGameModifiers(
       for (const grant of grants) {
         if (matchesFilter(candidate, candidateDef, grant.filter, state, playerId)) {
           const existing = modifiers.grantedActivatedAbilities.get(candidate.instanceId) ?? [];
-          existing.push(grant.ability);
+          existing.push({
+            ability: grant.ability,
+            ...(grant.sourceStoryName !== undefined && { sourceStoryName: grant.sourceStoryName }),
+            ...(grant.sourceInstanceId !== undefined && { sourceInstanceId: grant.sourceInstanceId }),
+          });
           modifiers.grantedActivatedAbilities.set(candidate.instanceId, existing);
         }
       }

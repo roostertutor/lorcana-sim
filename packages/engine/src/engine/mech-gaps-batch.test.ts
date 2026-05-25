@@ -560,7 +560,7 @@ describe("Mechanic gaps batch — stat-floor (Elisa Maza FOREVER STRONG)", () =>
     mods = getGameModifiers(state, CARD_DEFINITIONS);
     const granted = mods.grantedActivatedAbilities.get(mickeyId) ?? [];
     expect(granted.length).toBeGreaterThan(0);
-    expect(granted[0]?.storyName).toBe("FOOD FIGHT");
+    expect(granted[0]?.ability?.storyName).toBe("FOOD FIGHT");
 
     // After passing the turn, the grant should expire.
     state = passTurns(state, 2);
