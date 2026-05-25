@@ -7,6 +7,7 @@
 import React from "react";
 import type { InkColor, CardType, CardDefinition } from "@lorcana-sim/engine";
 import { INK_COLOR_CLASS } from "../utils/deckRules.js";
+import ModalFrame, { MODAL_SIZE } from "./ModalFrame.js";
 
 export type CostBucket = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; // 8 represents "8+"
 export type Rarity = CardDefinition["rarity"];
@@ -299,10 +300,13 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
           aria-label="Search card name"
           className="flex-1 min-w-0 bg-gray-950 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-600 focus:border-amber-500 focus:outline-none"
         />
-        {/* Mobile-only filter sheet toggle */}
+        {/* Mobile-only filter sheet toggle. 44px tall (min-h) to clear
+             WCAG 2.5.5 / iOS HIG tap-target floor — same standard the
+             Section A2 audit applied. */}
         <button
           onClick={() => setSheetOpen(true)}
-          className="md:hidden px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-xs font-bold text-gray-300 hover:bg-gray-700 transition-colors flex items-center gap-1.5"
+          className="md:hidden px-3 py-2 min-h-[44px] rounded-lg bg-gray-800 border border-gray-700 text-xs font-bold text-gray-300 hover:bg-gray-700 transition-colors flex items-center gap-1.5 active:scale-95"
+          aria-label={totalActive > 0 ? `Open filters (${totalActive} active)` : "Open filters"}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
@@ -356,15 +360,19 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
         )}
       </div>
 
-      {/* Mobile: slide-up sheet */}
+      {/* Mobile: slide-up sheet — migrated to ModalFrame (Section C) so
+           ESC-stack, focus restore, scroll lock, and ARIA come for free.
+           `variant="auto"` bottom-sheets on mobile (the only place this
+           renders — md+ uses inline chips and the Advanced popover above),
+           centered on sm+ if anyone ever resizes mid-open. MODAL_SIZE.lg
+           keeps the chip rows breathable at tablet width. */}
       {sheetOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex items-end">
+        <ModalFrame onClose={() => setSheetOpen(false)} variant="auto">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSheetOpen(false)}
-          />
-          <div className="relative w-full max-h-[75vh] overflow-y-auto bg-gray-950 border-t border-gray-700 rounded-t-2xl p-4 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
+            className={`relative bg-gray-950 border border-gray-700 rounded-t-2xl sm:rounded-2xl ${MODAL_SIZE.lg} shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[75dvh] sm:max-h-[80vh] overflow-y-auto`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 bg-gray-950 flex items-center justify-between px-4 py-3 border-b border-gray-800">
               <h3 className="text-sm font-bold text-gray-200">Filters</h3>
               <div className="flex items-center gap-2">
                 {totalActive > 0 && (
@@ -377,29 +385,32 @@ export default function CardFilterBar({ filters, onChange, matchCount, allTraits
                 )}
                 <button
                   onClick={() => setSheetOpen(false)}
-                  className="text-gray-400 hover:text-gray-200"
+                  className="text-gray-400 hover:text-gray-200 w-9 h-9 flex items-center justify-center -mr-2 active:scale-95"
+                  aria-label="Close filters"
                 >
                   ✕
                 </button>
               </div>
             </div>
-            <div className="space-y-3">
+            <div className="px-4 pt-3 space-y-3">
               {filterChips}
             </div>
-            <div className="pt-3 border-t border-gray-800 space-y-3">
+            <div className="px-4 mt-3 pt-3 border-t border-gray-800 space-y-3">
               <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
                 Advanced
               </div>
               {advancedContent}
             </div>
-            <button
-              onClick={() => setSheetOpen(false)}
-              className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition-colors"
-            >
-              Show {matchCount.toLocaleString()} card{matchCount === 1 ? "" : "s"}
-            </button>
+            <div className="sticky bottom-0 bg-gray-950 px-4 pt-3 pb-3 border-t border-gray-800 mt-3">
+              <button
+                onClick={() => setSheetOpen(false)}
+                className="w-full py-3 min-h-[44px] bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-bold transition-colors active:scale-[0.98]"
+              >
+                Show {matchCount.toLocaleString()} card{matchCount === 1 ? "" : "s"}
+              </button>
+            </div>
           </div>
-        </div>
+        </ModalFrame>
       )}
     </div>
   );

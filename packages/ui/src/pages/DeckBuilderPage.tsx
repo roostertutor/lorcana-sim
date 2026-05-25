@@ -17,7 +17,7 @@ import CompositionView from "./CompositionView.js";
 import DeckBuilder from "../components/DeckBuilder.js";
 import CardPicker from "../components/CardPicker.js";
 import FormatPicker from "../components/FormatPicker.js";
-import ModalFrame from "../components/ModalFrame.js";
+import ModalFrame, { MODAL_SIZE } from "../components/ModalFrame.js";
 import { resolveBoxCard, resolveEntryImageUrl, hydrateVariants, getLiveRotation, listOfferedRotationsForFamily } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 
@@ -219,6 +219,23 @@ export default function DeckBuilderPage() {
   // editor. Existing decks keep it closed — known-card adds flow
   // through the editor's search autocomplete.
   const [pickerOpen, setPickerOpen] = useState(isNew);
+
+  // Phone-only decklist sheet. On md+, the deck rows render inline beside
+  // the picker; on phones (where vertical space is tight and the user is
+  // primarily browsing the picker), the rows collapse behind a fixed
+  // bottom chip that opens a bottom-sheet modal containing the same
+  // `<DeckBuilder>` editor. md+ never opens this; the chip is `md:hidden`.
+  const [decklistSheetOpen, setDecklistSheetOpen] = useState(false);
+
+  // Total ink cost for the phone-only fixed bottom chip's secondary
+  // signal. Caps at the visible glance — "Deck: 42/60 · 1234 cost".
+  const totalCost = useMemo(
+    () => entries.reduce((s, e) => {
+      const def = CARD_DEFINITIONS[e.definitionId];
+      return def ? s + def.cost * e.count : s;
+    }, 0),
+    [entries],
+  );
   function handleBackClick(e: MouseEvent) {
     if (!isDirty) return;
     e.preventDefault();
@@ -310,7 +327,11 @@ export default function DeckBuilderPage() {
   }
 
   return (
-    <div className="space-y-6">
+    // pb-24 on phones reserves room so the fixed bottom "Decklist" chip
+    // doesn't cover the last row of CompositionView when the user scrolls
+    // to the bottom of the page. md:pb-0 restores normal layout once
+    // the chip hides (md+ has the deck rows inline).
+    <div className="space-y-6 pb-24 md:pb-0">
       {/* Sticky top bar — back link, browse toggle (moved LEFT so its click-
            target is in the same column the picker panel slides into), deck
            name summary, card-count pill, and Save button. Always in view
@@ -478,8 +499,14 @@ export default function DeckBuilderPage() {
               </div>
             )}
 
-            {/* Your deck rows */}
-            <div className="pt-2 border-t border-gray-800">
+            {/* Your deck rows — md+ renders inline here so the user sees
+                 the deck alongside the picker / form. On phone the rows
+                 hide here and live in the bottom-sheet modal (triggered
+                 by the fixed bottom "Decklist" chip rendered further
+                 down); phone vertical real estate is too tight to show
+                 picker + form + 30-row decklist + composition all at
+                 once. */}
+            <div className="hidden md:block pt-2 border-t border-gray-800">
               <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">
                 Your deck
               </div>
@@ -622,6 +649,97 @@ export default function DeckBuilderPage() {
               >
                 Discard & leave
               </button>
+            </div>
+          </div>
+        </ModalFrame>
+      )}
+
+      {/* Phone-only fixed decklist chip — always visible at the bottom of
+           the viewport (above the bottom nav bar). Tapping opens the
+           decklist sheet below. Hidden on md+ where the deck rows are
+           inline. Sits above the fixed bottom nav (z-30 vs nav z-20) and
+           clears the iOS home indicator via safe-area-inset-bottom. */}
+      {!loading && (
+        <button
+          onClick={() => setDecklistSheetOpen(true)}
+          className="md:hidden fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 mx-3 mb-2 flex items-center justify-between gap-3 px-4 py-2.5 min-h-[44px] rounded-xl bg-amber-600 hover:bg-amber-500 text-white shadow-2xl active:scale-[0.98] transition-all"
+          aria-label={`Open decklist (${totalCount} of 60 cards)`}
+          title="Open decklist"
+        >
+          <span className="flex items-center gap-2 text-xs font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+            </svg>
+            Decklist
+          </span>
+          <span className="flex items-center gap-2 text-[11px] font-mono">
+            <span className={`font-bold ${totalCount === 60 ? "text-white" : "text-amber-100"}`}>
+              {totalCount}/60
+            </span>
+            {totalCount > 0 && (
+              <>
+                <span className="text-amber-200/60">·</span>
+                <span className="text-amber-100">{totalCost} cost</span>
+              </>
+            )}
+            {!legality.ok && entries.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-700 text-white text-[9px] font-black">
+                {legality.issues.length}
+              </span>
+            )}
+          </span>
+        </button>
+      )}
+
+      {/* Phone-only decklist sheet. Contents mirror the inline md+ card —
+           name + format + legality + the DeckBuilder rows + History +
+           Delete, in one scroll surface. Uses Section C's variant="auto"
+           + MODAL_SIZE.lg so it bottom-sheets on phone and would
+           gracefully center on tablet+ if anyone resizes mid-open (the
+           trigger chip itself is md:hidden so md+ never gets here). */}
+      {decklistSheetOpen && (
+        <ModalFrame onClose={() => setDecklistSheetOpen(false)} variant="auto">
+          <div
+            className={`relative bg-gray-950 border border-gray-700 rounded-t-2xl sm:rounded-2xl ${MODAL_SIZE.lg} shadow-2xl pb-[env(safe-area-inset-bottom,16px)] max-h-[85dvh] sm:max-h-[85vh] overflow-y-auto`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 z-10 bg-gray-950 flex items-center justify-between px-4 py-3 border-b border-gray-800">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-gray-200">Decklist</span>
+                <span className="text-[11px] font-mono text-gray-500">
+                  <span className={totalCount === 60 ? "text-amber-400 font-bold" : ""}>{totalCount}</span>
+                  <span className="text-gray-700">/60</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setDecklistSheetOpen(false)}
+                className="text-gray-400 hover:text-gray-200 w-9 h-9 flex items-center justify-center -mr-2 active:scale-95"
+                aria-label="Close decklist"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              {/* Legality summary — same shape as inline md+ render below. */}
+              {!legality.ok && entries.length > 0 && (
+                <div className="rounded-lg px-3 py-2 bg-red-950/40 border border-red-800/60 text-[11px] text-red-300 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    {legality.issues.length} card{legality.issues.length === 1 ? "" : "s"} not legal in current rotation ({formatFamily === "core" ? "Core" : "Infinity"} {validationRotation})
+                  </div>
+                  <div className="text-red-400/80">
+                    Highlighted in red below.
+                  </div>
+                </div>
+              )}
+              <DeckBuilder
+                entries={entries}
+                definitions={CARD_DEFINITIONS}
+                onChange={setEntries}
+                deckName={deckName}
+                format={validationFormat}
+                issueMessagesByDefinitionId={issueMessagesByDefinitionId}
+              />
             </div>
           </div>
         </ModalFrame>

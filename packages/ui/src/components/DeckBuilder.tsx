@@ -5,12 +5,32 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { toPng } from "html-to-image";
+import { toPng, toBlob } from "html-to-image";
 import type { CardDefinition, DeckEntry, GameFormat, InkColor, CardVariantType } from "@lorcana-sim/engine";
 import { isCardLegalInFormat, parseDecklist, serializeDecklist } from "@lorcana-sim/engine";
 import { getMaxCopies, formatVariantKey, resolvePrinting, printingLabels, cardMatchScore } from "../utils/deckRules.js";
 import { getBoardCardImage } from "../utils/cardImage.js";
 import DeckExportPanel from "./DeckExportPanel.js";
+
+// Capability detection at module-eval time so the Share button can show
+// (and label correctly) before any user click. Mirrors the same probe
+// shape as MultiplayerLobby's lobby-share button (commit ca4e434), but
+// extends to file-share: navigator.canShare must accept a `files: [...]`
+// payload. Some browsers expose `share` but reject files specifically
+// (Firefox desktop, Safari macOS) — those fall back to the download
+// link without showing the Share button at all.
+const SHARE_FILE_PROBE = (() => {
+  if (typeof navigator === "undefined" || typeof navigator.share !== "function") return false;
+  if (typeof navigator.canShare !== "function") return false;
+  try {
+    // Stub File so canShare can probe the MIME accepting it. The real
+    // PNG isn't ready at module-eval time; this only tests capability.
+    const stub = new File([new Uint8Array(1)], "probe.png", { type: "image/png" });
+    return navigator.canShare({ files: [stub] });
+  } catch {
+    return false;
+  }
+})();
 
 // Compact variant labels for the inline per-row tag. Omit "regular" since
 // that's the implicit default and we only show the tag when variant is set.
@@ -108,6 +128,38 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
     a.href = exportPreviewUrl;
     a.download = filename;
     a.click();
+  }
+
+  // Phone-only share path — opens the OS share sheet so the user can send
+  // the deck PNG via Messages / WhatsApp / Discord / Photos / etc.
+  // Capability-detected: button only renders when navigator.canShare
+  // accepts a `files: [PNG]` payload (true on iOS Safari + Android
+  // Chrome PWA, false on most desktop browsers). Re-renders the PNG as
+  // a Blob (via toBlob) because navigator.share rejects data URLs in
+  // files arrays — needs a real File. Falls through to download if
+  // share fails (browser bug, permission denied); user cancellation
+  // (AbortError) is silent.
+  async function handleShareImage() {
+    if (!exportPanelRef.current) return;
+    const filename = `${(deckName || "deck").replace(/[^a-z0-9-]+/gi, "-").toLowerCase()}.png`;
+    try {
+      const blob = await toBlob(exportPanelRef.current, { pixelRatio: 2 });
+      if (!blob) throw new Error("Failed to render PNG blob");
+      const file = new File([blob], filename, { type: "image/png" });
+      if (!navigator.canShare || !navigator.canShare({ files: [file] })) {
+        throw new Error("Share API rejected file payload");
+      }
+      await navigator.share({
+        files: [file],
+        title: deckName || "Lorcana deck",
+        text: `${deckName || "My deck"} — ${totalCards} cards`,
+      });
+      // Share sheet IS the visual feedback; no toast needed.
+    } catch (err) {
+      if ((err as DOMException)?.name === "AbortError") return;  // user cancelled
+      // Fall through to download so the PNG still ends up somewhere useful.
+      handleDownloadImage();
+    }
   }
 
   const totalCards = entries.reduce((s, e) => s + e.count, 0);
@@ -574,6 +626,21 @@ export default function DeckBuilder({ entries, definitions, onChange, deckName =
                   >
                     Copy text
                   </button>
+                  {/* Share — phone-only path via navigator.share with the
+                       PNG as a File. Capability-detected at module-eval;
+                       button hides on desktop (most desktop browsers
+                       reject files in canShare). Falls through to download
+                       on failure so the PNG always lands somewhere. */}
+                  {SHARE_FILE_PROBE && (
+                    <button
+                      className="py-2 px-3 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-800 disabled:text-gray-600 text-white rounded-lg text-xs font-bold transition-colors active:scale-95"
+                      onClick={handleShareImage}
+                      disabled={entries.length === 0}
+                      title="Share the deck PNG via the OS share sheet"
+                    >
+                      Share image
+                    </button>
+                  )}
                   <button
                     className="btn-ghost text-xs py-2 px-3 disabled:opacity-40"
                     onClick={handleDownloadImage}
@@ -734,12 +801,16 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant, issueMess
       )}
 
       {/* Qty stepper — [−] N/max [+]. No trailing × because − at qty 1
-           already removes the entry (via adjustQty clamping to 0). */}
+           already removes the entry (via adjustQty clamping to 0).
+           min-w/h:44 on mobile clears the WCAG 2.5.5 / iOS HIG floor
+           (same standard as Section A2). md+ falls back to the previous
+           compact w-6/h-6 (24px) since cursor precision keeps that fine. */}
       <div className="flex items-center gap-0.5 shrink-0">
         <button
-          className="w-6 h-6 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 text-sm font-bold transition-colors active:scale-95"
+          className="min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 md:w-6 md:h-6 rounded bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200 text-lg md:text-sm font-bold transition-colors active:scale-95"
           onClick={onDecrement}
           title={entry.count === 1 ? "Remove card" : "Decrease quantity"}
+          aria-label={entry.count === 1 ? `Remove ${def.fullName} from deck` : "Decrease quantity"}
         >
           −
         </button>
@@ -747,7 +818,7 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant, issueMess
           {entry.count}
         </span>
         <button
-          className={`w-6 h-6 rounded text-sm font-bold transition-colors active:scale-95 ${
+          className={`min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 md:w-6 md:h-6 rounded text-lg md:text-sm font-bold transition-colors active:scale-95 ${
             atMax
               ? "bg-gray-900 text-gray-700 cursor-not-allowed"
               : "bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-gray-200"
@@ -755,6 +826,7 @@ function DeckRow({ entry, def, onIncrement, onDecrement, onSetVariant, issueMess
           onClick={onIncrement}
           disabled={atMax}
           title={atMax ? `Max ${maxLabel} copies` : "Increase quantity"}
+          aria-label={atMax ? `Maximum ${maxLabel} copies of ${def.fullName}` : "Increase quantity"}
         >
           +
         </button>

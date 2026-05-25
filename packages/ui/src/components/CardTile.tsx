@@ -109,17 +109,22 @@ export default function CardTile({
         </button>
       </div>
 
-      {/* Qty stepper — [−] N/max [+]. Matches DeckBuilder row editor pattern. */}
+      {/* Qty stepper — [−] N/max [+]. Matches DeckBuilder row editor pattern.
+           min-h-[44px] on the buttons clears the WCAG 2.5.5 / iOS HIG tap-
+           target floor on mobile (same standard as Section A2). Desktop
+           sees the same height — not visually heavier than before, just
+           a bigger hit-rect. */}
       <div className="flex items-center bg-gray-950 border-t border-gray-800">
         <button
           onClick={(e) => { e.stopPropagation(); if (qty > 0) onSetQty(qty - 1); }}
           disabled={qty === 0}
-          className={`flex-1 py-1.5 text-sm font-bold transition-colors ${
+          className={`flex-1 min-h-[44px] text-sm font-bold transition-colors ${
             qty === 0
               ? "text-gray-800 cursor-not-allowed"
               : "text-gray-400 hover:bg-gray-800 hover:text-gray-200 active:scale-95"
           }`}
           title="Decrease quantity"
+          aria-label="Decrease quantity"
         >
           −
         </button>
@@ -131,12 +136,13 @@ export default function CardTile({
         <button
           onClick={(e) => { e.stopPropagation(); if (!atMax) onSetQty(qty + 1); }}
           disabled={atMax}
-          className={`flex-1 py-1.5 text-sm font-bold transition-colors ${
+          className={`flex-1 min-h-[44px] text-sm font-bold transition-colors ${
             atMax
               ? "text-gray-800 cursor-not-allowed"
               : "text-gray-400 hover:bg-gray-800 hover:text-gray-200 active:scale-95"
           }`}
           title={atMax ? `Max ${maxLabel} copies` : "Increase quantity"}
+          aria-label={atMax ? `Maximum ${maxLabel} copies in deck` : "Increase quantity"}
         >
           +
         </button>
