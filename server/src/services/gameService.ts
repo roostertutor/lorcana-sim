@@ -1533,6 +1533,14 @@ export interface ReplayView {
   createdAt: string
   /** The viewing perspective the states below were filtered against. */
   perspective: ReplayPerspective
+  /** Which player slot the calling user occupies in the parent game.
+   *  `null` for anonymous viewers or spectators who aren't one of the two
+   *  players. Stamped by `buildReplayView` from the caller's `userId`
+   *  against `replays.p1_id` / `p2_id`. UI uses this to decide privacy-
+   *  chip + share-button affordances (only players can change share state)
+   *  and to drive the perspective-toggle UI (only players can flip between
+   *  their own perspective and spectator-view-when-public). */
+  callerSlot: "p1" | "p2" | null
   /** Reconstructed + per-viewer-filtered state stream.
    *  - `states[0]` is the initial state (post-`createGame`, before any action).
    *  - `states[N]` is the state AFTER action N-1 was applied.
@@ -1611,6 +1619,49 @@ export async function getReplayById(replayId: string): Promise<
   }
 }
 
+/** Look up a replay by the parent game id (not replay id). Returns the same
+ *  shape as `getReplayById` so callers can hand the result to
+ *  `buildReplayView` interchangeably. Used by `GET /game/:id/replay` (the
+ *  player-only path) — the public-share path at `GET /replay/:id` keys off
+ *  the replay id directly. Returns null if no replay row has been written
+ *  for this game yet (in-progress games, or pre-saveReplayForGame games). */
+export async function getReplayByGameId(gameId: string): Promise<
+  Awaited<ReturnType<typeof getReplayById>>
+> {
+  const { data, error } = await supabase
+    .from("replays")
+    .select(
+      "id, game_id, public, winner_player_id, p1_username, p2_username, p1_display_name, p2_display_name, turn_count, format, game_format, game_rotation, created_at, games(player1_id, player2_id)",
+    )
+    .eq("game_id", gameId)
+    .single()
+
+  if (error || !data) return null
+
+  const gameRef = Array.isArray(data.games) ? data.games[0] : data.games
+  if (!gameRef) return null
+
+  return {
+    row: {
+      id: data.id as string,
+      game_id: data.game_id as string,
+      public: data.public as boolean,
+      winner_player_id: (data.winner_player_id as string | null) ?? null,
+      p1_username: (data.p1_username as string | null) ?? null,
+      p2_username: (data.p2_username as string | null) ?? null,
+      p1_display_name: (data.p1_display_name as string | null) ?? null,
+      p2_display_name: (data.p2_display_name as string | null) ?? null,
+      turn_count: data.turn_count as number,
+      format: (data.format as string | null) ?? null,
+      game_format: (data.game_format as string | null) ?? null,
+      game_rotation: (data.game_rotation as string | null) ?? null,
+      created_at: data.created_at as string,
+    },
+    p1_id: gameRef.player1_id as string,
+    p2_id: gameRef.player2_id as string,
+  }
+}
+
 /** Compose the client-facing ReplayView from the replays row + per-viewer
  *  filtered state stream. Separate function so the route layer can call
  *  `getReplayById` for access-control first (cheap) and only hit
@@ -1627,6 +1678,7 @@ export async function buildReplayView(
   replay: NonNullable<Awaited<ReturnType<typeof getReplayById>>>,
   includePayload: boolean,
   perspective: ReplayPerspective,
+  userId: string | null,
 ): Promise<ReplayView> {
   const winnerUsername =
     replay.row.winner_player_id === replay.p1_id
@@ -1634,6 +1686,14 @@ export async function buildReplayView(
       : replay.row.winner_player_id === replay.p2_id
         ? replay.row.p2_username
         : null
+
+  // Caller's player slot relative to the parent game. Null for anonymous
+  // viewers or non-player spectators — UI gates privacy-chip / share-button
+  // affordances on this. See ReplayView.callerSlot docstring.
+  const callerSlot: "p1" | "p2" | null =
+    userId === replay.p1_id ? "p1"
+      : userId === replay.p2_id ? "p2"
+      : null
 
   let payload: ReplayView["replay"] = null
   if (includePayload) {
@@ -1661,6 +1721,7 @@ export async function buildReplayView(
     gameRotation: replay.row.game_rotation,
     createdAt: replay.row.created_at,
     perspective,
+    callerSlot,
     replay: payload,
   }
 }

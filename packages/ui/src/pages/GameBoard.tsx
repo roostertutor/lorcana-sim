@@ -1448,35 +1448,39 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   }, []);
 
   /** Toggle a replay public via PATCH /replay/:id/share. On success,
-   *  updates `mpReplay.isPublic` locally so the Share button label
-   *  updates immediately, AND mirrors into `replayInput` if the user is
-   *  currently in replay-review mode (so the perspective toggle's
-   *  "Spectator" affordance unlocks without a refetch). Auto-copies the
-   *  share URL after going public. */
+   *  updates `replayInput.data.isPublic` (the primary source of truth for
+   *  the privacy chip + perspective toggle) AND mirrors into `mpReplay` if
+   *  it's set (the game-over-modal entry path keeps this state alongside
+   *  for legacy share affordances). Auto-copies the share URL after going
+   *  public. Source of truth changed 2026-05-26 from `mpReplay` to
+   *  `replayInput.data` so direct-URL access (`/replay/:gameId`,
+   *  `/replay/share/:replayId`) — where `mpReplay` is never populated —
+   *  can also drive the share flow. */
   const handleSharePublic = useCallback(async () => {
-    if (!mpReplay || mpReplay.isPublic || sharePending) return;
+    if (!replayInput || replayInput.kind !== "remote") return;
+    if (replayInput.data.isPublic || sharePending) return;
+    const replayId = replayInput.data.replayId;
     setSharePending(true);
     try {
       const { setReplayPublic } = await import("../lib/serverApi.js");
-      const newPublic = await setReplayPublic(mpReplay.replayId, true);
+      const newPublic = await setReplayPublic(replayId, true);
       if (newPublic !== true) return; // 4xx/5xx — leave UI unchanged
-      const updated: RemoteReplay = { ...mpReplay, isPublic: true };
-      setMpReplay(updated);
-      // Also patch live replayInput if we're currently reviewing this
-      // replay — so the Spectator option in the perspective toggle
-      // unlocks immediately without a perspective re-fetch.
+      // Patch live replayInput so chip + perspective toggle update immediately.
       setReplayInput((prev) => {
-        if (prev && prev.kind === "remote" && prev.data.replayId === mpReplay.replayId) {
+        if (prev && prev.kind === "remote" && prev.data.replayId === replayId) {
           return { kind: "remote", data: { ...prev.data, isPublic: true } };
         }
         return prev;
       });
-      copyShareLink(mpReplay.replayId);
+      // Mirror into mpReplay if set (game-over-modal entry path). No-op on
+      // direct-URL access where mpReplay was never populated.
+      setMpReplay((prev) => (prev && prev.replayId === replayId ? { ...prev, isPublic: true } : prev));
+      copyShareLink(replayId);
       setShareConfirmOpen(false);
     } finally {
       setSharePending(false);
     }
-  }, [mpReplay, sharePending, copyShareLink]);
+  }, [replayInput, sharePending, copyShareLink]);
 
   const handlePerspectiveChange = useCallback(async (newPerspective: ReplayPerspective) => {
     // Only meaningful for remote replays. Local (sandbox) replays don't
@@ -2465,9 +2469,12 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                   ? "Click to copy share link, or use the Game Over modal to revoke"
                   : "Click to make this replay public and share"}
                 onClick={() => {
-                  if (!mpReplay) return;
-                  if (mpReplay.isPublic) {
-                    copyShareLink(mpReplay.replayId);
+                  // Source of truth changed 2026-05-26 from `mpReplay` to
+                  // `replayInput.data` so direct-URL access (where mpReplay
+                  // is never populated) also gets the privacy chip.
+                  if (replayInput.kind !== "remote") return;
+                  if (replayInput.data.isPublic) {
+                    copyShareLink(replayInput.data.replayId);
                   } else {
                     void handleSharePublic();
                   }

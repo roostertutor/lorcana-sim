@@ -116,13 +116,6 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## Replay follow-up gaps (from Phase B/C shareable replays, shipped 2026-05-01)
-
-1. **`callerSlot` detection in `App.tsx → metaToRemoteReplay`** is hardcoded to `null` because `ReplayMeta` doesn't carry player IDs (only usernames). Effect: a player visiting their own MP replay via direct `/replay/:gameId` URL gets reduced affordances — no privacy chip toggle, perspective toggle behaves as if anonymous. Cleanest fix: add optional `callerSlot?: "p1" | "p2" | null` to `ReplayMeta` and stamp it in `buildReplayView`.
-2. **Privacy chip + share button only render when `mpReplay` is non-null**. They don't render when reviewing via `/replay/:gameId` direct URL or `/replay/share/:replayId`. Once #1 lands, refactor to read from `replayInput.data.replayId`.
-
----
-
 ## Engine agent: possible follow-up — expand resolveTargetAndApply coverage
 
 The 2026-04-21 zone-move helper consolidation landed — `resolveTargetAndApply`

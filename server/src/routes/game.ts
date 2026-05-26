@@ -2,7 +2,6 @@ import { Hono } from "hono"
 import type { GameAction, GameState, PlayerID } from "@lorcana-sim/engine"
 import { filterStateForPlayer } from "@lorcana-sim/engine"
 import { requireAuth } from "../middleware/auth.js"
-import { supabase } from "../db/client.js"
 import {
   processAction,
   getGame,
@@ -10,10 +9,11 @@ import {
   claimWin,
   getGameHistory,
   getGameActions,
-  getFilteredGameReplay,
   decideReplayAccess,
   recordHeartbeat,
   projectClockForRow,
+  getReplayByGameId,
+  buildReplayView,
   type ReplayPerspective,
 } from "../services/gameService.js"
 
@@ -125,9 +125,6 @@ game.get("/:id/actions", requireAuth, async (c) => {
 // the caller participated in); the public-share path lives at GET /replay/:id.
 game.get("/:id/replay", requireAuth, async (c) => {
   const gameId = c.req.param("id")!
-  const gameData = await getGame(gameId)
-  if (!gameData) return c.json({ error: "Game not found" }, 404)
-
   const userId = c.get("userId")
 
   // Parse perspective query param.
@@ -136,32 +133,29 @@ game.get("/:id/replay", requireAuth, async (c) => {
     return c.json({ error: "Invalid perspective. Must be p1, p2, or neutral." }, 400)
   }
 
-  // Read the public flag from the replays row (if it exists) so neutral
-  // perspective is allowed iff both players opted in. No replays row → treat
-  // as private (the in-progress / never-saved case shouldn't reach this
-  // endpoint, but default-deny if it does).
-  const { data: replayRow } = await supabase
-    .from("replays")
-    .select("public")
-    .eq("game_id", gameId)
-    .maybeSingle()
-  const isPublic = (replayRow?.public as boolean | undefined) === true
+  // Fetch the replays row (carries p1/p2 IDs + public flag + denormalized
+  // chrome metadata). Aligned 2026-05-26 with the public-share path at
+  // `/replay/:id` so both routes return the same full ReplayView shape —
+  // previously this route returned a thin `{ states, winner, perspective }`
+  // payload that omitted `id` / `public` / `callerSlot` and forced the UI
+  // into degraded affordances (no privacy chip, no share button) when
+  // entering the viewer via the player-only direct URL.
+  const row = await getReplayByGameId(gameId)
+  if (!row) return c.json({ error: "Replay data not available" }, 404)
 
   const decision = decideReplayAccess({
     userId,
-    p1Id: gameData.player1_id as string,
-    p2Id: gameData.player2_id as string,
-    isPublic,
+    p1Id: row.p1_id,
+    p2Id: row.p2_id,
+    isPublic: row.row.public,
     requested,
   })
   if (!decision.ok) {
     return c.json({ error: decision.error }, decision.status)
   }
 
-  const replay = await getFilteredGameReplay(gameId, decision.perspective)
-  if (!replay) return c.json({ error: "Replay data not available" }, 404)
-
-  return c.json({ replay: { ...replay, perspective: decision.perspective } })
+  const view = await buildReplayView(row.row.id, row, true, decision.perspective, userId)
+  return c.json({ replay: view })
 })
 
 // POST /game/:id/action

@@ -109,7 +109,7 @@ replay.get("/:id", async (c) => {
     return c.json({ error: decision.error }, decision.status)
   }
 
-  const view = await buildReplayView(replayId, row, true, decision.perspective)
+  const view = await buildReplayView(replayId, row, true, decision.perspective, userId)
   return c.json({ replay: view })
 })
 

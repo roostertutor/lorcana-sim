@@ -534,6 +534,14 @@ export interface ReplayMeta {
   createdAt: string
   /** The viewing perspective `replay.states` was filtered against. */
   perspective: ReplayPerspective
+  /** Which player slot the calling user occupies in the parent game.
+   *  Stamped server-side by `buildReplayView` from the auth'd user against
+   *  `replays.p1_id` / `p2_id`. `null` for anonymous viewers (shared-link
+   *  browsing without a session) or non-player spectators. UI drives the
+   *  privacy chip + share button + perspective toggle off this — only
+   *  players can change share state or flip between their perspective and
+   *  the spectator (neutral) view when the replay is public. */
+  callerSlot: "p1" | "p2" | null
   /** Pre-rendered, per-viewer-filtered state stream + winner. Null if the
    *  underlying game has no actions yet (shouldn't happen for finished MP
    *  games, but the server returns nullable so we mirror it). */

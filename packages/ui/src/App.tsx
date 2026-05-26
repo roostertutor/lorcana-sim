@@ -721,16 +721,16 @@ function MultiplayerPage() {
 }
 
 /** Translate a server `ReplayMeta` (Phase A endpoint shape) into the
- *  client-side `RemoteReplay` consumed by `useReplaySession`. Mirrors the
- *  helper in GameBoard.tsx but with conservative caller-slot detection.
+ *  client-side `RemoteReplay` consumed by `useReplaySession`.
  *
- *  We can't tell from `meta` alone whether the caller is one of the two
- *  players — `ReplayMeta` carries usernames, not player IDs. The server
- *  already echoed the appropriate `perspective` based on its own access
- *  decision; we mirror it. The toggle UI uses `isPublic` + `callerSlot`
- *  to decide affordances; missing slot = anonymous, toggle locked to the
- *  server-granted perspective. Cleaner future shape: server includes the
- *  caller's slot in the response. Punted to a Phase B follow-up. */
+ *  Caller-slot detection: as of 2026-05-26 the server stamps `callerSlot`
+ *  on every `ReplayMeta` response via `buildReplayView` (against the
+ *  auth'd user vs `replays.p1_id` / `p2_id`). Both the player-only path
+ *  (`GET /game/:id/replay`) and the public-share path (`GET /replay/:id`)
+ *  return the same full ReplayView shape now — direct-URL entry no
+ *  longer suffers from a missing-slot fallback. `callerIsPlayer` is
+ *  derived: any non-null slot means the caller is one of the two
+ *  players. */
 function metaToRemoteReplay(meta: ReplayMeta): RemoteReplay {
   return {
     replayId: meta.id,
@@ -740,8 +740,8 @@ function metaToRemoteReplay(meta: ReplayMeta): RemoteReplay {
     turnCount: meta.turnCount,
     perspective: meta.perspective,
     isPublic: meta.public,
-    callerIsPlayer: false,
-    callerSlot: null,
+    callerIsPlayer: meta.callerSlot !== null,
+    callerSlot: meta.callerSlot,
     p1Username: meta.p1Username,
     p2Username: meta.p2Username,
     p1DisplayName: meta.p1DisplayName,
