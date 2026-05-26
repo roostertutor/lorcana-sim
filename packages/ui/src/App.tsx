@@ -21,6 +21,7 @@ import { resolveLobbyCode, joinLobby, getLobbyInfo } from "./lib/serverApi.js";
 import Icon, { type IconName } from "./components/Icon.js";
 import { FeedbackProvider } from "./lib/feedbackContext.js";
 import FeedbackButton from "./components/FeedbackButton.js";
+import { usePostCloseRedirect } from "./hooks/usePostCloseRedirect.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 
@@ -872,6 +873,13 @@ export default function App() {
 // tree (including full-screen game pages without Shell). Any component
 // anywhere can call useFeedback().
 function AppRoutes() {
+  // Phase 4 (2026-05-26) Lane 3: if the user closed their tab mid-game and
+  // came back to find the game finished (timeout / opponent claim-win),
+  // silently redirect them to the replay viewer for that game instead of
+  // landing on a stale live URL. Fires once on app mount; runs alongside
+  // (not in lieu of) the per-page reconnection flows that handle the
+  // still-active case.
+  usePostCloseRedirect();
   return (
     <Routes>
       {/* Tab pages */}

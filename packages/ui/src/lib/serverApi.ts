@@ -97,7 +97,11 @@ export async function createLobby(
 export interface LobbyInfo {
   lobbyId: string
   code: string
-  status: "waiting" | "lobby" | "active" | "cancelled"
+  /** Phase 4 (2026-05-26): server adds `'abandoned'` to the union — lazy
+   *  detection flips a waiting/lobby row stale > 60s (heartbeat threshold)
+   *  to abandoned on the next read. UI treats it as a terminal state and
+   *  surfaces an explanation + back-to-multiplayer affordance. */
+  status: "waiting" | "lobby" | "active" | "cancelled" | "abandoned"
   format: "bo1" | "bo3"
   gameFormat: GameFormatFamily
   gameRotation: RotationId
@@ -164,6 +168,31 @@ export async function setReadyInLobby(lobbyId: string, ready: boolean) {
     gameStarted: boolean
     gameId: string | null
   }>
+}
+
+/** PATCH /lobby/:id/heartbeat — presence ping while sitting in a lobby
+ *  (waiting for an opponent, or both picking decks). Server uses the
+ *  freshness of `last_heartbeat_at` for lazy abandoned-lobby detection:
+ *  any read path flips a stale > 60s waiting/lobby row to
+ *  `status='abandoned'` on the next read. Caller should fire every ~30s
+ *  while the lobby is in `waiting` or `lobby` status — gives 2 missed
+ *  heartbeats of slack relative to the server's 60s threshold.
+ *
+ *  Idempotent. Errors swallowed by the caller — the next interval tick
+ *  re-syncs and the abandoned-lobby surfacing handles the terminal
+ *  state on the next /info read. Returns {ok: true} on success,
+ *  null on transport / auth / member-check failure. */
+export async function heartbeatLobby(lobbyId: string): Promise<{ ok: true } | null> {
+  try {
+    const res = await fetch(`${SERVER_URL}/lobby/${lobbyId}/heartbeat`, {
+      method: "PATCH",
+      headers: await authHeaders(),
+    })
+    if (!res.ok) return null
+    return { ok: true }
+  } catch {
+    return null
+  }
 }
 
 /** GET /lobby/resolve/:code — 6-char voice/typing share lookup.
@@ -369,6 +398,34 @@ export async function resignGame(gameId: string) {
     headers: await authHeaders(),
   })
   if (!res.ok) throw new Error(await extractError(res))
+}
+
+/** POST /game/:id/claim-win — MP UX Phase 4 (2026-05-26). Award the win to
+ *  the caller when their opponent's chess-clock grace window has exhausted.
+ *  Server enforces the precondition (caller is a player, game in_progress,
+ *  opponent grace exhausted) so the client stays optimistic — no need to
+ *  re-check the disconnect threshold here.
+ *
+ *  Idempotent: a second call against an already-finished game returns
+ *  `{ ok: true }` with `eloDelta: null` (the ELO update fired on the first
+ *  call). Mirrors the `cancelLobby` discriminated-union shape so callers
+ *  can pattern-match on `result.ok` rather than try/catch. */
+export async function claimWin(
+  gameId: string,
+): Promise<
+  | { ok: true; winnerId: PlayerID; eloDelta: number | null }
+  | { ok: false; error: string; status: number }
+> {
+  const res = await fetch(`${SERVER_URL}/game/${gameId}/claim-win`, {
+    method: "POST",
+    headers: await authHeaders(),
+  })
+  if (res.ok) {
+    const data = await res.json() as { ok: true; winnerId: PlayerID; eloDelta: number | null }
+    return { ok: true, winnerId: data.winnerId, eloDelta: data.eloDelta }
+  }
+  const error = await extractError(res)
+  return { ok: false, error, status: res.status }
 }
 
 /** Per-rotation ELO key — matches the server schema's JSONB shape.

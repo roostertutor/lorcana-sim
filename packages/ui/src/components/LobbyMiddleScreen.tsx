@@ -29,6 +29,7 @@ import {
   setDeckInLobby,
   setReadyInLobby,
   cancelLobby,
+  heartbeatLobby,
 } from "../lib/serverApi.js";
 import type { LobbyInfo } from "../lib/serverApi.js";
 import { listDecks } from "../lib/deckApi.js";
@@ -81,6 +82,26 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
   useEffect(() => {
     listDecks().then(setSavedDecks).catch(() => {});
   }, []);
+
+  // Phase 4 (2026-05-26): heartbeat loop while we're in a pre-game lobby
+  // state. Fires PATCH /lobby/:id/heartbeat every 30s — server uses
+  // last_heartbeat_at + lazy detection to flip stale > 60s waiting/lobby
+  // rows to status='abandoned'. 30s = 2 missed heartbeats of slack
+  // against the 60s threshold. Only fires for non-terminal states
+  // (waiting | lobby) — once the lobby flips to active/cancelled/
+  // abandoned the interval clears. An immediate ping on mount catches
+  // a hard refresh where the next interval tick would otherwise wait
+  // the full 30s.
+  const lobbyStatus = info?.status;
+  const heartbeatActive = lobbyStatus === "waiting" || lobbyStatus === "lobby";
+  useEffect(() => {
+    if (!heartbeatActive) return;
+    void heartbeatLobby(lobbyId);
+    const handle = setInterval(() => {
+      void heartbeatLobby(lobbyId);
+    }, 30_000);
+    return () => clearInterval(handle);
+  }, [lobbyId, heartbeatActive]);
 
   // Auto-navigate to the game when the lobby flips active.
   useEffect(() => {
@@ -219,6 +240,29 @@ export default function LobbyMiddleScreen({ lobbyId, myPlayerId }: Props) {
           onClick={() => navigate("/multiplayer")}
         >
           Back to Play
+        </button>
+      </div>
+    );
+  }
+
+  // Phase 4 (2026-05-26): abandoned-lobby surface. Server's lazy detection
+  // flips waiting/lobby rows stale > 60s to status='abandoned' on the next
+  // read — typically the host or guest closed their tab / lost connection
+  // without an explicit cancel. Treat as terminal; offer back-nav rather
+  // than dead-ending.
+  if (info.status === "abandoned") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 px-4 space-y-3 text-center max-w-md mx-auto">
+        <div className="text-amber-400 text-sm font-semibold">Lobby abandoned</div>
+        <div className="text-xs text-gray-400 leading-relaxed">
+          This lobby was abandoned (no activity for over a minute).
+          The host or joiner closed their tab or lost connection.
+        </div>
+        <button
+          className="mt-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold"
+          onClick={() => navigate("/multiplayer")}
+        >
+          Back to multiplayer
         </button>
       </div>
     );

@@ -2440,6 +2440,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
             clock={session.clock}
             myId={myId}
             isGameOver={isGameOver}
+            gameId={multiplayerGame.gameId}
           />
         )}
 

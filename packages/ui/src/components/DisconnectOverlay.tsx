@@ -8,11 +8,15 @@
 //     you while you were briefly offline, but you're seeing this means your
 //     network came back enough to fetch state again)
 //
-// Passive by design — no buttons. The server's lazy grace-exhaustion check
-// auto-forfeits when the grace bank runs out (recordHeartbeat / GET game
-// drive the detection). Both players see the underlying board through the
-// overlay so they can still pan / scroll cards while waiting — spec
-// requirement (opponents may want to study the position).
+// Mostly passive — the server's lazy grace-exhaustion check auto-forfeits
+// when the grace bank runs out (recordHeartbeat / GET game drive the
+// detection). When the opponent's grace hits 0 and the auto-forfeit hasn't
+// landed yet (lazy detection only fires on the next heartbeat / GET), a
+// "Claim Win" button surfaces so the still-connected player can force the
+// finalization rather than wait. Server enforces the precondition; client
+// is optimistic. Both players see the underlying board through the overlay
+// so they can still pan / scroll cards while waiting — spec requirement
+// (opponents may want to study the position).
 //
 // The grace countdown ticks locally at 100ms cadence; server pushes refresh
 // the base via the clock snapshot on every heartbeat tick (10s cadence) and
@@ -22,6 +26,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PlayerID } from "@lorcana-sim/engine";
 import type { ClockSnapshot } from "../lib/serverApi.js";
+import { claimWin } from "../lib/serverApi.js";
 
 interface Props {
   clock: ClockSnapshot | null;
@@ -34,6 +39,12 @@ interface Props {
   /** Game-active gating — overlay hides once the game ends (game-over modal
    *  takes over with the disconnect outcome copy). */
   isGameOver: boolean;
+  /** Multiplayer game id — used by the Claim Win button to POST
+   *  /game/:id/claim-win once the opponent's grace countdown reaches 0.
+   *  Optional so legacy callers (sandbox / solo, which never render this
+   *  overlay anyway) don't have to thread it. The button is hidden when
+   *  this is absent. */
+  gameId?: string;
 }
 
 function formatGrace(ms: number): string {
@@ -44,9 +55,11 @@ function formatGrace(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-export default function DisconnectOverlay({ clock, myId, isGameOver }: Props) {
+export default function DisconnectOverlay({ clock, myId, isGameOver, gameId }: Props) {
   const baseRef = useRef<{ p1: number; p2: number; at: number } | null>(null);
   const [, force] = useState(0);
+  const [claimPending, setClaimPending] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!clock) {
@@ -89,6 +102,31 @@ export default function DisconnectOverlay({ clock, myId, isGameOver }: Props) {
   // viewer's own "reconnecting" state is implicit (they wouldn't be reading
   // an overlay otherwise).
   if (oppDisconnected) {
+    // Gate the claim button on grace ≤ 1s (not strictly 0). The local
+    // countdown ticks every 250ms; using 0 would cause the button to
+    // appear/disappear flicker during the final tick. Server enforces
+    // the actual precondition so an early-by-1s click is harmless — it
+    // 4xx's and we surface the inline error. The 1s buffer keeps UX
+    // smooth without changing the locked "grace exhausted" semantics.
+    const canClaim = !!gameId && oppGrace <= 1000;
+
+    const handleClaim = async () => {
+      if (!gameId || claimPending) return;
+      setClaimPending(true);
+      setClaimError(null);
+      const result = await claimWin(gameId);
+      if (!result.ok) {
+        setClaimError(result.error);
+        setClaimPending(false);
+        return;
+      }
+      // Success: the games row UPDATE triggers the existing Realtime
+      // postgres-changes channel; useGameSession installs the finished
+      // state; the overlay unmounts via the `isGameOver` gate without
+      // any explicit dismiss here. Leave `claimPending` true so the
+      // button stays disabled during the brief Realtime round-trip.
+    };
+
     return (
       <div
         className="absolute inset-x-0 top-1/3 z-30 pointer-events-none flex justify-center px-4"
@@ -105,6 +143,21 @@ export default function DisconnectOverlay({ clock, myId, isGameOver }: Props) {
             <span className="font-mono font-bold text-base tabular-nums">{formatGrace(oppGrace)}</span>
             <span className="text-amber-300/80"> remaining before forfeit</span>
           </div>
+          {canClaim && (
+            <button
+              type="button"
+              onClick={() => void handleClaim()}
+              disabled={claimPending}
+              className="mt-3 inline-flex items-center justify-center gap-1.5 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-700 disabled:opacity-60 disabled:cursor-not-allowed text-amber-50 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-md border border-amber-400/40 shadow-sm transition-colors"
+            >
+              {claimPending ? "Claiming…" : "Claim Win"}
+            </button>
+          )}
+          {claimError && (
+            <div className="mt-2 text-[11px] text-amber-200/80">
+              Couldn't claim win: <span className="font-medium">{claimError}</span>
+            </div>
+          )}
         </div>
       </div>
     );
