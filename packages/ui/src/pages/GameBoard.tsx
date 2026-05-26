@@ -1218,9 +1218,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           const def = gs.cards[action.instanceId]
             ? definitions[gs.cards[action.instanceId]!.definitionId]
             : undefined;
-          const abilityName = def?.abilities[action.abilityIndex]?.type === "activated"
-            ? (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate"
-            : "Activate";
+          // For granted abilities (`abilityIndex` past the card's own ability
+          // count), look up the source storyName from the GrantedActivatedAbility
+          // record so the button reads e.g. "MAKING HISTORY" (Dumbo's grant on
+          // Jetsam) instead of the generic "Activate". Engine support landed in
+          // commit 47b6f2a — `gameModifiers.grantedActivatedAbilities` entries
+          // now carry `sourceStoryName` + `sourceInstanceId`.
+          let abilityName: string;
+          if (def && action.abilityIndex >= def.abilities.length) {
+            const grantedIndex = action.abilityIndex - def.abilities.length;
+            const granted = gameModifiers?.grantedActivatedAbilities.get(action.instanceId)?.[grantedIndex];
+            abilityName = granted?.sourceStoryName ?? "Activate";
+          } else if (def?.abilities[action.abilityIndex]?.type === "activated") {
+            abilityName = (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate";
+          } else {
+            abilityName = "Activate";
+          }
           add(action.instanceId, {
             label: abilityName, color: "bg-indigo-700 hover:bg-indigo-600 text-indigo-100",
             onClick: (e) => { e.stopPropagation(); session.dispatch(action); },

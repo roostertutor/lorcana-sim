@@ -187,40 +187,6 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## gameboard-specialist: surface source storyName on granted activated-ability buttons
-
-Engine support landed (commit ships GrantedActivatedAbility records with
-`sourceStoryName` + `sourceInstanceId` on every `grantedActivatedAbilities`
-map entry). UI label fix is now a one-liner — `GameBoard.tsx:917-919`
-falls back to the literal "Activate" for granted abilities because it can't
-resolve the source ability's storyName. With the engine change, the fix is:
-
-```typescript
-if (action.abilityIndex >= def.abilities.length) {
-  const grantedIndex = action.abilityIndex - def.abilities.length;
-  const granted = gameModifiers.grantedActivatedAbilities.get(action.instanceId)?.[grantedIndex];
-  abilityName = granted?.sourceStoryName ?? "Activate";
-} else {
-  abilityName = (def.abilities[action.abilityIndex] as { storyName?: string }).storyName ?? "Activate";
-}
-```
-
-Blast radius: every card with `grant_activated_ability` or
-`grant_activated_ability_timed` — Dumbo MAKING HISTORY (set 9, recipient
-shows "MAKING HISTORY" instead of "Activate"), Cogsworth-Talking-Clock,
-Food Fight! recipients (show "Food Fight!"), Donald Duck Coin Collector,
-Walk the Plank!. Cosmetic polish only — no incorrect game behavior — but
-visibly reads better when the source card sits next to a recipient sporting
-a labeled activate button matching it.
-
-Engine-side type / writer / reader docs live in
-`GameModifiers.grantedActivatedAbilities` JSDoc at
-`packages/engine/src/engine/gameModifiers.ts:163-170` and the
-`GrantedActivatedAbility` interface immediately above the GameModifiers
-interface.
-
----
-
 ## Engine agent: possible follow-up — expand resolveTargetAndApply coverage
 
 The 2026-04-21 zone-move helper consolidation landed — `resolveTargetAndApply`
