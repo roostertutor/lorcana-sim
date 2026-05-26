@@ -796,6 +796,55 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // the file with a clarifying comment near the existing usages.
   const myId = multiplayerGame?.myPlayerId ?? "player1";
 
+  // ── First-player banner (MP UX Phase 1) ────────────────────────────────
+  // After the choose_play_order pendingChoice resolves, engine populates
+  // state.firstPlayerId. We surface a brief 2s banner so the player learns
+  // who's starting without parsing the log line. Triggers on:
+  //   1. Initial game start (firstPlayerId transitions from undefined → set).
+  //   2. Bo3 game 2 / 3 (new gameId remounts; first-player decision happens
+  //      again with the previous loser as the chooser).
+  // Suppressed for sandbox / solo — only fires when multiplayerGame is set.
+  // The shownForGameIdRef pin prevents re-fire on Realtime re-fetches /
+  // reconnects within the same game (state is re-installed but firstPlayerId
+  // is already set, so the trigger predicate would otherwise fire again).
+  const [firstPlayerBanner, setFirstPlayerBanner] = useState<string | null>(null);
+  const firstPlayerBannerShownForGameIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!multiplayerGame) return;
+    const fp = session.gameState?.firstPlayerId;
+    if (!fp) return;
+    if (firstPlayerBannerShownForGameIdRef.current === multiplayerGame.gameId) return;
+    firstPlayerBannerShownForGameIdRef.current = multiplayerGame.gameId;
+    const youGoFirst = fp === myId;
+    // Bo3 prefix: read _matchScore + gameNumber off the session. _matchScore
+    // is server-stamped on the previous game's final state (see
+    // gameService.ts ~445), but it also reaches the new game's state when
+    // the same player's client continues into game 2/3 — gameNumber is the
+    // authoritative ordinal. Score for the prefix is "wins going into this
+    // game", which is exactly _matchScore at this point (the new game hasn't
+    // finished yet so the score reflects only completed prior games).
+    const matchScore = (session.gameState as unknown as Record<string, unknown>)._matchScore as
+      | { p1: number; p2: number }
+      | undefined;
+    const gameNumber = session.gameNumber ?? 1;
+    let prefix = "";
+    if (gameNumber > 1) {
+      const myWins = matchScore ? (myId === "player1" ? matchScore.p1 : matchScore.p2) : 0;
+      const oppWins = matchScore ? (myId === "player1" ? matchScore.p2 : matchScore.p1) : 0;
+      prefix = `Game ${gameNumber} of 3 · ${myWins}-${oppWins} · `;
+    }
+    setFirstPlayerBanner(`${prefix}${youGoFirst ? "You go first" : "Opponent goes first"}`);
+  }, [multiplayerGame, session.gameState?.firstPlayerId, session.gameNumber, myId, session.gameState]);
+  // Auto-dismiss after 2s. Click-anywhere on the pill itself also dismisses
+  // (button onClick → setFirstPlayerBanner(null)). The pill is small and
+  // centred, so taps elsewhere on the board fall through naturally — the
+  // banner doesn't block input.
+  useEffect(() => {
+    if (!firstPlayerBanner) return;
+    const id = window.setTimeout(() => setFirstPlayerBanner(null), 2000);
+    return () => window.clearTimeout(id);
+  }, [firstPlayerBanner]);
+
   // ── Unified reveal log ──────────────────────────────────────────────────
   // Two engine concepts (`lastRevealedCards` for top-of-deck reveals,
   // `lastRevealedHand` for hand reveals) are tracked here as a single
@@ -2903,6 +2952,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           Cancel/Confirm buttons unreachable). InfoToast = passive pulse
           for "Opponent thinking" / "Waiting." ModeToast = interactive
           pill for the 2-step click modes (Challenge/Shift/Sing/Move). */}
+      {/* First-player banner — MP UX Phase 1. Auto-dismisses after 2s
+          (see effect above); click-anywhere also dismisses. Pointer-events
+          stay ON the pill so the click registers, but the surrounding
+          area lets taps fall through to the board. Amber theme — distinct
+          from yellow (opponent thinking) and gray (waiting) so it reads
+          as a one-shot ceremony rather than an ambient status pill. */}
+      {firstPlayerBanner && (
+        <TopToast className="cursor-pointer">
+          <button
+            onClick={() => setFirstPlayerBanner(null)}
+            className="bg-amber-950/90 border border-amber-600/60 rounded-full px-4 py-1.5 shadow-lg text-amber-300 text-xs font-semibold active:scale-95 transition-transform"
+          >
+            {firstPlayerBanner}
+          </button>
+        </TopToast>
+      )}
       {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
         <InfoToast text="Opponent is thinking…" theme="yellow" />
       )}

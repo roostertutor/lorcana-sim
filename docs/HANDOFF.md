@@ -195,48 +195,13 @@ be picked up without re-reading the full plan.
 
 ### Phase 1 — Lobby polish + public browser + first-player banner
 
-Server ✅ (35061e1) + GUI ✅ (15db979 + a55b372). Only remaining: first-player banner.
-
-#### Open prompt for gameboard-specialist (Phase 1 banner)
-
-```
-MP UX Phase 1 — first-player banner on GameBoard. Full plan context in
-docs/HANDOFF.md under "End-to-end multiplayer UX improvement plan
-(7 phases) → Phase 1." This is the only Phase 1 GameBoard piece; lobby
-+ public-browser GUI shipped in 15db979 + a55b372.
-
-Scope: when an MP game starts (or a Bo3 game 2/3 transitions in), show
-a brief overlay/toast on the board for ~2s saying:
-- "You go first" — if state.firstPlayerId === myPlayerId
-- "Opponent goes first" — otherwise
-For Bo3 games 2 and 3, prefix with "Game 2 of 3 · 1-0" style match-
-score context (read state._matchScore and state._matchNextGameId per
-the existing game-over overlay code). For game 1 of Bo3, no prefix.
-
-Locked design decisions (per HANDOFF):
-- No countdown screen, no animation, no opponent preview
-- Auto-dismiss after ~2s; click-anywhere also dismisses
-- No format chip on the banner (player is committed to format already)
-- Same treatment for all Bo3 games — game 1 doesn't get extra ceremony
-
-Implementation notes:
-- state.firstPlayerId is already populated by the engine — no server
-  or engine change needed
-- Trigger: on initial game state load AND on transition into a new
-  game_number (Bo3 game 2/3 navigation)
-- Display: top-of-board overlay or center toast, your call. Ideally
-  doesn't block input (user can start playing immediately)
-- Suppress for solo/sandbox games — only fires for MP (check whether
-  myPlayerId came from the MP path; useGameSession knows this)
-
-Files to touch:
-- packages/ui/src/pages/GameBoard.tsx (overlay rendering)
-- packages/ui/src/hooks/useGameSession.ts (if you need a derived
-  "is this an MP game start" signal)
-
-Out of scope: Phase 2 game-over overlay work (rematch, ELO delta,
-share-replay button) — separate prompt below in Phase 2.
-```
+DONE. Server ✅ (35061e1) + GUI ✅ (15db979 + a55b372) + first-player
+banner ✅ (gameboard-specialist 2026-05-26). Banner fires once per
+MP gameId when `state.firstPlayerId` populates after the
+`choose_play_order` resolution; auto-dismisses after 2s; Bo3 games
+2/3 carry a "Game N of 3 · myScore-oppScore · " prefix using the
+new `gameNumber` field plumbed through `useGameSession`. Sandbox /
+solo suppressed (gated on `multiplayerGame`).
 
 ### Phase 2 — Post-game polish
 

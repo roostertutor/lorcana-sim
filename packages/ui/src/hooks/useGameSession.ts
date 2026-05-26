@@ -84,6 +84,11 @@ export interface GameSession {
    *  the game-over overlay copy for timeout / disconnect cases that the
    *  engine's `wonBy` field doesn't capture (server-procedural finishes). */
   outcomeReason: GameOutcomeReason;
+  /** Current game number in the match (1, 2, or 3). MP only — null in solo /
+   *  sandbox. Bo1 is always 1; Bo3 increments per game. Drives the first-
+   *  player banner's "Game 2 of 3" prefix. Sourced from the games row's
+   *  `game_number` column via getGameWithClock. */
+  gameNumber: number | null;
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -180,6 +185,10 @@ export function useGameSession(): GameSession {
   // MP-only: server's outcome_reason for the game-over overlay copy. Refreshed
   // alongside `clock` (same source — both come from GET /game/:id).
   const [outcomeReason, setOutcomeReason] = useState<GameOutcomeReason>(null);
+  // MP-only: current game number (1 / 2 / 3). Refreshed alongside `clock` —
+  // sourced from games.game_number on the GET /game/:id response. Drives the
+  // first-player banner prefix. Null in sandbox / solo since there's no DB row.
+  const [gameNumber, setGameNumber] = useState<number | null>(null);
   // Ref-mirror of clock so the heartbeat interval can read the prior
   // matchFormat without re-creating the interval on every clock update.
   const clockRef = useRef<ClockSnapshot | null>(null);
@@ -226,11 +235,12 @@ export function useGameSession(): GameSession {
    *    channel was down). */
   const fetchAndApplyGameState = useCallback((gameId: string) => {
     return getGameWithClock(gameId)
-      .then(({ state, clock: nextClock, outcomeReason: nextReason }) => {
+      .then(({ state, clock: nextClock, outcomeReason: nextReason, gameNumber: nextGameNumber }) => {
         gameStateRef.current = state;
         setGameState(state);
         setClock(nextClock);
         setOutcomeReason(nextReason);
+        setGameNumber(nextGameNumber);
         setError(null);
         // Bump actionCount so reveal-detection in GameBoard fires on
         // server-pushed state changes (existing behavior; preserved here).
@@ -762,6 +772,7 @@ export function useGameSession(): GameSession {
     setActionCount(0);
     setClock(null);
     setOutcomeReason(null);
+    setGameNumber(null);
     seedRef.current = 0;
     initialStateRef.current = null;
     actionHistoryRef.current = [];
@@ -854,6 +865,7 @@ export function useGameSession(): GameSession {
     nextGameId,
     clock,
     outcomeReason,
+    gameNumber,
     startGame,
     dispatch,
     selectCard,

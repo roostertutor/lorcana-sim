@@ -285,25 +285,32 @@ export async function getGame(gameId: string) {
 
 /** Variant of `getGame` that returns the full game payload including the
  *  server-projected clock and outcome_reason. Used by `useGameSession` so the
- *  clock store stays in lock-step with the filtered state install. */
+ *  clock store stays in lock-step with the filtered state install.
+ *
+ *  `gameNumber` (1, 2, or 3) is sourced from the games row's `game_number`
+ *  column. Bo1 games are always 1; Bo3 games 2 and 3 are created by the
+ *  server when the previous game finishes (see `gameService.ts ~1075`). Used
+ *  by the first-player banner to render the "Game 2 of 3 · 1-0" prefix. */
 export async function getGameWithClock(gameId: string): Promise<{
   state: GameState
   clock: ClockSnapshot | null
   outcomeReason: GameOutcomeReason
   status?: string
+  gameNumber: number
 }> {
   const res = await fetch(`${SERVER_URL}/game/${gameId}`, {
     headers: await authHeaders(),
   })
   if (!res.ok) throw new Error(await extractError(res))
   const data = await res.json() as {
-    game: { state: GameState; status?: string; outcome_reason?: GameOutcomeReason }
+    game: { state: GameState; status?: string; outcome_reason?: GameOutcomeReason; game_number?: number }
     clock: ClockSnapshot | null
   }
   return {
     state: data.game.state,
     clock: data.clock,
     outcomeReason: data.game.outcome_reason ?? null,
+    gameNumber: data.game.game_number ?? 1,
     ...(data.game.status !== undefined ? { status: data.game.status } : {}),
   }
 }
