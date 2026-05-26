@@ -13,6 +13,7 @@ import {
   getLobby,
   getLobbyInfo,
   listLobbies,
+  recordLobbyHeartbeat,
   rematchLobby,
   resolveLobbyCode,
   setDeckInLobby,
@@ -149,6 +150,22 @@ lobby.get("/", requireAuth, async (c) => {
   const userId = c.get("userId")
   const lobbies = await listLobbies(userId)
   return c.json({ lobbies })
+})
+
+// PATCH /lobby/:id/heartbeat — client presence ping for waiting/lobby rows.
+//
+// Clients call every ~30s while sitting in a lobby waiting for opponent or
+// readying up. Server uses last_heartbeat_at + lazy detection: any read path
+// (GET /lobby/:id, GET /lobby/, POST /lobby/join, GET /lobby/resolve/:code)
+// flips status='abandoned' when the timestamp is > 60s stale. Idempotent —
+// safe to call repeatedly. 404 / 403 / 409 follow the same convention as
+// the rest of the lobby surface.
+lobby.patch("/:id/heartbeat", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const lobbyId = c.req.param("id")!
+  const result = await recordLobbyHeartbeat(userId, lobbyId)
+  if (result.ok) return c.json({ ok: true })
+  return c.json({ error: result.error }, result.status)
 })
 
 // POST /lobby/:id/cancel — host cancels their waiting/lobby-state lobby.

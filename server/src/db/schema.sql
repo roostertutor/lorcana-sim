@@ -762,3 +762,36 @@ END $$;
 -- UPDATE / DELETE: service-role only — no policy needed (RLS denies all
 -- writes by default when no policy matches).
 UPDATE replays SET p2_display_name = p2_username WHERE p2_display_name IS NULL;
+
+-- ── Lobby heartbeat + abandoned-lobby detection — 2026-05-26 ──────────────
+-- MP UX Phase 4 lobby-level reconnection hardening. Complements the
+-- game-level heartbeat columns (games.pX_last_heartbeat_at, shipped 2026-05-18)
+-- with the same model at the lobby-waiting layer: clients PATCH
+-- /lobby/:id/heartbeat every ~30s while sitting in a lobby waiting for
+-- opponent / ready-up, and lazy reads (getLobby / getLobbyInfo / joinLobby /
+-- resolveLobbyCode) flip status='abandoned' when last_heartbeat_at is
+-- > 60s stale AND status='waiting'/'lobby'. No cron required — every
+-- pending Realtime subscriber gets a status-change broadcast on the next
+-- read by either party.
+--
+-- Default NOW() so existing waiting/lobby rows are treated as just-pinged
+-- on first read after rollout (won't immediately get abandoned).
+ALTER TABLE lobbies ADD COLUMN IF NOT EXISTS last_heartbeat_at TIMESTAMPTZ;
+UPDATE lobbies SET last_heartbeat_at = NOW() WHERE last_heartbeat_at IS NULL;
+-- Index covers the abandonment-staleness query: WHERE status IN (waiting, lobby)
+-- AND last_heartbeat_at < NOW() - 60s. Partial because only waiting/lobby
+-- rows are eligible for the lazy abandonment flip; finished/cancelled rows
+-- never get re-scanned.
+CREATE INDEX IF NOT EXISTS lobbies_heartbeat_status_idx
+  ON lobbies (status, last_heartbeat_at)
+  WHERE status IN ('waiting', 'lobby');
+
+-- Status enum widens to include 'abandoned' — distinct from 'cancelled'
+-- (explicit user action) and 'finished' (game completed). There's no CHECK
+-- constraint on `lobbies.status` so this is purely a documentation/runbook
+-- addition; existing transitions are unchanged and 'abandoned' is added
+-- alongside as the lazy-detection sink:
+--   waiting/lobby -> abandoned : heartbeat > 60s stale on a lazy read
+-- Cleanup logic in lobbyService.createLobby + checkForActiveGame already
+-- treats waiting/lobby rows as the only "user has a lobby" signal —
+-- 'abandoned' rows are correctly invisible to those checks.

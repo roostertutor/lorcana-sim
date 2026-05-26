@@ -940,6 +940,192 @@ export async function resignGame(gameId: string, userId: string) {
   return { success: true }
 }
 
+/** Result of a successful claim-win attempt — same shape as the game-finish
+ *  Realtime payload so the route layer can echo straight back. eloDelta is
+ *  null when the match wasn't ranked (private lobbies are unconditionally
+ *  unranked — see anti-collusion comment in updateElo). */
+export interface ClaimWinResult {
+  ok: true
+  winnerId: string
+  eloDelta: EloUpdateResult | null
+}
+
+/**
+ * Claim a win because the opponent has been disconnected long enough for
+ * their grace window to have exhausted. Server-enforced precondition
+ * (never trust the client): caller must be a game participant, game must
+ * be in_progress, opponent's grace must be exhausted per the chess-clock
+ * grace machinery in matchClock.ts.
+ *
+ * Disconnect threshold: we reuse the chess-clock grace window (per-player
+ * per-game, default 3 min from MATCH_CLOCK_CONFIG) rather than introducing
+ * a separate CLAIM_WIN_DISCONNECT_THRESHOLD_MS constant. One threshold to
+ * reason about; the grace bank is already correctly ratcheted across
+ * multiple disconnect/reconnect cycles. If the opponent reconnects and
+ * deducts grace partially, the next claim-win attempt fires sooner — same
+ * fairness contract as the natural disconnect-forfeit path in
+ * processAction's grace check.
+ *
+ * On success: marks games.status='finished', winner_id=caller, runs the
+ * normal updateElo path (claim-win counts as a normal win), writes the
+ * replay row via saveReplayForGame, and embeds _eloDelta into the stored
+ * state so both players see it via Realtime. The disconnected opponent
+ * sees the game as completed on their next reconnect via GET /game/:id.
+ *
+ * Idempotent: if the game is already finished, returns the existing winner
+ * — never errors. Two players hitting claim-win simultaneously converge on
+ * the first DB write to land (the second observes status='finished' and
+ * returns the same payload).
+ */
+export async function claimWin(
+  gameId: string,
+  userId: string,
+): Promise<
+  | ClaimWinResult
+  | { ok: false; error: string; status: 400 | 403 | 404 | 409 }
+> {
+  const { data: game, error: loadError } = await supabase
+    .from("games")
+    .select("*")
+    .eq("id", gameId)
+    .single()
+
+  if (loadError || !game) return { ok: false, status: 404, error: "Game not found" }
+
+  const playerSide: PlayerID | null =
+    game.player1_id === userId ? "player1" : game.player2_id === userId ? "player2" : null
+  if (!playerSide) {
+    return { ok: false, status: 403, error: "You are not a player in this game" }
+  }
+
+  // Idempotency — if the game is already finished, return the existing
+  // winner. Covers the parallel-click race (two players hitting claim-win
+  // simultaneously) and the "I already claimed and re-clicked" replay.
+  if (game.status === "finished") {
+    const winnerId = (game.winner_id as string | undefined) ?? null
+    if (!winnerId) {
+      // Defensive — game ended without a recorded winner (shouldn't happen
+      // for a finalized game). Treat as a 409 so the caller doesn't think
+      // they won when no one did.
+      return { ok: false, status: 409, error: "Game is finished but has no recorded winner" }
+    }
+    return { ok: true, winnerId, eloDelta: null }
+  }
+  if (game.status !== "active") {
+    return { ok: false, status: 409, error: `Cannot claim win in game with status "${game.status}"` }
+  }
+
+  // PRECONDITION — opponent's grace must be exhausted. Read the clock row,
+  // detect any pending disconnect (in case the opponent went stale since the
+  // last action without anyone running detectDisconnect against it), then
+  // check checkGraceExhausted.
+  const clock = readClockFromRow(game as Record<string, unknown>)
+  if (!clock) {
+    // Legacy untimed game — no grace window to exhaust. Claim-win isn't
+    // available on those rows; clients should fall through to /resign.
+    return {
+      ok: false,
+      status: 409,
+      error: "Cannot claim win on a legacy untimed game (no clock state to verify disconnect)",
+    }
+  }
+
+  const matchFormat = getMatchFormat(game as Record<string, unknown>)
+  const clockConfig = MATCH_CLOCK_CONFIG[matchFormat]
+  const now = new Date()
+  const detected = detectDisconnect(clock, now, clockConfig)
+
+  const opponent: PlayerID = playerSide === "player1" ? "player2" : "player1"
+  const graceLoser = checkGraceExhausted(detected, now)
+  if (graceLoser !== opponent) {
+    // Two failure modes: (1) no one is grace-exhausted yet, (2) the CALLER
+    // is the grace-exhausted one (their opponent should be claiming, not
+    // them). Either way the request is invalid.
+    return {
+      ok: false,
+      status: 409,
+      error: "Opponent has not been disconnected long enough — claim-win not yet available",
+    }
+  }
+
+  // All preconditions met. Finalize game in the disconnected-loss shape —
+  // matches the existing finalizeClockLoss path used by the lazy grace
+  // check inside processAction so clients see the same {wonBy:"disconnect",
+  // outcome_reason:"disconnect"} shape regardless of trigger.
+  const winner = playerSide
+  const winnerId = winner === "player1" ? (game.player1_id as string) : (game.player2_id as string)
+
+  // ELO + replay routing reads format/rotation off the parent lobby for
+  // private games; falls back to FALLBACK_ELO_KEY for queue-spawned games
+  // (lobby_id=null). Same shape as resignGame.
+  const { data: lobby } = game.lobby_id
+    ? await supabase.from("lobbies").select("*").eq("id", game.lobby_id as string).single()
+    : { data: null }
+  const eloKey = getEloKey(
+    (lobby?.format as string) ?? "bo1",
+    (lobby?.game_format as string) ?? "infinity",
+    (lobby?.game_rotation as string) ?? "s12",
+  )
+  const gameRanked = (game.ranked as boolean | undefined) ?? false
+  const eloUpdate = await updateElo(
+    game.player1_id as string,
+    game.player2_id as string,
+    winner,
+    eloKey,
+    gameRanked,
+  )
+
+  if (lobby) {
+    await saveReplayForGame(
+      gameId,
+      lobby,
+      game.player1_id as string,
+      game.player2_id as string,
+      winner,
+      game.state as GameState,
+    )
+  }
+
+  // Mirror finalizeClockLoss's wonBy="disconnect" stamp so client overlays
+  // render the same "opponent disconnected" copy whether the game ended via
+  // the lazy grace check or via this claim-win call. _eloDelta embedded the
+  // same way processAction does so the disconnected opponent sees the
+  // rating change when they eventually reconnect.
+  const existingState = (game.state as GameState | undefined) ?? null
+  const stateWithFinish = existingState
+    ? ({
+        ...(existingState as unknown as Record<string, unknown>),
+        isGameOver: true,
+        winner,
+        wonBy: "disconnect",
+        ...(eloUpdate && {
+          _eloDelta: {
+            [game.player1_id as string]: eloUpdate.p1,
+            [game.player2_id as string]: eloUpdate.p2,
+            _eloKey: eloUpdate.eloKey,
+          },
+        }),
+      } as unknown as GameState)
+    : null
+
+  // Persist the disconnect grace bookkeeping (`detected` may have flagged
+  // newly-detected disconnects since the last write) alongside the game
+  // finalization. Same write semantics as finalizeClockLoss.
+  await supabase
+    .from("games")
+    .update({
+      status: "finished",
+      winner_id: winnerId,
+      outcome_reason: "disconnect",
+      updated_at: new Date(),
+      ...(stateWithFinish ? { state: stateWithFinish } : {}),
+      ...clockToRowUpdate(detected),
+    })
+    .eq("id", gameId)
+
+  return { ok: true, winnerId, eloDelta: eloUpdate }
+}
+
 /** Insert a replay row for a just-finished game. Idempotent via the
  *  `replays.game_id` UNIQUE constraint — duplicate finish events (rare but
  *  possible under Realtime retries) will hit ON CONFLICT DO NOTHING. */

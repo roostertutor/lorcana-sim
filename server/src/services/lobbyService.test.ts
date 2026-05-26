@@ -901,3 +901,226 @@ describe("cancelLobby — host or guest may cancel", () => {
     expect(tables.lobbies.rows[0]!.guest_id).toBe("user-B")
   })
 })
+
+// ── recordLobbyHeartbeat (MP UX Phase 4) ──────────────────────────────────
+
+describe("recordLobbyHeartbeat", () => {
+  it("updates last_heartbeat_at for a host on a waiting lobby", async () => {
+    const oldStamp = new Date("2026-01-01T00:00:00Z")
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "waiting",
+      last_heartbeat_at: oldStamp,
+    })
+    const r = await mod.recordLobbyHeartbeat("user-A", "lobby-1")
+    expect(r.ok).toBe(true)
+    const after = tables.lobbies.rows[0]!.last_heartbeat_at as Date
+    expect(after.getTime()).toBeGreaterThan(oldStamp.getTime())
+  })
+
+  it("updates last_heartbeat_at for a guest on a lobby-state lobby", async () => {
+    const oldStamp = new Date("2026-01-01T00:00:00Z")
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+      last_heartbeat_at: oldStamp,
+    })
+    const r = await mod.recordLobbyHeartbeat("user-B", "lobby-1")
+    expect(r.ok).toBe(true)
+  })
+
+  it("rejects with 403 when caller is not a member of the lobby", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "lobby",
+      last_heartbeat_at: new Date(),
+    })
+    const r = await mod.recordLobbyHeartbeat("user-stranger", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(403)
+  })
+
+  it("rejects with 404 when lobby doesn't exist", async () => {
+    const r = await mod.recordLobbyHeartbeat("user-A", "nope")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(404)
+  })
+
+  it("rejects with 409 when lobby is active (game has started — wrong endpoint)", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "active",
+      last_heartbeat_at: new Date(),
+    })
+    const r = await mod.recordLobbyHeartbeat("user-A", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(409)
+  })
+
+  it("rejects with 409 when lobby is abandoned", async () => {
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "abandoned",
+      last_heartbeat_at: new Date(),
+    })
+    const r = await mod.recordLobbyHeartbeat("user-A", "lobby-1")
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.status).toBe(409)
+  })
+})
+
+// ── Lazy abandonment detection ─────────────────────────────────────────────
+
+describe("abandoned-lobby lazy detection", () => {
+  it("getLobbyInfo flips status='abandoned' when heartbeat > 60s stale on a waiting row", async () => {
+    const ancient = new Date(Date.now() - 5 * 60_000)
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "waiting",
+      format: "bo1",
+      game_format: "core",
+      game_rotation: "s12",
+      last_heartbeat_at: ancient,
+    })
+    tables.profiles.rows.push({ id: "user-A", username: "alice" })
+    const info = await mod.getLobbyInfo("lobby-1")
+    expect(info).not.toBeNull()
+    expect(info!.status).toBe("abandoned")
+    // Row was actually mutated, not just the snapshot.
+    expect(tables.lobbies.rows[0]!.status).toBe("abandoned")
+  })
+
+  it("getLobbyInfo does NOT flip a recently-heartbeated lobby", async () => {
+    const recent = new Date(Date.now() - 10_000) // 10s ago — well under 60s
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "lobby",
+      format: "bo1",
+      game_format: "core",
+      game_rotation: "s12",
+      last_heartbeat_at: recent,
+    })
+    tables.profiles.rows.push({ id: "user-A", username: "alice" })
+    const info = await mod.getLobbyInfo("lobby-1")
+    expect(info).not.toBeNull()
+    expect(info!.status).toBe("lobby")
+    expect(tables.lobbies.rows[0]!.status).toBe("lobby")
+  })
+
+  it("getLobbyInfo does NOT flip an active lobby even if last_heartbeat_at is stale", async () => {
+    // Once the game has spawned, lobby heartbeats stop — the game-level
+    // heartbeat takes over. A stale lobby heartbeat on an active row is
+    // expected and must NOT trigger abandonment.
+    const ancient = new Date(Date.now() - 60 * 60_000)
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      guest_id: "user-B",
+      status: "active",
+      format: "bo1",
+      game_format: "core",
+      game_rotation: "s12",
+      last_heartbeat_at: ancient,
+    })
+    tables.profiles.rows.push({ id: "user-A", username: "alice" })
+    tables.profiles.rows.push({ id: "user-B", username: "bob" })
+    const info = await mod.getLobbyInfo("lobby-1")
+    expect(info).not.toBeNull()
+    expect(info!.status).toBe("active")
+    expect(tables.lobbies.rows[0]!.status).toBe("active")
+  })
+
+  it("resolveLobbyCode returns 404 with status='abandoned' on a stale lobby", async () => {
+    const ancient = new Date(Date.now() - 5 * 60_000)
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "waiting",
+      last_heartbeat_at: ancient,
+    })
+    const r = await mod.resolveLobbyCode("user-stranger", "ABCDEF")
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.status).toBe(404)
+      expect(r.error).toMatch(/abandoned/)
+    }
+    expect(tables.lobbies.rows[0]!.status).toBe("abandoned")
+  })
+
+  it("joinLobby rejects when the lobby is stale (abandonment before guest arrives)", async () => {
+    const ancient = new Date(Date.now() - 5 * 60_000)
+    tables.lobbies.rows.push({
+      id: "lobby-1",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "waiting",
+      last_heartbeat_at: ancient,
+    })
+    // The .single() pattern with status='waiting' filter might find the row
+    // before abandonment fires — so the join path needs its own check.
+    await expect(mod.joinLobby("user-B", "ABCDEF")).rejects.toThrow(/not found|abandoned/)
+    expect(tables.lobbies.rows[0]!.status).toBe("abandoned")
+  })
+
+  it("listLobbies drops abandoned lobbies from the returned list", async () => {
+    const ancient = new Date(Date.now() - 5 * 60_000)
+    const fresh = new Date()
+    tables.lobbies.rows.push({
+      id: "lobby-old",
+      code: "OLDOLD",
+      host_id: "user-A",
+      status: "waiting",
+      last_heartbeat_at: ancient,
+      created_at: new Date("2026-01-01").toISOString(),
+    })
+    tables.lobbies.rows.push({
+      id: "lobby-new",
+      code: "NEWNEW",
+      host_id: "user-A",
+      status: "waiting",
+      last_heartbeat_at: fresh,
+      created_at: new Date("2026-02-01").toISOString(),
+    })
+    const list = await mod.listLobbies("user-A") as Array<{ id: string }>
+    // Only the fresh lobby should be in the list.
+    expect(list.map((l) => l.id)).toEqual(["lobby-new"])
+    // The old one got flipped to abandoned.
+    const old = tables.lobbies.rows.find((r) => r.id === "lobby-old")!
+    expect(old.status).toBe("abandoned")
+  })
+
+  it("never flips a finished or cancelled lobby (terminal states are sticky)", async () => {
+    const ancient = new Date(Date.now() - 5 * 60_000)
+    tables.lobbies.rows.push({
+      id: "lobby-finished",
+      code: "ABCDEF",
+      host_id: "user-A",
+      status: "finished",
+      last_heartbeat_at: ancient,
+    })
+    tables.profiles.rows.push({ id: "user-A", username: "alice" })
+    const info = await mod.getLobbyInfo("lobby-finished")
+    expect(info).not.toBeNull()
+    expect(info!.status).toBe("finished")
+    expect(tables.lobbies.rows[0]!.status).toBe("finished")
+  })
+})

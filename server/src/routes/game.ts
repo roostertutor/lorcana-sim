@@ -7,6 +7,7 @@ import {
   processAction,
   getGame,
   resignGame,
+  claimWin,
   getGameHistory,
   getGameActions,
   getFilteredGameReplay,
@@ -196,6 +197,37 @@ game.post("/:id/resign", requireAuth, async (c) => {
   }
 
   return c.json({ success: true })
+})
+
+// POST /game/:id/claim-win — MP UX Phase 4 (2026-05-26).
+//
+// Awards the win to the caller when their opponent has been disconnected
+// long enough that the chess-clock grace window (per-player per-game,
+// default 3 min from MATCH_CLOCK_CONFIG) has exhausted. Server-enforced
+// precondition; the client cannot game the threshold by claiming early.
+//
+// Side effects on success: games.status='finished', winner_id=caller,
+// outcome_reason='disconnect', updateElo runs (counts as a normal win for
+// ranked matches), replay row written via saveReplayForGame. The state
+// update triggers Supabase Realtime (REPLICA IDENTITY FULL) so the
+// disconnected opponent sees the game as completed when they reconnect.
+//
+// Idempotent: if the game is already finished, returns the existing
+// winner with eloDelta=null (the ELO update fired on the first call).
+// Two players hitting the endpoint simultaneously converge on the first
+// DB write to land.
+game.post("/:id/claim-win", requireAuth, async (c) => {
+  const userId = c.get("userId")
+  const result = await claimWin(c.req.param("id")!, userId)
+
+  if (!result.ok) {
+    return c.json({ ok: false, error: result.error }, result.status)
+  }
+  return c.json({
+    ok: true,
+    winnerId: result.winnerId,
+    eloDelta: result.eloDelta,
+  })
 })
 
 export { game }

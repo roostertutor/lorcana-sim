@@ -79,6 +79,102 @@ async function checkForQueueEntry(userId: string): Promise<boolean> {
   return Boolean(data && data.length > 0)
 }
 
+// =============================================================================
+// LOBBY-LEVEL HEARTBEAT + ABANDONMENT — MP UX Phase 4 (2026-05-26)
+// =============================================================================
+
+/** Threshold for treating an unpinged waiting/lobby row as abandoned. Set to
+ *  60s — clients heartbeat every ~30s while sitting in the lobby, so two
+ *  missed pings + a small slack window = abandoned. Aligned with the
+ *  game-level heartbeat semantics but with a longer window because lobby
+ *  presence is "are you still there" not "are you actively playing." */
+const LOBBY_HEARTBEAT_STALE_MS = 60_000
+
+/** Lazily flip a stale waiting/lobby row to status='abandoned'. Called from
+ *  every lobby read path (getLobby / getLobbyInfo / listLobbies / joinLobby /
+ *  resolveLobbyCode) so any subscriber that polls or re-fetches gets a
+ *  status-change broadcast without a cron. No-op when the lobby is already
+ *  in a terminal state ('finished'/'cancelled'/'abandoned') or has been
+ *  pinged within the window.
+ *
+ *  Returns the (possibly-updated) status so callers can re-evaluate their
+ *  per-status branches against the post-flip value without a second read.
+ *
+ *  Race-guarded via the .in('status', ['waiting', 'lobby']) filter — two
+ *  parallel calls converge on the first one to win the UPDATE; the second
+ *  matches zero rows and silently no-ops. */
+async function markLobbyAbandonedIfStale(
+  row: { id: unknown; status: unknown; last_heartbeat_at?: unknown },
+): Promise<string> {
+  const status = row.status as string | null
+  if (status !== "waiting" && status !== "lobby") return status ?? "unknown"
+
+  const heartbeat = row.last_heartbeat_at
+  // Legacy rows (created pre-rollout) won't carry last_heartbeat_at on the
+  // returned shape but the schema's UPDATE backfill stamped them with NOW()
+  // at migration time. Treat a missing field as just-pinged so first-read
+  // after rollout doesn't immediately abandon every existing waiting lobby.
+  if (heartbeat == null) return status
+
+  const lastPing = heartbeat instanceof Date ? heartbeat.getTime() : new Date(heartbeat as string).getTime()
+  if (Number.isNaN(lastPing)) return status
+
+  const now = Date.now()
+  if (now - lastPing < LOBBY_HEARTBEAT_STALE_MS) return status
+
+  // Stale — flip to abandoned. Race-guarded against the existing transitions
+  // (cancel / start-game / re-heartbeat) by the status filter; if any of
+  // those landed first, our UPDATE matches zero rows and the read-side
+  // simply observes the other transition.
+  await supabase
+    .from("lobbies")
+    .update({ status: "abandoned", updated_at: new Date() })
+    .eq("id", row.id as string)
+    .in("status", ["waiting", "lobby"])
+
+  return "abandoned"
+}
+
+/** Update last_heartbeat_at for a lobby the caller is a member of. Idempotent
+ *  — calling repeatedly is cheap (single PK UPDATE). Returns ok=false +
+ *  status for not-found / forbidden / wrong-state so the route layer can
+ *  surface the right HTTP code. No payload returned on success — the next
+ *  /info call will surface the up-to-date heartbeat if a UI needs it.
+ *
+ *  Called from PATCH /lobby/:id/heartbeat at ~30s cadence by clients that
+ *  are sitting in a waiting / lobby row (deck-pick screen, share-link
+ *  redirect target, post-join idle). Calls on active / finished / cancelled
+ *  / abandoned lobbies return 409 so the client knows to navigate away
+ *  rather than keep polling. */
+export async function recordLobbyHeartbeat(
+  userId: string,
+  lobbyId: string,
+): Promise<{ ok: true } | { ok: false; status: 403 | 404 | 409; error: string }> {
+  const { data: lobby, error } = await supabase
+    .from("lobbies")
+    .select("id, host_id, guest_id, status")
+    .eq("id", lobbyId)
+    .maybeSingle()
+  if (error || !lobby) {
+    return { ok: false, status: 404, error: "Lobby not found" }
+  }
+  if (lobby.host_id !== userId && lobby.guest_id !== userId) {
+    return { ok: false, status: 403, error: "You are not in this lobby" }
+  }
+  if (lobby.status !== "waiting" && lobby.status !== "lobby") {
+    return {
+      ok: false,
+      status: 409,
+      error: `Cannot heartbeat lobby with status "${lobby.status}"`,
+    }
+  }
+  await supabase
+    .from("lobbies")
+    .update({ last_heartbeat_at: new Date() })
+    .eq("id", lobbyId)
+  return { ok: true }
+}
+
 /** Spectator policy governs who can watch an active game from this lobby.
  *  Phase 1 stores the chosen value; Phase 7 consumes it in stateFilter. */
 export type SpectatorPolicy = "off" | "invite_only" | "friends" | "public"
@@ -159,6 +255,9 @@ export async function createLobby(
       // any historical reads that still expect the column.
       public: false,
       spectator_policy: options.spectatorPolicy ?? "off",
+      // Phase 4 lobby heartbeat — stamp on create so the first lazy-
+      // abandonment scan doesn't immediately flip a brand-new lobby.
+      last_heartbeat_at: new Date(),
     })
     .select()
     .single()
@@ -204,6 +303,15 @@ export async function joinLobby(
     throw new Error("Cannot join your own lobby")
   }
 
+  // Phase 4: lazy abandonment check — if the host stopped heartbeating
+  // before this guest tried to join, flip the lobby to 'abandoned' and
+  // reject the join. Same shape as the "already started" branch so the
+  // route layer's "not found" surface stays consistent.
+  const post = await markLobbyAbandonedIfStale(lobby as { id: unknown; status: unknown; last_heartbeat_at?: unknown })
+  if (post === "abandoned") {
+    throw new Error("Lobby not found or already started")
+  }
+
   // Set guest_id + flip status to 'lobby' (middle-screen transitional state).
   // 'lobby' replaces the old 'active' transition that fired at join time —
   // 'active' now only fires when the game actually spawns (in startGameIfReady).
@@ -243,15 +351,18 @@ export async function resolveLobbyCode(
 > {
   const { data: lobby, error } = await supabase
     .from("lobbies")
-    .select("id, host_id, guest_id, status")
+    .select("id, host_id, guest_id, status, last_heartbeat_at")
     .eq("code", code.toUpperCase())
     .maybeSingle()
 
   if (error || !lobby) {
     return { ok: false, status: 404, error: "Lobby not found" }
   }
-  if (lobby.status === "finished" || lobby.status === "cancelled") {
-    return { ok: false, status: 404, error: `Lobby ${lobby.status}` }
+  // Phase 4: lazy abandonment — pre-update terminal-state check so any
+  // stale waiting/lobby row gets flipped before we read its branch below.
+  const status = await markLobbyAbandonedIfStale(lobby as { id: unknown; status: unknown; last_heartbeat_at?: unknown })
+  if (status === "finished" || status === "cancelled" || status === "abandoned") {
+    return { ok: false, status: 404, error: `Lobby ${status}` }
   }
   // If the lobby already has a guest who isn't the caller AND the caller
   // isn't the host, it's full — block instead of silently letting them peek
@@ -292,7 +403,10 @@ export interface LobbyInfo {
   guestHasDeck: boolean
   hostReady: boolean
   guestReady: boolean
-  status: "waiting" | "lobby" | "active" | "finished" | "cancelled"
+  /** 'abandoned' is the Phase 4 lazy-detection sink — set when the lobby was
+   *  in waiting/lobby and the heartbeat went stale. Distinct from 'cancelled'
+   *  (explicit user action) and 'finished' (game completed). */
+  status: "waiting" | "lobby" | "active" | "finished" | "cancelled" | "abandoned"
   /** When status='active', the games row id for the spawned game. Null
    *  in the pre-spawn states. UI uses this to navigate from middle screen
    *  to the live game board. */
@@ -316,17 +430,24 @@ export async function getLobbyInfo(
   const { data: lobby, error } = await supabase
     .from("lobbies")
     .select(
-      "id, code, host_id, guest_id, host_deck, guest_deck, host_ready, guest_ready, format, game_format, game_rotation, status",
+      "id, code, host_id, guest_id, host_deck, guest_deck, host_ready, guest_ready, format, game_format, game_rotation, status, last_heartbeat_at",
     )
     .eq("id", lobbyId)
     .maybeSingle()
   if (error || !lobby) return null
 
+  // Phase 4: lazy abandonment — flip a stale waiting/lobby row before
+  // building the snapshot so the returned `status` reflects the up-to-date
+  // value. Any subscribed Realtime client picks up the status change on
+  // their next /info call.
+  const liveStatus = await markLobbyAbandonedIfStale(lobby as { id: unknown; status: unknown; last_heartbeat_at?: unknown })
+
   // Pull the latest game on this lobby (if any) so the middle screen knows
   // when to navigate from waiting -> game board. Bo3 may have multiple; the
-  // most recent game-number is the active one.
+  // most recent game-number is the active one. Use the live (post-flip)
+  // status so a freshly-abandoned lobby doesn't trigger a games lookup.
   let gameId: string | null = null
-  if (lobby.status === "active") {
+  if (liveStatus === "active") {
     const { data: g } = await supabase
       .from("games")
       .select("id")
@@ -368,7 +489,7 @@ export async function getLobbyInfo(
     guestHasDeck: lobby.guest_deck != null,
     hostReady: Boolean(lobby.host_ready),
     guestReady: Boolean(lobby.guest_ready),
-    status: lobby.status as LobbyInfo["status"],
+    status: liveStatus as LobbyInfo["status"],
     gameId,
   }
 }
@@ -671,6 +792,15 @@ export async function getLobby(lobbyId: string) {
     .single()
 
   if (error) return null
+
+  // Phase 4: lazy abandonment — flip a stale waiting/lobby row and reflect
+  // the new status onto the returned object so callers that branch on
+  // `status` (route layer, broadcast subscribers) see the up-to-date value
+  // without a second read.
+  const liveStatus = await markLobbyAbandonedIfStale(data as { id: unknown; status: unknown; last_heartbeat_at?: unknown })
+  if (liveStatus !== (data as { status?: unknown }).status) {
+    (data as { status: string }).status = liveStatus
+  }
   return data
 }
 
@@ -683,7 +813,22 @@ export async function listLobbies(userId: string) {
     .order("created_at", { ascending: false })
 
   if (error) return []
-  return data
+  if (!data || data.length === 0) return data ?? []
+
+  // Phase 4: lazy abandonment — flip any stale waiting/lobby rows in the
+  // returned set and drop them from the list view. Sequential awaits are
+  // fine here since the caller's per-user list is small (1-2 rows in
+  // practice).
+  const live: typeof data = []
+  for (const row of data) {
+    const status = await markLobbyAbandonedIfStale(row as { id: unknown; status: unknown; last_heartbeat_at?: unknown })
+    if (status === "abandoned") continue
+    if (status !== (row as { status?: unknown }).status) {
+      (row as { status: string }).status = status
+    }
+    live.push(row)
+  }
+  return live
 }
 
 /** Host or guest cancels/leaves a waiting/lobby-state lobby (MP UX Phase 1 —
