@@ -678,6 +678,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [rematchPending, setRematchPending] = useState(false);
   const [rematchError, setRematchError] = useState<string | null>(null);
 
+  // Supabase user id (Auth UUID) — needed to index into `_eloDelta` on the
+  // game-over modal, which the server keys by player1_id/player2_id (real
+  // Supabase UUIDs), not the engine's "player1"/"player2" PlayerID. Fetched
+  // lazily once when an MP game ends; null elsewhere (solo / sandbox have no
+  // ELO embed). Loaded via supabase.auth.getUser() at game-over rather than
+  // plumbed through props since no existing prop carries it down.
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+
   const [p1DeckText, setP1DeckText] = useState(SAMPLE_DECK);
   const [p2DeckText, setP2DeckText] = useState(SAMPLE_DECK);
   const [botId, setBotId] = useState("greedy");
@@ -1520,6 +1528,22 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     );
     return () => { cancelled = true; };
   }, [multiplayerGame, session.gameState?.isGameOver, rematchLobbyId]);
+
+  // MP game-over → resolve the caller's Supabase user id once so the ELO row
+  // in the Game Over Modal can index into `_eloDelta` (server-keyed by auth
+  // UUID, not engine PlayerID). One-shot, gated on `myUserId` being null and
+  // MP-only. Solo/sandbox never hits this branch (no `_eloDelta` to render).
+  useEffect(() => {
+    if (!multiplayerGame || !session.gameState?.isGameOver || myUserId) return;
+    let cancelled = false;
+    void import("../lib/supabase.js").then(({ supabase }) =>
+      supabase.auth.getUser().then(({ data }) => {
+        if (cancelled || !data.user?.id) return;
+        setMyUserId(data.user.id);
+      }),
+    );
+    return () => { cancelled = true; };
+  }, [multiplayerGame, session.gameState?.isGameOver, myUserId]);
 
   // Solo mode: auto-start with deck from lobby, bot plays P2. Re-fires whenever
   // session.gameState transitions to null (initial mount + after "Play Again"
@@ -3180,6 +3204,14 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         // Bo3 match state (embedded by server on game-over)
         const matchNextGameId = (gameState as Record<string, unknown>)._matchNextGameId as string | null | undefined;
         const matchScore = (gameState as Record<string, unknown>)._matchScore as { p1: number; p2: number } | undefined;
+        // ELO delta (embedded by server when a ranked match decides — gated
+        // server-side on match-end in Bo3, every game in Bo1; absent for
+        // unranked / private lobbies and for mid-Bo3 games. Keyed by Supabase
+        // auth UUID since both clients read the same filtered state).
+        const eloDelta = (gameState as Record<string, unknown>)._eloDelta as
+          | (Record<string, { before: number; after: number; delta: number }> & { _eloKey?: string })
+          | undefined;
+        const myEloRow = eloDelta && myUserId ? eloDelta[myUserId] : undefined;
         const hasNextGame = !!matchNextGameId;
         const myScore = matchScore ? (myId === "player1" ? matchScore.p1 : matchScore.p2) : 0;
         const oppScore = matchScore ? (myId === "player1" ? matchScore.p2 : matchScore.p1) : 0;
@@ -3269,6 +3301,24 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                 <div className="text-2xl font-black text-gray-300 font-mono">{turnCount}</div>
               </div>
             </div>
+            {/* ELO delta — present only on ranked match-end (server gates
+                the `_eloDelta` embed on lobbyResult.eloUpdate). Absent
+                for unranked / private lobbies and mid-Bo3 games; we render
+                nothing in those cases (no "Unranked match" copy — the
+                lobby type already implies that). */}
+            {myEloRow && (
+              <div className="text-sm text-gray-400">
+                <span className={
+                  myEloRow.delta > 0 ? "text-green-400 font-mono font-bold"
+                    : myEloRow.delta < 0 ? "text-red-400 font-mono font-bold"
+                    : "text-gray-400 font-mono font-bold"
+                }>
+                  {myEloRow.delta > 0 ? `+${myEloRow.delta}` : myEloRow.delta < 0 ? `${myEloRow.delta}` : "±0"}
+                </span>
+                <span className="ml-1">ELO</span>
+                <span className="ml-2 text-gray-500 font-mono">({myEloRow.before} → {myEloRow.after})</span>
+              </div>
+            )}
             {/* Bo3 match score */}
             {matchScore && (
               <div className="text-lg font-bold text-gray-200">

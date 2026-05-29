@@ -150,7 +150,7 @@ be picked up without re-reading the full plan.
 | Phase | Status | Next action |
 |---|---|---|
 | 1. Lobby polish + public browser + first-player banner | Server ✅, GUI ✅. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
-| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | Server ✅ (2026-04-22), Rematch UI ✅ (client-side). | gameboard-specialist: game-over overlay (prompt below); GUI agent: replay toast + serverApi wrappers (prompt below) |
+| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | Server ✅ (2026-04-22), Rematch UI ✅, Share UI ✅, ELO delta UI ✅ (2026-05-29). | GUI agent: replay toast + serverApi wrappers (prompt below) — last open Phase 2 lane |
 | 3. Matchmaking queue (user's two-account test target) | Open | server + engine + GUI coordinated ship (spec below in §Phase 3) |
 | 4. Reconnection + resume hardening | Open | After Phase 3 |
 | 5. Friends + rich presence | Open | After Phase 4 |
@@ -198,75 +198,9 @@ solo suppressed (gated on `multiplayerGame`).
 
 ### Phase 2 — Post-game polish
 
-Server ✅ (2026-04-22), Rematch UI ✅ (client-side wired). Remaining: game-over overlay polish + replay toast.
-
-#### Open prompt for gameboard-specialist (Phase 2 overlay, UNBLOCKED)
-
-```
-MP UX Phase 2 — game-over overlay enhancements. BLOCKED on server
-work; spin up only after the Phase 2 server agent commit lands.
-Server prompt is queued in HANDOFF.md. Full plan context in
-docs/HANDOFF.md under "End-to-end multiplayer UX improvement plan
-(7 phases) → Phase 2."
-
-Scope (3 items, all on GameBoard's existing game-over overlay at
-~lines 2174-2274):
-
-1. ELO delta display. Server's game-finish payload now carries
-   { eloBefore, eloAfter, eloDelta }. Render as:
-     +12 ELO (1247 → 1259)   [green if delta > 0]
-     -8 ELO (1259 → 1251)    [red if delta < 0]
-     Unranked match           [gray if delta === 0 AND rotation is
-                              flagged unranked — see HANDOFF for the
-                              ranked: boolean follow-up; for now,
-                              delta === 0 is just "no change"]
-
-2. Share-replay button. Server's auto-save (Phase 2 server item 2)
-   produces a replay_id; surface a "Share replay" button in the
-   overlay that copies https://<domain>/replay/:id to clipboard.
-   Toast on success ("Link copied"). For now, the share works because
-   replays are saved opt-in private — the user has to click a
-   separate "Make public" toggle (handled by the UI agent in a
-   follow-up; this button just copies the link, the link only
-   resolves for permitted viewers).
-
-3. Rematch flow with loser-picks-first. Replaces the current
-   "Play Again" / "Back to Lobby" buttons:
-   - Both players see "Rematch?" button on game-over
-   - First-clicker calls POST /lobby/rematch { previousLobbyId }.
-     Server immediately creates the new lobby AND spawns game 1 of
-     the rematch with the LOSER in player1 slot. Response: { lobbyId,
-     gameId, code, myPlayerId }.
-   - Both clients transition to /game/:newGameId (via Realtime or
-     follow-up navigation)
-   - The loser sees `choose_play_order` PendingChoiceModal (existing
-     CRD 2.1.3.2 UI — no new modal needed), picks first/second
-   - The winner sees the opponent-waiting variant of the same modal
-     ("Opponent is choosing play order…")
-   - On loser's choice resolving: game proceeds to mulligan
-
-Important: the server rematch endpoint is ONE-SHOT — no separate
-loser-choice endpoint. The loser's first/second pick flows through
-the engine's existing `choose_play_order` mechanism (same as Bo3
-games 2/3). You don't need a new Play/Draw radio in the game-over
-overlay — that's handled in the game-start flow by the existing
-PendingChoiceModal. All the overlay needs is the "Rematch" button.
-
-Rematch is idempotent: both players clicking simultaneously converge
-on the same lobby (server dedupes by `rematch_of`). So both
-ButtonClick handlers can safely POST without racing.
-
-Files:
-- packages/ui/src/pages/GameBoard.tsx (the overlay)
-- packages/ui/src/lib/serverApi.ts (add createRematch wrapper; PATCH
-  replay/share already documented below in GUI-agent prompt — may
-  already be done)
-
-Solo / sandbox game-over flow stays as-is. This is MP-only.
-
-Out of scope: replay public-toggle UI (UI agent's lane), the actual
-replay viewer page (GET /replay/:id already works).
-```
+Server ✅ (2026-04-22). Game-over overlay ✅ — Rematch (client-side wired),
+Share replay + public-toggle, and ELO delta display (2026-05-29) all shipped.
+Remaining: replay-save toast + serverApi wrappers (GUI agent prompt below).
 
 #### Open prompt for GUI agent (Phase 2 GUI, blocked on server)
 
