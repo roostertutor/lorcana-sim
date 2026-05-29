@@ -150,14 +150,14 @@ be picked up without re-reading the full plan.
 | Phase | Status | Next action |
 |---|---|---|
 | 1. Lobby polish + public browser + first-player banner | Server ✅, GUI ✅. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
-| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | Server ✅ (2026-04-22), Rematch UI ✅, Share UI ✅, ELO delta UI ✅ (2026-05-29). | GUI agent: replay toast + serverApi wrappers (prompt below) — last open Phase 2 lane |
+| 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | DONE — Server ✅ (2026-04-22), Rematch UI ✅, Share UI ✅, ELO delta UI ✅ (2026-05-29), Replay-saved toast ✅ (2026-05-29). | — |
 | 3. Matchmaking queue (user's two-account test target) | Open | server + engine + GUI coordinated ship (spec below in §Phase 3) |
 | 4. Reconnection + resume hardening | Open | After Phase 3 |
 | 5. Friends + rich presence | Open | After Phase 4 |
 | 6. Emoji reactions (ephemeral) | Open | Can land independently of 5 |
 | 7. Spectator mode (per-side fog-of-war) | Open; Phase 1 plumbing already shipped (`spectator_policy`) | After Phase 5 for friends-feed; public-games feed works without 5 |
 
-**Current bottleneck:** Phase 3 server + engine work. Phase 2 server is done; remaining Phase 2 UI work (game-over overlay, replay toast) can proceed in parallel with Phase 3 planning.
+**Current bottleneck:** Phase 3 server + engine work. Phases 1 and 2 are fully shipped.
 
 ### Locked design decisions
 
@@ -198,101 +198,23 @@ solo suppressed (gated on `multiplayerGame`).
 
 ### Phase 2 — Post-game polish
 
-Server ✅ (2026-04-22). Game-over overlay ✅ — Rematch (client-side wired),
-Share replay + public-toggle, and ELO delta display (2026-05-29) all shipped.
-Remaining: replay-save toast + serverApi wrappers (GUI agent prompt below).
-
-#### Open prompt for GUI agent (Phase 2 GUI, blocked on server)
-
-```
-MP UX Phase 2 GUI — replay-save toast + serverApi additions.
-BLOCKED on Phase 2 server agent commit; spin up only after that lands.
-Full plan context in docs/HANDOFF.md under "End-to-end multiplayer UX
-improvement plan (7 phases) → Phase 2."
-
-Lane split for Phase 2 (do not duplicate gameboard-specialist's work):
-- Game-over overlay layout (ELO delta, share button, rematch flow) =
-  gameboard-specialist (separate prompt above)
-- This prompt = the underlying API wiring + non-overlay surfaces
-  (toast, future "my replays" page)
-
-Scope (3 items):
-
-1. Replay-save toast in useGameSession.
-
-   When an MP game finishes, the server (per Phase 2 item 2) writes a
-   replay row and surfaces the replay_id on the game-finish payload.
-   useGameSession should detect the transition (isGameOver flips true
-   on an MP session, and the new payload includes a replay_id) and
-   trigger a toast/notification with the format:
-
-     "Replay saved — fb-{first 6 chars of replay_id}"
-
-   Toast should auto-dismiss after ~5s, with a Click-to-copy affordance
-   that puts https://<domain>/replay/{replay_id} on the clipboard.
-
-   Reuse existing toast/notification infrastructure if any exists in
-   the app; otherwise add a tiny inline toast (top-right, fixed,
-   z-50). DO NOT trigger on solo / sandbox finishes — only MP. The
-   isMP signal already lives in useGameSession.
-
-   Files:
-   - packages/ui/src/hooks/useGameSession.ts (detection + emit)
-   - Possibly a new packages/ui/src/components/ToastContainer.tsx if
-     no toast infra exists
-
-2. serverApi additions for replay sharing.
-
-   Add wrappers around the new server endpoints (per Phase 2 server
-   items 2 + 4):
-
-     // Returns the replay metadata so the UI can show "shared by X"
-     // headers, etc. on /replay/:id pages.
-     export async function getReplay(replayId: string): Promise<Replay | null>
-
-     // Toggle replay.public — only callable by the two players from
-     // the game. Server returns 403 otherwise. Used by the
-     // gameboard-specialist's overlay UI for the "Make public"
-     // checkbox next to the Share button.
-     export async function setReplayPublic(
-       replayId: string,
-       isPublic: boolean,
-     ): Promise<{ ok: true } | { ok: false; error: string; status: number }>
-
-   Export a Replay interface matching whatever the server returns
-   (see server's Phase 2 commit for the metadata shape — likely
-   { id, gameId, winner, turnCount, p1Username, p2Username, format,
-   rotation, public, createdAt }).
-
-   Files:
-   - packages/ui/src/lib/serverApi.ts
-
-3. (Deferred — capture as TODO comment, not in this session)
-
-   "My replays" page at /replays — list of all replays the user is in
-   (player1 or player2), with public/private toggle, share link copy,
-   delete option. Useful once a few games are recorded but not
-   blocking. Capture as a comment in serverApi.ts referencing the
-   future use of getReplay() + a yet-to-write listMyReplays().
-
-Out of scope:
-- Game-over overlay rendering — gameboard-specialist
-- /replay/:id viewer page — already works (App.tsx route exists, server
-  reconstructs from game_actions)
-- Anything in Phase 3 (matchmaking queue) or later
-
-Validation:
-- Two-account browser test: complete an MP game in two windows, both
-  see the replay-save toast within ~1s of game-over. Click copy →
-  paste in a third browser window → /replay/:id loads (after toggling
-  public via the gameboard overlay button if private is still default)
-- typecheck stays clean for new code (pre-existing
-  exactOptionalPropertyTypes errors per CLAUDE.md don't count)
-- Server's auto-save is idempotent — multiple finish events (Realtime
-  reconnect during game-end frame) shouldn't fire multiple toasts
-  client-side; gate the toast on a useRef "alreadyToasted" flag scoped
-  to the current gameId
-```
+DONE (2026-05-29). All Phase 2 work shipped across server + GUI:
+- Server ✅ (2026-04-22) — auto-saves a `replays` row on MP game-finish;
+  public-or-player `GET /replay/:id` endpoint; player-only
+  `PATCH /replay/:id/share` toggle; player-only `GET /replay/list`.
+- Rematch UI ✅ — loser-picks-first, 60s window, client-side wired.
+- Share UI ✅ — Share button + inline confirm + public-toggle + copy-link
+  in the game-over modal; perspective toggle for replay viewer.
+- ELO delta UI ✅ (2026-05-29) — game-over modal shows the delta.
+- Replay-saved toast ✅ (2026-05-29) — passive green pill at top-of-screen
+  on MP game-over showing `Replay saved — fb-{6char}`; tap copies the
+  share URL → flashes "Link copied" → auto-dismisses; idempotent per
+  gameId; MP-only. Wired inline in `GameBoard.tsx` against the existing
+  `mpReplay` fetch (option A from the Phase 2 prompt — simpler than the
+  originally-suggested `useGameSession` detection because the mpReplay
+  effect already resolves with the needed metadata for the share button).
+- `/replays` browse page ✅ — Decision #8 work, lives at `ReplaysPage.tsx`
+  with `getMyReplays` paging.
 
 ### Phase 3 — Matchmaking queues (casual + ranked) + private-becomes-unranked + decks lose rotation stamp
 

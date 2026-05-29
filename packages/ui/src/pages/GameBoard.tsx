@@ -668,6 +668,16 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   // `RemoteReplay` (pre-filtered state stream) instead of raw seed+actions.
   const [mpReplay, setMpReplay] = useState<RemoteReplay | null>(null);
 
+  // Replay-saved toast — MP UX Phase 2. Surfaces a passive green pill at the
+  // top of the screen when the server-side replay row exists for the just-
+  // finished MP game. Tap → copies the share URL → flashes "Link copied" →
+  // dismisses. Auto-dismisses after 5s if untouched. MP-only; solo + sandbox
+  // never populate `mpReplay` so the effect below is a no-op there. The
+  // shownForGameIdRef pin prevents re-fire on Realtime reconnects within the
+  // same game (same pattern as the first-player banner above).
+  const [replaySavedToast, setReplaySavedToast] = useState<{ replayId: string; phase: "saved" | "copied" } | null>(null);
+  const replaySavedToastShownForGameIdRef = useRef<string | null>(null);
+
   // Rematch wiring (MP end-of-match only). `rematchLobbyId` is fetched once
   // from the server when an MP game ends — it's the parent lobby's UUID,
   // not the game's id (server enforces this distinction). `rematchPending`
@@ -1415,6 +1425,49 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
     );
     return () => { cancelled = true; };
   }, [multiplayerGame, session.gameState?.isGameOver, mpReplay]);
+
+  // Replay-saved toast — fires once when the MP game-over fetch above resolves
+  // with a non-null replay. Idempotent per gameId via the ref so Realtime
+  // reconnects don't re-toast. Auto-dismiss is handled by the timer effect
+  // below (5s on "saved", 1.5s on "copied"). Gated on multiplayerGame so the
+  // toast never surfaces in solo/sandbox or in SharedReplayPage entry (which
+  // doesn't pass multiplayerGame).
+  useEffect(() => {
+    if (!multiplayerGame || !mpReplay) return;
+    if (replaySavedToastShownForGameIdRef.current === multiplayerGame.gameId) return;
+    replaySavedToastShownForGameIdRef.current = multiplayerGame.gameId;
+    setReplaySavedToast({ replayId: mpReplay.replayId, phase: "saved" });
+  }, [multiplayerGame, mpReplay]);
+
+  // Auto-dismiss for replay-saved toast. 5s on the initial "saved" pill;
+  // 1.5s on the post-click "Link copied" flash before dismissing entirely.
+  useEffect(() => {
+    if (!replaySavedToast) return;
+    const ms = replaySavedToast.phase === "copied" ? 1500 : 5000;
+    const id = window.setTimeout(() => setReplaySavedToast(null), ms);
+    return () => window.clearTimeout(id);
+  }, [replaySavedToast]);
+
+  /** Click handler for the replay-saved toast. Copies the public share URL,
+   *  flashes "Link copied" for ~1.5s, then dismisses. Wraps the clipboard
+   *  call in try/catch — non-HTTPS dev contexts and a handful of older
+   *  Android browsers throw / lack `navigator.clipboard`. On capability
+   *  miss, we just dismiss the toast immediately rather than leaving it
+   *  stuck in an indeterminate state. */
+  const handleReplaySavedToastClick = useCallback(() => {
+    if (!replaySavedToast) return;
+    const url = buildShareUrl(replaySavedToast.replayId);
+    try {
+      if (navigator.clipboard?.writeText) {
+        void navigator.clipboard.writeText(url).then(
+          () => setReplaySavedToast((prev) => (prev ? { ...prev, phase: "copied" } : prev)),
+          () => setReplaySavedToast(null),
+        );
+        return;
+      }
+    } catch { /* fall through to dismiss */ }
+    setReplaySavedToast(null);
+  }, [replaySavedToast]);
 
   // Perspective-change handler — refetches the replay from the server with
   // the requested perspective, then atomically updates both the cached
@@ -3002,6 +3055,28 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
       )}
       {pendingChoice && pendingChoice.choosingPlayerId !== myId && (
         <InfoToast text="Opponent is thinking…" theme="yellow" />
+      )}
+      {/* Replay-saved toast — MP UX Phase 2. Green pill confirming the server
+          persisted the replay row. Tap to copy share URL; auto-dismisses at
+          5s (or 1.5s after a copy). Emerald palette differentiates from the
+          amber Victory! modal and yellow/gray InfoToast pulses. Rendered
+          inline (vs reusing InfoToast) because InfoToast pulses + is
+          pointer-events-none; this is a discrete event with a tap action. */}
+      {replaySavedToast && (
+        <TopToast>
+          <button
+            onClick={handleReplaySavedToastClick}
+            className={`border rounded-full px-4 py-1.5 shadow-lg text-xs font-medium active:scale-95 transition-transform ${
+              replaySavedToast.phase === "copied"
+                ? "bg-emerald-900/90 border-emerald-600/60 text-emerald-200"
+                : "bg-emerald-950/90 border-emerald-700/60 text-emerald-300"
+            }`}
+          >
+            {replaySavedToast.phase === "copied"
+              ? "Link copied"
+              : `Replay saved — fb-${replaySavedToast.replayId.slice(0, 6)}`}
+          </button>
+        </TopToast>
       )}
       {/* Multiplayer: waiting for opponent's turn (no pending choice, not your turn) */}
       {multiplayerGame && !pendingChoice && !isGameOver && !isYourTurn && (
