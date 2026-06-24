@@ -149,7 +149,7 @@ be picked up without re-reading the full plan.
 
 | Phase | Status | Next action |
 |---|---|---|
-| 1. Lobby polish + public browser + first-player banner | Server ✅, GUI ✅. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
+| 1. Lobby polish + public browser + first-player banner | DONE — Server ✅, GUI ✅, first-player banner ✅ (2026-05-26). | — |
 | 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | DONE — Server ✅ (2026-04-22), Rematch UI ✅, Share UI ✅, ELO delta UI ✅ (2026-05-29), Replay-saved toast ✅ (2026-05-29). | — |
 | 3. Matchmaking queue (user's two-account test target) | DONE — matchmakingService + `/matchmaking` route + 60s pairing poller; 25 tests; UI Quick Play (casual + ranked) wired. | — |
 | 4. Reconnection + resume hardening | DONE — claim-win + lobby heartbeat + stale-lobby + tab-closed redirect (cd18f57); server match clock + disconnect grace (5baaa48 + 0bb5932); self-healing MP reconnect (ff06b51, 2026-06-24). | — |
@@ -188,88 +188,10 @@ Vercel UI, live). Remaining greenfield: Phase 5 (friends + presence), Phase 6
   own design pass. Phase 4 (reconnection) adds a minimum viable 2-min
   opponent-dropout claim-win — NOT a real turn clock.
 
-### Phase 1 — Lobby polish + public browser + first-player banner
-
-DONE. Server ✅ (35061e1) + GUI ✅ (15db979 + a55b372) + first-player
-banner ✅ (gameboard-specialist 2026-05-26). Banner fires once per
-MP gameId when `state.firstPlayerId` populates after the
-`choose_play_order` resolution; auto-dismisses after 2s; Bo3 games
-2/3 carry a "Game N of 3 · myScore-oppScore · " prefix using the
-new `gameNumber` field plumbed through `useGameSession`. Sandbox /
-solo suppressed (gated on `multiplayerGame`).
-
-### Phase 2 — Post-game polish
-
-DONE (2026-05-29). All Phase 2 work shipped across server + GUI:
-- Server ✅ (2026-04-22) — auto-saves a `replays` row on MP game-finish;
-  public-or-player `GET /replay/:id` endpoint; player-only
-  `PATCH /replay/:id/share` toggle; player-only `GET /replay/list`.
-- Rematch UI ✅ — loser-picks-first, 60s window, client-side wired.
-- Share UI ✅ — Share button + inline confirm + public-toggle + copy-link
-  in the game-over modal; perspective toggle for replay viewer.
-- ELO delta UI ✅ (2026-05-29) — game-over modal shows the delta.
-- Replay-saved toast ✅ (2026-05-29) — passive green pill at top-of-screen
-  on MP game-over showing `Replay saved — fb-{6char}`; tap copies the
-  share URL → flashes "Link copied" → auto-dismisses; idempotent per
-  gameId; MP-only. Wired inline in `GameBoard.tsx` against the existing
-  `mpReplay` fetch (option A from the Phase 2 prompt — simpler than the
-  originally-suggested `useGameSession` detection because the mpReplay
-  effect already resolves with the needed metadata for the share button).
-- `/replays` browse page ✅ — Decision #8 work, lives at `ReplaysPage.tsx`
-  with `getMyReplays` paging.
-
-### Phase 3 — Matchmaking queues (casual + ranked) + private-becomes-unranked + decks lose rotation stamp
-
-> ✅ **SHIPPED (verified 2026-06-24).** matchmakingService + `/matchmaking` route +
-> 60s pairing poller; 25 tests; UI Quick Play (casual + ranked) wired; deployed.
-> The spec below is retained as historical reference for the locked design
-> decisions, not as open work. Safe to delete on the next HANDOFF prune.
-
-**Major revision 2026-04-27 — supersedes the prior Phase 3 spec.** Locked with user across a long planning conversation. See standalone HANDOFF entries below ("Server agent: casual + ranked matchmaking queues") for the full server spec; this section is the multi-phase index entry.
-
-Coordinated ship across three agents — engine-expert lands first, then server-specialist, then GUI agent (me). All three pieces are required for the matchmaking experience to work:
-
-**engine-expert** (already specced in the rotation-registry-refactor entry above):
-- `RotationEntry.ranked: boolean` field + `isRankedFormat` helper
-- Split `INFINITY_ALL_SETS` into per-rotation snapshots (s11 = sets 1-11, s12 = sets 1-12)
-- Tests for rotation flag + Infinity legality
-
-**server-specialist** (full spec in standalone entry below):
-- DB migration: `decks.format_rotation` → drop entirely (decks now only carry `format_family`)
-- DB migration: `games` gains `match_source` enum (`'private' | 'queue' | 'tournament'`) + `ranked` boolean
-- New `matchmaking_queue` table + endpoints (`POST/GET/DELETE /matchmaking`)
-- Format-bucketed pairing on `(family, rotation, match_format)` triple — strict, no cross-format ever
-- Casual queue: FIFO within bucket
-- Ranked queue: ELO band-widening (`±50 → ±150 → ±400 → unbounded` over 90s); only available for rotations where `ranked=true`
-- Mandatory legality check on game creation against the chosen rotation
-- Concurrency invariant: one queue OR one waiting-lobby per user (server-enforced)
-- Rate limit: 10 queue-joins/hr per user
-- `updateElo` no-ops when `game.ranked = false` (private + casual queue + staged-rotation games all skip ELO)
-- Private lobbies always create games with `ranked = false` (anti-collusion)
-
-**GUI agent (me)** — full spec in standalone entry below:
-- Drop `format_rotation` from deck-related UI (DeckBuilderPage, MultiplayerLobby, FormatPicker)
-- Lobby restructure: Quick Play (Find Casual + Find Ranked + Solo) | Custom Game (Host + Join + Browse)
-- Format dropdowns (NOT toggles) on host + queue surfaces; option list filtered per surface (ranked queue only shows `ranked=true` rotations; others show all `offeredForNewDecks=true`)
-- Queue-wait screens: timer + cancel; band-progression display for ranked; FIFO timer for casual
-- Deckbuilder legality drift indicator: ⚠️ N cards illegal with click-to-expand + [Edit deck] / [Migrate to Infinity] / [Leave as-is]
-- Realtime subscribe for pair-success → auto-redirect to `/game/:id`
-- Removed: per-deck rotation picker (deckbuilder format picker simplifies to family-only)
-
-User's test scenario: main account + incognito account, both click Find Casual on Core-s11 → both land in same `/game/:id` within ~3s of the second queue-join. Ranked-queue test scenario: same but click Find Ranked, ELO bands constrain matching, both land in same game.
-
-Pre-launch (today through 2026-05-08): Find Ranked is hidden for Core-s12 / Infinity-s12 (those rotations are `ranked=false` while staged). Players testing set 12 use Find Casual or private lobbies.
-
-Locked decisions (full list captured in standalone entries):
-- Sequencing: ship engine + server + UI together (Y, not staged)
-- Schema: `match_source` enum + `ranked` boolean (both on `games`)
-- Concurrency: one queue OR waiting-lobby per user
-- Per-format pairing: strict 3-tuple `(family, rotation, match_format)`
-- Rate limit: 10/hr
-- No cross-format pairing ever (use Infinity for max-population queues)
-- Rotation lifecycle: 2 playable states (staged / live), retired = unplayable
-- Decks: lose `format_rotation` column entirely; rotation chosen per-game
-- UI labels (`Casual` vs `Competitive`): TBD post-implementation; database uses `casual_queue` / `ranked_queue` regardless
+**Phases 1–4 pruned (shipped + deployed).** Their implementation detail lives
+in git history and the reconciliation commit (`1b732ec`, 2026-06-24); the
+status snapshot table above is the surviving index. Open work starts at
+Phase 5.
 
 ### Phase 5 — Friends + rich presence (greenfield, largest non-spectator)
 
