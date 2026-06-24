@@ -13,13 +13,36 @@ import { startMatchmakingPoller } from "./services/matchmakingService.js"
 const app = new Hono()
 
 app.use("*", logger())
+
+// Static allowlist: local dev + any explicit origins from CLIENT_URL
+// (comma-separated, so prod + staging can both be listed). Vercel preview
+// deploys get matched dynamically below since their subdomain rotates per push.
+const allowedOrigins = new Set(
+  [
+    "http://localhost:5173",
+    ...(process.env["CLIENT_URL"] ?? "")
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean),
+  ],
+)
+
+// Matches the Vercel production + preview domains for the UI project, e.g.
+// https://lorcana-sim-ui.vercel.app and https://lorcana-sim-ui-<hash>-<scope>.vercel.app
+const VERCEL_PREVIEW = /^https:\/\/lorcana-sim-ui[a-z0-9-]*\.vercel\.app$/
+
 app.use(
   "*",
   cors({
-    origin: [
-      "http://localhost:5173",
-      process.env["CLIENT_URL"] ?? "http://localhost:5173",
-    ],
+    // Reflect the request origin only when it's allowed; returning the matched
+    // origin (not "*") is required because credentials:true forbids wildcard.
+    origin: (origin) => {
+      if (!origin) return undefined
+      if (allowedOrigins.has(origin) || VERCEL_PREVIEW.test(origin)) {
+        return origin
+      }
+      return undefined
+    },
     allowHeaders: ["Authorization", "Content-Type"],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
