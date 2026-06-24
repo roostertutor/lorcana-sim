@@ -151,13 +151,15 @@ be picked up without re-reading the full plan.
 |---|---|---|
 | 1. Lobby polish + public browser + first-player banner | Server ✅, GUI ✅. | gameboard-specialist: first-player banner (prompt below in §Phase 1) |
 | 2. Post-game polish (replay save, ELO delta, rematch w/ loser-picks-first) | DONE — Server ✅ (2026-04-22), Rematch UI ✅, Share UI ✅, ELO delta UI ✅ (2026-05-29), Replay-saved toast ✅ (2026-05-29). | — |
-| 3. Matchmaking queue (user's two-account test target) | Open | server + engine + GUI coordinated ship (spec below in §Phase 3) |
-| 4. Reconnection + resume hardening | Open | After Phase 3 |
-| 5. Friends + rich presence | Open | After Phase 4 |
+| 3. Matchmaking queue (user's two-account test target) | DONE — matchmakingService + `/matchmaking` route + 60s pairing poller; 25 tests; UI Quick Play (casual + ranked) wired. | — |
+| 4. Reconnection + resume hardening | DONE — claim-win + lobby heartbeat + stale-lobby + tab-closed redirect (cd18f57); server match clock + disconnect grace (5baaa48 + 0bb5932); self-healing MP reconnect (ff06b51, 2026-06-24). | — |
+| 5. Friends + rich presence | Open | Next open phase — server first (schema + endpoints), then GUI (spec below in §Phase 5) |
 | 6. Emoji reactions (ephemeral) | Open | Can land independently of 5 |
 | 7. Spectator mode (per-side fog-of-war) | Open; Phase 1 plumbing already shipped (`spectator_policy`) | After Phase 5 for friends-feed; public-games feed works without 5 |
 
-**Current bottleneck:** Phase 3 server + engine work. Phases 1 and 2 are fully shipped.
+**Status (2026-06-24):** Phases 1–4 fully shipped and DEPLOYED (Railway server +
+Vercel UI, live). Remaining greenfield: Phase 5 (friends + presence), Phase 6
+(emoji reactions), Phase 7 (spectator mode). Phase 5 is the next pick-up.
 
 ### Locked design decisions
 
@@ -217,6 +219,11 @@ DONE (2026-05-29). All Phase 2 work shipped across server + GUI:
   with `getMyReplays` paging.
 
 ### Phase 3 — Matchmaking queues (casual + ranked) + private-becomes-unranked + decks lose rotation stamp
+
+> ✅ **SHIPPED (verified 2026-06-24).** matchmakingService + `/matchmaking` route +
+> 60s pairing poller; 25 tests; UI Quick Play (casual + ranked) wired; deployed.
+> The spec below is retained as historical reference for the locked design
+> decisions, not as open work. Safe to delete on the next HANDOFF prune.
 
 **Major revision 2026-04-27 — supersedes the prior Phase 3 spec.** Locked with user across a long planning conversation. See standalone HANDOFF entries below ("Server agent: casual + ranked matchmaking queues") for the full server spec; this section is the multi-phase index entry.
 

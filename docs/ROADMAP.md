@@ -3,7 +3,8 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md, DECISIONS.md, STRATEGY.md.
 #
-# Last updated: 2026-05-11 (staleness cleanup).
+# Last updated: 2026-06-24 (Stream 4 reconciliation — deploy + OAuth + replay viewer +
+#   server tests + matchmaking + match clock all verified DONE against code/commits/live URL).
 # Last cross-ref refresh: 2026-04-25 (added BACKLOG.md companion).
 #
 # Companion docs:
@@ -46,7 +47,9 @@
 
 ✅ Multiplayer server — Hono + Supabase, anti-cheat state filtering, ELO, reconnection,
            URL routing, shareable lobby links. See docs/MULTIPLAYER.md.
-           Remaining: deployment (Railway), token refresh, OAuth, game history/polish.
+           DEPLOYED: server on Railway, UI on Vercel (https://lorcana-sim-ui.vercel.app),
+           HTTPS + CORS. OAuth (Google/Discord), matchmaking queues (casual + ranked),
+           match clock + disconnect grace, MP replay viewer all shipped. 184 server tests.
 
 ❌ Smart choice resolution — bots still pick random targets
 ❌ CRD 6.5 — general replacement effect system (only damage_redirect exists)
@@ -471,10 +474,20 @@ For 3e (replay mode):
 ✅ 4l. Core/Infinity game format — separate ELO buckets per format
 ✅ 4m. Game actions endpoint — GET /game/:id/actions for replay reconstruction
 
-❌ 4n. Deploy to Railway + static host (only remaining blocker for remote play)
-❌ 4o. OAuth buttons (Google/Discord — optional, email/password works)
-❌ 4p. Replay viewer for multiplayer games (endpoint ready, UI not wired)
-❌ 4q. Server integration tests
+✅ 4n. Deploy — server on Railway (railway.json + Dockerfile + /health), UI on
+       Vercel (https://lorcana-sim-ui.vercel.app, live). CORS reflects the Vercel
+       origin + preview deploys (index.ts:31-32). Commit 6361988.
+✅ 4o. OAuth buttons — Google + Discord signInWithOAuth wired (AuthPanel.tsx:127/135,
+       MultiplayerLobby.tsx:953/961). Email/password still works alongside.
+✅ 4p. Replay viewer for multiplayer games — /replay/:gameId viewer route (App.tsx:768),
+       getReplay + perspective toggle (serverApi.ts:587), /replays browse (ReplaysPage).
+✅ 4q. Server tests — 8 suites, 184 tests (auth, feedback, gameService, claimWin, lobby,
+       matchClock, matchmaking, replayAccess).
+✅ 4r. Matchmaking queues (casual + ranked) — matchmakingService + /matchmaking route +
+       60s pairing poller (startMatchmakingPoller); 25 tests; UI Quick Play wired.
+✅ 4s. Match clock + disconnect grace — server-side clock (5baaa48) + UI clock components
+       and disconnect overlay (0bb5932); claim-win + lobby heartbeat (Phase 4, cd18f57).
+✅ 4t. Duels-style middle-screen lobby restructure (server eb4dc6d + UI d8a8780).
 ```
 
 **Full phased spec**: See `docs/MULTIPLAYER.md` for detailed iteration plan,
@@ -541,8 +554,9 @@ the RL bot used in coaching map comparison.
 Stream 1 (RL) ✅ done — ceiling reached, paused
 Stream 2 (Analytics) ✅ done (2a-2f complete)
 Stream 3 (Game Board) ✅ done (3a-3h complete, replay + undo + DnD)
-Stream 4 (Multiplayer) ✅ core done — remaining: deploy (4n), OAuth (4o), replay viewer (4p), tests (4q)
-Stream 5 (Clone Bot) — unblocked once Stream 4 is deployed and generating game logs
+Stream 4 (Multiplayer) ✅ DONE — deployed (Railway + Vercel), OAuth, matchmaking queues,
+                                  match clock, MP replay viewer, 184 server tests
+Stream 5 (Clone Bot) — UNBLOCKED: Stream 4 is deployed and generating game logs (game_actions)
 Stream 6 (Engine) ✅ done — maintenance mode
 
 Everything else — parallel, no blocking dependencies
@@ -704,9 +718,11 @@ Ask in order:
    Stream 3e — replay mode (unblocked, prereqs done, UI only remaining).
    Stream 3f — done ✅ (RL policy upload in GameBoard/TestBench, Session 17).
 
-4. **Stream 4 (multiplayer) — CORE DONE. Deploy remaining.**
-   Server, anti-cheat, lobby, routing, reconnection all working on localhost.
-   Remaining: deploy to Railway (~$5/mo), token refresh, OAuth (optional), polish.
+4. **Stream 4 (multiplayer) — DONE and DEPLOYED.**
+   Server on Railway, UI live on Vercel (https://lorcana-sim-ui.vercel.app). OAuth,
+   matchmaking queues (casual + ranked), match clock + disconnect grace, MP replay
+   viewer all shipped; 184 server tests. Next direction is Stream 5 (clone trainer) —
+   now unblocked because deployed MP games are generating game_actions logs.
    See docs/MULTIPLAYER.md for the full phased plan.
 
 5. **Need to fix a card bug or add interactive-mode support?**

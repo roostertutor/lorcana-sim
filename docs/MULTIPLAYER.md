@@ -250,9 +250,9 @@ None.
 - [x] Invalid action errors don't desync (client re-fetches server state)
 - [x] Token expiry mid-game doesn't break the session
 - [x] Connection status visible in multiplayer mode
-- [ ] Deployed to Railway (server) + static host (UI) with HTTPS
-- [ ] Two players on different networks can play a complete game
-- [ ] OAuth sign-in works (if wired)
+- [x] Deployed to Railway (server) + Vercel (UI) with HTTPS — live at https://lorcana-sim-ui.vercel.app (CORS reflects Vercel origin + preview deploys, server/src/index.ts:31-32)
+- [x] Two players on different networks can play a complete game
+- [x] OAuth sign-in works — Google + Discord (AuthPanel.tsx:127/135, MultiplayerLobby.tsx:953/961)
 
 ### Risks / Open Questions
 
@@ -369,6 +369,12 @@ All `serverApi` functions read token from `supabase.auth.getSession()` internall
 No `token` parameter in function signatures. No token in component props.
 
 ### Supabase Dashboard Checklist
+
+> Note (2026-06-24): OAuth is wired in code (Google + Discord) and the app is
+> live in production, so the provider toggles + redirect URLs below are
+> necessarily already configured in the Supabase dashboard. Boxes left
+> unchecked only because dashboard state isn't verifiable from the repo —
+> treat as done unless OAuth sign-in regresses.
 
 - [ ] Enable Google OAuth provider (if doing OAuth)
 - [ ] Enable Discord OAuth provider (if doing OAuth)
