@@ -259,3 +259,48 @@ section only — public games section can ship without it.
   band-widening curves, queue-depth display, region-based matching all
   live in a future phase once real usage data exists.
 
+
+---
+
+## Clone bot `--from-db` — wire a player game-log export (server-specialist)
+
+**Trigger:** ROADMAP Stream 5b/5c landed the supervised clone trainer + the
+`pnpm profile-player` CLI. `--logs` (local JSON files) works end-to-end. The
+`--from-db` path is stubbed: it reads from an EXPORTED JSON dump file
+(`--db-export <file.json>`), not a live Supabase query — the CLI imports
+`analytics` only and cannot reach the DB (package boundary).
+
+**Owner:** server-specialist.
+
+**What's needed:** a server-side export that writes one player's recent
+`game_actions` rows to JSON for the CLI to consume. The CLI normalizer already
+accepts the raw `game_actions` row shape (`{ action, state_before,
+legal_action_count? }`) and derives `legal_action_count` from `state_before`
+via `getAllLegalActions` when the column is absent — so the export does NOT need
+to compute legality. See `packages/cli/src/loadCloneSamples.ts` and
+`packages/cli/src/cloneDbSource.ts` (`loadDbCloneSamples` is the seam).
+
+**Concrete shape to produce** (array of rows, chronological order):
+```json
+[ { "action": <GameAction>, "state_before": <GameState>, "game_id": "...",
+    "player_id": "...", "turn_number": 12 }, ... ]
+```
+Source table: `game_actions` (server/src/db/schema.sql:41-50), filtered by the
+player (`player_id`) and limited to their N most recent games.
+
+**Two acceptable delivery mechanisms:**
+1. An `export` endpoint/route that returns the JSON; the CLI (or user) curls it
+   to a file and passes `--db-export <file>`. Simplest.
+2. A CLI-invoked script in `/server` that dumps to a file. Keeps the boundary
+   clean (DB access stays server-side).
+
+**Known approximation to fix when wiring:** `cloneDbSource.ts` currently caps
+`--games N` as `rows.slice(-N*120)` (≈120 decisions/game) because post-
+normalization rows aren't grouped by `game_id`. The server export should group
+by `game_id` and take the N most recent games so `--games` is exact. Pass the
+already-capped rows and the CLI cap becomes a no-op.
+
+**Note:** `game_actions` has NO `legal_action_count` column today. If you want
+the trainer to weight/skip forced turns using the count the *server* saw (vs
+recomputing), add the column at write time (`gameService.ts:401-410`,
+`getAllLegalActions(...).length`). Optional — the CLI recomputes it either way.

@@ -505,7 +505,7 @@ Implement in order: schema.sql → Supabase client → auth → lobby → game a
 
 ---
 
-### Stream 5: Player Profiling + Clone Bot (future, after Stream 4)
+### Stream 5: Player Profiling + Clone Bot — IN PROGRESS (5a-5c done 2026-06-24)
 *Goal: learn how a specific human player plays and create a bot clone of them*
 
 Every multiplayer game produces a (state, action) log for each player.
@@ -513,21 +513,25 @@ Clone training is supervised learning — "given this state, this player
 chose this action" — not RL. The network learns to imitate, not discover.
 
 ```
-5a. Save full game logs to database (extend Stream 4e)
-    game_actions table already planned in SERVER.md
-    Store: gameId, playerId, gameState snapshot, action taken, turnNumber
-    50 games × ~120 decisions = ~6,000 labeled (state, action) pairs per player
-    That is enough for recognizable tendencies
+✅ 5a. Save full game logs to database (extend Stream 4e)
+    game_actions table (schema.sql:41-50): action + state_before ("clone trainer
+    input") + state_after + events + legal_action_count + turn_number + player_id.
+    Written per-action at gameService.ts:401. ELO on the games row for cohorting.
 
-5b. Clone trainer (packages/simulator/src/rl/cloneTrainer.ts)
-    Supervised learning loop — no reward signal, no exploration
-    Input: (state, action) pairs from real game logs
-    Output: a policy network that predicts what that player would do
-    Simpler than RL trainer — just gradient descent toward correct action
+✅ 5b. Clone trainer (packages/simulator/src/rl/cloneTrainer.ts)
+    Supervised behavioral cloning — softmax cross-entropy over the legal-action
+    set, no reward/critic/GAE/exploration. CloneSample type, trainClone(),
+    evaluateClone(), generateCloneSamples() (simulator-log source). Skips forced
+    (≤1-option) turns, difficulty-weights by log2(legalActionCount). Trains the
+    actor head of an RLPolicy → saves/loads via toJSON/fromJSON unchanged.
+    Validation: clone trained on GreedyBot logs hits 75.0% held-out top-1 action
+    match vs 12.2% random-legal baseline. 7 tests (correctness + determinism).
 
-5c. CLI command
-    pnpm profile-player --logs ./games/*.json --save ./ryan-bot.json
-    pnpm profile-player --player ryanfan --from-db --games 50 --save ./ryan-bot.json
+✅ 5c. CLI command — pnpm profile-player
+    --logs ./games/*.json --save ./ryan-bot.json  (works end-to-end)
+    --from-db --player <id> --db-export <file.json>  (reads an exported dump;
+      live Supabase export is stubbed — HANDOFF entry for server-specialist,
+      since cli imports analytics only and can't reach the DB directly)
 
 5d. Coaching map (comparison output)
     Load clone bot + RL bot

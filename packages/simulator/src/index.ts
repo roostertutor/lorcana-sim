@@ -54,6 +54,10 @@ export {
   softmax,
   RLPolicy,
   trainPolicy,
+  trainClone,
+  evaluateClone,
+  generateCloneSamples,
+  actionKey,
 } from "./rl/index.js";
 export type {
   NetworkJSON,
@@ -63,6 +67,11 @@ export type {
   TrainingResult,
   RewardWeights,
   CardRewardContribution,
+  CloneSample,
+  CloneTrainingConfig,
+  CloneTrainingResult,
+  CloneEvalResult,
+  GenerateSamplesConfig,
 } from "./rl/index.js";
 export {
   inferRewardWeights,

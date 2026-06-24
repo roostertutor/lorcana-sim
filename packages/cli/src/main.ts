@@ -10,11 +10,13 @@
 //   pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policies/my-policy.json
 // =============================================================================
 
-import { resolve } from "path";
+import { resolve, dirname, basename } from "path";
+import { readdirSync } from "fs";
 import { runAnalyze } from "./commands/analyze.js";
 import { runCompare } from "./commands/compare.js";
 import { runQuery } from "./commands/query.js";
 import { runLearn } from "./commands/learn.js";
+import { runProfilePlayer } from "./commands/profilePlayer.js";
 
 // pnpm runs scripts from the package dir, but users pass paths relative to
 // where they ran the command. INIT_CWD is set by pnpm to the original cwd.
@@ -45,6 +47,48 @@ function parseArgs(argv: string[]): Record<string, string> {
     }
   }
   return result;
+}
+
+/**
+ * Collect all non-flag tokens following `--<key>` (space-separated multi-value),
+ * so `--logs a.json b.json c.json` captures all three even though the simple
+ * parser above only keeps the first. PowerShell does not expand globs, so each
+ * token is then expanded by `expandGlobs`.
+ */
+function collectMultiValue(argv: string[], key: string): string[] {
+  const flag = `--${key}`;
+  const out: string[] = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === flag) {
+      for (let j = i + 1; j < argv.length && !argv[j]!.startsWith("--"); j++) {
+        out.push(argv[j]!);
+      }
+    }
+  }
+  return out;
+}
+
+/** Expand simple `*`-in-basename glob patterns; pass literal paths through. */
+function expandGlobs(patterns: string[]): string[] {
+  const out: string[] = [];
+  for (const p of patterns) {
+    const abs = userPath(p);
+    if (!abs.includes("*")) {
+      out.push(abs);
+      continue;
+    }
+    const dir = dirname(abs);
+    const pat = basename(abs);
+    const rx = new RegExp("^" + pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
+    try {
+      for (const f of readdirSync(dir)) {
+        if (rx.test(f)) out.push(resolve(dir, f));
+      }
+    } catch {
+      console.error(`Warning: no files matched "${p}"`);
+    }
+  }
+  return out;
 }
 
 function requireArg(args: Record<string, string>, key: string, usage: string): string {
@@ -126,15 +170,41 @@ switch (subcommand) {
     break;
   }
 
+  case "profile-player": {
+    const usage =
+      "Usage: pnpm profile-player --logs ./games/*.json --save ./clone.json [--epochs 8] [--seed 1]\n" +
+      "   or: pnpm profile-player --from-db --player <id> --db-export ./dump.json [--games 50] --save ./clone.json";
+    const fromDb = args["from-db"] === "true";
+    const logs = fromDb ? [] : expandGlobs(collectMultiValue(rest ?? [], "logs"));
+    if (!fromDb && logs.length === 0) {
+      console.error(`No --logs files found.\n${usage}`);
+      process.exit(1);
+    }
+    runProfilePlayer({
+      logs,
+      fromDb,
+      player: args["player"],
+      dbExport: args["db-export"] ? userPath(args["db-export"]) : undefined,
+      games: args["games"] ? optionalInt(args, "games", 50) : undefined,
+      save: args["save"] ? userPath(args["save"]) : undefined,
+      epochs: optionalInt(args, "epochs", 8),
+      learningRate: args["lr"] ? parseFloat(args["lr"]) : undefined,
+      seed: args["seed"] ? parseInt(args["seed"], 10) : 1,
+      evalSplit: args["eval-split"] ? parseFloat(args["eval-split"]) : 0.2,
+    });
+    break;
+  }
+
   default: {
     console.log(`
 Lorcana Sim CLI
 
 Commands:
-  analyze   Run simulation and analyze a single deck
-  compare   Compare two decks head-to-head
-  query     Run condition-based queries against simulation results
-  learn     Train an RL policy (A2C+GAE)
+  analyze         Run simulation and analyze a single deck
+  compare         Compare two decks head-to-head
+  query           Run condition-based queries against simulation results
+  learn           Train an RL policy (A2C+GAE)
+  profile-player  Train a supervised clone bot of a player from their game logs
 
 Examples:
   pnpm analyze  --deck ./deck.txt --bot greedy --iterations 1000
@@ -144,8 +214,9 @@ Examples:
   pnpm query    --sim sim.json --questions questions.json --policy ./policies/control.json
   pnpm query    --questions questions.json --results saved.json
   pnpm learn    --deck ./deck.txt --episodes 50000 --save ./policy.json
+  pnpm profile-player --logs ./games/*.json --save ./clone.json
 
-Bot options: random, greedy, rl (use --policy with rl)
+Bot options: random, greedy, rl (use --policy with rl; clone bots load as rl)
 `);
     process.exit(subcommand ? 1 : 0);
   }

@@ -13,6 +13,7 @@
     "compare": "pnpm --filter cli compare",
     "query": "pnpm --filter cli query",
     "learn": "pnpm --filter cli learn",
+    "profile-player": "pnpm --filter cli profile-player",
     "import-cards": "tsx scripts/import-cards-rav.ts",
     "import-cards-lorcast": "tsx scripts/import-cards-lorcast.ts",
     "sync-reprints": "tsx scripts/sync-promo-reprints.ts",

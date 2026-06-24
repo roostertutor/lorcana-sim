@@ -24,5 +24,19 @@ export type { EpisodeStep, RLPolicyJSON } from "./policy.js";
 export { trainPolicy } from "./trainer.js";
 export type { TrainingConfig, TrainingResult } from "./trainer.js";
 
+export {
+  trainClone,
+  evaluateClone,
+  generateCloneSamples,
+  actionKey,
+} from "./cloneTrainer.js";
+export type {
+  CloneSample,
+  CloneTrainingConfig,
+  CloneTrainingResult,
+  CloneEvalResult,
+  GenerateSamplesConfig,
+} from "./cloneTrainer.js";
+
 export { inferRewardWeights, cardRewardContribution, makeWeightedReward } from "./rewardWeights.js";
 export type { RewardWeights, CardRewardContribution } from "./rewardWeights.js";

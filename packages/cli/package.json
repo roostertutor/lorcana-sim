@@ -13,6 +13,7 @@
     "sweep": "node --import tsx/esm src/main.ts sweep",
     "query": "node --import tsx/esm src/main.ts query",
     "learn": "node --import tsx/esm src/main.ts learn",
+    "profile-player": "node --import tsx/esm src/main.ts profile-player",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json"
   },
