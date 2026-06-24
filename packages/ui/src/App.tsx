@@ -22,6 +22,7 @@ import Icon, { type IconName } from "./components/Icon.js";
 import { FeedbackProvider } from "./lib/feedbackContext.js";
 import FeedbackButton from "./components/FeedbackButton.js";
 import { usePostCloseRedirect } from "./hooks/usePostCloseRedirect.js";
+import { decideReconnect } from "./lib/reconnect.js";
 
 type Tab = "decks" | "multiplayer" | "replays" | "sandbox" | "me";
 
@@ -102,32 +103,47 @@ function MultiplayerGamePage() {
       return raw ? (JSON.parse(raw) as { gameId: string; myPlayerId: "player1" | "player2" }) : null;
     } catch { return null; }
   });
-  const [loading, setLoading] = useState(false);
+  // Start in a loading/validating state until getGameInfo confirms the game
+  // is still active. We ALWAYS validate on mount — even when localStorage
+  // already has a matching config — because the `mp-game` resume anchor is
+  // only explicitly cleared on the Back button. Every other game-end path
+  // (game-over, resign, claim-win, opponent abandon, tab-close) leaves it
+  // pointing at a now-dead game, so a stale anchor would otherwise bounce a
+  // fresh login straight onto a finished board. Validating unconditionally
+  // makes the anchor self-healing regardless of how the prior game ended.
+  const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
+  const [validated, setValidated] = useState(false);
 
-  // If no localStorage config (e.g. rejoin from error), fetch player side from server
   useEffect(() => {
-    if (config?.gameId === gameId || !gameId) return;
+    if (!gameId) { setFailed(true); setLoading(false); return; }
+    let cancelled = false;
     setLoading(true);
     getGameInfo(gameId)
       .then((info) => {
-        if (info && info.status === "active") {
-          const cfg = { gameId, myPlayerId: info.playerSide };
-          localStorage.setItem("mp-game", JSON.stringify(cfg));
-          setConfig(cfg);
+        if (cancelled) return;
+        const decision = decideReconnect(gameId, info);
+        if (decision.kind === "reconnect") {
+          localStorage.setItem("mp-game", JSON.stringify(decision.config));
+          setConfig(decision.config);
+          setValidated(true);
         } else {
+          // Game is finished / abandoned / missing — clear the stale resume
+          // anchor so a future MultiplayerPage mount doesn't bounce here again.
+          localStorage.removeItem("mp-game");
           setFailed(true);
         }
       })
-      .catch(() => setFailed(true))
-      .finally(() => setLoading(false));
-  }, [gameId, config]);
+      .catch(() => { if (!cancelled) setFailed(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [gameId]);
 
   if (failed) {
     return <Navigate to="/multiplayer" replace />;
   }
 
-  if (loading || !config || config.gameId !== gameId) {
+  if (loading || !validated || !config || config.gameId !== gameId) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
         <span className="text-gray-500 text-sm animate-pulse">Reconnecting to game...</span>
