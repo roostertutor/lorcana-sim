@@ -22,8 +22,10 @@ import {
 // Convenience builders so tests read like English.
 const CORE_S11: GameFormat = { family: "core", rotation: "s11" };
 const CORE_S12: GameFormat = { family: "core", rotation: "s12" };
+const CORE_S13: GameFormat = { family: "core", rotation: "s13" };
 const INF_S11: GameFormat = { family: "infinity", rotation: "s11" };
 const INF_S12: GameFormat = { family: "infinity", rotation: "s12" };
+const INF_S13: GameFormat = { family: "infinity", rotation: "s13" };
 
 describe("rotation registry", () => {
   it("CORE_ROTATIONS.s11 covers sets 5-11 (pre-Set-12 rotation)", () => {
@@ -46,14 +48,40 @@ describe("rotation registry", () => {
     }
   });
 
-  it("Core banlists are empty in both rotations as of 2026-04-21", () => {
-    expect(CORE_ROTATIONS.s11.banlist.size).toBe(0);
-    expect(CORE_ROTATIONS.s12.banlist.size).toBe(0);
+  it("CORE_ROTATIONS.s13 is a cut step: drops sets 5-8, adds set 13 → {9,10,11,12,13}", () => {
+    const entry = CORE_ROTATIONS.s13;
+    for (const s of ["9", "10", "11", "12", "13"]) {
+      expect(entry.legalSets.has(s)).toBe(true);
+    }
+    // Sets 5-8 rotated out; sets 1-4 were never in this cadence.
+    for (const s of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
+      expect(entry.legalSets.has(s)).toBe(false);
+    }
   });
 
-  it("Infinity banlist carries Hiram across both rotations", () => {
+  it("Core banlists are empty in every rotation", () => {
+    expect(CORE_ROTATIONS.s11.banlist.size).toBe(0);
+    expect(CORE_ROTATIONS.s12.banlist.size).toBe(0);
+    expect(CORE_ROTATIONS.s13.banlist.size).toBe(0);
+  });
+
+  it("Infinity banlist carries Hiram across every rotation", () => {
     expect(INFINITY_ROTATIONS.s11.banlist.has("hiram-flaversham-toymaker")).toBe(true);
     expect(INFINITY_ROTATIONS.s12.banlist.has("hiram-flaversham-toymaker")).toBe(true);
+    expect(INFINITY_ROTATIONS.s13.banlist.has("hiram-flaversham-toymaker")).toBe(true);
+  });
+
+  it("Infinity-s13 is additive over s12: every s12 set + set 13 (cuts don't affect Infinity)", () => {
+    const s12 = INFINITY_ROTATIONS.s12;
+    const s13 = INFINITY_ROTATIONS.s13;
+    for (const s of s12.legalSets) {
+      expect(s13.legalSets.has(s)).toBe(true);
+    }
+    expect(s13.legalSets.has("13")).toBe(true);
+    // Sets 5-8 are cut from CORE s13 but remain legal in INFINITY s13.
+    for (const s of ["5", "6", "7", "8"]) {
+      expect(s13.legalSets.has(s)).toBe(true);
+    }
   });
 
   it("Infinity-s11 is a frozen snapshot: sets 1-11 + s11-era promos, NOT set 12", () => {
@@ -79,35 +107,40 @@ describe("rotation registry", () => {
     expect(s12.legalSets.has("C2")).toBe(true);
   });
 
-  it("post-cutover: s12 is the only rotation offered for new decks; s11 is retired", () => {
-    // 2026-05-08 cutover state: s11 retired (kept in the registry for stored-
-    // deck validation, but no new decks created under it); s12 live. Update
-    // again when the next rotation appears alongside s12.
+  it("Set-13 pre-release: s12 (live) AND s13 (staged) offered; s11 retired", () => {
+    // s11 retired (kept for stored-deck validation only); s12 still live; s13
+    // staged so players can pre-build. Update on the Set 13 release-day
+    // switchover (retire s12, mark s13 ranked).
     expect(CORE_ROTATIONS.s11.offeredForNewDecks).toBe(false);
     expect(CORE_ROTATIONS.s12.offeredForNewDecks).toBe(true);
+    expect(CORE_ROTATIONS.s13.offeredForNewDecks).toBe(true);
     expect(INFINITY_ROTATIONS.s11.offeredForNewDecks).toBe(false);
     expect(INFINITY_ROTATIONS.s12.offeredForNewDecks).toBe(true);
+    expect(INFINITY_ROTATIONS.s13.offeredForNewDecks).toBe(true);
   });
 
-  it("ranked flag — s12 live (ranked), s11 retired (unranked) post-cutover", () => {
-    // Post-2026-05-08 state: s12 is the live ranked rotation; s11 is retired
-    // (no new games of any kind, ranked or casual). Same flag applies to Core
-    // and Infinity in the same time window.
+  it("ranked flag — s12 live (ranked), s13 staged (unranked), s11 retired (unranked)", () => {
+    // s13 is offered for pre-building but NOT ranked until Set 13 release day.
+    // Same flag applies to Core and Infinity in the same time window.
     expect(CORE_ROTATIONS.s11.ranked).toBe(false);
     expect(CORE_ROTATIONS.s12.ranked).toBe(true);
+    expect(CORE_ROTATIONS.s13.ranked).toBe(false);
     expect(INFINITY_ROTATIONS.s11.ranked).toBe(false);
     expect(INFINITY_ROTATIONS.s12.ranked).toBe(true);
+    expect(INFINITY_ROTATIONS.s13.ranked).toBe(false);
   });
 
   it("deckSize is 60 across every sanctioned-Constructed rotation", () => {
-    // All four current rotations are Lorcana sanctioned Constructed (Core +
+    // All current rotations are Lorcana sanctioned Constructed (Core +
     // Infinity), which Ravensburger OP rules specify as exactly 60 cards.
     // Limited formats (Sealed, Draft, Pack Rush — BACKLOG) will land with
     // smaller counts on their own rotation entries.
     expect(CORE_ROTATIONS.s11.deckSize).toBe(60);
     expect(CORE_ROTATIONS.s12.deckSize).toBe(60);
+    expect(CORE_ROTATIONS.s13.deckSize).toBe(60);
     expect(INFINITY_ROTATIONS.s11.deckSize).toBe(60);
     expect(INFINITY_ROTATIONS.s12.deckSize).toBe(60);
+    expect(INFINITY_ROTATIONS.s13.deckSize).toBe(60);
   });
 });
 
@@ -115,11 +148,13 @@ describe("isRankedFormat", () => {
   it("returns ranked flag for the resolved rotation (Core)", () => {
     expect(isRankedFormat({ family: "core", rotation: "s11" })).toBe(false);
     expect(isRankedFormat({ family: "core", rotation: "s12" })).toBe(true);
+    expect(isRankedFormat({ family: "core", rotation: "s13" })).toBe(false);
   });
 
   it("returns ranked flag for the resolved rotation (Infinity)", () => {
     expect(isRankedFormat({ family: "infinity", rotation: "s11" })).toBe(false);
     expect(isRankedFormat({ family: "infinity", rotation: "s12" })).toBe(true);
+    expect(isRankedFormat({ family: "infinity", rotation: "s13" })).toBe(false);
   });
 
   it("throws on unknown rotation id", () => {
@@ -160,6 +195,22 @@ describe("isCardLegalInFormat", () => {
     expect(def.setId).toBe("12");
     expect(isCardLegalInFormat(def, CORE_S12)).toBe(true);
     expect(isCardLegalInFormat(def, CORE_S11)).toBe(false);
+  });
+
+  it("cut step: set-5 card is rotated OUT of Core s13 but still legal in Infinity s13", () => {
+    // koda-talkative-cub is set 5 only. The s12→s13 cut drops sets 5-8, so it
+    // leaves Core s13 — but Infinity never rotates, so it stays legal there.
+    const def = CARD_DEFINITIONS["koda-talkative-cub"]!;
+    expect(isCardLegalInFormat(def, CORE_S12)).toBe(true); // still in pre-cut Core
+    expect(isCardLegalInFormat(def, CORE_S13)).toBe(false); // cut out
+    expect(isCardLegalInFormat(def, INF_S13)).toBe(true); // Infinity unaffected
+  });
+
+  it("cut step: set-12 card survives the s13 cut (Core and Infinity)", () => {
+    const def = CARD_DEFINITIONS["dale-excited-friend"]!;
+    expect(def.setId).toBe("12");
+    expect(isCardLegalInFormat(def, CORE_S13)).toBe(true);
+    expect(isCardLegalInFormat(def, INF_S13)).toBe(true);
   });
 
   // Regression test for the 2026-04-27 Infinity-snapshot bug: pre-fix, both
@@ -394,15 +445,15 @@ describe("isLegalFor", () => {
 });
 
 describe("listOfferedRotations", () => {
-  it("returns only s12 for Core post-cutover (s11 retired)", () => {
+  it("returns s12 (live) + s13 (staged) for Core; s11 retired", () => {
     const offered = listOfferedRotations("core");
-    expect(offered.map((o) => o.id)).toEqual(["s12"]);
-    expect(offered[0]!.entry.displayName).toBe("Set 12 Core");
+    expect(offered.map((o) => o.id)).toEqual(["s12", "s13"]);
+    expect(offered.map((o) => o.entry.displayName)).toEqual(["Set 12 Core", "Set 13 Core"]);
   });
 
-  it("returns only s12 for Infinity post-cutover (s11 retired)", () => {
+  it("returns s12 (live) + s13 (staged) for Infinity; s11 retired", () => {
     const offered = listOfferedRotations("infinity");
-    expect(offered.map((o) => o.id)).toEqual(["s12"]);
-    expect(offered[0]!.entry.displayName).toBe("Set 12 Infinity");
+    expect(offered.map((o) => o.id)).toEqual(["s12", "s13"]);
+    expect(offered.map((o) => o.entry.displayName)).toEqual(["Set 12 Infinity", "Set 13 Infinity"]);
   });
 });

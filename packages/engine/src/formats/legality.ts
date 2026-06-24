@@ -35,9 +35,9 @@
 import type { CardDefinition } from "../types/index.js";
 import type { DeckEntry } from "../engine/initializer.js";
 
-/** Rotation ids. Add "s13" etc. here (and to the registries below) when
+/** Rotation ids. Add "s14" etc. here (and to the registries below) when
  *  Ravensburger announces the next rotation's set list. */
-export type RotationId = "s11" | "s12";
+export type RotationId = "s11" | "s12" | "s13";
 
 /** One rotation's legal-set snapshot + banlist + whether new decks can still
  *  be created under it. */
@@ -75,14 +75,18 @@ export interface RotationEntry {
 
 /** Core rotations — every 4 sets, oldest 4 drop. Cadence per Ravensburger OP.
  *
- *  Current state (2026-05-08, Set 12 release day):
+ *  Current state (Set 13 pre-release / staged):
  *   - s11: retired. Stays in the registry forever so stored decks stamped
  *          `s11` keep validating against their original card pool, but no
  *          new decks or games can be created under it.
- *   - s12: live format, sets 5-12 (8 sets). The only Core rotation offered
- *          for new decks; ranked games count for ELO.
- *   - (s13 will be added when Ravensburger locks in the next rotation. Per
- *     the cadence, s13 drops sets 5-8 → legalSets = {9,10,11,12,13}.)
+ *   - s12: live format, sets 5-12 (8 sets). Offered for new decks; ranked
+ *          games count for ELO. Remains live until the Set 13 release-day
+ *          switchover (Runbook 2), at which point it retires.
+ *   - s13: STAGED — first cut-step rotation. Drops sets 5-8, adds set 13 →
+ *          legalSets = {9,10,11,12,13}. Offered for new decks NOW so players
+ *          can pre-build, but `ranked: false` until release day. On the
+ *          switchover, flip s12 to retired (offered=false, ranked=false) and
+ *          s13 to ranked:true per docs/ROTATIONS.md Runbook 2/3.
  */
 export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
@@ -100,6 +104,15 @@ export const CORE_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
     offeredForNewDecks: true,
     ranked: true,
     displayName: "Set 12 Core",
+  },
+  s13: {
+    // Cut step: sets 5-8 rotate out, set 13 rotates in.
+    legalSets: new Set(["9", "10", "11", "12", "13"]),
+    banlist: new Set<string>([]),
+    deckSize: 60,
+    offeredForNewDecks: true, // staged: pre-build allowed
+    ranked: false, // not live until Set 13 release day
+    displayName: "Set 13 Core",
   },
 };
 
@@ -123,6 +136,13 @@ const INFINITY_S12_SETS: ReadonlySet<string> = new Set([
   "12", "C2",
 ]);
 
+// Infinity is unaffected by Core cuts — it's purely additive. s13 = s12 + set 13.
+// (Add any Set-13-era promo set ids here as they're confirmed.)
+const INFINITY_S13_SETS: ReadonlySet<string> = new Set([
+  ...INFINITY_S12_SETS,
+  "13",
+]);
+
 export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
   s11: {
     legalSets: INFINITY_S11_SETS,
@@ -139,6 +159,14 @@ export const INFINITY_ROTATIONS: Readonly<Record<RotationId, RotationEntry>> = {
     offeredForNewDecks: true,
     ranked: true,
     displayName: "Set 12 Infinity",
+  },
+  s13: {
+    legalSets: INFINITY_S13_SETS,
+    banlist: new Set<string>(["hiram-flaversham-toymaker"]),
+    deckSize: 60,
+    offeredForNewDecks: true, // staged: pre-build allowed
+    ranked: false, // not live until Set 13 release day
+    displayName: "Set 13 Infinity",
   },
 };
 

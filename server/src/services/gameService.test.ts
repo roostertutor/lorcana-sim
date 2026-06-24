@@ -28,23 +28,30 @@ vi.mock("../db/client.js", () => ({ supabase: {} }))
 const { bumpGamesPlayedByFormat } = await import("./gameService.js")
 
 describe("bumpGamesPlayedByFormat", () => {
-  it("seeds full 8-key shape from an empty existing map", () => {
+  it("seeds full key shape (all registered rotations) from an empty existing map", () => {
     // Simulates a fresh profile row whose JSONB column is `{}` (or null)
     // — we still want every registered key present in the write payload
-    // so the row stays in canonical shape.
+    // so the row stays in canonical shape. Key set is derived from the
+    // engine rotation registry (CORE_ROTATIONS / INFINITY_ROTATIONS), so it
+    // grows automatically when a new rotation (e.g. s13) is registered.
     const result = bumpGamesPlayedByFormat({}, "bo1_core_s11")
     expect(Object.keys(result).sort()).toEqual([
       "bo1_core_s11",
       "bo1_core_s12",
+      "bo1_core_s13",
       "bo1_infinity_s11",
       "bo1_infinity_s12",
+      "bo1_infinity_s13",
       "bo3_core_s11",
       "bo3_core_s12",
+      "bo3_core_s13",
       "bo3_infinity_s11",
       "bo3_infinity_s12",
+      "bo3_infinity_s13",
     ])
     expect(result.bo1_core_s11).toBe(1)
     expect(result.bo1_core_s12).toBe(0)
+    expect(result.bo1_core_s13).toBe(0)
     expect(result.bo3_infinity_s11).toBe(0)
   })
 

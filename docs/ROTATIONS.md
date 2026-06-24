@@ -44,17 +44,25 @@ below. Other runbooks (banlist, rotation-cut audit) are largely unchanged.
 
 ---
 
-## Current state (as of 2026-04-21)
+## Current state (as of 2026-06-07 — Set 13 pre-release / staged)
 
-| Rotation | Family | Legal sets | Banlist | Offered for new decks | Status |
-|---|---|---|---|---|---|
-| `s11` | core | {5,6,7,8,9,10,11} | — | yes | live pre-Set-12 |
-| `s12` | core | {5,6,7,8,9,10,11,12} | — | yes | Set 12 preview |
-| `s11` | infinity | all sets + promos | hiram-flaversham-toymaker | yes | live |
-| `s12` | infinity | all sets + promos | hiram-flaversham-toymaker | yes | Set 12 preview |
+| Rotation | Family | Legal sets | Banlist | Offered | Ranked | Status |
+|---|---|---|---|---|---|---|
+| `s11` | core | {5,6,7,8,9,10,11} | — | no | no | retired (stored-deck validation only) |
+| `s12` | core | {5,6,7,8,9,10,11,12} | — | yes | yes | **live** |
+| `s13` | core | {9,10,11,12,13} | — | yes | no | **staged** (cut step: drops 5-8, adds 13) |
+| `s11` | infinity | sets 1-11 + s11-era promos | hiram-flaversham-toymaker | no | no | retired |
+| `s12` | infinity | s11 snapshot + 12 + C2 | hiram-flaversham-toymaker | yes | yes | **live** |
+| `s13` | infinity | s12 snapshot + 13 | hiram-flaversham-toymaker | yes | no | **staged** |
 
-**Server defaults:** `'s11'` everywhere. **Planned switchover:** 2026-05-08
-when Set 12 releases — bump defaults to `'s12'` (see runbook 2 below).
+**Server defaults:** `'s12'` everywhere (Set 12 release-day switchover landed
+2026-05-08). s13 ELO keys (`bo1_core_s13`, etc.) auto-generate server-side from
+the registry — no SQL/code change was needed to stage s13 (Runbook 1).
+
+**Planned switchover:** Set 13 release day — flip `s12` to retired
+(offered=false, ranked=false) and `s13` to `ranked: true`, then bump server
+defaults to `'s13'` (Runbook 2). Cut-step legacy-deck audit applies (Runbook 3):
+s12-stamped decks containing sets 5-8 cards won't restamp clean to s13.
 
 ---
 

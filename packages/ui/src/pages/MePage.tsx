@@ -42,6 +42,7 @@ const FAMILY_LABEL: Record<GameFormatFamily, string> = {
 const ROTATION_LABEL: Record<RotationId, string> = {
   s11: "Set 11",
   s12: "Set 12",
+  s13: "Set 13",
 };
 
 export default function MePage() {
