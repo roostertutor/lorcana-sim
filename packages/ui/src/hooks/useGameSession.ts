@@ -10,6 +10,7 @@ import type {
   GameAction,
   GameState,
   GameLogEntry,
+  GameEvent,
   PendingChoice,
   PlayerID,
 } from "@lorcana-sim/engine";
@@ -35,6 +36,37 @@ import type { ClockSnapshot, GameOutcomeReason } from "../lib/serverApi.js";
 // Re-export for downstream UI consumers (GameBoard) so they don't need to
 // reach into serverApi directly — the session hook is the single MP surface.
 export type { ClockSnapshot, GameOutcomeReason };
+// Re-export GameEvent so the animation layer types its event handlers without
+// reaching into the engine package directly.
+export type { GameEvent };
+
+// -----------------------------------------------------------------------------
+// AnimationBatch — the engine GameEvent stream, surfaced for the cosmetic
+// animation layer.
+//
+// `seq` increments ONLY on a forward, sequential dispatch (local apply, MP
+// local-apply, MP server echo). It deliberately does NOT bump on undo,
+// quickLoad, forkFrom, reset, or replay scrubbing — those install state
+// non-sequentially, and the animation layer must treat them as instant jumps
+// (no card-flight tweens). Consumers gate on `seq` advancing past the value
+// they last animated; a flat or decreasing `seq` means "set, don't animate".
+//
+// `events` is the raw GameEvent[] from the most recent `applyAction` result.
+// Animations are PURE PRESENTATION — they never gate logic. The events arrive
+// AFTER state has already been committed, so an opponent action landing
+// mid-animation simply produces the next batch; the board is always rendering
+// the latest truth and tweens chase it.
+// -----------------------------------------------------------------------------
+export interface AnimationBatch {
+  events: GameEvent[];
+  /** Monotonic on forward dispatch; never bumped on undo/load/fork/replay. */
+  seq: number;
+  /** The action that produced this batch — lets the animation layer source
+   *  attacker/defender IDs for a challenge lunge (the GameEvent stream only
+   *  carries the resulting damage, not the challenge intent). Null on the
+   *  initial empty batch. */
+  action: GameAction | null;
+}
 
 // -----------------------------------------------------------------------------
 // Types
@@ -89,6 +121,11 @@ export interface GameSession {
    *  player banner's "Game 2 of 3" prefix. Sourced from the games row's
    *  `game_number` column via getGameWithClock. */
   gameNumber: number | null;
+  /** Engine GameEvent stream from the most recent forward dispatch, for the
+   *  cosmetic animation layer. `seq` advances only on sequential play — see
+   *  AnimationBatch. Cleared (empty events, seq preserved) is fine; consumers
+   *  only act when `seq` increases. */
+  animationBatch: AnimationBatch;
 
   startGame: (config: GameSessionConfig) => void;
   dispatch: (action: GameAction) => void;
@@ -178,6 +215,18 @@ export function useGameSession(): GameSession {
   const [nextGameId, setNextGameId] = useState<string | null>(null);
   // actionCount drives canUndo reactivity — refs alone don't trigger re-renders
   const [actionCount, setActionCount] = useState(0);
+  // animationBatch — the engine GameEvent stream for the cosmetic animation
+  // layer. seq advances ONLY on forward dispatch (local apply / MP apply /
+  // MP server echo). undo / quickLoad / fork / reset / replay install state
+  // without touching this, so the animation layer treats them as instant
+  // jumps. See AnimationBatch docs. animSeqRef keeps the monotonic counter
+  // out of render-closure staleness.
+  const animSeqRef = useRef(0);
+  const [animationBatch, setAnimationBatch] = useState<AnimationBatch>({ events: [], seq: 0, action: null });
+  const emitAnimationBatch = useCallback((events: GameEvent[], action: GameAction) => {
+    animSeqRef.current += 1;
+    setAnimationBatch({ events, seq: animSeqRef.current, action });
+  }, []);
   // MP-only: server-projected clock snapshot. We persist the matchFormat (which
   // the heartbeat response doesn't echo) by carrying it forward across
   // heartbeat-only updates — only the GET /game/:id response re-asserts it.
@@ -391,6 +440,13 @@ export function useGameSession(): GameSession {
           gameStateRef.current = localResult.newState;
           setGameState(localResult.newState);
           setActionCount((c) => c + 1);
+          // Animate off the local optimistic apply (instant feedback). The
+          // server echo below re-installs filtered truth but carries no
+          // GameEvents — emitting only here avoids double-animating my own
+          // action. Opponent actions arrive via the Realtime push
+          // (fetchAndApplyGameState), which intentionally does NOT animate
+          // card flights (we lack the event stream there) — see that path.
+          emitAnimationBatch(localResult.events, action);
         }
       }
       // Fire-and-forget to server — Realtime will push authoritative state to both players
@@ -430,6 +486,9 @@ export function useGameSession(): GameSession {
     setActionCount((c) => c + 1);
     gameStateRef.current = result.newState;
     setGameState(result.newState);
+    // Cosmetic animation cue — forward dispatch only. Emitted AFTER state is
+    // committed; never gates or delays the state install above.
+    emitAnimationBatch(result.events, action);
     // Persist for HMR survival. Skipped post-fork: the forked state isn't
     // reachable from the original seed+actions, so a rebuilt snapshot would
     // reconstruct the wrong initial state.
@@ -445,7 +504,7 @@ export function useGameSession(): GameSession {
         turnCount: result.newState.turnNumber,
       });
     }
-  }, [fetchAndApplyGameState]);
+  }, [fetchAndApplyGameState, emitAnimationBatch]);
 
   // ---------------------------------------------------------------------------
   // legalActions (derived)
@@ -866,6 +925,7 @@ export function useGameSession(): GameSession {
     clock,
     outcomeReason,
     gameNumber,
+    animationBatch,
     startGame,
     dispatch,
     selectCard,

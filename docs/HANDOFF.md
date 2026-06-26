@@ -94,6 +94,35 @@ spurious re-snapshot if the PDF didn't actually change.
 
 ---
 
+## Engine agent: optional GameEvent additions for richer board animations (non-blocking)
+
+The GameBoard game-feel animation pass (slice #1) shipped reading the existing
+`ActionResult.events` stream (`packages/ui/src/components/AnimationLayer.tsx` +
+`hooks/useCardPositions.tsx`, wired through `useGameSession.animationBatch`).
+It covers play / ink / banish / draw / return / damage / lore / challenge with
+the current `GameEvent` union (`types/index.ts:4490`). Two gaps are worked
+around UI-side; closing them in the engine would let the UI drop the
+workarounds and improve fidelity:
+
+- **No `quest` event.** Lore-gain is animated off `lore_gained`, which fires
+  for quest AND for any lore effect (Develop Your Brain, etc.). Fine today —
+  the burst is generic. A dedicated `quested { instanceId, playerId, amount }`
+  would let the UI exert-and-lunge the quester specifically. Low priority.
+- **No `card_exerted` / `card_readied` event.** The smooth exert↔ready rotate
+  is handled purely by the existing CSS transition on `GameCard` (no event
+  needed), so this is only relevant if a future animation wants to key off the
+  exact exert moment (e.g. a tap "shimmer"). Not needed now.
+- **Normal turn-draw** (`reducer.ts:~2236`) emits `card_drawn` but not
+  `card_moved deck→hand` (it uses `moveCard`, not `zoneTransition`). The UI
+  animates draws off `card_drawn` specifically *because* of this asymmetry, so
+  it works — but if `card_drawn` semantics ever change, re-check the draw
+  flight in AnimationLayer's `card_drawn` handler.
+
+None blocking — the animation layer is complete with today's events. File only
+if a future slice wants quest-specific or exert-specific motion.
+
+---
+
 ## Companion docs
 
 | Doc | Purpose | When something belongs here vs HANDOFF |

@@ -53,6 +53,8 @@ import CardInspectModal from "../components/CardInspectModal.js";
 import Icon from "../components/Icon.js";
 import { renderRulesText } from "../utils/rulesTextRender.js";
 import { formatDuration as formatDurationLabel } from "../utils/formatDuration.js";
+import AnimationLayer from "../components/AnimationLayer.js";
+import { CardPositionProvider, PosAnchor, usePositionRef, zoneTileKey } from "../hooks/useCardPositions.js";
 
 // -----------------------------------------------------------------------------
 // Shared sizing tokens for the utility-strip tiles (deck / discard / inkwell)
@@ -541,10 +543,19 @@ function UtilityStrip({
   gameModifiers: GameModifiers | null;
   playerId?: PlayerID;
 }) {
+  // Position anchors for card-flight animations — the deck tile is the source
+  // for draw flights, the discard tile the target for banish flights, the
+  // inkwell the target for ink flights. Keyed by player so each side's tiles
+  // are distinct. `playerId` is undefined only in the (unused) both-bot config.
+  const animPlayer: "player1" | "player2" = (playerId as "player1" | "player2") ?? "player1";
+  const deckAnchorRef = usePositionRef(zoneTileKey(animPlayer, "deck"));
+  const discardRef = usePositionRef(zoneTileKey(animPlayer, "discard"));
+  const inkwellRef = usePositionRef(zoneTileKey(animPlayer, "inkwell"));
   return (
     <div className="shrink-0 flex items-stretch gap-1 mt-1 landscape-phone:!mt-0">
       {/* Deck tile */}
       <button
+        ref={deckAnchorRef as unknown as React.Ref<HTMLButtonElement>}
         onClick={onDeckClick}
         disabled={!onDeckClick}
         className={`relative ${TILE_DIMS} ${TILE_RADIUS} shrink-0 overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border border-gray-800/40`}
@@ -566,7 +577,7 @@ function UtilityStrip({
       </button>
 
       {/* Inkwell — flex-1 */}
-      <div className="flex-1 min-w-0">
+      <div ref={inkwellRef} className="flex-1 min-w-0">
         <InkwellZone
           inkwellIds={inkwellIds}
           availableInk={availableInk}
@@ -583,6 +594,7 @@ function UtilityStrip({
 
       {/* Discard tile — glow when a card is playable from discard or inkable from discard */}
       <button
+        ref={discardRef as unknown as React.Ref<HTMLButtonElement>}
         onClick={onDiscardClick}
         disabled={discardCount === 0}
         className={`relative ${TILE_DIMS} ${TILE_RADIUS} shrink-0 overflow-hidden disabled:cursor-default hover:enabled:brightness-110 transition-all border ${
@@ -2399,7 +2411,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           }}
         >
           <DroppableCardTarget id={id} isValidTarget={isDropTarget} activeId={dnd.activeId}>
-            <div className="relative">
+            <PosAnchor positionKey={id} className="relative">
               {/* Opp-flip wrapper: rotate-180 around GameCard ONLY when the
                   flipOpponentCards setting is on (and this card belongs to
                   the opponent). Composes with GameCard's own rotate-90 for
@@ -2428,7 +2440,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                   {disambigBadge}
                 </span>
               )}
-            </div>
+            </PosAnchor>
           </DroppableCardTarget>
         </div>
       </DraggableCard>
@@ -2474,6 +2486,13 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   });
 
   return (
+    <CardPositionProvider>
+    <AnimationLayer
+      animationBatch={session.animationBatch}
+      gameState={gameState}
+      definitions={definitions}
+      viewerId={myId}
+    />
     <DndContext
       sensors={sensors}
       collisionDetection={pointerWithin}
@@ -3858,6 +3877,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         </ModalFrame>
       )}
     </DndContext>
+    </CardPositionProvider>
   );
 }
 
@@ -3983,6 +4003,10 @@ function DroppableQuestDivider({
   loreThreshold: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: DROP_QUEST });
+  // Lore burst anchors — self (green) / opponent (red). The animation layer
+  // maps lore_gained.playerId to one of these via the viewer perspective.
+  const selfLoreRef = usePositionRef("lore:self");
+  const oppLoreRef = usePositionRef("lore:opp");
   // When a valid quester is being dragged, thicken the divider and shift
   // its color to amber (lore) so the player sees it as a real target.
   // Otherwise it stays the thin gray divider the board has always had.
@@ -4010,12 +4034,12 @@ function DroppableQuestDivider({
         className={`shrink-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full border transition-all duration-150 ${pillBorder}`}
         title={`You ${myLore} · Opp ${opponentLore} (first to ${loreThreshold})`}
       >
-        <span className="text-green-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
+        <span ref={selfLoreRef as unknown as React.Ref<HTMLSpanElement>} className="text-green-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
           {myLore}
         </span>
         <Glyph name="lore" size={10} className="text-green-400" ariaLabel="lore" />
         <span className="text-gray-700 text-[9px] leading-none">–</span>
-        <span className="text-red-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
+        <span ref={oppLoreRef as unknown as React.Ref<HTMLSpanElement>} className="text-red-400 font-mono text-xs sm:text-sm font-black leading-none tabular-nums">
           {opponentLore}
         </span>
         <Glyph name="lore" size={10} className="text-red-400" ariaLabel="lore" />
