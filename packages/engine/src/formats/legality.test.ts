@@ -213,6 +213,19 @@ describe("isCardLegalInFormat", () => {
     expect(isCardLegalInFormat(def, INF_S13)).toBe(true);
   });
 
+  it("set-13 card is legal in s13 (Core + Infinity) but rejected in s12 (rotation-gated)", () => {
+    // woody-helping-a-friend is a set-13-exclusive printing (single row, no
+    // reprints — verified against card-set-*.json). Before the Set 13 import
+    // landed, the registry referenced set "13" but no card carried that setId,
+    // so the s13 legal-set entry was never exercised by a real definition.
+    const def = CARD_DEFINITIONS["woody-helping-a-friend"]!;
+    expect(def.setId).toBe("13");
+    expect(isCardLegalInFormat(def, CORE_S13)).toBe(true); // {9,10,11,12,13}
+    expect(isCardLegalInFormat(def, INF_S13)).toBe(true); // s12 snapshot + 13
+    expect(isCardLegalInFormat(def, CORE_S12)).toBe(false); // set 13 not yet in Core s12
+    expect(isCardLegalInFormat(def, INF_S12)).toBe(false); // frozen s12 snapshot excludes 13
+  });
+
   // Regression test for the 2026-04-27 Infinity-snapshot bug: pre-fix, both
   // INFINITY_ROTATIONS pointed at a single shared INFINITY_ALL_SETS constant
   // including set 12, so an Infinity-s11-stamped deck could silently run a
