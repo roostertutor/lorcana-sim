@@ -170,7 +170,7 @@ interface CardDefinitionOut {
   foilTopLayerMaskUrl?: string;
   foilTopLayer?:
     | "high_gloss" | "metallic_hot_foil" | "snow_hot_foil"
-    | "rainbow_hot_foil" | "matte_hot_foil";
+    | "rainbow_hot_foil" | "matte_hot_foil" | "chrome_rainbow_hot_foil";
   hotFoilColor?: string;
 
   // Mask provenance — mirrors _imageSource / _sourceImageUrl but for the
@@ -314,6 +314,7 @@ const FOIL_TOP_LAYER_MAP: Record<string, NonNullable<CardDefinitionOut["foilTopL
   SnowHotFoil:     "snow_hot_foil",
   RainbowHotFoil:  "rainbow_hot_foil",
   MatteHotFoil:    "matte_hot_foil",
+  ChromeRainbowHotFoil: "chrome_rainbow_hot_foil",
 };
 
 let _warnedFoilTypes = new Set<string>();
@@ -983,7 +984,7 @@ function mergeWithExisting(setCode: string, newCards: CardDefinitionOut[]): { pr
 // aren't in Ravensburger's API at all — would need a separate source if ever
 // needed. See HANDOFF.md.
 const ALL_RAV_FILTERS = [
-  "set1","set2","set3","set4","set5","set6","set7","set8","set9","set10","set11","set12",
+  "set1","set2","set3","set4","set5","set6","set7","set8","set9","set10","set11","set12","set13",
 ];
 
 // Map Ravensburger filter → project setId (used as JSON filename)
@@ -1314,6 +1315,25 @@ export const ALL_CARDS: CardDefinition[] = built.all;
       console.log(`  [set-${c.setCode}/${typePad} #${numPad}] ${c.fullName}`);
     }
     console.log(`\n  Run \`pnpm card-status --set ${needsImplementationCards[0]!.setCode}\` for details.`);
+  }
+
+  // Surface any foil metadata that was skipped because it isn't in FOIL_TYPE_MAP
+  // / FOIL_TOP_LAYER_MAP. The inline per-card `⚠ Unknown foil_*` warnings scroll
+  // off-screen on a full-catalog import, so re-list them here at the end — an
+  // unmapped foil value is silent data loss (the card keeps its art but loses
+  // its foil treatment) until someone adds it to the map + the type union.
+  // `(missing)` in _warnedSpecialRarities is unrelated; only foil sets here.
+  const unknownFoil = [..._warnedFoilTypes].filter((v) => v !== "(missing)");
+  const unknownTopLayer = [..._warnedFoilTopLayers];
+  if (unknownFoil.length > 0 || unknownTopLayer.length > 0) {
+    console.log(`\n⚠ Unmapped foil metadata skipped (foil treatment lost until mapped):`);
+    if (unknownFoil.length > 0) {
+      console.log(`    foil_type:      ${unknownFoil.join(", ")}  → add to FOIL_TYPE_MAP + foilType union`);
+    }
+    if (unknownTopLayer.length > 0) {
+      console.log(`    foil_top_layer: ${unknownTopLayer.join(", ")}  → add to FOIL_TOP_LAYER_MAP + foilTopLayer union`);
+    }
+    console.log(`  Both live in scripts/import-cards-rav.ts and packages/engine/src/types/index.ts.`);
   }
 }
 

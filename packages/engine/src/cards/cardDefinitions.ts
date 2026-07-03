@@ -19,6 +19,7 @@ import set9 from "./card-set-9.json" assert { type: "json" };
 import set10 from "./card-set-10.json" assert { type: "json" };
 import set11 from "./card-set-11.json" assert { type: "json" };
 import set12 from "./card-set-12.json" assert { type: "json" };
+import set13 from "./card-set-13.json" assert { type: "json" };
 import setC1 from "./card-set-C1.json" assert { type: "json" };
 import setC2 from "./card-set-C2.json" assert { type: "json" };
 import setD23 from "./card-set-D23.json" assert { type: "json" };
@@ -47,6 +48,7 @@ const cards = [
   ...loadSet(set10),
   ...loadSet(set11),
   ...loadSet(set12),
+  ...loadSet(set13),
   ...loadSet(setC1),
   ...loadSet(setC2),
   ...loadSet(setD23),

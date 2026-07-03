@@ -3497,7 +3497,8 @@ export interface CardDefinition {
     | "metallic_hot_foil"
     | "snow_hot_foil"
     | "rainbow_hot_foil"
-    | "matte_hot_foil";
+    | "matte_hot_foil"
+    | "chrome_rainbow_hot_foil";
   /** Per-card art-directed tint color for MetallicHotFoil / SnowHotFoil
    *  top-layer treatments. Hex string like `"#8FD262"`. Missing values fall
    *  back to `#aaa` silver in the renderer. */
