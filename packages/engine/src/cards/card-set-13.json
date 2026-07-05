@@ -2888,7 +2888,39 @@
       "Hero",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "GATHER THE PARTY",
+        "rulesText": "You can have other Hunny characters in your deck regardless of ink type.",
+        "effect": {
+          "type": "deck_rule",
+          "rule": "You can have other Hunny characters in your deck regardless of ink type."
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "MAGICAL SUMMONS",
+        "rulesText": "When you play this character, you may search your deck for a Hunny card, reveal it, and put it in your hand. If you do, shuffle your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "reveal": true,
+            "filter": {
+              "hasTrait": "Hunny"
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "deck",
+            "putInto": "hand"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 61,
     "rarity": "legendary",
@@ -3856,6 +3888,14 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "JUST HOW I LIKE IT",
+        "rulesText": "All cards in your hand count as having {C}.",
+        "effect": {
+          "type": "all_hand_inkable"
+        }
       }
     ],
     "setId": "13",
