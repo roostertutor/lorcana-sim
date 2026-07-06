@@ -54,7 +54,40 @@
       "Mentor",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "BIGGEST FAN",
+        "rulesText": "If you have a character named Mei Lee in play, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "has_character_named",
+          "name": "Mei Lee",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "FOLLOW THE MUSIC",
+        "rulesText": "If you played a song this turn, you pay 1 {I} less to play this character.",
+        "condition": {
+          "type": "played_this_turn",
+          "amount": 1,
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effect": {
+          "type": "self_cost_reduction",
+          "amount": 1
+        }
+      }
+    ],
     "setId": "13",
     "number": 2,
     "rarity": "rare",
@@ -169,6 +202,30 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "storyName": "HUNNY AURA",
+        "rulesText": "When you play this character, chosen Hunny character gets +1 {L} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Hunny"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -210,7 +267,63 @@
       "Ally",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PLEASE HOLD",
+        "rulesText": "When you play this character, you may pay 1 {I} to ready chosen character of yours. They can’t quest or challenge for the rest of this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "ready",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                },
+                "followUpEffects": [
+                  {
+                    "type": "cant_action",
+                    "action": "quest",
+                    "duration": "end_of_turn",
+                    "target": {
+                      "type": "this"
+                    }
+                  },
+                  {
+                    "type": "cant_action",
+                    "action": "challenge",
+                    "duration": "end_of_turn",
+                    "target": {
+                      "type": "this"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 6,
     "rarity": "uncommon",
@@ -296,7 +409,36 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THIS IS MY JAM",
+        "rulesText": "When you play this character, if there’s a song card in your discard, gain 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "discard",
+          "amount": 1,
+          "player": {
+            "type": "self"
+          },
+          "filter": {
+            "hasTrait": "Song"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 8,
     "rarity": "common",
@@ -336,7 +478,25 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "I GOT 'EM!",
+        "rulesText": "When you play this character, each player draws a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "both"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 9,
     "rarity": "common",
@@ -453,7 +613,35 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STAY CLOSE",
+        "rulesText": "When you play this character, you may play a character with cost 1 for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "isMay": true,
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "eq",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 12,
     "rarity": "rare",
@@ -494,7 +682,44 @@
       "Hero",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MOVE ALONG",
+        "rulesText": "When you play this character, until the start of your next turn, chosen opposing character can’t challenge and must quest if able.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "challenge",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "must_quest_if_able",
+                "target": {
+                  "type": "last_resolved_target"
+                },
+                "duration": "until_caster_next_turn"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 13,
     "rarity": "common",
@@ -534,7 +759,61 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROCK THE MIC",
+        "rulesText": "Once during your turn, whenever you play a song, you may ready this character. If you do, she can’t quest or challenge for the rest of this turn.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "action"
+            ],
+            "hasTrait": "Song"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "ready",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "duration": "this_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 14,
     "rarity": "uncommon",
@@ -574,7 +853,38 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WATCH THIS!",
+        "rulesText": "When you play this character, you may banish chosen character with 5 {S} or more.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "gte",
+                    "value": 5
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 15,
     "rarity": "uncommon",
@@ -615,7 +925,45 @@
       "Hero",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RED PANDA POWER",
+        "rulesText": "When you play this character, look at the top 4 cards of your deck. You may reveal a Red Panda character card or a song card and put it into your hand. Put the rest on the bottom of your deck in any order.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 4,
+            "action": "choose_from_top",
+            "filter": {
+              "anyOf": [
+                {
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasTrait": "Red Panda"
+                },
+                {
+                  "cardType": [
+                    "action"
+                  ],
+                  "hasTrait": "Song"
+                }
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "maxToHand": 1,
+            "isMay": true,
+            "revealPicks": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 16,
     "rarity": "rare",
@@ -700,7 +1048,47 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIND A FRIEND",
+        "rulesText": "When you play this character and whenever he quests, each player reveals the top card of their deck. If it’s a character card, they may put it into their hand. Otherwise, put it on the bottom of their deck.",
+        "trigger": {
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "all",
+            "effects": [
+              {
+                "type": "look_at_top",
+                "count": 1,
+                "action": "choose_from_top",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ]
+                },
+                "target": {
+                  "type": "self"
+                },
+                "maxToHand": 1,
+                "isMay": true,
+                "revealPicks": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 18,
     "rarity": "super_rare",
@@ -740,7 +1128,33 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "YOU'RE SAFE NOW",
+        "rulesText": "While you have an exerted character named Sulley in play, this character can’t be challenged.",
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Sulley",
+            "isExerted": true
+          }
+        },
+        "effect": {
+          "type": "cant_be_challenged",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 19,
     "rarity": "uncommon",
@@ -781,7 +1195,25 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SHARED RESOURCES",
+        "rulesText": "When you play this character, each player draws a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "both"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 20,
     "rarity": "common",
@@ -822,7 +1254,43 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MAKE 'EM LAUGH",
+        "rulesText": "When you play this character, you may pay 2 {I} to give chosen character +1 {L} this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 2
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_stats",
+                "lore": 1,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 21,
     "rarity": "common",
@@ -950,6 +1418,29 @@
       {
         "type": "keyword",
         "keyword": "bodyguard"
+      },
+      {
+        "type": "triggered",
+        "storyName": "REHIRE",
+        "rulesText": "When you play this character, you may return a character card from your discard to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "search",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "putInto": "hand"
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -1030,7 +1521,45 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ENERGY SAP",
+        "rulesText": "Whenever one of your Floodborn characters quests, chosen opposing character gets -1 {S} until the start of your next turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": -1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "duration": "until_caster_next_turn"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 26,
     "rarity": "rare",
@@ -1082,6 +1611,63 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "WELCOME RETURN",
+        "rulesText": "Whenever this character quests, you may return chosen character of yours with cost 1 to your hand. If you do, you may play a character with cost 1 for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "eq",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "play_card",
+                "isMay": true,
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "statComparisons": [
+                    {
+                      "stat": "cost",
+                      "op": "eq",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -1226,7 +1812,46 @@
       "Team",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3,
+        "variant": "classification",
+        "classifier": "Madrigal"
+      },
+      {
+        "type": "triggered",
+        "storyName": "FAMILY BLESSINGS",
+        "rulesText": "Once during your turn, whenever you remove 1 or more damage from one of your characters, put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 30,
     "rarity": "rare",
@@ -1236,6 +1861,7 @@
     "strength": 2,
     "willpower": 8,
     "lore": 2,
+    "shiftCost": 3,
     "rulesText": "<Madrigal <Shift>> 3 {I} (You may pay 3 {I} to play this on top of one of your Madrigal characters.)\nFAMILY BLESSINGS Once during your turn, whenever you remove 1 or more damage from one of your characters, put the top card of your deck into your inkwell facedown and exerted.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set13/30_259bdca28e14fe95_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/30_f7ca307a27cde6cea7aee31a8b931d6d48858cd5.jpg",
@@ -8369,7 +8995,46 @@
       "Team",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3,
+        "variant": "classification",
+        "classifier": "Madrigal"
+      },
+      {
+        "type": "triggered",
+        "storyName": "FAMILY BLESSINGS",
+        "rulesText": "Once during your turn, whenever you remove 1 or more damage from one of your characters, put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 230,
     "rarity": "enchanted",
