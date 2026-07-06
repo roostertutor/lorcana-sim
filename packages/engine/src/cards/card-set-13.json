@@ -1942,6 +1942,23 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "chosen",
+          "excludeSelf": true
+        }
+      }
+    ],
     "setId": "13",
     "number": 32,
     "rarity": "common",
@@ -2000,6 +2017,24 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "choose_from_top",
+        "filter": {
+          "cardType": [
+            "character"
+          ]
+        },
+        "target": {
+          "type": "self"
+        },
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
+      }
+    ],
     "setId": "13",
     "number": 34,
     "rarity": "common",
@@ -2032,6 +2067,29 @@
         "type": "keyword",
         "keyword": "sing_together",
         "value": 5
+      }
+    ],
+    "actionEffects": [
+      {
+        "type": "play_card",
+        "sourceZone": "hand",
+        "cost": "free",
+        "filter": {
+          "owner": {
+            "type": "self"
+          },
+          "zone": "hand",
+          "cardType": [
+            "character"
+          ],
+          "statComparisons": [
+            {
+              "stat": "cost",
+              "op": "lte",
+              "value": 4
+            }
+          ]
+        }
       }
     ],
     "setId": "13",
@@ -2091,7 +2149,31 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "EMBRACING CHANGE",
+        "rulesText": "Your Floodborn characters get +2 {W}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 2,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 37,
     "rarity": "uncommon",
@@ -2130,7 +2212,31 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CHASING ADVENTURE",
+        "rulesText": "When you play this character, if a character of yours quested this turn, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "no_other_character_quested_this_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 38,
     "rarity": "common",
@@ -2205,7 +2311,36 @@
       "Sorcerer",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "STICK TOGETHER",
+        "rulesText": "While you have 2 or more other Hunny characters in play, this character gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Hunny"
+          },
+          "minimum": 2
+        }
+      }
+    ],
     "setId": "13",
     "number": 40,
     "rarity": "common",
@@ -2284,7 +2419,45 @@
       "Ally",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WELCOME HEALING",
+        "rulesText": "When you play this character, you may move up to 2 damage from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "isMay": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 42,
     "rarity": "uncommon",
@@ -2324,7 +2497,24 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "RULER FOR A DAY",
+        "rulesText": "When this character quests, banish him.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 43,
     "rarity": "uncommon",
@@ -2442,7 +2632,53 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STEALING IN",
+        "rulesText": "When you play this character, if you have a character with <Evasive> in play, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "evasive"
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "item",
+                  "location"
+                ],
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 46,
     "rarity": "rare",
@@ -2514,7 +2750,38 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MULTIPURPOSE TOOL",
+        "rulesText": "When you play this character, if you have a character card named Panic in your discard, gain 2 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "discard",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Panic"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 48,
     "rarity": "common",
@@ -2684,7 +2951,31 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "THORNY OVERGROWTH",
+        "rulesText": "Your Floodborn characters gain <Challenger> +1. (They get +1 {S} while challenging.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "challenger",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 52,
     "rarity": "common",
@@ -2770,7 +3061,54 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BOTANICAL REMEDY",
+        "rulesText": "Whenever one of your Floodborn characters quests, you may move 1 damage from chosen character to chosen opposing character.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "move_damage",
+            "amount": 1,
+            "isMay": true,
+            "source": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "destination": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 54,
     "rarity": "rare",
@@ -2812,7 +3150,34 @@
       "Deity",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MYSTICAL BOON",
+        "rulesText": "Whenever you play this or another Floodborn character, gain 1 lore.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 55,
     "rarity": "uncommon",
