@@ -1,0 +1,246 @@
+[
+  {
+    "id": "pocahontas-guiding-the-tribe",
+    "name": "Pocahontas",
+    "fullName": "Pocahontas - Guiding the Tribe",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "PD1",
+    "number": 3,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3227,
+    "subtitle": "Guiding the Tribe",
+    "strength": 2,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "STAY CLOSE When you play this character, you may play a character with cost 1 for free.",
+    "flavorText": "“These vines are far from natural. They must end somewhere.\"",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/3_3c5edcb1499d4bc1_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/3_8e4cecd3b1ad8a77e9e08a3e6f8a9307d192ce14.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STAY CLOSE",
+        "rulesText": "When you play this character, you may play a character with cost 1 for free.",
+        "raw": "STAY CLOSE When you play this character, you may play a character with cost 1 for free."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/3_163ea38182cbc50e2590e349176c2b48ce1cc5e9.jpg"
+  },
+  {
+    "id": "vixey-expert-fisher",
+    "name": "Vixey",
+    "fullName": "Vixey - Expert Fisher",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 3,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "PD1",
+    "number": 4,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3228,
+    "subtitle": "Expert Fisher",
+    "strength": 2,
+    "willpower": 4,
+    "lore": 1,
+    "rulesText": "STEALING IN When you play this character, if you have a character with <Evasive> in play, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
+    "flavorText": "\"I've got my dinner. Where's yours, Tod?\"",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/4_11f114464411c25c_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/4_ce82edc808c8fd400f379181dbf9e2fe3e8ea9de.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "STEALING IN",
+        "rulesText": "When you play this character, if you have a character with <Evasive> in play, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
+        "raw": "STEALING IN When you play this character, if you have a character with <Evasive> in play, you may return chosen character, item, or location with cost 2 or less to their player’s hand."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/4_e594abebd61d46162629cec36700f0cde68c3771.jpg"
+  },
+  {
+    "id": "buzz-lightyear-providing-cover",
+    "name": "Buzz Lightyear",
+    "fullName": "Buzz Lightyear - Providing Cover",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Toy",
+      "Captain"
+    ],
+    "abilities": [],
+    "setId": "PD1",
+    "number": 5,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3229,
+    "subtitle": "Providing Cover",
+    "strength": 4,
+    "willpower": 2,
+    "lore": 2,
+    "rulesText": "ACTION FIGURE When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return an action card with cost 2 or less from your discard to your hand.\n• You may play an action with cost 2 or less for free.",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/5_ec9b1c73705352c4_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/5_4c864c54b05b53989a1b7a25914e9b2cfd16add7.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ACTION FIGURE",
+        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return an action card with cost 2 or less from your discard to your hand.\n• You may play an action with cost 2 or less for free.",
+        "raw": "ACTION FIGURE When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return an action card with cost 2 or less from your discard to your hand.\n• You may play an action with cost 2 or less for free."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/5_f8c0f84264b21ad2e9b51839779a715662f3a358.jpg"
+  },
+  {
+    "id": "boo-energetic-child",
+    "name": "Boo",
+    "fullName": "Boo - Energetic Child",
+    "cardType": "character",
+    "inkColors": [
+      "ruby"
+    ],
+    "cost": 3,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Hero"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "rush"
+      }
+    ],
+    "setId": "PD1",
+    "number": 6,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3230,
+    "subtitle": "Energetic Child",
+    "strength": 0,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "<Rush> (This character can challenge the turn they’re played.)\nKID-TASTROPHE! Whenever this character challenges another character with 3 {S} or less, banish that character. (No damage is dealt in that challenge.)",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/6_3bffeebb970eb966_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/6_7d8d3f014b7cf725db648981b2a61ef9dc3464fe.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "KID-TASTROPHE!",
+        "rulesText": "Whenever this character challenges another character with 3 {S} or less, banish that character. (No damage is dealt in that challenge.)",
+        "raw": "KID-TASTROPHE! Whenever this character challenges another character with 3 {S} or less, banish that character. (No damage is dealt in that challenge.)"
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/6_a74ce18f6488d1692cd4fa71a391bd5f3946f7d4.jpg"
+  },
+  {
+    "id": "merlin-envisioning-the-future",
+    "name": "Merlin",
+    "fullName": "Merlin - Envisioning the Future",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": false,
+    "traits": [
+      "Dreamborn",
+      "Mentor",
+      "Sorcerer"
+    ],
+    "abilities": [],
+    "setId": "PD1",
+    "number": 7,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3231,
+    "subtitle": "Envisioning the Future",
+    "strength": 1,
+    "willpower": 4,
+    "lore": 2,
+    "rulesText": "MINOR TRICKERY When you play this character, you may draw a card from the bottom of your deck.\nAGE OF INCONVENIENCE When this character is banished, put this card from your discard on the bottom of your deck.",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/7_0615e22ab9606073_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/7_cf5c764b22ad1938cdd39f8e20ce4b8d03ef6a06.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "MINOR TRICKERY",
+        "rulesText": "When you play this character, you may draw a card from the bottom of your deck.",
+        "raw": "MINOR TRICKERY When you play this character, you may draw a card from the bottom of your deck."
+      },
+      {
+        "storyName": "AGE OF INCONVENIENCE",
+        "rulesText": "When this character is banished, put this card from your discard on the bottom of your deck.",
+        "raw": "AGE OF INCONVENIENCE When this character is banished, put this card from your discard on the bottom of your deck."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/7_de1ae120281ea2d4fa062aa419ce4af4cad3f9d0.jpg"
+  },
+  {
+    "id": "maximus-relentless-stallion",
+    "name": "Maximus",
+    "fullName": "Maximus - Relentless Stallion",
+    "cardType": "character",
+    "inkColors": [
+      "steel"
+    ],
+    "cost": 5,
+    "inkable": false,
+    "traits": [
+      "Storyborn",
+      "Ally"
+    ],
+    "abilities": [],
+    "setId": "PD1",
+    "number": 8,
+    "rarity": "promo",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3232,
+    "subtitle": "Relentless Stallion",
+    "strength": 4,
+    "willpower": 5,
+    "lore": 1,
+    "rulesText": "NO ESCAPE If you discarded a card this turn, this character gains <Challenger> +2 and can challenge ready characters this turn. (They get +2 {S} while challenging.)",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setPD1/8_22ec6111d2af03bd_normal.jpg",
+    "foilType": "satin",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/8_7270a38c778ebf6bdbadc3077c32afcac7f6c7ff.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "NO ESCAPE",
+        "rulesText": "If you discarded a card this turn, this character gains <Challenger> +2 and can challenge ready characters this turn. (They get +2 {S} while challenging.)",
+        "raw": "NO ESCAPE If you discarded a card this turn, this character gains <Challenger> +2 and can challenge ready characters this turn. (They get +2 {S} while challenging.)"
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/pd1/8_3f3d1c8047e9386a30b9d84efb4d9448c5af9171.jpg"
+  }
+]

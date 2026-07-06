@@ -1,0 +1,207 @@
+[
+  {
+    "id": "morph-little-imitator",
+    "name": "Morph",
+    "fullName": "Morph - Little Imitator",
+    "cardType": "character",
+    "inkColors": [
+      "amethyst"
+    ],
+    "cost": 2,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Ally",
+      "Alien"
+    ],
+    "abilities": [],
+    "setId": "P4",
+    "number": 9,
+    "rarity": "challenge",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3217,
+    "subtitle": "Little Imitator",
+    "strength": 1,
+    "willpower": 2,
+    "lore": 1,
+    "rulesText": "ADVANCED MIMICRY You can shift any character on top of this character. (This includes all Shift variants.)",
+    "flavorText": "\"Listen up. I've got a <special> job for you.\"\n—John Silver",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP4/9_e445ba66db868796_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/9_af3e9319711d9b06375b2112deefd4850ecb0585.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "ADVANCED MIMICRY",
+        "rulesText": "You can shift any character on top of this character. (This includes all Shift variants.)",
+        "raw": "ADVANCED MIMICRY You can shift any character on top of this character. (This includes all Shift variants.)"
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/9_87e3bb724c9196dcb9aa62166aed5caeee365532.jpg"
+  },
+  {
+    "id": "meilin-lee-lead-vocalist",
+    "name": "Meilin Lee",
+    "fullName": "Meilin Lee - Lead Vocalist",
+    "cardType": "character",
+    "inkColors": [
+      "amber"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Hero",
+      "Red Panda"
+    ],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "singer",
+        "value": 3
+      }
+    ],
+    "setId": "P4",
+    "number": 10,
+    "rarity": "challenge",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3218,
+    "subtitle": "Lead Vocalist",
+    "strength": 0,
+    "willpower": 3,
+    "lore": 1,
+    "rulesText": "<Singer> 3 (This character counts as cost 3 to sing songs.)\nBAND LOYALTY This character can’t sing songs without <Sing Together>.",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP4/10_987b38bfdaa0379d_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/10_5b5d7dff90b3e92b6684436ef8a92ed3eff5bf57.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "BAND LOYALTY",
+        "rulesText": "This character can’t sing songs without <Sing Together>.",
+        "raw": "BAND LOYALTY This character can’t sing songs without <Sing Together>."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/10_61acd93b69e6eefc6fde8a3dd9f5773e52cf2477.jpg"
+  },
+  {
+    "id": "randall-boggs-scary-smart",
+    "name": "Randall Boggs",
+    "fullName": "Randall Boggs - Scary Smart",
+    "cardType": "character",
+    "inkColors": [
+      "sapphire"
+    ],
+    "cost": 4,
+    "inkable": true,
+    "traits": [
+      "Dreamborn",
+      "Villain",
+      "Monster"
+    ],
+    "abilities": [],
+    "setId": "P4",
+    "number": 11,
+    "rarity": "challenge",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3219,
+    "subtitle": "Scary Smart",
+    "strength": 3,
+    "willpower": 3,
+    "lore": 2,
+    "rulesText": "GET OUTTA HERE! When you play this character, put chosen character of yours into your inkwell facedown and exerted.\nDEVIOUS PLAN At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore.",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP4/11_daaf2baf2ed244cc_normal.jpg",
+    "foilType": "silver",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/11_e602092f49ef69d863bf40f95447cf2a3affe461.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "GET OUTTA HERE!",
+        "rulesText": "When you play this character, put chosen character of yours into your inkwell facedown and exerted.",
+        "raw": "GET OUTTA HERE! When you play this character, put chosen character of yours into your inkwell facedown and exerted."
+      },
+      {
+        "storyName": "DEVIOUS PLAN",
+        "rulesText": "At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore.",
+        "raw": "DEVIOUS PLAN At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore."
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/11_2eea0b44c691911285949a81cab924b2ee38da6e.jpg"
+  },
+  {
+    "id": "rapunzel-escaping-the-tower",
+    "name": "Rapunzel",
+    "fullName": "Rapunzel - Escaping the Tower",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P4",
+    "number": 15,
+    "rarity": "challenge",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3223,
+    "subtitle": "Escaping the Tower",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "THE CALL OF ADVENTURE Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP4/15_57ab4ed5fe60a019_normal.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE CALL OF ADVENTURE",
+        "rulesText": "Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "raw": "THE CALL OF ADVENTURE Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/15_0ee58d29417b2d6391d9c8801f1077efc18a7cbc.jpg"
+  },
+  {
+    "id": "rapunzel-escaping-the-tower",
+    "name": "Rapunzel",
+    "fullName": "Rapunzel - Escaping the Tower",
+    "cardType": "character",
+    "inkColors": [
+      "emerald"
+    ],
+    "cost": 1,
+    "inkable": true,
+    "traits": [
+      "Storyborn",
+      "Hero",
+      "Princess"
+    ],
+    "abilities": [],
+    "setId": "P4",
+    "number": 16,
+    "rarity": "challenge",
+    "_source": "ravensburger",
+    "_ravensburgerId": 3224,
+    "subtitle": "Escaping the Tower",
+    "strength": 2,
+    "willpower": 1,
+    "lore": 1,
+    "rulesText": "THE CALL OF ADVENTURE Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+    "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/setP4/16_b7a8c3d27ed8dd67_normal.jpg",
+    "foilType": "magma",
+    "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/16_320c25648867ee28b545e4b9b5624927a7b4d096.jpg",
+    "_namedAbilityStubs": [
+      {
+        "storyName": "THE CALL OF ADVENTURE",
+        "rulesText": "Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "raw": "THE CALL OF ADVENTURE Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
+      }
+    ],
+    "_imageSource": "ravensburger",
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/promo4/16_e486cda0673f321ae77752244b3f8d1d51ff45fc.jpg"
+  }
+]

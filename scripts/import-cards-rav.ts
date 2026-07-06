@@ -353,7 +353,13 @@ function normalizeHotFoilColor(raw: string | undefined): string | undefined {
 // When total is one of these, the card belongs to that promo set (not the
 // main set indicated by the setNum field). E.g. "5/P2 EN 7" → promo P2,
 // card 5, related to main set 7.
-const PROMO_TOTAL_CODES = new Set(["P1","P2","P3","C1","C2","C3","D23","CP","DIS"]);
+//
+// P4 = Set 13 challenge product ("N/P4 EN 13"), PD1 = Set 13 promo product
+// ("N/PD1 EN 13"). Without these, parseIdentifier falls through to setId="13"
+// and keeps the promo-subset numbers (3-11, 15, 16), which collide with the
+// base-set cards at the same numbers — 13-15/13-16 both resolved to the
+// challenge Rapunzel instead of base Gaston / Meilin. See DECISIONS.md.
+const PROMO_TOTAL_CODES = new Set(["P1","P2","P3","P4","PD1","C1","C2","C3","D23","CP","DIS"]);
 
 function parseIdentifier(id: string): { number: number; total: string; setNum: string; setId: string } | null {
   const m = id.match(/(\d+)\s*\/\s*(\S+)\s+EN\s+(\S+)/i);

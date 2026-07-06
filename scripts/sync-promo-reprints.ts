@@ -12,7 +12,7 @@
 // Auto-runs at the end of `pnpm import-cards` so newly-imported rarity reprints
 // don't show up as bogus "needs-implementation" stubs in the post-import report.
 // Also exposed as `pnpm sync-reprints` for one-off use.
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -20,7 +20,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 
 const MAIN_SETS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-const PROMO_SETS = ["P1", "P2", "P3", "C1", "C2", "D23", "DIS"];
+// P4 (Set 13 challenge) / PD1 (Set 13 promo) join the promo sync so their
+// reprints inherit wired abilities from the main-set original by fullName.
+// Note: PD1 alt-arts share fullName with Set 13 BASE cards, so true
+// inheritance also needs Set 13 added to MAIN_SETS once its base cards are
+// wired — until then these entries just no-op (no wired source to copy from).
+const PROMO_SETS = ["P1", "P2", "P3", "P4", "PD1", "C1", "C2", "D23", "DIS"];
 
 export interface SyncReprintsResult {
   /** Total reprints synced across the promo (cross-set) pass. */
@@ -81,6 +86,7 @@ export function syncReprints(opts: { silent?: boolean } = {}): SyncReprintsResul
 
   for (const s of PROMO_SETS) {
     const fp = join(CARDS_DIR, `card-set-${s}.json`);
+    if (!existsSync(fp)) continue; // promo file not imported yet (e.g. P4/PD1 pre-import)
     const cards = JSON.parse(readFileSync(fp, "utf-8"));
     let setSynced = 0;
     for (const c of cards) {
@@ -117,6 +123,7 @@ export function syncReprints(opts: { silent?: boolean } = {}): SyncReprintsResul
   const perSetWithin: Record<string, number> = {};
   for (const s of [...MAIN_SETS, ...PROMO_SETS]) {
     const fp = join(CARDS_DIR, `card-set-${s}.json`);
+    if (!existsSync(fp)) continue; // promo file not imported yet (e.g. P4/PD1 pre-import)
     const cards = JSON.parse(readFileSync(fp, "utf-8"));
     const byId: Record<string, any[]> = {};
     for (const c of cards) {

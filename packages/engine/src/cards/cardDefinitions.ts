@@ -27,6 +27,8 @@ import setDIS from "./card-set-DIS.json" assert { type: "json" };
 import setP1 from "./card-set-P1.json" assert { type: "json" };
 import setP2 from "./card-set-P2.json" assert { type: "json" };
 import setP3 from "./card-set-P3.json" assert { type: "json" };
+import setP4 from "./card-set-P4.json" assert { type: "json" };
+import setPD1 from "./card-set-PD1.json" assert { type: "json" };
 
 type RawCard = CardDefinition & { _namedAbilityStubs?: string[] };
 
@@ -56,6 +58,8 @@ const cards = [
   ...loadSet(setP1),
   ...loadSet(setP2),
   ...loadSet(setP3),
+  ...loadSet(setP4),
+  ...loadSet(setPD1),
 ];
 
 const built = buildCardDefinitions(cards);
