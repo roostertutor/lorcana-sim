@@ -2603,6 +2603,29 @@ describe("§6 Effects", () => {
     expect(resolveResult.newState.players.player1.availableInk).toBe(9);
   });
 
+  it("grant_keyword chosen applies followUpEffects to the same target (Elsa Storm Chaser TEMPEST)", () => {
+    // Regression: the grant_keyword `chosen` branch didn't copy
+    // followUpEffects onto the pendingChoice (unlike the exert branch), so
+    // the follow-up keyword was silently dropped on resolution. Affected 5
+    // shipped cards (Elsa Storm Chaser, Vitalisphere, Imperial Bow, Pixie
+    // Dust, Beagle Boys). TEMPEST: "Chosen character gains Challenger +2 AND
+    // Rush this turn" — both grants must land on the SAME chosen character.
+    let state = startGame();
+    let elsaId: string, targetId: string;
+    ({ state, instanceId: elsaId } = injectCard(state, "player1", "elsa-storm-chaser", "play", { isDrying: false }));
+    ({ state, instanceId: targetId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+
+    const act = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: elsaId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(act.success).toBe(true);
+    expect(act.newState.pendingChoice?.type).toBe("choose_target");
+
+    const res = applyAction(act.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, CARD_DEFINITIONS);
+    expect(res.success).toBe(true);
+    const inst = getInstance(res.newState, targetId);
+    expect(inst.timedEffects.some((te) => te.type === "grant_keyword" && te.keyword === "challenger")).toBe(true);
+    expect(inst.timedEffects.some((te) => te.type === "grant_keyword" && te.keyword === "rush")).toBe(true); // followUp — was silently dropped
+  });
+
   it("Granted keyword expires at end of turn", () => {
     let state = startGame();
     let cutId: string, charId: string;

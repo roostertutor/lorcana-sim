@@ -4381,6 +4381,13 @@ export function applyEffect(
             prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a character to grant ${effect.keyword}.`),
             validTargets,
             pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+            // Mirror the `exert` chosen branch: forward followUpEffects so the
+            // RESOLVE_CHOICE loop applies them to the SAME chosen target. Without
+            // this, cards like Elsa - Storm Chaser TEMPEST ("Chosen character
+            // gains Challenger +2 AND Rush this turn") silently dropped the
+            // follow-up keyword (the grant_keyword applyEffectToTarget case
+            // doesn't read followUpEffects, so it applies exactly once here).
+            followUpEffects: effect.followUpEffects,
           },
         };
       }
