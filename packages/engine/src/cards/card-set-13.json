@@ -3622,6 +3622,29 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "MAGICAL MIX",
+        "rulesText": "This character gets +1 {L} for each different ink type of characters you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countMode": "unique_ink_types",
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "13",
@@ -3788,7 +3811,27 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/65_0b885ca92efe5a5d5e6a90a14ea172e8a64e7466.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/65_71c198c76b5bc463e89a26fa1cec9381548abe08.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/65_71c198c76b5bc463e89a26fa1cec9381548abe08.jpg",
+    "actionEffects": [
+      {
+        "type": "draw",
+        "amount": {
+          "type": "unique_ink_types",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "target": {
+          "type": "chosen"
+        }
+      }
+    ]
   },
   {
     "id": "petrify",
@@ -12011,6 +12054,29 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "MAGICAL MIX",
+        "rulesText": "This character gets +1 {L} for each different ink type of characters you have in play.",
+        "effect": {
+          "type": "modify_stat_per_count",
+          "stat": "lore",
+          "perCount": 1,
+          "countMode": "unique_ink_types",
+          "countFilter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          },
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "13",

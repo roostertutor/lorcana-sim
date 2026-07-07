@@ -664,6 +664,13 @@ export type DynamicAmount =
    *  challenge this turn, you pay 2 {I} less to play this character"). */
   | "opposing_chars_banished_in_challenge_this_turn"
   | { type: "count"; filter: CardFilter; max?: number }
+  /** Count of DISTINCT ink types (inkColors) among cards matching the filter —
+   *  not the card count. Winnie the Pooh & Piglet MAGICAL MIX ("+1 {L} for each
+   *  different ink type of characters you have in play"), With a Few Good Friends
+   *  ("draw a card for each different ink type of characters you have in play").
+   *  Generalizes unique_ink_types_on_top_of_both_decks (deck-tops only) to an
+   *  arbitrary filtered card set. Dual-ink cards contribute each of their colors. */
+  | { type: "unique_ink_types"; filter: CardFilter }
   /** Read a stat (cost / strength / willpower / lore / damage / delta) off
    *  a named card reference. Replaces the former 14 per-stat variants
    *  (target_lore / target_damage / target_strength / target_willpower /
@@ -2516,6 +2523,12 @@ export interface ModifyStatPerCountStatic {
    * (Boost / Shift base pile). Used for "+1 {S} for each card under him".
    */
   countCardsUnderSelf?: boolean;
+  /** When set, count DISTINCT ink types among the countFilter matches rather
+   *  than the number of matching cards. Winnie the Pooh & Piglet MAGICAL MIX
+   *  ("+1 {L} for each different ink type of characters you have in play").
+   *  perCount still multiplies (1 for MAGICAL MIX). Dual-ink cards contribute
+   *  each of their colors to the distinct-type set. */
+  countMode?: "unique_ink_types";
   /** Who this bonus applies to (usually "this") */
   target: CardTarget;
 }

@@ -3235,6 +3235,17 @@ function resolveDynamicAmount(
     case "count":
       resolved = findMatchingInstances(state, definitions, amount.filter, controllingPlayerId, sourceInstanceId).length;
       break;
+    case "unique_ink_types": {
+      // Count of DISTINCT ink types among matching cards (not the card count).
+      // Winnie the Pooh & Piglet MAGICAL MIX, With a Few Good Friends.
+      const inks = new Set<string>();
+      for (const inst of findMatchingInstances(state, definitions, amount.filter, controllingPlayerId, sourceInstanceId)) {
+        const def = definitions[inst.definitionId];
+        if (def?.inkColors) for (const ink of def.inkColors) inks.add(ink);
+      }
+      resolved = inks.size;
+      break;
+    }
     case "stat_ref": {
       // Unified stat-from-reference reader (2026-04-24 consolidation).
       // Reads `property` off the card/ref named by `from`. Replaces 14

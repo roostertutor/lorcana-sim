@@ -2653,6 +2653,28 @@ describe("§6 Effects", () => {
     expect(setup(false).players.player2.lore).toBe(5);  // no Monster → gate fizzles
   });
 
+  it("modify_stat_per_count unique_ink_types counts distinct ink types, not cards (MAGICAL MIX)", () => {
+    // Winnie the Pooh & Piglet - Hunny Mages MAGICAL MIX: "+1 {L} for each
+    // different ink type of characters you have in play." Winnie & Piglet is
+    // itself dual-ink [amethyst, sapphire] → 2 distinct types alone. Adding
+    // amber characters raises it to 3; a SECOND amber must NOT raise it again
+    // (distinct types, not card count).
+    let state = startGame();
+    let wpId: string;
+    ({ state, instanceId: wpId } = injectCard(state, "player1", "winnie-the-pooh-piglet-hunny-mages", "play", { isDrying: false }));
+    const loreBonus = (s: typeof state) => getGameModifiers(s, CARD_DEFINITIONS).statBonuses.get(wpId)?.lore ?? 0;
+
+    expect(loreBonus(state)).toBe(2); // {amethyst, sapphire}
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play")); // amber
+    expect(loreBonus(state)).toBe(3); // {amethyst, sapphire, amber}
+    ({ state } = injectCard(state, "player1", "mickey-mouse-true-friend", "play")); // amber again
+    expect(loreBonus(state)).toBe(3); // still 3 — distinct types, not card count
+
+    const inst = getInstance(state, wpId);
+    const def = CARD_DEFINITIONS[inst.definitionId]!;
+    expect(getEffectiveLore(inst, def, loreBonus(state))).toBe(3); // base 0 + 3
+  });
+
   it("Granted keyword expires at end of turn", () => {
     let state = startGame();
     let cutId: string, charId: string;

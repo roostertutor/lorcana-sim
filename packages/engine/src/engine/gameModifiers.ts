@@ -627,7 +627,9 @@ export function getGameModifiers(
           const count = effect.countCardsUnderSelf
             ? instance.cardsUnder.length
             : (effect.countFilter
-              ? countMatchingCards(state, definitions, effect.countFilter, instance.ownerId, instance.instanceId)
+              ? (effect.countMode === "unique_ink_types"
+                ? countUniqueInkTypes(state, definitions, effect.countFilter, instance.ownerId, instance.instanceId)
+                : countMatchingCards(state, definitions, effect.countFilter, instance.ownerId, instance.instanceId))
               : 0);
           const bonus = count * effect.perCount;
           if (bonus === 0) break;
@@ -1415,4 +1417,53 @@ function countMatchingCards(
   }
 
   return count;
+}
+
+/**
+ * Count DISTINCT ink types among cards matching a filter (not the card count).
+ * Mirrors countMatchingCards but collects each match's inkColors into a Set.
+ * Used by modify_stat_per_count with countMode:"unique_ink_types" — Winnie the
+ * Pooh & Piglet MAGICAL MIX ("+1 {L} for each different ink type of characters
+ * you have in play"). Dual-ink cards contribute each of their colors.
+ */
+function countUniqueInkTypes(
+  state: GameState,
+  definitions: Record<string, CardDefinition>,
+  filter: import("../types/index.js").CardFilter,
+  viewingPlayerId: PlayerID,
+  sourceInstanceId: string
+): number {
+  const zones = filter.zone
+    ? (Array.isArray(filter.zone) ? filter.zone : [filter.zone])
+    : ["play" as const];
+  const inks = new Set<string>();
+  const opponent = viewingPlayerId === "player1" ? "player2" : "player1";
+
+  for (const zone of zones) {
+    const ownerFilter = filter.owner;
+    const players: PlayerID[] = [];
+    if (!ownerFilter || ownerFilter.type === "both") {
+      players.push("player1", "player2");
+    } else if (ownerFilter.type === "self") {
+      players.push(viewingPlayerId);
+    } else if (ownerFilter.type === "opponent") {
+      players.push(opponent);
+    }
+
+    for (const playerId of players) {
+      for (const id of getZone(state, playerId, zone)) {
+        if (filter.excludeInstanceId && id === filter.excludeInstanceId) continue;
+        if (filter.excludeSelf && id === sourceInstanceId) continue;
+        const inst = state.cards[id];
+        if (!inst) continue;
+        const def = definitions[inst.definitionId];
+        if (!def) continue;
+        if (matchesFilter(inst, def, filter, state, viewingPlayerId)) {
+          if (def.inkColors) for (const ink of def.inkColors) inks.add(ink);
+        }
+      }
+    }
+  }
+
+  return inks.size;
 }
