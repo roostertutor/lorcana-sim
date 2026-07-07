@@ -1859,6 +1859,11 @@ export interface LoseLoreEffect {
   type: "lose_lore";
   amount: DynamicAmount;
   target: PlayerTarget;
+  /** Optional gating condition, mirroring GainLoreEffect. "If you have a
+   *  Monster character in play, chosen opponent loses 1 lore" (Red Alert).
+   *  Already honored at runtime via CONDITION_GATED_EFFECTS — this field only
+   *  makes the shape type-legal / audit-valid. */
+  condition?: Condition;
 }
 
 /** CRD 6.2.7.1: Create a floating triggered ability that lasts until end of turn. */

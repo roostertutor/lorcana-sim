@@ -2626,6 +2626,33 @@ describe("§6 Effects", () => {
     expect(inst.timedEffects.some((te) => te.type === "grant_keyword" && te.keyword === "rush")).toBe(true); // followUp — was silently dropped
   });
 
+  it("lose_lore honors its condition — Red Alert Monster gate (CRD 6.1.7)", () => {
+    // LoseLoreEffect gained a `condition` field (the runtime already gated it
+    // via CONDITION_GATED_EFFECTS; the type just made the shape audit-legal).
+    // Red Alert: "Banish chosen character with 3 {S} or less. If you have a
+    // Monster character in play, chosen opponent loses 1 lore." The lore half
+    // must fire only when a Monster is controlled.
+    const setup = (withMonster: boolean) => {
+      let state = startGame();
+      let redId: string, targetId: string;
+      ({ state, instanceId: redId } = injectCard(state, "player1", "red-alert", "hand"));
+      ({ state, instanceId: targetId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play")); // 2 str ≤ 3
+      if (withMonster) ({ state } = injectCard(state, "player1", "sulley-protective-monster", "play", { isDrying: false }));
+      state = giveInk(state, "player1", 10);
+      // Give player2 lore to actually lose (lore floors at 0).
+      state = { ...state, players: { ...state.players, player2: { ...state.players.player2, lore: 5 } } };
+      const play = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: redId }, CARD_DEFINITIONS);
+      expect(play.success).toBe(true);
+      expect(play.newState.pendingChoice?.type).toBe("choose_target"); // banish target
+      const res = applyAction(play.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [targetId] }, CARD_DEFINITIONS);
+      expect(res.success).toBe(true);
+      expect(getInstance(res.newState, targetId).zone).toBe("discard"); // banished either way
+      return res.newState;
+    };
+    expect(setup(true).players.player2.lore).toBe(4);   // Monster present → −1
+    expect(setup(false).players.player2.lore).toBe(5);  // no Monster → gate fizzles
+  });
+
   it("Granted keyword expires at end of turn", () => {
     let state = startGame();
     let cutId: string, charId: string;

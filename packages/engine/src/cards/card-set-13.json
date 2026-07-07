@@ -7305,7 +7305,48 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/135_5dd537134333638b6e23a9e2d27bdeeac62569cd.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/135_fdec7a9559734bab9c0155bd924560bc1546374d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/135_fdec7a9559734bab9c0155bd924560bc1546374d.jpg",
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 3
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "lose_lore",
+        "amount": 1,
+        "target": {
+          "type": "opponent"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Monster"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "rahr",
