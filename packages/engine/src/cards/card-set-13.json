@@ -4253,7 +4253,28 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TAKE MY HAND",
+        "rulesText": "When you play this character, you pay 2 {I} less for the next character named Ellie Fredricksen you play this turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "grant_cost_reduction",
+            "amount": 2,
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Ellie Fredricksen"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 74,
     "rarity": "uncommon",
@@ -4293,7 +4314,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ADVENTUROUS HEART",
+        "rulesText": "Whenever you play a location, gain 1 lore.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 75,
     "rarity": "common",
@@ -4335,7 +4382,20 @@
       "Toy",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "NOT A FLYING TOY",
+        "rulesText": "This character can’t gain <Evasive>.",
+        "effect": {
+          "type": "remove_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 76,
     "rarity": "common",
@@ -4466,6 +4526,62 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "BASE CAMP",
+        "rulesText": "Your characters at locations get +1 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "any"
+            }
+          }
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "GOOD LEADERSHIP",
+        "rulesText": "Whenever one of your characters with 4 {S} or more quests, gain 1 lore.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "gte",
+                "value": 4
+              }
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -4513,7 +4629,46 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THE FATES' DESIGN",
+        "rulesText": "When you play this character, you may choose and discard a card. If you do, return chosen character to their player’s hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "target_player"
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 80,
     "rarity": "common",
@@ -4553,7 +4708,33 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PROBLEM SOLVING",
+        "rulesText": "When you play this character, draw 2 cards, then choose and discard a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 81,
     "rarity": "uncommon",
@@ -4638,6 +4819,32 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "static",
+        "storyName": "ELUSIVE EXPERTISE",
+        "rulesText": "While you have another Hunny character in play, this character gains <Evasive>. (Only characters with Evasive can challenge them.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Hunny"
+          }
+        }
       }
     ],
     "setId": "13",
@@ -4716,7 +4923,42 @@
       "Dreamborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLEAR IT OUT",
+        "rulesText": "When you play this character, you may pay 1 {I} to banish chosen item.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "pay_ink",
+                "amount": 1
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "banish",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "item"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 85,
     "rarity": "common",
@@ -4881,7 +5123,36 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLEVER TRICK",
+        "rulesText": "Whenever one of your Floodborn characters is challenged, the challenging player chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 89,
     "rarity": "rare",
@@ -4992,6 +5263,24 @@
       {
         "type": "keyword",
         "keyword": "ward"
+      },
+      {
+        "type": "triggered",
+        "storyName": "FAIR IS FAIR",
+        "rulesText": "Whenever this character is challenged, chosen opponent chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -5118,7 +5407,41 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE CALL OF ADVENTURE",
+        "rulesText": "Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "costs": [
+          {
+            "type": "discard",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 95,
     "rarity": "super_rare",
@@ -5395,7 +5718,26 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/101_4f3c6f730ce66f4ab374ccaabc568e6647b27657.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/101_48a1cc7ad039377b42f08fd06db7e3b3bc2cdf4f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/101_48a1cc7ad039377b42f08fd06db7e3b3bc2cdf4f.jpg",
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        }
+      }
+    ]
   },
   {
     "id": "piercing-attack",
@@ -5448,7 +5790,22 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/103_59fbe234ea56938d1a3215ed448d18163cf44eb5.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/103_c600e4345ed6983fc517bd9a17987e851c10aa11.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/103_c600e4345ed6983fc517bd9a17987e851c10aa11.jpg",
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "item"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "scout-ahead",
@@ -5474,7 +5831,20 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/104_7b6417443c11c22d8de36f2f9e30e4b620c194a7.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/104_48b30b5dd0be37f341b406d9933bfb1b84f38b49.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/104_48b30b5dd0be37f341b406d9933bfb1b84f38b49.jpg",
+    "actionEffects": [
+      {
+        "type": "gain_lore",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        },
+        "condition": {
+          "type": "opponent_has_more_than_self",
+          "metric": "lore"
+        }
+      }
+    ]
   },
   {
     "id": "potato",
@@ -5487,7 +5857,16 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FULL OF POTENTIAL",
+        "rulesText": "This item enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      }
+    ],
     "setId": "13",
     "number": 105,
     "rarity": "common",
@@ -5590,7 +5969,24 @@
     "cost": 4,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "QUITE A SIGHT",
+        "rulesText": "While you have a character here, this location gets +3 {L}.",
+        "condition": {
+          "type": "this_location_has_character"
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 3,
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 108,
     "rarity": "rare",
@@ -5682,7 +6078,31 @@
       "Villain",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GET THIS RIGHT",
+        "rulesText": "When you play this character, each opponent loses 1 lore.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 110,
     "rarity": "common",
