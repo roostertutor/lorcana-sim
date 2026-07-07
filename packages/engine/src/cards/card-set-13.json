@@ -3347,7 +3347,35 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STAY RIGHT THERE",
+        "rulesText": "When you play this character, chosen opposing character can’t ready at the start of their next turn.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 58,
     "rarity": "common",
@@ -3443,6 +3471,27 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN FLY!",
+        "rulesText": "Your characters gain <Evasive>. (Only characters with Evasive can challenge them.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
       }
     ],
     "setId": "13",
@@ -3678,6 +3727,33 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/64_7afbd83b4c2c51c47b8f1f27e19a3d4f2843b3f8.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/64_7dc424d7321c9728287d3ee425f9733fd17de913.jpg",
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "challenger",
+        "value": 2,
+        "duration": "end_of_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "followUpEffects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "rush",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/64_7afbd83b4c2c51c47b8f1f27e19a3d4f2843b3f8.jpg"
   },
@@ -3737,6 +3813,23 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/66_9bb1f1f4ddb1a49c8a1760543f604bfbc2af01c5.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/66_c9dbefb188078566bebde2adc05119245c40aa84.jpg",
+    "actionEffects": [
+      {
+        "type": "exert",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "owner": {
+              "type": "opponent"
+            }
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/66_9bb1f1f4ddb1a49c8a1760543f604bfbc2af01c5.jpg"
   },
@@ -3789,6 +3882,26 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/68_746c8386fa908ab5375d98acb933da4f56d7c453.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/68_7f35d4920f20cd3a8a980c345bba549c83e660c9.jpg",
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "evasive",
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/68_746c8386fa908ab5375d98acb933da4f56d7c453.jpg"
   },
@@ -3814,6 +3927,30 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/69_4de85e1ecd1a6b3ad9a9000792fd10c2ee8d7398.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/69_b38d1a21b61fd8bd40ba8eb679c4ebf7b3712454.jpg",
+    "actionEffects": [
+      {
+        "type": "return_to_hand",
+        "target": {
+          "type": "chosen",
+          "count": 2,
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character",
+              "item",
+              "location"
+            ],
+            "statComparisons": [
+              {
+                "stat": "cost",
+                "op": "lte",
+                "value": 2
+              }
+            ]
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/69_4de85e1ecd1a6b3ad9a9000792fd10c2ee8d7398.jpg"
   },
@@ -3828,7 +3965,29 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "RENEWAL PROCESS",
+        "rulesText": "{E}, 1 {I} — Put a card from chosen player’s discard on the bottom of their deck.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "ownerScope": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 70,
     "rarity": "uncommon",
@@ -3863,7 +4022,42 @@
     "traits": [
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "SPELL OF SWIFTNESS",
+        "rulesText": "{E}, 2 {I} — Chosen Hunny character of yours gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Hunny"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 71,
     "rarity": "rare",
@@ -3900,7 +4094,64 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "SIPHON",
+        "rulesText": "Whenever an opposing character quests, you gain 1 lore unless their player pays 1 {I}.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "opponent_may_pay_to_avoid",
+            "acceptEffect": {
+              "type": "pay_ink",
+              "amount": 1
+            },
+            "rejectEffect": {
+              "type": "gain_lore",
+              "amount": 1,
+              "target": {
+                "type": "self"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "RADIANT BLOOM",
+        "rulesText": "{E}, 2 {I} — Gain 1 lore.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 72,
     "rarity": "super_rare",
@@ -3938,7 +4189,31 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DEEP WISDOM",
+        "rulesText": "Your Floodborn characters get +1 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          },
+          "stat": "lore",
+          "amount": 1
+        }
+      }
+    ],
     "setId": "13",
     "number": 73,
     "rarity": "rare",
