@@ -990,6 +990,27 @@ function applyPlayCard(
       message: `${playerId} shifted ${def.fullName} onto ${definitions[shiftTarget.definitionId]?.fullName}.`,
       type: "card_played",
     });
+    // Temporary Shift (Set 13, PRE-CRD — see docs/CRD_TRACKER.md Provisional §):
+    // schedule the end-of-your-turn revert. At the end of this turn the top
+    // (temp) card returns to hand and the under-card is promoted back to play
+    // (revert_temporary_shift). Keyed to this instanceId so it no-ops if the
+    // card already left play (CRD 6.2.7.2 delayed-trigger semantics).
+    const playedShiftKw = def.abilities?.find(
+      (a): a is import("../types/index.js").KeywordAbility =>
+        a.type === "keyword" && a.keyword === "shift",
+    );
+    if (playedShiftKw?.variant === "temporary") {
+      state = {
+        ...state,
+        delayedTriggers: [...(state.delayedTriggers ?? []), {
+          firesAt: "end_of_turn",
+          effects: [{ type: "revert_temporary_shift" }],
+          controllingPlayerId: playerId,
+          targetInstanceId: instanceId,
+          sourceInstanceId: instanceId,
+        }],
+      };
+    }
     // cardsPlayedThisTurn is now tracked centrally in zoneTransition.
   } else if (def.cardType === "action") {
     // CRD 4.3.3.2: Action enters play zone, effect resolves, then moves to discard
@@ -6540,6 +6561,65 @@ export function applyEffect(
     }
 
     // CRD 6.2.7.2: Create a delayed triggered ability that fires once at a specific moment
+    case "revert_temporary_shift": {
+      // Temporary Shift end-of-turn revert (Set 13, PRE-CRD — docs/CRD_TRACKER
+      // Provisional §). sourceInstanceId is the temp-shift top instance (set by
+      // the delayed trigger). Returns ONLY the top card to hand and promotes the
+      // card under it back into play, carrying the stack's current exerted/
+      // drying state with damage cleared. Reverse of the shift stacking above.
+      const topId = sourceInstanceId;
+      const top = state.cards[topId];
+      if (!top || top.zone !== "play") return state; // CRD 6.2.7.2: gone → no effect
+      const under = top.cardsUnder ?? [];
+      const ownerId = top.ownerId;
+      if (under.length === 0) {
+        // Nothing underneath (shouldn't happen for a real temp-shift stack) —
+        // just return the top card to hand.
+        return zoneTransition(state, topId, "hand", definitions, events, { reason: "returned" });
+      }
+      // Shift stacking appends the base AFTER its own under-pile, so the base
+      // shifted onto is the LAST element; everything before stays under it.
+      const baseId = under[under.length - 1]!;
+      const basePile = under.slice(0, -1);
+      const carriedExerted = top.isExerted;
+      const carriedDrying = top.isDrying;
+      const slotIdx = state.zones[ownerId].play.indexOf(topId);
+      // Promote the base back into play carrying the stack's current state
+      // (exerted/drying) with damage cleared ("remove all damage") and timed
+      // effects / keyword grants dropped (default ruling — TBD in tracker).
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [baseId]: {
+            ...state.cards[baseId]!,
+            zone: "play",
+            isExerted: carriedExerted,
+            isDrying: carriedDrying,
+            damage: 0,
+            cardsUnder: basePile,
+            timedEffects: [],
+            grantedKeywords: [],
+          },
+        },
+      };
+      // Insert the promoted base into the play array at the top card's slot.
+      const curPlay = state.zones[ownerId].play.filter((id) => id !== baseId);
+      curPlay.splice(slotIdx >= 0 ? slotIdx : curPlay.length, 0, baseId);
+      state = { ...state, zones: { ...state.zones, [ownerId]: { ...state.zones[ownerId], play: curPlay } } };
+      // Empty the top card's cardsUnder so zoneTransition doesn't drag the stack
+      // (override CRD 8.10.7 for this revert), then return only the top to hand.
+      state = updateInstance(state, topId, { cardsUnder: [], damage: 0 });
+      state = zoneTransition(state, topId, "hand", definitions, events, { reason: "returned" });
+      state = appendLog(state, {
+        turn: state.turnNumber,
+        playerId: ownerId,
+        message: `${definitions[top.definitionId]?.fullName} returned to hand (Temporary Shift); ${definitions[state.cards[baseId]!.definitionId]?.fullName} returned to play.`,
+        type: "card_played",
+      });
+      return state;
+    }
+
     case "create_delayed_trigger": {
       let targetId: string | undefined;
       if (effect.attachTo === "last_resolved_target") {

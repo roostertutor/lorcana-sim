@@ -6586,7 +6586,44 @@
       "Mentor",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4,
+        "variant": "temporary"
+      },
+      {
+        "type": "triggered",
+        "storyName": "INTIMIDATING CHARGE",
+        "rulesText": "Whenever this character challenges another character, you gain 2 lore and each opponent loses 2 lore.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "effects": [
+              {
+                "type": "lose_lore",
+                "amount": 2,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 120,
     "rarity": "rare",
@@ -6609,7 +6646,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/120_b110fda573bde9a81d1f5595e025ecf4e72f18d7.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/120_b110fda573bde9a81d1f5595e025ecf4e72f18d7.jpg",
+    "shiftCost": 4
   },
   {
     "id": "king-louie-king-of-swing",
@@ -6816,7 +6854,35 @@
       "Hero",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3,
+        "variant": "temporary"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KARAOKE QUEEN",
+        "rulesText": "Once during your turn, whenever this character sings a song, gain 3 lore.",
+        "trigger": {
+          "on": "sings"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 125,
     "rarity": "legendary",
@@ -6841,7 +6907,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/125_0ef2acf14064134cdff932a72918fe81df4accc9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/125_0ef2acf14064134cdff932a72918fe81df4accc9.jpg",
+    "shiftCost": 3
   },
   {
     "id": "tigger-hunny-barbarian",
@@ -7061,7 +7128,38 @@
       "Giant",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7,
+        "variant": "temporary"
+      },
+      {
+        "type": "triggered",
+        "storyName": "PATH OF DESTRUCTION",
+        "rulesText": "Whenever this character challenges another character, ready her. She can’t quest for the rest of this turn.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "duration": "this_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 129,
     "rarity": "super_rare",
@@ -7084,7 +7182,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/129_9003e8044db6aae394757d7eba9c4a2f276297f6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/129_9003e8044db6aae394757d7eba9c4a2f276297f6.jpg",
+    "shiftCost": 7
   },
   {
     "id": "captain-hook-conniving-pirate",
@@ -12374,7 +12473,35 @@
       "Hero",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 3,
+        "variant": "temporary"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KARAOKE QUEEN",
+        "rulesText": "Once during your turn, whenever this character sings a song, gain 3 lore.",
+        "trigger": {
+          "on": "sings"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 3,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 240,
     "rarity": "enchanted",
@@ -12399,7 +12526,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/240_a5e3822c8706dda26eb91bd0e2c0f0fd7f83d7bf.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/240_a5e3822c8706dda26eb91bd0e2c0f0fd7f83d7bf.jpg",
+    "shiftCost": 3
   },
   {
     "id": "dash-parr-violet-parr-super-siblings",

@@ -153,8 +153,17 @@ export interface KeywordAbility {
    *  "classification_shift_self" + activeZones: ["hand"]. That violated
    *  structural fidelity (one printed keyword = one JSON ability). Both
    *  encodings are accepted during migration; the static-effect path is
-   *  scheduled for removal once card data is migrated. */
-  variant?: "classification" | "universal";
+   *  scheduled for removal once card data is migrated.
+   *
+   *  - "temporary": Temporary Shift (Set 13). Name-matched like base Shift, but
+   *    at the end of your turn the shifted (top) card returns to your hand and
+   *    the character under it is promoted back into play. PRE-CRD — no rule
+   *    number yet; behavioral spec in docs/CRD_TRACKER.md "Provisional" §. The
+   *    revert is scheduled automatically by applyPlayCard (delayed trigger →
+   *    revert_temporary_shift), not a printed ability. Targeting falls through
+   *    to name-matching in canShiftOnto (only "universal"/"classification" are
+   *    special-cased there). */
+  variant?: "classification" | "universal" | "temporary";
   /** Trait classifier for Classification Shift (CRD 8.10.8.1). Required when
    *  variant === "classification"; ignored otherwise. E.g. Thunderbolt's
    *  [Dog] Shift uses classifier: "Dog". */
@@ -303,6 +312,7 @@ export type Effect =
   | RememberChosenTargetEffect
   | SingCostBonusTargetEffect
   | CreateDelayedTriggerEffect
+  | RevertTemporaryShiftEffect
   | EachPlayerEffect
   | EachTargetEffect;
 
@@ -1905,6 +1915,25 @@ export interface CreateFloatingTriggerEffect {
  * Example: Candy Drift — "At the end of your turn, banish them."
  * The "them" is the card resolved by a prior choose_target in the same action.
  */
+/**
+ * Temporary Shift revert (Set 13, PRE-CRD — no rule number yet; see
+ * docs/CRD_TRACKER.md "Provisional" §). Applied to the temp-shift top instance
+ * (sourceInstanceId) via an end-of-turn delayed trigger scheduled by
+ * applyPlayCard when a "temporary"-variant shift resolves. Behavior:
+ *  - remove all damage from the top instance;
+ *  - return ONLY the top card to its owner's hand (overriding the CRD 8.10.7
+ *    "whole stack follows" rule for this case);
+ *  - promote the card directly under it back into play as the active
+ *    character, carrying the stack's CURRENT exerted/drying state (ruling
+ *    2026-07-07: a ready base that was shifted onto and then quested comes
+ *    back exerted), damage cleared, and its own under-pile reconstructed.
+ * Timed effects / keyword grants on the top card fall off with it (default
+ * ruling; flagged TBD in the Provisional tracker).
+ */
+export interface RevertTemporaryShiftEffect {
+  type: "revert_temporary_shift";
+}
+
 export interface CreateDelayedTriggerEffect {
   type: "create_delayed_trigger";
   /** When the delayed trigger fires */

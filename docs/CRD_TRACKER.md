@@ -71,6 +71,29 @@ you want to keep the original snapshot timestamp).
 
 ---
 
+## Provisional (pre-CRD) mechanics
+
+New-set mechanics sometimes ship on cards **before** the CRD assigns them a
+rule number (the PDF above is v2.0.1 / Feb 2026; Set 13 introduced mechanics
+it doesn't cover). We still implement them, but with a disciplined stand-in
+for the missing rule citation:
+
+- **Primary source = the card's printed reminder text** (transcribed verbatim
+  below). Any behavior beyond the reminder text is a **ruling** with its source
+  + date recorded.
+- **The regression test IS the spec.** With no CRD wording to cite, the named
+  test encodes the agreed behavior; that's what future-us reconciles against.
+- **Code comments cite the card + this section** in lieu of a rule number.
+- **Reconcile trigger:** when the next CRD PDF drops, `pnpm snapshot-crd` +
+  the diff workflow above — each `Rule #: TBD` gets its real number and we
+  confirm the official wording matches these tests.
+
+| Mechanic | Reminder text (primary source) | Behavioral rulings (source, date) | Rule # | Test / impl |
+|---|---|---|---|---|
+| **Temporary Shift** (Set 13) | *"You may pay N {I} to play this on top of one of your characters named X. At the end of your turn, remove all damage from this character and return only this card to your hand."* | (a) *"return only this card"* = the temp (top) card, tracked by instanceId — overrides CRD 8.10.7 (whole stack follows). (b) The character underneath is **promoted back into play** (not discarded), carrying the stack's **current** exerted/drying state — a ready base that was shifted onto and then quested comes back **exerted** [user ruling 2026-07-07]. (c) Damage is cleared on revert. (d) **TBD:** timed effects / keyword grants on the top card — currently dropped (fall off with the returned card); revisit when CRD clarifies. | TBD | `KeywordAbility.variant:"temporary"` + `revert_temporary_shift` effect (scheduled by `applyPlayCard` via an end-of-turn `delayedTrigger`). Test: reducer.test.ts "Temporary Shift reverts at end of turn". |
+
+---
+
 ## How to verify a rule's implementation
 
 When a row in this tracker says ✅, the verification path is:

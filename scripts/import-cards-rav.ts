@@ -563,16 +563,35 @@ function parseKeywordAbilities(
       variant: "universal",
     });
   }
+  // Temporary Shift (Set 13) — `<Temporary <Shift>> N`. Name-matched like base
+  // Shift (variant:"temporary" falls through to name-matching in canShiftOnto),
+  // but reverts at end of turn. Matched BEFORE the classification pattern below
+  // so "Temporary" isn't mistaken for a trait classifier. PRE-CRD — see
+  // docs/CRD_TRACKER.md "Provisional" §.
+  const temporaryShiftMatch = rulesText.match(
+    new RegExp(`${anchor}<Temporary\\s+<Shift>>\\s*(\\d+)`, "i"),
+  );
+  if (temporaryShiftMatch) {
+    const v = parseInt(temporaryShiftMatch[1]!, 10);
+    shiftCost = v;
+    abilities.push({
+      type: "keyword",
+      keyword: "shift",
+      value: v,
+      variant: "temporary",
+    });
+  }
   // Classification Shift — `<<Classifier> <Shift>>` where Classifier is a
-  // capitalized trait word (Puppy, Dog, Princess, etc.). Skip "Universal"
-  // since it's handled above. Single classifier word for now; multi-word
-  // classifiers (none observed across sets 1-12) would extend here.
+  // capitalized trait word (Puppy, Dog, Princess, etc.). Skip "Universal" and
+  // "Temporary" since they're handled above. Single classifier word for now;
+  // multi-word classifiers (none observed across sets 1-12) would extend here.
   const classificationShiftMatch = rulesText.match(
     new RegExp(`${anchor}<([A-Z][a-zA-Z]+)\\s+<Shift>>\\s*(\\d+)`, "i"),
   );
   if (
     classificationShiftMatch &&
-    classificationShiftMatch[1]!.toLowerCase() !== "universal"
+    classificationShiftMatch[1]!.toLowerCase() !== "universal" &&
+    classificationShiftMatch[1]!.toLowerCase() !== "temporary"
   ) {
     const v = parseInt(classificationShiftMatch[2]!, 10);
     shiftCost = v;
@@ -584,7 +603,7 @@ function parseKeywordAbilities(
       classifier: classificationShiftMatch[1]!,
     });
   }
-  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!(classificationShiftMatch && classificationShiftMatch[1]!.toLowerCase() !== "universal");
+  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!temporaryShiftMatch || !!(classificationShiftMatch && classificationShiftMatch[1]!.toLowerCase() !== "universal" && classificationShiftMatch[1]!.toLowerCase() !== "temporary");
 
   const patterns: [RegExp, (m: RegExpMatchArray) => void][] = [
     [new RegExp(`${anchor}<Bodyguard>${tail}`, "i"), () => add("bodyguard")],

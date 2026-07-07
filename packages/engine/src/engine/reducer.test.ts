@@ -3715,6 +3715,47 @@ describe("§8 Keywords", () => {
     expect(s.pendingChoice).toBeFalsy();
   });
 
+  it("Temporary Shift reverts at end of turn — top card to hand, base promoted carrying exerted state + damage cleared (Set 13, pre-CRD)", () => {
+    // Ruling 2026-07-07 (no CRD yet — docs/CRD_TRACKER Provisional §): a ready
+    // base that is temp-shifted onto and then quests comes back EXERTED when the
+    // temp card returns to hand; all damage is removed; the base is not discarded.
+    let state = startGame();
+    let baseId: string, tempId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "grandma-wu-wise-grandmother", "play", { isDrying: false }));
+    ({ state, instanceId: tempId } = injectCard(state, "player1", "grandma-wu-fierce-red-panda", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    // Temporary Shift the giant Grandma Wu (#120, Temporary Shift 4) onto the ready base (#53).
+    const shift = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: tempId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS);
+    expect(shift.success).toBe(true);
+    state = shift.newState;
+    // ANCESTRAL UNDERSTANDING (shifted_onto → gain 1 lore) may fire; no pendingChoice expected.
+    expect(getInstance(state, tempId).zone).toBe("play");
+    expect(getInstance(state, baseId).zone).toBe("under");
+
+    // Quest with the stack → the top (temp) card exerts.
+    const quest = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: tempId }, CARD_DEFINITIONS);
+    expect(quest.success).toBe(true);
+    state = quest.newState;
+    expect(getInstance(state, tempId).isExerted).toBe(true);
+    // Put damage on the stack to verify "remove all damage" on revert.
+    state = { ...state, cards: { ...state.cards, [tempId]: { ...state.cards[tempId]!, damage: 2 } } };
+
+    // End player1's turn → the Temporary Shift reverts (end-of-turn delayed trigger).
+    const end = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(end.success).toBe(true);
+    const after = end.newState;
+
+    // Only the top card returned to hand; the base is promoted back to play.
+    expect(getInstance(after, tempId).zone).toBe("hand");
+    expect(getZone(after, "player1", "hand")).toContain(tempId);
+    expect(getInstance(after, baseId).zone).toBe("play");
+    expect(getZone(after, "player1", "play")).toContain(baseId);
+    // Base carries the stack's exerted state, damage cleared, not discarded.
+    expect(getInstance(after, baseId).isExerted).toBe(true);
+    expect(getInstance(after, baseId).damage).toBe(0);
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;
