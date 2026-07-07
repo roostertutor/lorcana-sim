@@ -14,7 +14,35 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STAY CLOSE",
+        "rulesText": "When you play this character, you may play a character with cost 1 for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "isMay": true,
+            "sourceZone": "hand",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "eq",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "PD1",
     "number": 3,
     "rarity": "promo",
@@ -53,7 +81,53 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "STEALING IN",
+        "rulesText": "When you play this character, if you have a character with <Evasive> in play, you may return chosen character, item, or location with cost 2 or less to their player’s hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasKeyword": "evasive"
+          }
+        },
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character",
+                  "item",
+                  "location"
+                ],
+                "statComparisons": [
+                  {
+                    "stat": "cost",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "PD1",
     "number": 4,
     "rarity": "promo",
@@ -136,6 +210,35 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KID-TASTROPHE!",
+        "rulesText": "Whenever this character challenges another character with 3 {S} or less, banish that character. (No damage is dealt in that challenge.)",
+        "trigger": {
+          "on": "challenges",
+          "defenderFilter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 3
+              }
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
       }
     ],
     "setId": "PD1",
@@ -219,7 +322,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "NO ESCAPE",
+        "rulesText": "If you discarded a card this turn, this character gains Challenger +2 and can challenge ready characters this turn. (They get +2 {S} while challenging.)",
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 1
+        },
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "can_challenge_ready",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "PD1",
     "number": 8,
     "rarity": "promo",

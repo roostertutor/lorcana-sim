@@ -143,7 +143,41 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE CALL OF ADVENTURE",
+        "rulesText": "Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "costs": [
+          {
+            "type": "discard",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P4",
     "number": 15,
     "rarity": "challenge",
@@ -180,7 +214,41 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "THE CALL OF ADVENTURE",
+        "rulesText": "Once during your turn, you may discard a card to give this character +1 {L} and <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "costs": [
+          {
+            "type": "discard",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "P4",
     "number": 16,
     "rarity": "challenge",

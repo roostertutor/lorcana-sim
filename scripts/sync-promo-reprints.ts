@@ -19,7 +19,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CARDS_DIR = join(__dirname, "../packages/engine/src/cards");
 
-const MAIN_SETS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+const MAIN_SETS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"];
 // P4 (Set 13 challenge) / PD1 (Set 13 promo) join the promo sync so their
 // reprints inherit wired abilities from the main-set original by fullName.
 // Note: PD1 alt-arts share fullName with Set 13 BASE cards, so true

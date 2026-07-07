@@ -11310,7 +11310,36 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "CLEVER TRICK",
+        "rulesText": "Whenever one of your Floodborn characters is challenged, the challenging player chooses and discards a card.",
+        "trigger": {
+          "on": "is_challenged",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 216,
     "rarity": "epic",
@@ -11352,7 +11381,40 @@
       "Princess",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DEMOLISH",
+        "rulesText": "Whenever you play this or another Floodborn character, you may banish chosen item.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 224,
     "rarity": "epic",
@@ -11394,7 +11456,47 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FIND A FRIEND",
+        "rulesText": "When you play this character and whenever he quests, each player reveals the top card of their deck. If it’s a character card, they may put it into their hand. Otherwise, put it on the bottom of their deck.",
+        "trigger": {
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "each_player",
+            "scope": "all",
+            "effects": [
+              {
+                "type": "look_at_top",
+                "count": 1,
+                "action": "choose_from_top",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ]
+                },
+                "target": {
+                  "type": "self"
+                },
+                "maxToHand": 1,
+                "isMay": true,
+                "revealPicks": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 226,
     "rarity": "enchanted",
@@ -11447,6 +11549,63 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "WELCOME RETURN",
+        "rulesText": "Whenever this character quests, you may return chosen character of yours with cost 1 to your hand. If you do, you may play a character with cost 1 for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "return_to_hand",
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "owner": {
+                      "type": "self"
+                    },
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "eq",
+                        "value": 1
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "play_card",
+                "isMay": true,
+                "sourceZone": "hand",
+                "filter": {
+                  "cardType": [
+                    "character"
+                  ],
+                  "statComparisons": [
+                    {
+                      "stat": "cost",
+                      "op": "eq",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -11779,6 +11938,27 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "YOU CAN FLY!",
+        "rulesText": "Your characters gain <Evasive>. (Only characters with Evasive can challenge them.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "evasive",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        }
       }
     ],
     "setId": "13",
@@ -12269,7 +12449,71 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "VICTOR'S REWARD",
+        "rulesText": "During your turn, whenever one of your Floodborn characters banishes another character in a challenge, gain 1 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FILL THE RANKS",
+        "rulesText": "During an opponent's turn, whenever one of your Floodborn characters is banished, draw a card.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 243,
     "rarity": "enchanted",
