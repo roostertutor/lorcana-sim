@@ -3602,6 +3602,47 @@ describe("§8 Keywords", () => {
     expect(getInstance(r.newState, baseId).zone).toBe("under");
   });
 
+  it("Shift: shifted_onto fires only on the ACTUAL shift target, not every matching base (CRD 8.10.4)", () => {
+    // Regression: queueTrigger's cross-card scan matched the shifted_onto
+    // filter against the shifter but never bound the watcher to the shift
+    // target, so with two bases carrying the same shifted_onto ability, BOTH
+    // fired when one was shifted onto. Go Go Tomago Mechanical Engineer
+    // (NEED THIS!) is the only shipped consumer. Two bases in play, shift a
+    // Floodborn Go Go (Cutting Edge) onto base A → exactly ONE NEED THIS!
+    // (a "may put into inkwell") should surface.
+    let state = startGame();
+    let baseA: string, baseB: string, shiftId: string;
+    ({ state, instanceId: baseA } = injectCard(state, "player1", "go-go-tomago-mechanical-engineer", "play", { isDrying: false }));
+    ({ state, instanceId: baseB } = injectCard(state, "player1", "go-go-tomago-mechanical-engineer", "play", { isDrying: false }));
+    ({ state, instanceId: shiftId } = injectCard(state, "player1", "go-go-tomago-cutting-edge", "hand"));
+    state = giveInk(state, "player1", 4); // Cutting Edge shift cost = 4
+
+    const r = applyAction(state, {
+      type: "PLAY_CARD",
+      playerId: "player1",
+      instanceId: shiftId,
+      shiftTargetInstanceId: baseA,
+    }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+
+    // Resolve every surfaced choice by declining, counting NEED THIS! prompts.
+    // NEED THIS! is a "may" whose source is a base (baseA/baseB); the shifter's
+    // own ZERO RESISTANCE also surfaces a choose_may (its may-gate) but sourced
+    // from the shifter — so filter by source to isolate NEED THIS!. Order-
+    // independent. With the over-fire bug both bases fire → 2; fixed → 1.
+    let s = r.newState;
+    let needThisPrompts = 0;
+    for (let i = 0; i < 6 && s.pendingChoice; i++) {
+      const src = s.pendingChoice.sourceInstanceId;
+      if (s.pendingChoice.type === "choose_may" && (src === baseA || src === baseB)) needThisPrompts++;
+      const res = applyAction(s, { type: "RESOLVE_CHOICE", playerId: s.pendingChoice.choosingPlayerId ?? "player1", choice: "decline" }, CARD_DEFINITIONS);
+      expect(res.success).toBe(true);
+      s = res.newState;
+    }
+    expect(needThisPrompts).toBe(1); // only the shift target (base A), not base B
+    expect(s.pendingChoice).toBeFalsy();
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;

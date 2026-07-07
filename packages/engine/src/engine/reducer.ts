@@ -6968,6 +6968,15 @@ function queueTrigger(
   for (const [watcherId, watcher] of Object.entries(state.cards)) {
     if (watcherId === sourceInstanceId) continue; // Skip self (already checked)
     if (watcher.zone !== "play") continue;
+    // CRD 8.10.4: shifted_onto is really a SELF-event on the shift target (the
+    // base being shifted onto). It only reaches this cross-card scan because
+    // the trigger lives on the base while the queued source is the new shifter,
+    // so the filter is matched against the shifter. Bind the watcher to the
+    // actual shift target (context.triggeringCardInstanceId) — otherwise every
+    // in-play base whose filter matches the shifter over-fires (e.g. two Go Go
+    // Tomago Mechanical Engineers both firing NEED THIS! when one is shifted
+    // onto). Purely restrictive.
+    if (eventType === "shifted_onto" && watcherId !== context.triggeringCardInstanceId) continue;
     const watcherDef = definitions[watcher.definitionId];
     if (!watcherDef) continue;
 
