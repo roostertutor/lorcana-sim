@@ -8064,7 +8064,51 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WHO WANTS A TREAT?",
+        "rulesText": "Whenever you play an item, chosen character gets +1 {S} and gains <Resist> +1 this turn. (Damage dealt to them is reduced by 1.)",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "item"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "strength": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "resist",
+                "value": 1,
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 151,
     "rarity": "rare",
@@ -8080,13 +8124,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/151_f26d376b548e4a5c081ffc3da2aee984a5ba9e3e.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/151_4a0c2332f1eb44bb1d4fa800a4309eafe169036d.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "WHO WANTS A TREAT?",
-        "rulesText": "Whenever you play an item, chosen character gets +1 {S} and gains <Resist> +1 this turn. (Damage dealt to them is reduced by 1.)",
-        "raw": "WHO WANTS A TREAT? Whenever you play an item, chosen character gets +1 {S} and gains <Resist> +1 this turn. (Damage dealt to them is reduced by 1.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/151_f26d376b548e4a5c081ffc3da2aee984a5ba9e3e.jpg"
   },
@@ -8105,7 +8142,29 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "JUMP SCARE",
+        "rulesText": "While you have 5 or more cards in your inkwell, this character gets +2 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "inkwell",
+          "amount": 5,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 152,
     "rarity": "common",
@@ -8121,13 +8180,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/152_15301e7ea700381bf89742dbad286aa3a56f3e61.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/152_37ebc9381dfd157ae78b210ec0bb3159becc144f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "JUMP SCARE",
-        "rulesText": "While you have 5 or more cards in your inkwell, this character gets +2 {S}.",
-        "raw": "JUMP SCARE While you have 5 or more cards in your inkwell, this character gets +2 {S}."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/152_15301e7ea700381bf89742dbad286aa3a56f3e61.jpg"
   },
@@ -8295,7 +8347,54 @@
       "Ally",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HEALING HANDS",
+        "rulesText": "When you play this character, you may remove up to 3 damage from chosen character of yours. If you removed damage this way, put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 3,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "self"
+                }
+              }
+            }
+          },
+          {
+            "type": "self_replacement",
+            "effect": [],
+            "instead": [
+              {
+                "type": "put_into_inkwell",
+                "fromZone": "deck",
+                "enterExerted": true,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "condition": {
+              "type": "last_effect_result",
+              "comparison": "gte",
+              "amount": 1
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 157,
     "rarity": "uncommon",
@@ -8310,13 +8409,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/157_1b4e90c71de609357bcd4bce5bbc4e94da3ca761.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/157_6e267164e5713c0a6be0f72eebbac6952ee07ee9.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HEALING HANDS",
-        "rulesText": "When you play this character, you may remove up to 3 damage from chosen character of yours. If you removed damage this way, put the top card of your deck into your inkwell facedown and exerted.",
-        "raw": "HEALING HANDS When you play this character, you may remove up to 3 damage from chosen character of yours. If you removed damage this way, put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/157_1b4e90c71de609357bcd4bce5bbc4e94da3ca761.jpg"
   },
@@ -8335,7 +8427,37 @@
       "Princess",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "INKFLOW",
+        "rulesText": "Whenever one of your Floodborn characters is banished, you may put the top card of your deck into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "fromZone": "deck",
+            "enterExerted": true,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 158,
     "rarity": "rare",
@@ -8350,13 +8472,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/158_27d32826dbd484cab096b5bba0d7b27965b6d3ba.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/158_8b19f7312486cefc0e2aabdfb0b0a4bfc8326914.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "INKFLOW",
-        "rulesText": "Whenever one of your Floodborn characters is banished, you may put the top card of your deck into your inkwell facedown and exerted.",
-        "raw": "INKFLOW Whenever one of your Floodborn characters is banished, you may put the top card of your deck into your inkwell facedown and exerted."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/158_c06e99ccdd15b880649f9ff813213749ce2ec5b6.jpg"
   },
@@ -8374,7 +8489,30 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "KEEN-EYED",
+        "rulesText": "Your Floodborn characters gain <Alert>. (They can challenge as if they had Evasive.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "alert",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 159,
     "rarity": "common",
@@ -8390,13 +8528,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/159_cf099250a7991b36cbc8505b58f714d7d99e4009.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/159_39f45eb3f228de7d51ff4dc4c5df45b8ba85b845.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "KEEN-EYED",
-        "rulesText": "Your Floodborn characters gain <Alert>. (They can challenge as if they had Evasive.)",
-        "raw": "KEEN-EYED Your Floodborn characters gain <Alert>. (They can challenge as if they had Evasive.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/159_d2b71e83df90b2458f4140f03dadf1ac0dcaa3ee.jpg"
   },
@@ -8414,7 +8545,29 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "MAKING MEMORIES",
+        "rulesText": "While you have 5 or more cards in your inkwell, this character gets +2 {L}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_zone_gte",
+          "zone": "inkwell",
+          "amount": 5,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 160,
     "rarity": "rare",
@@ -8430,13 +8583,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/160_a09defb55e249d0268dc3b980ce2b5041cf3daee.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/160_1a05219036fc64870c5da60ad5acef4afbc45afb.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "MAKING MEMORIES",
-        "rulesText": "While you have 5 or more cards in your inkwell, this character gets +2 {L}.",
-        "raw": "MAKING MEMORIES While you have 5 or more cards in your inkwell, this character gets +2 {L}."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/160_a09defb55e249d0268dc3b980ce2b5041cf3daee.jpg"
   },
@@ -8493,7 +8639,68 @@
       "Villain",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "USEFUL GEAR",
+        "rulesText": "Whenever you play an item, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "item"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 1,
+            "action": "top_or_bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FIND THAT BIRD!",
+        "rulesText": "Whenever this character quests, look at the top card of your deck. If it’s a character card named Kevin, you may reveal it and put it into your hand to gain 3 lore. Otherwise, put it on either the top or the bottom of your deck.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Kevin"
+            },
+            "matchAction": "to_hand",
+            "matchIsMay": true,
+            "matchExtraEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 3,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "noMatchDestination": "top",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 162,
     "rarity": "super_rare",
@@ -8508,18 +8715,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/162_b63fc68137e94c13450656e05c87b8ff3843bd9c.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/162_17e3691564220fce55e1f3a795f759e3b8521623.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "USEFUL GEAR",
-        "rulesText": "Whenever you play an item, look at the top card of your deck. Put it on either the top or the bottom of your deck.",
-        "raw": "USEFUL GEAR Whenever you play an item, look at the top card of your deck. Put it on either the top or the bottom of your deck."
-      },
-      {
-        "storyName": "FIND THAT BIRD!",
-        "rulesText": "Whenever this character quests, look at the top card of your deck. If it’s a character card named Kevin, you may reveal it and put it into your hand to gain 3 lore. Otherwise, put it on either the top or the bottom of your deck.",
-        "raw": "FIND THAT BIRD! Whenever this character quests, look at the top card of your deck. If it’s a character card named Kevin, you may reveal it and put it into your hand to gain 3 lore. Otherwise, put it on either the top or the bottom of your deck."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/162_b63fc68137e94c13450656e05c87b8ff3843bd9c.jpg"
   },
@@ -8538,7 +8733,34 @@
       "Villain",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "THE BOTTOM LINE",
+        "rulesText": "While you have more cards in your inkwell than each opposing player, this character gets +2 {L} and gains <Ward>. (Opponents can’t choose them except to challenge.)",
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 2,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "ward",
+            "target": {
+              "type": "this"
+            }
+          }
+        ],
+        "condition": {
+          "type": "self_has_more_than_each_opponent",
+          "metric": "cards_in_inkwell"
+        }
+      }
+    ],
     "setId": "13",
     "number": 163,
     "rarity": "rare",
@@ -8553,13 +8775,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/163_dd15904c4cad54e9921774554b2213408410fd42.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/163_b0ed3aebb4e3bad051a5bfd8ca2f27cffbfe9a95.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE BOTTOM LINE",
-        "rulesText": "While you have more cards in your inkwell than each opposing player, this character gets +2 {L} and gains <Ward>. (Opponents can’t choose them except to challenge.)",
-        "raw": "THE BOTTOM LINE While you have more cards in your inkwell than each opposing player, this character gets +2 {L} and gains <Ward>. (Opponents can’t choose them except to challenge.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/163_dd15904c4cad54e9921774554b2213408410fd42.jpg"
   },
@@ -8578,7 +8793,45 @@
       "Ally",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HUNNY TACTICS",
+        "rulesText": "Whenever this character quests, chosen Hunny character of yours gets +1 {L} and gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Hunny"
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "ward",
+                "duration": "until_caster_next_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 164,
     "rarity": "uncommon",
@@ -8594,13 +8847,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/164_0f2d0bc40054571ac3e92427334331f9695f4fb1.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/164_88e02ac74946fbd10bcfa2b18c6806e5a0105779.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HUNNY TACTICS",
-        "rulesText": "Whenever this character quests, chosen Hunny character of yours gets +1 {L} and gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)",
-        "raw": "HUNNY TACTICS Whenever this character quests, chosen Hunny character of yours gets +1 {L} and gains <Ward> until the start of your next turn. (Opponents can’t choose them except to challenge.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/164_0f2d0bc40054571ac3e92427334331f9695f4fb1.jpg"
   },
@@ -8707,7 +8953,35 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/167_88ab4ea718ea7cf045c72c47a218a79e0b0f3b50.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/167_3eaf3541d6e4eb26eb1eb1c6bb17db754e00e675.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/167_3eaf3541d6e4eb26eb1eb1c6bb17db754e00e675.jpg",
+    "actionEffects": [
+      {
+        "type": "look_at_top",
+        "count": 4,
+        "action": "choose_from_top",
+        "filter": {
+          "anyOf": [
+            {
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Kevin"
+            },
+            {
+              "cardType": [
+                "item"
+              ]
+            }
+          ]
+        },
+        "target": {
+          "type": "self"
+        },
+        "maxToHand": 1,
+        "isMay": true,
+        "revealPicks": true
+      }
+    ]
   },
   {
     "id": "weve-got-a-lot-to-do",
@@ -8734,7 +9008,24 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/168_a2f336d2a1ed5789c96426e6814d21011dba4572.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/168_a27cd56f3081c152e780f55577bac5058eebb8d3.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/168_a27cd56f3081c152e780f55577bac5058eebb8d3.jpg",
+    "actionEffects": [
+      {
+        "type": "put_into_inkwell",
+        "enterExerted": true,
+        "fromZone": "play",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "item",
+              "location"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "startle",
@@ -8760,7 +9051,23 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/169_99a3c9ff0a56dfba8049f8f07c4ec775467235fe.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/169_3f629f4fc23d2ffcf99ec809d175757b823015f8.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/169_3f629f4fc23d2ffcf99ec809d175757b823015f8.jpg",
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "strength": -3,
+        "duration": "this_turn",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "closet-door-portal",
@@ -8874,7 +9181,48 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "YOU ARE MY FRIEND",
+        "rulesText": "{E}, 1 {I} — Chosen character gets +1 {L} and gains <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "gain_stats",
+            "lore": 1,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "grant_keyword",
+                "keyword": "support",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 173,
     "rarity": "rare",
@@ -8886,13 +9234,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/173_f1ace78b86543b39a50c37aeb425007bfb130047.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/173_0a3c401fc579b8f649103498c1673a46f62b3839.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "YOU ARE MY FRIEND",
-        "rulesText": "{E}, 1 {I} — Chosen character gets +1 {L} and gains <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)",
-        "raw": "YOU ARE MY FRIEND {E}, 1 {I} — Chosen character gets +1 {L} and gains <Support> this turn. (Whenever they quest, you may add their {S} to another chosen character’s {S} this turn.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/173_f1ace78b86543b39a50c37aeb425007bfb130047.jpg"
   },
@@ -8943,7 +9284,47 @@
     "traits": [
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HOME AWAY FROM HOME",
+        "rulesText": "Characters get +1 {W} while here.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "willpower",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "this"
+            }
+          }
+        }
+      },
+      {
+        "type": "static",
+        "storyName": "HUNNY QUEST",
+        "rulesText": "Hunny characters get +1 {L} while here.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "atLocation": "this",
+              "hasTrait": "Hunny"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 175,
     "rarity": "uncommon",
@@ -8958,18 +9339,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/175_9f98682f5c134ce0dd1a4acd2d3102ef7feaaa8e.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/175_856bad207454284bc72a6218c33684c967a6fa06.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HOME AWAY FROM HOME",
-        "rulesText": "Characters get +1 {W} while here.",
-        "raw": "HOME AWAY FROM HOME Characters get +1 {W} while here."
-      },
-      {
-        "storyName": "HUNNY QUEST",
-        "rulesText": "Hunny characters get +1 {L} while here.",
-        "raw": "HUNNY QUEST Hunny characters get +1 {L} while here."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/175_9f98682f5c134ce0dd1a4acd2d3102ef7feaaa8e.jpg"
   },
@@ -8998,6 +9367,47 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "HEROIC SYNERGY",
+        "rulesText": "Whenever you play this or another Hero character, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Hero"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -9015,13 +9425,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/176_9bf4a1557513ecfa80484c9d0b39815afcaf2263.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/176_a9f5bb135db7477bdc0db27d630641da1058e1e2.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HEROIC SYNERGY",
-        "rulesText": "Whenever you play this or another Hero character, you may draw a card, then choose and discard a card.",
-        "raw": "HEROIC SYNERGY Whenever you play this or another Hero character, you may draw a card, then choose and discard a card."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/176_9bf4a1557513ecfa80484c9d0b39815afcaf2263.jpg"
   },
@@ -9039,7 +9442,50 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "THE VINE PROVIDES",
+        "rulesText": "Whenever one of your Floodborn characters quests, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 177,
     "rarity": "rare",
@@ -9055,13 +9501,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/177_494714d2a87e823c135039e1bed3cdb1a221eae9.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/177_3a561b6bfd615272c89589253aa0335d9f4f2d1a.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "THE VINE PROVIDES",
-        "rulesText": "Whenever one of your Floodborn characters quests, you may draw a card, then choose and discard a card.",
-        "raw": "THE VINE PROVIDES Whenever one of your Floodborn characters quests, you may draw a card, then choose and discard a card."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/177_494714d2a87e823c135039e1bed3cdb1a221eae9.jpg"
   },
@@ -9080,7 +9519,31 @@
       "Giant",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DEFEND THE STALK",
+        "rulesText": "Your Floodborn characters gain <Resist> +1. (Damage dealt to them is reduced by 1.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 178,
     "rarity": "uncommon",
@@ -9096,13 +9559,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/178_5ff1422a596ca180de032771ed44104dfa88a933.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/178_d674a144df4d8a6ee0a9188fe18d4e80b458c903.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "DEFEND THE STALK",
-        "rulesText": "Your Floodborn characters gain <Resist> +1. (Damage dealt to them is reduced by 1.)",
-        "raw": "DEFEND THE STALK Your Floodborn characters gain <Resist> +1. (Damage dealt to them is reduced by 1.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/178_5ff1422a596ca180de032771ed44104dfa88a933.jpg"
   },
@@ -9125,6 +9581,61 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "BOTANICAL EVIL",
+        "rulesText": "When you play this character, you may choose and discard an Alien character card or a location card from your hand. If you do, deal 2 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                },
+                "chooser": "self",
+                "filter": {
+                  "zone": "hand",
+                  "anyOf": [
+                    {
+                      "cardType": [
+                        "character"
+                      ],
+                      "hasTrait": "Alien"
+                    },
+                    {
+                      "cardType": [
+                        "location"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "deal_damage",
+                "amount": 2,
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -9141,13 +9652,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/179_2eea519f9fa9b3d6f6bc18a76d56cc38db043751.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/179_b178be9e227e2d151664e816b25e4119771123bb.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BOTANICAL EVIL",
-        "rulesText": "When you play this character, you may choose and discard an Alien character card or a location card from your hand. If you do, deal 2 damage to chosen character.",
-        "raw": "BOTANICAL EVIL When you play this character, you may choose and discard an Alien character card or a location card from your hand. If you do, deal 2 damage to chosen character."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/179_2eea519f9fa9b3d6f6bc18a76d56cc38db043751.jpg"
   },
@@ -9349,7 +9853,35 @@
       "Ally",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "HUNNY ALLIANCE",
+        "rulesText": "While you have another Hunny character in play, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true,
+            "hasTrait": "Hunny"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 185,
     "rarity": "common",
@@ -9364,13 +9896,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/185_26faf54ccd5c0d37084d8362dfd07886ac95de4d.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/185_4d84140cc9fef6eef3b37d4b4182c9fb3dd42f73.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HUNNY ALLIANCE",
-        "rulesText": "While you have another Hunny character in play, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
-        "raw": "HUNNY ALLIANCE While you have another Hunny character in play, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/185_26faf54ccd5c0d37084d8362dfd07886ac95de4d.jpg"
   },
@@ -9389,7 +9914,28 @@
       "Super",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FORCE FIELD",
+        "rulesText": "While you have no cards in your hand, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "cards_in_hand_eq",
+          "amount": 0,
+          "player": {
+            "type": "self"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 186,
     "rarity": "uncommon",
@@ -9405,13 +9951,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/186_33e581473ba58199b3c3db6534d4e8001023b6b7.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/186_427c4e69877581d062a2c2698ea553faca821d90.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FORCE FIELD",
-        "rulesText": "While you have no cards in your hand, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)",
-        "raw": "FORCE FIELD While you have no cards in your hand, this character gains <Resist> +2. (Damage dealt to them is reduced by 2.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/186_33e581473ba58199b3c3db6534d4e8001023b6b7.jpg"
   },
@@ -9431,7 +9970,32 @@
       "Hero",
       "Detective"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "PREEMPTIVE STRIKE",
+        "rulesText": "When you play this character, you may deal 1 damage to chosen character.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 187,
     "rarity": "common",
@@ -9447,13 +10011,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/187_aae51792a768ba385929130e5c437a57b038ed9f.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/187_7e92b811b6f7dacbd41bc4037ae8d297d41462d8.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "PREEMPTIVE STRIKE",
-        "rulesText": "When you play this character, you may deal 1 damage to chosen character.",
-        "raw": "PREEMPTIVE STRIKE When you play this character, you may deal 1 damage to chosen character."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/187_aae51792a768ba385929130e5c437a57b038ed9f.jpg"
   },
@@ -9471,7 +10028,24 @@
       "Storyborn",
       "Robot"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FACTORY SETTINGS",
+        "rulesText": "While this character has no damage, it gets +2 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        },
+        "condition": {
+          "type": "this_has_no_damage"
+        }
+      }
+    ],
     "setId": "13",
     "number": 188,
     "rarity": "common",
@@ -9487,13 +10061,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/188_90e84cd8390155cc854a81d9fbe656aaa5f926ac.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/188_652f8932b01d91b9c0eef320438fb1e14376c02c.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FACTORY SETTINGS",
-        "rulesText": "While this character has no damage, it gets +2 {S}.",
-        "raw": "FACTORY SETTINGS While this character has no damage, it gets +2 {S}."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/188_90e84cd8390155cc854a81d9fbe656aaa5f926ac.jpg"
   },
