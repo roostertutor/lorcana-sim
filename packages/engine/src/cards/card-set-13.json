@@ -6174,7 +6174,24 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "SAVAGE FURY",
+        "rulesText": "While this character has damage, he gets +3 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "target": {
+            "type": "this"
+          },
+          "stat": "strength",
+          "amount": 3
+        },
+        "condition": {
+          "type": "this_has_damage"
+        }
+      }
+    ],
     "setId": "13",
     "number": 112,
     "rarity": "common",
@@ -6297,7 +6314,31 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DRAWING STRENGTH",
+        "rulesText": "Your Floodborn characters get +1 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "stat": "strength",
+          "amount": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 115,
     "rarity": "common",
@@ -6413,6 +6454,22 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "static",
+        "storyName": "ADRENALINE SURGE",
+        "rulesText": "During your turn, this character gets +4 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "target": {
+            "type": "this"
+          },
+          "stat": "strength",
+          "amount": 4
+        },
+        "condition": {
+          "type": "is_your_turn"
+        }
       }
     ],
     "setId": "13",
@@ -6565,7 +6622,34 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FORMIDABLE LOVE",
+        "rulesText": "While you have a character named Belle in play, this character gets +2 {S}.",
+        "effect": {
+          "type": "modify_stat",
+          "target": {
+            "type": "this"
+          },
+          "stat": "strength",
+          "amount": 2
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasName": "Belle"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 122,
     "rarity": "common",
@@ -6736,6 +6820,44 @@
       {
         "type": "keyword",
         "keyword": "reckless"
+      },
+      {
+        "type": "triggered",
+        "storyName": "PROTECTIVE CHARGE",
+        "rulesText": "Once during your turn, whenever this character challenges another character, you may ready chosen Hunny character. If you do, that character can't quest for the rest of this turn.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Hunny"
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -6780,6 +6902,35 @@
       {
         "type": "keyword",
         "keyword": "rush"
+      },
+      {
+        "type": "triggered",
+        "storyName": "KID-TASTROPHE!",
+        "rulesText": "Whenever this character challenges another character with 3 {S} or less, banish that character. (No damage is dealt in that challenge.)",
+        "trigger": {
+          "on": "challenges",
+          "defenderFilter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "statComparisons": [
+              {
+                "stat": "strength",
+                "op": "lte",
+                "value": 3
+              }
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "triggering_card"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -6908,7 +7059,25 @@
       "Pirate",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HAVE AT YOU",
+        "rulesText": "Whenever this character challenges another character, gain 1 lore.",
+        "trigger": {
+          "on": "challenges"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 130,
     "rarity": "uncommon",
@@ -7085,6 +7254,20 @@
         "value": 7
       }
     ],
+    "actionEffects": [
+      {
+        "type": "banish",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 134,
     "rarity": "uncommon",
@@ -7136,6 +7319,22 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "gain_stats",
+        "duration": "this_turn",
+        "strength": 3,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 136,
     "rarity": "common",
@@ -7190,6 +7389,30 @@
       "Song"
     ],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "ready",
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "followUpEffects": [
+          {
+            "type": "cant_action",
+            "action": "quest",
+            "duration": "end_of_turn",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 138,
     "rarity": "common",
@@ -7284,7 +7507,30 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "IMMINENT THREAT",
+        "rulesText": "Your Floodborn characters gain Rush. (They can challenge the turn they're played.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 141,
     "rarity": "rare",
@@ -7321,7 +7567,55 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "MOVING DAY",
+        "rulesText": "Once during your turn, you may move chosen character from here to another location for free. If you do, gain 1 lore.",
+        "oncePerTurn": true,
+        "costs": [],
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "move_character",
+                "character": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ],
+                    "atLocation": "this"
+                  }
+                },
+                "location": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "location"
+                    ],
+                    "excludeSelf": true
+                  }
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "gain_lore",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 142,
     "rarity": "rare",
@@ -7398,7 +7692,37 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FETCH!",
+        "rulesText": "When you play this character, if you have an item in play, draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "you_control_matching",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "item"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 144,
     "rarity": "uncommon",
@@ -7608,7 +7932,26 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ALWAYS WITH YOU",
+        "rulesText": "When this character is banished, you may put this card into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 149,
     "rarity": "common",
