@@ -2822,7 +2822,41 @@
       "Mentor",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "YOU'RE GROUNDED",
+        "rulesText": "When you shift a character on top of this character, chosen opposing exerted character can’t ready at the start of their next turn.",
+        "trigger": {
+          "on": "shifted_onto",
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "cant_action",
+            "action": "ready",
+            "duration": "end_of_owner_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "isExerted": true
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 49,
     "rarity": "rare",
@@ -3021,6 +3055,28 @@
         "type": "keyword",
         "keyword": "challenger",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "ANCESTRAL UNDERSTANDING",
+        "rulesText": "When you shift a character on top of this character, gain 1 lore.",
+        "trigger": {
+          "on": "shifted_onto",
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
