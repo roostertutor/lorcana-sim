@@ -10154,6 +10154,35 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 1
+      },
+      {
+        "type": "activated",
+        "storyName": "PICKUP!",
+        "rulesText": "Once during your turn, you may pay 1 {I} to draw a card, then choose and discard a card.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "chooser": "target_player"
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -10196,7 +10225,40 @@
       "Princess",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DEMOLISH",
+        "rulesText": "Whenever you play this or another Floodborn character, you may banish chosen item.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "banish",
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "item"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 192,
     "rarity": "common",
@@ -10236,7 +10298,31 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FLURRY OF FEATHERS",
+        "rulesText": "Your characters named Maleficent gain Resist +1. (Damage dealt to them is reduced by 1.)",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasName": "Maleficent"
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 193,
     "rarity": "common",
@@ -10276,7 +10362,71 @@
       "Floodborn",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "VICTOR'S REWARD",
+        "rulesText": "During your turn, whenever one of your Floodborn characters banishes another character in a challenge, gain 1 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FILL THE RANKS",
+        "rulesText": "During an opponent's turn, whenever one of your Floodborn characters is banished, draw a card.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 194,
     "rarity": "legendary",
@@ -10322,7 +10472,33 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "NO ESCAPE",
+        "rulesText": "If you discarded a card this turn, this character gains Challenger +2 and can challenge ready characters this turn. (They get +2 {S} while challenging.)",
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 1
+        },
+        "effect": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "target": {
+              "type": "this"
+            }
+          },
+          {
+            "type": "can_challenge_ready",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 195,
     "rarity": "rare",
@@ -10371,6 +10547,25 @@
         "type": "keyword",
         "keyword": "resist",
         "value": 2
+      },
+      {
+        "type": "triggered",
+        "storyName": "RETURN ON INVESTMENT",
+        "rulesText": "When you shift this character, you may return all cards under it to your hand.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "played_via_shift"
+        },
+        "effects": [
+          {
+            "type": "drain_cards_under",
+            "source": "this",
+            "destination": "hand",
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -10411,7 +10606,81 @@
     "traits": [
       "Floodborn"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 7,
+        "variant": "classification",
+        "classifier": "Floodborn"
+      },
+      {
+        "type": "static",
+        "storyName": "SATURATE",
+        "rulesText": "Your other exerted Floodborn characters gain Bodyguard.",
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "bodyguard",
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Floodborn",
+              "isExerted": true,
+              "excludeSelf": true
+            }
+          }
+        }
+      },
+      {
+        "type": "triggered",
+        "storyName": "HOSTILE SWARM",
+        "rulesText": "During an opponent's turn, whenever one of your Floodborn characters is banished, deal 1 damage to each opposing character.",
+        "trigger": {
+          "on": "is_banished",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        },
+        "condition": {
+          "type": "not",
+          "condition": {
+            "type": "is_your_turn"
+          }
+        },
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 197,
     "rarity": "super_rare",
@@ -10463,6 +10732,26 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/198_c755ddbd6b6bfdfb41e4a91ec29e39abdae62fe0.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/198_ef4de3791ba60002c4623bbd95f976090db6a1ad.jpg",
+    "actionEffects": [
+      {
+        "type": "cant_action",
+        "action": "challenge",
+        "target": {
+          "type": "chosen",
+          "count": 2,
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "duration": "end_of_owner_next_turn"
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/198_c755ddbd6b6bfdfb41e4a91ec29e39abdae62fe0.jpg"
   },
@@ -10490,6 +10779,27 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/199_c59cc77f017bef2bf617bb581786affbba012cc3.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/199_3ea88ae345642508b6341bb870e3ac87e0608019.jpg",
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 1,
+        "duration": "until_caster_next_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ]
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/199_c59cc77f017bef2bf617bb581786affbba012cc3.jpg"
   },
@@ -10541,6 +10851,22 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/201_a68e37f2c39b61f438bdb5b1d9814420ff7c6d76.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/201_193b879e5c807453720588e68ed672ee448a12d4.jpg",
+    "actionEffects": [
+      {
+        "type": "discard_from_hand",
+        "amount": "all",
+        "target": {
+          "type": "self"
+        }
+      },
+      {
+        "type": "draw",
+        "amount": 2,
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/201_a68e37f2c39b61f438bdb5b1d9814420ff7c6d76.jpg"
   },
@@ -10566,6 +10892,44 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/202_b91c90b76e358cda03a2cd8b61bc747ae8bb7046.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/202_d795aa5cd12d1cdfddbd4594e2e4448e36b072e8.jpg",
+    "actionEffects": [
+      {
+        "type": "grant_keyword",
+        "keyword": "resist",
+        "value": 2,
+        "duration": "this_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        }
+      },
+      {
+        "type": "grant_challenge_ready",
+        "duration": "end_of_turn",
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn"
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/202_b91c90b76e358cda03a2cd8b61bc747ae8bb7046.jpg"
   },
@@ -10591,6 +10955,43 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/203_813167fb1fcbd20bb4defc5fc69b64c7d6d44232.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/203_6512c67b9e419f5961637ae4469bf7706b2e2c1e.jpg",
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 1,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ]
+          }
+        }
+      },
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "target": {
+          "type": "all",
+          "filter": {
+            "owner": {
+              "type": "opponent"
+            },
+            "zone": "play",
+            "cardType": [
+              "character",
+              "location"
+            ],
+            "hasKeyword": "evasive"
+          }
+        }
+      }
+    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/203_813167fb1fcbd20bb4defc5fc69b64c7d6d44232.jpg"
   },
@@ -10605,7 +11006,42 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "FOUND EQUIPMENT",
+        "rulesText": "{E} — If you discarded a card this turn, chosen character of yours gains Resist +1 until the start of your next turn. (Damage dealt to them is reduced by 1.)",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "condition": {
+          "type": "cards_put_into_discard_this_turn_atleast",
+          "amount": 1
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 204,
     "rarity": "uncommon",
@@ -10637,7 +11073,68 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "FULL POWER",
+        "rulesText": "{E}, 1 {I} — Chosen character gains Challenger +2 this turn. (They get +2 {S} while challenging.)",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "challenger",
+            "value": 2,
+            "duration": "this_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "CLEAR-CUT",
+        "rulesText": "2 {I}, Banish this item — Banish chosen Vineling character.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 2
+          },
+          {
+            "type": "banish_self"
+          }
+        ],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "hasTrait": "Vineling"
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 205,
     "rarity": "uncommon",
@@ -10701,7 +11198,41 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ROOT OF POWER",
+        "rulesText": "The first time a Floodborn character moves here each turn, you may deal 1 damage to chosen character.",
+        "trigger": {
+          "on": "moves_to_location",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasTrait": "Floodborn",
+            "atLocation": "this"
+          }
+        },
+        "oncePerTurn": true,
+        "effects": [
+          {
+            "type": "deal_damage",
+            "amount": 1,
+            "isMay": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 207,
     "rarity": "rare",
