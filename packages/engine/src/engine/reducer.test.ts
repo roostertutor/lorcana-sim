@@ -3922,6 +3922,47 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, receiverId).cardsUnder).toContain(minnieId);
   });
 
+  it("Alternate names on '&' team cards: shift onto/among constituents; buried names don't count (Set 13)", () => {
+    // Woody & Buzz Lightyear carries alternateNames ["Woody","Buzz Lightyear"],
+    // so it shifts onto a "Woody" and both a Woody- and a Buzz-named shifter can
+    // land on it. But shift matches the TOP card's name only — a buried "&" card
+    // doesn't make its names available.
+    let state = startGame();
+    let baseId: string, wbId: string, buzzId: string, guideId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "woody-waiting-for-a-friend", "play", { isDrying: false }));
+    ({ state, instanceId: wbId } = injectCard(state, "player1", "woody-buzz-lightyear-best-buddies", "hand"));
+    ({ state, instanceId: buzzId } = injectCard(state, "player1", "buzz-lightyear-jungle-ranger", "hand"));
+    ({ state, instanceId: guideId } = injectCard(state, "player1", "woody-jungle-guide", "hand"));
+    state = giveInk(state, "player1", 30);
+    const canShift = (s: typeof state, shifter: string, target: string) =>
+      getAllLegalActions(s, "player1", CARD_DEFINITIONS).some(
+        (a) => a.type === "PLAY_CARD" && a.instanceId === shifter && (a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId === target,
+      );
+
+    // Woody & Buzz (name "Woody & Buzz Lightyear") shifts onto a "Woody".
+    expect(canShift(state, wbId, baseId)).toBe(true);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: wbId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+
+    // Both a Buzz-named and a Woody-named shifter can land on the Woody & Buzz stack.
+    expect(canShift(state, buzzId, wbId)).toBe(true);
+    expect(canShift(state, guideId, wbId)).toBe(true);
+
+    // Shift Buzz-Ranger on top → the active (top) card is now "Buzz Lightyear".
+    r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: buzzId, shiftTargetInstanceId: wbId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    let guard = 0;
+    while (state.pendingChoice && guard++ < 6) {
+      const rr = applyAction(state, { type: "RESOLVE_CHOICE", playerId: (state.pendingChoice as { choosingPlayerId?: "player1" | "player2" }).choosingPlayerId ?? "player1", choice: "decline" } as never, CARD_DEFINITIONS);
+      state = rr.newState;
+    }
+    // Woody - Jungle Guide can't shift onto the Buzz-topped stack even though
+    // Woody & Buzz is buried under it — shift matches the top card only.
+    expect(canShift(state, guideId, buzzId)).toBe(false);
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;

@@ -756,6 +756,19 @@ function mapCard(c: RavCard): CardDefinitionOut | null {
   if (c.willpower !== null) out.willpower = c.willpower;
   if (c.quest_value !== null) out.lore = c.quest_value;
   if (shiftCost !== undefined) out.shiftCost = shiftCost;
+  // "&" team cards (Woody & Buzz Lightyear, Sulley & Boo, Mickey & Minnie, …)
+  // carry BOTH constituent names for shift/name-matching (CRD 5.2.6.1 alternate
+  // names). Derive them by splitting the name on " & " (the dual-character
+  // separator), gated on having a Shift keyword. Both gates matter: the " & "
+  // split (NOT ", ") excludes single names with an internal comma like
+  // "Fix-It Felix, Jr.", and the Shift gate excludes non-shift "&" names
+  // (Hamish, Hubert & Harris; Tweedledee & Tweedledum; action titles) — none of
+  // which shift onto/among constituents.
+  const hasShiftKeyword = abilities.some((a) => a.type === "keyword" && a.keyword === "shift");
+  if (hasShiftKeyword && / & /.test(c.name)) {
+    const parts = c.name.split(/ & /).map((s) => s.trim()).filter(Boolean);
+    if (parts.length >= 2) out.alternateNames = parts;
+  }
   if (c.move_cost !== null) out.moveCost = c.move_cost;
   if (cleanRulesText) out.rulesText = cleanRulesText;
   if (c.flavor_text) out.flavorText = stripStraySeparators(c.flavor_text);

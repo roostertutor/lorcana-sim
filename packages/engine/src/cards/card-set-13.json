@@ -1695,7 +1695,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/27_647beff879fce116a5925bf02159f01f5f8609b8.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/27_647beff879fce116a5925bf02159f01f5f8609b8.jpg",
+    "alternateNames": [
+      "Pocahontas",
+      "Meeko"
+    ]
   },
   {
     "id": "woody-buzz-lightyear-best-buddies",
@@ -1752,7 +1756,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/28_92f5934378d084c729421c88ce6571950d8f2dca.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/28_92f5934378d084c729421c88ce6571950d8f2dca.jpg",
+    "alternateNames": [
+      "Woody",
+      "Buzz Lightyear"
+    ]
   },
   {
     "id": "sulley-boo-scare-buddies",
@@ -1840,7 +1848,11 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/29_dcc88e064a75fd559313192857bf43fd0a76c7e0.jpg",
-    "shiftCost": 4
+    "shiftCost": 4,
+    "alternateNames": [
+      "Sulley",
+      "Boo"
+    ]
   },
   {
     "id": "the-madrigal-family-every-generation",
@@ -1972,7 +1984,11 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/31_38b6320bf111460e2fb23232911a43fa05913d6d.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/31_a807d4805fd8339ebcc67677dd5c52e205565ea6.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/31_a807d4805fd8339ebcc67677dd5c52e205565ea6.jpg",
+    "alternateNames": [
+      "Lilo",
+      "Stitch"
+    ]
   },
   {
     "id": "if-i-didnt-have-you",
@@ -3493,7 +3509,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/59_8817c8e89cc714fee3c78a9acc5a12160173e450.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/59_8817c8e89cc714fee3c78a9acc5a12160173e450.jpg",
+    "alternateNames": [
+      "Aladdin",
+      "Genie"
+    ]
   },
   {
     "id": "peter-pan-tinker-bell-fast-friends",
@@ -3563,7 +3583,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/60_887057a9f7e1bb30bfcc93222966d02c4cc7a94f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/60_887057a9f7e1bb30bfcc93222966d02c4cc7a94f.jpg",
+    "alternateNames": [
+      "Peter Pan",
+      "Tinker Bell"
+    ]
   },
   {
     "id": "christopher-robin-hunny-sage",
@@ -3716,7 +3740,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/62_58b82b554d57e38a36ccb9e6b2c956b01d52097c.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/62_58b82b554d57e38a36ccb9e6b2c956b01d52097c.jpg",
+    "alternateNames": [
+      "Winnie the Pooh",
+      "Piglet"
+    ]
   },
   {
     "id": "maleficent-diablo-evil-incarnate",
@@ -3770,7 +3798,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/63_3657556db9953ceb0910fb69f9f5df3e879498ba.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/63_3657556db9953ceb0910fb69f9f5df3e879498ba.jpg",
+    "alternateNames": [
+      "Maleficent",
+      "Diablo"
+    ]
   },
   {
     "id": "youve-got-some-punch",
@@ -5479,7 +5511,11 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/94_734407dfc7e702c7291dadc8e4252f261b3f76ec.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/94_ec4561043fcabed63adac56ea09f88ec15860699.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/94_ec4561043fcabed63adac56ea09f88ec15860699.jpg",
+    "alternateNames": [
+      "Tod",
+      "Copper"
+    ]
   },
   {
     "id": "rapunzel-escaping-the-tower",
@@ -5680,7 +5716,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/98_931f5aa98f7a9d4dba193fe4c6c7bc0ae210d49d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/98_931f5aa98f7a9d4dba193fe4c6c7bc0ae210d49d.jpg",
+    "alternateNames": [
+      "Carl Fredricksen",
+      "Russell"
+    ]
   },
   {
     "id": "mickey-mouse-minnie-mouse-adventuring-duo",
@@ -5735,7 +5775,11 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/99_bc248b16a65df4329e9d10148bbbcec454defada.jpg",
-    "shiftCost": 0
+    "shiftCost": 0,
+    "alternateNames": [
+      "Mickey Mouse",
+      "Minnie Mouse"
+    ]
   },
   {
     "id": "rapunzel-flynn-rider-unlikely-pair",
@@ -5792,7 +5836,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/100_5b63363e4fa4f528904f619ed76ac21b0324bb68.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/100_5b63363e4fa4f528904f619ed76ac21b0324bb68.jpg",
+    "alternateNames": [
+      "Rapunzel",
+      "Flynn Rider"
+    ]
   },
   {
     "id": "to-wither-a-flower",
@@ -7388,7 +7436,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/132_846e28c556f1cd67484cea3278b1326ee717c2bd.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/132_846e28c556f1cd67484cea3278b1326ee717c2bd.jpg",
+    "alternateNames": [
+      "Belle",
+      "Beast"
+    ]
   },
   {
     "id": "dash-parr-violet-parr-super-siblings",
@@ -7479,7 +7531,11 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/133_e19ae0eff8d825fc639e20799809f55dd1bbb3da.jpg",
-    "shiftCost": 6
+    "shiftCost": 6,
+    "alternateNames": [
+      "Dash Parr",
+      "Violet Parr"
+    ]
   },
   {
     "id": "red-moon-ritual",
@@ -9149,7 +9205,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/165_a6e852a15383891c3b3a86d9f7e1473efcf8811b.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/165_a6e852a15383891c3b3a86d9f7e1473efcf8811b.jpg",
+    "alternateNames": [
+      "Darkwing Duck",
+      "Launchpad"
+    ]
   },
   {
     "id": "power-surge",
@@ -11880,7 +11940,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/227_6b93ad7d82636b71a439bdecc8a0f2e0049df46e.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/227_6b93ad7d82636b71a439bdecc8a0f2e0049df46e.jpg",
+    "alternateNames": [
+      "Pocahontas",
+      "Meeko"
+    ]
   },
   {
     "id": "woody-buzz-lightyear-best-buddies",
@@ -11937,7 +12001,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/228_95433e3725a1fe64ad6d09a115dc460fdc46a9ba.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/228_95433e3725a1fe64ad6d09a115dc460fdc46a9ba.jpg",
+    "alternateNames": [
+      "Woody",
+      "Buzz Lightyear"
+    ]
   },
   {
     "id": "sulley-boo-scare-buddies",
@@ -12161,7 +12229,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/232_38db009b8066395e389a3ca562393acdf6913a66.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/232_38db009b8066395e389a3ca562393acdf6913a66.jpg",
+    "alternateNames": [
+      "Aladdin",
+      "Genie"
+    ]
   },
   {
     "id": "peter-pan-tinker-bell-fast-friends",
@@ -12233,7 +12305,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/233_2fcb80f5291d23be00657f2e1d04bc0deb3a637f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/233_2fcb80f5291d23be00657f2e1d04bc0deb3a637f.jpg",
+    "alternateNames": [
+      "Peter Pan",
+      "Tinker Bell"
+    ]
   },
   {
     "id": "winnie-the-pooh-piglet-hunny-mages",
@@ -12308,7 +12384,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/234_e7777e193f47cfd07396f85fc8dbffdb9350d1bd.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/234_e7777e193f47cfd07396f85fc8dbffdb9350d1bd.jpg",
+    "alternateNames": [
+      "Winnie the Pooh",
+      "Piglet"
+    ]
   },
   {
     "id": "maleficent-diablo-evil-incarnate",
@@ -12364,7 +12444,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/235_48c4ba11ab2ff0f3c1a6b0aabff1f304c196c4fd.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/235_48c4ba11ab2ff0f3c1a6b0aabff1f304c196c4fd.jpg",
+    "alternateNames": [
+      "Maleficent",
+      "Diablo"
+    ]
   },
   {
     "id": "tod-copper-best-of-friends",
@@ -12411,7 +12495,11 @@
     "foilTopLayer": "chrome_rainbow_hot_foil",
     "hotFoilColor": "#99a2a6",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/236_50764ca6cd2e2f920ae53e92a923d83b8e0b07e4.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/236_50764ca6cd2e2f920ae53e92a923d83b8e0b07e4.jpg",
+    "alternateNames": [
+      "Tod",
+      "Copper"
+    ]
   },
   {
     "id": "carl-fredricksen-russell-intrepid-explorers",
@@ -12461,7 +12549,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/237_3a5d7218284117295a6cff1aef1b4031852cb7d9.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/237_3a5d7218284117295a6cff1aef1b4031852cb7d9.jpg",
+    "alternateNames": [
+      "Carl Fredricksen",
+      "Russell"
+    ]
   },
   {
     "id": "mickey-mouse-minnie-mouse-adventuring-duo",
@@ -12516,7 +12608,11 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/238_bbc5cfe06474615656dcc3053826ea1aeddd2393.jpg",
-    "shiftCost": 0
+    "shiftCost": 0,
+    "alternateNames": [
+      "Mickey Mouse",
+      "Minnie Mouse"
+    ]
   },
   {
     "id": "rapunzel-flynn-rider-unlikely-pair",
@@ -12573,7 +12669,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/239_d88abf5d4ced335cc3017c2f2abeda23b7e9fb7f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/239_d88abf5d4ced335cc3017c2f2abeda23b7e9fb7f.jpg",
+    "alternateNames": [
+      "Rapunzel",
+      "Flynn Rider"
+    ]
   },
   {
     "id": "meilin-lee-popular-red-panda",
@@ -12735,7 +12835,11 @@
     ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/241_9bdd4e7169a7c51b3cc565c38d86749de429297f.jpg",
-    "shiftCost": 6
+    "shiftCost": 6,
+    "alternateNames": [
+      "Dash Parr",
+      "Violet Parr"
+    ]
   },
   {
     "id": "darkwing-duck-launchpad-st-canards-finest",
@@ -12791,7 +12895,11 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/242_db491c08f5de8edc137823304d6a8130d1a81f37.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/242_db491c08f5de8edc137823304d6a8130d1a81f37.jpg",
+    "alternateNames": [
+      "Darkwing Duck",
+      "Launchpad"
+    ]
   },
   {
     "id": "scar-created-by-the-vine",
@@ -12954,7 +13062,11 @@
     "foilTopLayer": "metallic_hot_foil",
     "hotFoilColor": "#ffb348",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/244_f9111e7a4dede5dc5cd5378b5bb83134d4002e1d.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/244_f9111e7a4dede5dc5cd5378b5bb83134d4002e1d.jpg",
+    "alternateNames": [
+      "Lilo",
+      "Stitch"
+    ]
   },
   {
     "id": "belle-beast-certain-as-the-sun",
@@ -13011,6 +13123,10 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/245_bd7b519b182ce1d62fcab575e0358623b9aeb140.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/245_bd7b519b182ce1d62fcab575e0358623b9aeb140.jpg",
+    "alternateNames": [
+      "Belle",
+      "Beast"
+    ]
   }
 ]
