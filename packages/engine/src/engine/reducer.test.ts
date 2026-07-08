@@ -3826,6 +3826,76 @@ describe("§8 Keywords", () => {
     expect(getZone(quest.newState, "player1", "hand").length).toBe(handBefore + 2); // draw 1 per card under
   });
 
+  it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
+    let state = startGame();
+    let sulleyId: string, booId: string, comboId: string, questerId: string;
+    ({ state, instanceId: sulleyId } = injectCard(state, "player1", "sulley-protective-monster", "play", { isDrying: false }));
+    ({ state, instanceId: booId } = injectCard(state, "player1", "boo-in-disguise", "play", { isDrying: false }));
+    ({ state, instanceId: questerId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: comboId } = injectCard(state, "player1", "sulley-boo-scare-buddies", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    // Combo-shift onto both, then lethally damage the combo character.
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: comboId, shiftTargetInstanceIds: [sulleyId, booId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    state = { ...state, cards: { ...state.cards, [comboId]: { ...state.cards[comboId]!, damage: 99 } } };
+
+    // PASS_TURN runs the game-state check inside the action → banish #29 → its
+    // under-cards follow to discard → THE POWER OF FRIENDSHIP surfaces a "may".
+    r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, comboId).zone).toBe("discard");
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    void questerId;
+
+    // Accept → both bases (character cards that were under it) return to play from discard for free.
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, sulleyId).zone).toBe("play");
+    expect(getInstance(r.newState, booId).zone).toBe("play");
+  });
+
+  it("Bob Cratchit A GIVING HEART: drains the cards that were under it (now in discard) under another character (regression)", () => {
+    // The under-cards follow the banished card to discard (CRD 8.10.7) and the
+    // live cardsUnder is cleared before the banished_in_challenge trigger
+    // resolves. Before the lastBanishedCardsUnder snapshot, this drain found an
+    // empty pile and silently no-oped. Now it drains the snapshot ids.
+    let state = startGame();
+    let bobId: string, minnieId: string, receiverId: string, attackerId: string;
+    ({ state, instanceId: bobId } = injectCard(state, "player1", "mickey-mouse-bob-cratchit", "play", { isExerted: true, isDrying: false }));
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    ({ state, instanceId: receiverId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: attackerId } = injectCard(state, "player2", "marshmallow-persistent-guardian", "play", { isDrying: false })); // 5/5, lethal to Bob's 2 WP
+    // Move Minnie under Bob (out of the play array, into Bob's cardsUnder).
+    state = {
+      ...state,
+      cards: { ...state.cards, [minnieId]: { ...state.cards[minnieId]!, zone: "under" }, [bobId]: { ...state.cards[bobId]!, cardsUnder: [minnieId] } },
+      zones: { ...state.zones, player1: { ...state.zones.player1, play: state.zones.player1.play.filter((id) => id !== minnieId) } },
+    };
+
+    // Player2's turn → challenge Bob to death.
+    let r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    state = r.newState;
+    r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attackerId, defenderInstanceId: bobId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, bobId).zone).toBe("discard"); // Bob banished in the challenge
+
+    // A GIVING HEART is a "may" (Bob's owner = player1) → accept → pick receiver.
+    expect(state.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [receiverId] }, CARD_DEFINITIONS);
+    state = r.newState;
+
+    // Minnie (which was under Bob, then in discard) is now under the receiver.
+    expect(getInstance(state, minnieId).zone).toBe("under");
+    expect(getInstance(state, receiverId).cardsUnder).toContain(minnieId);
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;

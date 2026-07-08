@@ -4244,6 +4244,14 @@ export function applyEffect(
         if (destTarget.type === "chosen") {
           const validTargets = findValidTargets(state, destTarget.filter, controllingPlayerId, definitions, sourceInstanceId);
           if (validTargets.length === 0) return state;
+          // Banish case (Bob Cratchit A GIVING HEART on banished_in_challenge):
+          // the source's under-cards already followed it to discard (CRD 8.10.7)
+          // and its live cardsUnder is empty. Capture the snapshot ids so the
+          // resolution drains them from discard rather than the empty live pile.
+          const liveEmpty = (state.cards[sourceInstanceId]?.cardsUnder.length ?? 0) === 0;
+          const banishedUnderIds = liveEmpty && (state.lastBanishedCardsUnder?.length ?? 0) > 0
+            ? [...state.lastBanishedCardsUnder!]
+            : undefined;
           return {
             ...state,
             pendingChoice: {
@@ -4251,7 +4259,8 @@ export function applyEffect(
               choosingPlayerId: controllingPlayerId,
               prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, "Choose a card or location to move cards under."),
               validTargets,
-              pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+              pendingEffect: banishedUnderIds ? ({ ...effect, _banishedUnderIds: banishedUnderIds } as any) : effect,
+              sourceInstanceId, triggeringCardInstanceId,
               optional: effect.isMay ?? false,
             },
           };
@@ -5566,6 +5575,9 @@ export function applyEffect(
           case "lastSongSingerIds":
             targetIds = [...(state.lastSongSingerIds ?? [])];
             break;
+          case "lastBanishedCardsUnder":
+            targetIds = [...(state.lastBanishedCardsUnder ?? [])];
+            break;
           default:
             targetIds = [];
         }
@@ -5574,12 +5586,26 @@ export function applyEffect(
       }
       // minCount gate (I2I: "if 2 or more characters sang this song").
       if (effect.minCount !== undefined && targetIds.length < effect.minCount) return state;
-      // Filter to only in-play instances (singers may have been banished since
-      // the song resolved).
-      targetIds = targetIds.filter(id => {
-        const inst = state.cards[id];
-        return inst && inst.zone === "play";
-      });
+      // Per-target gate. With an explicit filter, iterate only matching ids and
+      // allow out-of-play sources (Sulley & Boo reads its banished under-pile,
+      // now in discard). Without a filter, keep the legacy in-play check (a
+      // singer may have been banished since the song resolved).
+      if (effect.filter) {
+        targetIds = targetIds.filter((id) => {
+          const inst = state.cards[id];
+          const d = inst ? definitions[inst.definitionId] : undefined;
+          return !!(inst && d && matchesFilter(inst, d, effect.filter!, state, controllingPlayerId, sourceInstanceId, definitions));
+        });
+      } else {
+        targetIds = targetIds.filter((id) => {
+          const inst = state.cards[id];
+          return inst && inst.zone === "play";
+        });
+      }
+      // CRD 6.1.4: the whole-iteration "may" (effect.isMay) is handled by the
+      // generic trigger-level may-wrapper in processTriggerStack (which fires
+      // for every isMay effect except each_player and re-applies this effect on
+      // accept). No per-handler prompt needed here.
       // Process each target inline. On pendingChoice, queue the rest.
       for (let i = 0; i < targetIds.length; i++) {
         const tid = targetIds[i]!;
@@ -7819,6 +7845,12 @@ function zoneTransition(
         // may not initialize cardsUnder — the type is string[] but not every
         // test helper fills it in.
         state = { ...state, lastBanishedCardsUnderCount: instance.cardsUnder?.length ?? 0 };
+        // Also snapshot the cards-under INSTANCE IDS before cleanup clears them
+        // and moves them to discard (CRD 8.10.7). Bob Cratchit A GIVING HEART
+        // and Sulley & Boo THE POWER OF FRIENDSHIP need the identities, not just
+        // the count. The under-cards land in the destination zone (discard for
+        // banish) with these same ids, so effects can address them there.
+        state = { ...state, lastBanishedCardsUnder: [...(instance.cardsUnder ?? [])] };
         // Also snapshot effective strength for Wreck-it Ralph Raging Wrecker
         // WHO'S COMIN' WITH ME? — needs the strength he had IN PLAY
         // (including POWERED UP cardsUnder bonus) before cleanup wipes it.
@@ -8572,8 +8604,11 @@ function applyEffectToTarget(
       // (Bob Cratchit: "put cards under the chosen target"). Distinguished
       // by whether effect.destination is a target_pile with chosen target.
       if (typeof effect.destination === "object" && effect.destination.type === "target_pile") {
-        // targetInstanceId is the RECEIVING parent. Drain source's own pile.
-        return drainCardsUnderFrom(state, [sourceInstanceId], effect.destination, controllingPlayerId, definitions, events, targetInstanceId);
+        // targetInstanceId is the RECEIVING parent. Drain the source's own pile,
+        // or the banished-under snapshot ids (from discard) when captured at
+        // surface time (Bob Cratchit banish case).
+        const banishedUnderIds = (effect as { _banishedUnderIds?: string[] })._banishedUnderIds;
+        return drainCardsUnderFrom(state, [sourceInstanceId], effect.destination, controllingPlayerId, definitions, events, targetInstanceId, banishedUnderIds);
       }
       // Chosen-source resolution: drain the chosen parent into destination.
       return drainCardsUnderFrom(state, [targetInstanceId], effect.destination, controllingPlayerId, definitions, events);
@@ -9379,11 +9414,68 @@ function drainCardsUnderFrom(
   definitions: Record<string, CardDefinition>,
   _events: GameEvent[],
   destTargetId?: string,
+  /** Explicit-ids mode (Bob Cratchit banish case): the cards to drain are loose
+   *  in a real zone (discard, after CRD 8.10.7 leave-play), not under a live
+   *  parent. Move each from its current zone to the destination. */
+  explicitIds?: string[],
 ): GameState {
   const isInkwell = destination === "inkwell";
   const isTargetPile = typeof destination === "object" && destination.type === "target_pile";
   const isBottomOfDeck = destination === "bottom_of_deck";
   const receivingPlayers = new Set<PlayerID>();
+
+  if (explicitIds && explicitIds.length > 0) {
+    for (const id of explicitIds) {
+      const u = state.cards[id];
+      if (!u) continue;
+      // Remove from its current real zone array (discard) if not already loose.
+      if (u.zone !== "under") {
+        const cz = u.zone as keyof typeof state.zones[typeof u.ownerId];
+        state = {
+          ...state,
+          zones: {
+            ...state.zones,
+            [u.ownerId]: {
+              ...state.zones[u.ownerId],
+              [cz]: (state.zones[u.ownerId][cz] as string[]).filter((x) => x !== id),
+            },
+          },
+        };
+      }
+      if (isTargetPile && destTargetId) {
+        const targetCard = state.cards[destTargetId];
+        if (!targetCard) continue;
+        state = {
+          ...state,
+          cards: {
+            ...state.cards,
+            [id]: { ...u, zone: "under" },
+            [destTargetId]: { ...targetCard, cardsUnder: [...targetCard.cardsUnder, id] },
+          },
+        };
+      } else {
+        const destZone: ZoneName = isInkwell ? "inkwell" : isBottomOfDeck ? "deck" : "hand";
+        const destOwner = isInkwell ? controllingPlayerId : u.ownerId;
+        const zoneKey = destZone as keyof typeof state.zones[typeof destOwner];
+        state = {
+          ...state,
+          cards: { ...state.cards, [id]: { ...u, zone: destZone, ...(isInkwell ? { isExerted: true } : {}) } },
+          zones: {
+            ...state.zones,
+            [destOwner]: { ...state.zones[destOwner], [zoneKey]: [...(state.zones[destOwner][zoneKey] as string[]), id] },
+          },
+        };
+        if (isInkwell) receivingPlayers.add(destOwner);
+      }
+    }
+    for (const pid of receivingPlayers) {
+      state = queueTriggersByEvent(state, "card_put_into_inkwell", pid, definitions, {});
+    }
+    if (isTargetPile && destTargetId) {
+      state = queueTrigger(state, "card_put_under", destTargetId, definitions, { triggeringPlayerId: controllingPlayerId });
+    }
+    return state;
+  }
 
   for (const parentId of parentIds) {
     const parent = state.cards[parentId];

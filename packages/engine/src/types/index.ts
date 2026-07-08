@@ -432,14 +432,28 @@ export type PlayerFilter =
  */
 export interface EachTargetEffect {
   type: "each_target";
-  /** Where to read the instance ID list from the game state. */
-  source: { type: "state_ids"; key: "lastSongSingerIds" };
+  /** Where to read the instance ID list from the game state.
+   *  - "lastSongSingerIds": characters that sang the most recent song (I2I).
+   *  - "lastBanishedCardsUnder": the cards that were under the most recently
+   *    banished card, captured pre-cleanup (now in discard per CRD 8.10.7).
+   *    Sulley & Boo THE POWER OF FRIENDSHIP composes this with an inner
+   *    play_card(target: triggering_card, sourceZone: discard) — no bespoke
+   *    "play the under-cards" effect needed. */
+  source: { type: "state_ids"; key: "lastSongSingerIds" | "lastBanishedCardsUnder" };
   /** Effects applied per target. The iteration target is passed as
    *  `triggeringCardInstanceId` so inner effects can reference it. */
   effects: Effect[];
   /** Skip entirely if the resolved ID set has fewer than this many entries.
    *  I2I uses `minCount: 2` ("if 2 or more characters sang this song"). */
   minCount?: number;
+  /** Optional per-target filter. When present, only ids whose instance matches
+   *  are iterated, and the default "must be in play" gate is NOT applied (so
+   *  out-of-play sources like discard work — Sulley & Boo iterates the
+   *  character cards among its banished under-pile). When absent, the legacy
+   *  in-play filter applies (singer case). */
+  filter?: CardFilter;
+  /** CRD 6.1.4: wrap the whole iteration in a single "you may" prompt. */
+  isMay?: boolean;
 }
 
 // ConditionalOnPlayerStateEffect → SelfReplacementEffect (with `condition:
@@ -3993,6 +4007,16 @@ export interface GameState {
    *  each card that was under them" (Donald Duck Fred Honeywell WELL WISHES)
    *  sees the count at trigger resolution time. */
   lastBanishedCardsUnderCount?: number;
+
+  /** Snapshot of the most recently banished card's cardsUnder INSTANCE IDs —
+   *  captured before leave-play cleanup clears the array and moves those cards
+   *  to the destination zone (discard, per CRD 8.10.7). Read by effects that
+   *  act on the specific cards that were under a banished stack: Bob Cratchit
+   *  A GIVING HEART (drain them under another character) and Sulley & Boo THE
+   *  POWER OF FRIENDSHIP (play the character cards among them from discard for
+   *  free). The count sibling above is not enough for these — they need the
+   *  identities. */
+  lastBanishedCardsUnder?: string[];
 
   /** Snapshot of the most recently banished card's effective strength
    *  (post-modifiers, including cardsUnder bonuses) — captured before
