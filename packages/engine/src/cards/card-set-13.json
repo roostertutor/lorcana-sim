@@ -1771,7 +1771,18 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 4,
+        "variant": "combo",
+        "shiftNames": [
+          "Sulley",
+          "Boo"
+        ]
+      }
+    ],
     "setId": "13",
     "number": 29,
     "rarity": "super_rare",
@@ -1794,7 +1805,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/29_dcc88e064a75fd559313192857bf43fd0a76c7e0.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/29_dcc88e064a75fd559313192857bf43fd0a76c7e0.jpg",
+    "shiftCost": 4
   },
   {
     "id": "the-madrigal-family-every-generation",
@@ -7349,7 +7361,53 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6,
+        "variant": "combo",
+        "shiftNames": [
+          "Dash Parr",
+          "Violet Parr"
+        ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "INCREDIBLE TACTICS",
+        "rulesText": "Whenever this character quests or challenges, draw a card for each card under them.",
+        "trigger": {
+          "anyOf": [
+            {
+              "on": "quests"
+            },
+            {
+              "on": "challenges"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": {
+              "type": "cards_under_count"
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 133,
     "rarity": "legendary",
@@ -7374,7 +7432,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/133_e19ae0eff8d825fc639e20799809f55dd1bbb3da.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/133_e19ae0eff8d825fc639e20799809f55dd1bbb3da.jpg",
+    "shiftCost": 6
   },
   {
     "id": "red-moon-ritual",
@@ -12546,7 +12605,53 @@
       "Super",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 6,
+        "variant": "combo",
+        "shiftNames": [
+          "Dash Parr",
+          "Violet Parr"
+        ]
+      },
+      {
+        "type": "keyword",
+        "keyword": "evasive"
+      },
+      {
+        "type": "keyword",
+        "keyword": "resist",
+        "value": 1
+      },
+      {
+        "type": "triggered",
+        "storyName": "INCREDIBLE TACTICS",
+        "rulesText": "Whenever this character quests or challenges, draw a card for each card under them.",
+        "trigger": {
+          "anyOf": [
+            {
+              "on": "quests"
+            },
+            {
+              "on": "challenges"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": {
+              "type": "cards_under_count"
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 241,
     "rarity": "enchanted",
@@ -12571,7 +12676,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/241_9bdd4e7169a7c51b3cc565c38d86749de429297f.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/241_9bdd4e7169a7c51b3cc565c38d86749de429297f.jpg",
+    "shiftCost": 6
   },
   {
     "id": "darkwing-duck-launchpad-st-canards-finest",

@@ -3756,6 +3756,76 @@ describe("§8 Keywords", () => {
     expect(getInstance(after, baseId).damage).toBe(0);
   });
 
+  it("Combo Shift 'one of each' shifts onto two bases; state merges — exerted if either, damage summed (Set 13, pre-CRD)", () => {
+    // Ruling 2026-07-08 (no CRD): combining two bases → exerted if EITHER is
+    // exerted, drying if EITHER, damage = SUM. Both bases go under the new top.
+    let state = startGame();
+    let sulleyId: string, booId: string, comboId: string;
+    ({ state, instanceId: sulleyId } = injectCard(state, "player1", "sulley-protective-monster", "play", { isDrying: false, damage: 1 }));
+    ({ state, instanceId: booId } = injectCard(state, "player1", "boo-in-disguise", "play", { isExerted: true, damage: 2 }));
+    ({ state, instanceId: comboId } = injectCard(state, "player1", "sulley-boo-scare-buddies", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: comboId, shiftTargetInstanceIds: [sulleyId, booId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const after = r.newState;
+    expect(getInstance(after, comboId).zone).toBe("play");
+    expect(getInstance(after, sulleyId).zone).toBe("under");
+    expect(getInstance(after, booId).zone).toBe("under");
+    expect(getInstance(after, comboId).cardsUnder).toEqual(expect.arrayContaining([sulleyId, booId]));
+    expect(getInstance(after, comboId).isExerted).toBe(true); // boo was exerted
+    expect(getInstance(after, comboId).damage).toBe(3); // 1 + 2
+  });
+
+  it("Combo Shift single-target lands on either name (Set 13)", () => {
+    let state = startGame();
+    let sulleyId: string, comboId: string;
+    ({ state, instanceId: sulleyId } = injectCard(state, "player1", "sulley-protective-monster", "play", { isDrying: false }));
+    ({ state, instanceId: comboId } = injectCard(state, "player1", "sulley-boo-scare-buddies", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: comboId, shiftTargetInstanceId: sulleyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, comboId).zone).toBe("play");
+    expect(getInstance(r.newState, sulleyId).zone).toBe("under");
+    expect(getInstance(r.newState, comboId).cardsUnder).toContain(sulleyId);
+  });
+
+  it("Combo Shift legal actions include one-of-each pairs, reject two-of-the-same-name (Set 13)", () => {
+    let state = startGame();
+    let sulleyId: string, sulley2Id: string, booId: string, comboId: string;
+    ({ state, instanceId: sulleyId } = injectCard(state, "player1", "sulley-protective-monster", "play"));
+    ({ state, instanceId: sulley2Id } = injectCard(state, "player1", "sulley-the-new-boss", "play"));
+    ({ state, instanceId: booId } = injectCard(state, "player1", "boo-in-disguise", "play"));
+    ({ state, instanceId: comboId } = injectCard(state, "player1", "sulley-boo-scare-buddies", "hand"));
+    state = giveInk(state, "player1", 10);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const combos = legal.filter((a) => a.type === "PLAY_CARD" && a.instanceId === comboId && (a as { shiftTargetInstanceIds?: string[] }).shiftTargetInstanceIds);
+    const hasPair = (x: string, y: string) => combos.some((c) => {
+      const ids = (c as { shiftTargetInstanceIds?: string[] }).shiftTargetInstanceIds ?? [];
+      return ids.includes(x) && ids.includes(y);
+    });
+    expect(hasPair(sulleyId, booId)).toBe(true);   // one Sulley + one Boo
+    expect(hasPair(sulley2Id, booId)).toBe(true);  // the other Sulley + Boo
+    expect(hasPair(sulleyId, sulley2Id)).toBe(false); // two Sulleys — not one of each
+  });
+
+  it("Combo Shift + INCREDIBLE TACTICS: Dash & Violet draws a card per card under on quest (Set 13)", () => {
+    let state = startGame();
+    let dashId: string, violetId: string, dvId: string;
+    ({ state, instanceId: dashId } = injectCard(state, "player1", "dash-parr-super-fast", "play", { isDrying: false }));
+    ({ state, instanceId: violetId } = injectCard(state, "player1", "violet-parr-super-resilient", "play", { isDrying: false }));
+    ({ state, instanceId: dvId } = injectCard(state, "player1", "dash-parr-violet-parr-super-siblings", "hand"));
+    state = giveInk(state, "player1", 10);
+    const shift = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: dvId, shiftTargetInstanceIds: [dashId, violetId] }, CARD_DEFINITIONS);
+    expect(shift.success).toBe(true);
+    state = shift.newState;
+    expect(getInstance(state, dvId).cardsUnder).toEqual(expect.arrayContaining([dashId, violetId])); // 2 cards under
+    const handBefore = getZone(state, "player1", "hand").length;
+    const quest = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: dvId }, CARD_DEFINITIONS);
+    expect(quest.success).toBe(true);
+    expect(getZone(quest.newState, "player1", "hand").length).toBe(handBefore + 2); // draw 1 per card under
+  });
+
   it("Shift: cannot shift without enough ink for shiftCost", () => {
     let state = startGame();
     let baseId: string, shiftId: string;

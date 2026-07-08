@@ -581,17 +581,45 @@ function parseKeywordAbilities(
       variant: "temporary",
     });
   }
+  // Combo Shift (Set 13) — `<Combo <Shift>> N`. Shift onto one of your
+  // characters named A, one named B, or one of each. Valid names extracted from
+  // the "...named A, one named B..." reminder. Matched BEFORE classification so
+  // "Combo" isn't taken as a trait classifier. PRE-CRD — see CRD_TRACKER
+  // Provisional §.
+  const comboShiftMatch = rulesText.match(
+    new RegExp(`${anchor}<Combo\\s+<Shift>>\\s*(\\d+)`, "i"),
+  );
+  if (comboShiftMatch) {
+    const v = parseInt(comboShiftMatch[1]!, 10);
+    shiftCost = v;
+    const names: string[] = [];
+    const reminderTail = rulesText.slice(comboShiftMatch.index ?? 0);
+    const nameRe = /named\s+([A-Z][A-Za-z0-9 .'&-]*?)(?=,|\.|\)| or | one )/g;
+    let nm: RegExpExecArray | null;
+    while ((nm = nameRe.exec(reminderTail)) !== null) {
+      const name = nm[1]!.trim();
+      if (name && !names.includes(name)) names.push(name);
+    }
+    abilities.push({
+      type: "keyword",
+      keyword: "shift",
+      value: v,
+      variant: "combo",
+      shiftNames: names,
+    });
+  }
   // Classification Shift — `<<Classifier> <Shift>>` where Classifier is a
-  // capitalized trait word (Puppy, Dog, Princess, etc.). Skip "Universal" and
-  // "Temporary" since they're handled above. Single classifier word for now;
-  // multi-word classifiers (none observed across sets 1-12) would extend here.
+  // capitalized trait word (Puppy, Dog, Princess, etc.). Skip the special
+  // variant keywords (Universal / Temporary / Combo / Duo) handled elsewhere.
+  // Single classifier word for now; multi-word classifiers (none observed
+  // across sets 1-12) would extend here.
   const classificationShiftMatch = rulesText.match(
     new RegExp(`${anchor}<([A-Z][a-zA-Z]+)\\s+<Shift>>\\s*(\\d+)`, "i"),
   );
+  const reservedShiftWords = ["universal", "temporary", "combo", "duo"];
   if (
     classificationShiftMatch &&
-    classificationShiftMatch[1]!.toLowerCase() !== "universal" &&
-    classificationShiftMatch[1]!.toLowerCase() !== "temporary"
+    !reservedShiftWords.includes(classificationShiftMatch[1]!.toLowerCase())
   ) {
     const v = parseInt(classificationShiftMatch[2]!, 10);
     shiftCost = v;
@@ -603,7 +631,7 @@ function parseKeywordAbilities(
       classifier: classificationShiftMatch[1]!,
     });
   }
-  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!temporaryShiftMatch || !!(classificationShiftMatch && classificationShiftMatch[1]!.toLowerCase() !== "universal" && classificationShiftMatch[1]!.toLowerCase() !== "temporary");
+  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!temporaryShiftMatch || !!comboShiftMatch || !!(classificationShiftMatch && !reservedShiftWords.includes(classificationShiftMatch[1]!.toLowerCase()));
 
   const patterns: [RegExp, (m: RegExpMatchArray) => void][] = [
     [new RegExp(`${anchor}<Bodyguard>${tail}`, "i"), () => add("bodyguard")],

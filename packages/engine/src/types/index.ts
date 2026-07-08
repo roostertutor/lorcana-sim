@@ -162,12 +162,22 @@ export interface KeywordAbility {
    *    revert is scheduled automatically by applyPlayCard (delayed trigger →
    *    revert_temporary_shift), not a printed ability. Targeting falls through
    *    to name-matching in canShiftOnto (only "universal"/"classification" are
-   *    special-cased there). */
-  variant?: "classification" | "universal" | "temporary";
+   *    special-cased there).
+   *  - "combo": Combo Shift (Set 13, e.g. Sulley & Boo). Shift onto ONE of your
+   *    characters named A, ONE named B, OR ONE OF EACH (two targets at once —
+   *    both go under the new top). Valid names live in `shiftNames`. PRE-CRD —
+   *    see docs/CRD_TRACKER.md "Provisional" §. The two-target case uses
+   *    PlayCardAction.shiftTargetInstanceIds. */
+  variant?: "classification" | "universal" | "temporary" | "combo";
   /** Trait classifier for Classification Shift (CRD 8.10.8.1). Required when
    *  variant === "classification"; ignored otherwise. E.g. Thunderbolt's
    *  [Dog] Shift uses classifier: "Dog". */
   classifier?: string;
+  /** Valid target names for Combo Shift (variant === "combo"). E.g. Sulley &
+   *  Boo → ["Sulley", "Boo"]. A single-target combo shift may land on a
+   *  character whose name is any entry; the two-target ("one of each") case
+   *  requires one target matching each of two distinct entries. */
+  shiftNames?: string[];
 }
 
 export interface TriggeredAbility {
@@ -4446,6 +4456,11 @@ export interface PlayCardAction {
   instanceId: string;
   /** For Shift: the instanceId of the character being shifted onto */
   shiftTargetInstanceId?: string;
+  /** For Combo Shift "one of each" (Set 13): the TWO characters being shifted
+   *  onto at once (one matching each combo name). Both go under the new top.
+   *  When set, takes precedence over shiftTargetInstanceId. Single-target combo
+   *  shift uses shiftTargetInstanceId like any other shift. */
+  shiftTargetInstanceIds?: string[];
   /** For alternate-cost Shift (Diablo etc.): the instanceId(s) of the card(s)
    *  paying the shift cost (discarded, banished, etc.). Array to support
    *  multi-card costs (Flotsam & Jetsam: discard 2 cards). Only valid when

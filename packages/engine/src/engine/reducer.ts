@@ -451,6 +451,29 @@ export function getAllLegalActions(
           actions.push(shiftPlay);
         }
       }
+      // Combo Shift "one of each" (Set 13): also enumerate two-target combos.
+      // The single-target case is covered by the loop above (canShiftOnto with
+      // the combo name set); here we fan out unordered pairs and let
+      // validateAction keep only the valid one-of-each combinations.
+      const comboKw = cardDef?.abilities?.find(
+        (a): a is import("../types/index.js").KeywordAbility =>
+          a.type === "keyword" && a.keyword === "shift" && a.variant === "combo",
+      );
+      if (comboKw) {
+        for (let i = 0; i < myPlay.length; i++) {
+          for (let j = i + 1; j < myPlay.length; j++) {
+            const comboPlay: GameAction = {
+              type: "PLAY_CARD",
+              playerId,
+              instanceId,
+              shiftTargetInstanceIds: [myPlay[i]!, myPlay[j]!],
+            };
+            if (validateAction(state, comboPlay, definitions).valid) {
+              actions.push(comboPlay);
+            }
+          }
+        }
+      }
     }
     if (hasAltShift && cardDef?.altShiftCost) {
       // Alt-cost shift (Diablo, Flotsam, etc.): one action per shift target.
@@ -581,7 +604,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -616,8 +639,20 @@ function applyPlayCard(
   singerInstanceIds?: string[],
   viaGrantedFreePlay?: boolean,
   altShiftCostInstanceIds?: string[],
+  shiftTargetInstanceIds?: string[],
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
+  // Combo Shift "one of each" (Set 13): the first target drives the normal
+  // single-target shift path below (base1 stacked, state inherited, slot taken,
+  // shifted_onto fired); the SECOND target is absorbed additively afterward
+  // (see the `comboSecondBaseId` block). Normalize the primary here so the
+  // existing shift block runs unchanged.
+  const comboSecondBaseId = shiftTargetInstanceIds && shiftTargetInstanceIds.length >= 2
+    ? shiftTargetInstanceIds[1]
+    : undefined;
+  if (!shiftTargetInstanceId && shiftTargetInstanceIds && shiftTargetInstanceIds.length >= 1) {
+    shiftTargetInstanceId = shiftTargetInstanceIds[0];
+  }
 
   // Tracks ink actually paid to play this card. Stamped on the instance just
   // before the entering-play zoneTransition so `card_played` trigger filters
@@ -1009,6 +1044,63 @@ function applyPlayCard(
           targetInstanceId: instanceId,
           sourceInstanceId: instanceId,
         }],
+      };
+    }
+    // Combo Shift "one of each" (Set 13, PRE-CRD — docs/CRD_TRACKER Provisional
+    // §): absorb the SECOND base. base1 was handled by the shift block above as
+    // a normal shift; fold base2 in — its pile + itself go under the new top and
+    // state merges per the ruling (exerted if EITHER base is exerted, drying if
+    // EITHER, damage = SUM). Queue base2's shifted_onto BEFORE moving it under
+    // (the cross-card scan only finds in-play watchers).
+    if (comboSecondBaseId && state.cards[comboSecondBaseId] && state.cards[comboSecondBaseId]!.zone === "play") {
+      const base2 = state.cards[comboSecondBaseId]!;
+      const top = state.cards[instanceId]!;
+      // shifted_onto for base2 (bound to base2 as the shift target per CRD 8.10.4).
+      state = queueTrigger(state, "shifted_onto", instanceId, definitions, {
+        triggeringPlayerId: playerId,
+        triggeringCardInstanceId: comboSecondBaseId,
+      });
+      // Fold base2 into the new top's stack + merge state.
+      state = updateInstance(state, instanceId, {
+        isExerted: top.isExerted || base2.isExerted,
+        isDrying: top.isDrying || base2.isDrying,
+        damage: top.damage + base2.damage,
+        cardsUnder: [...top.cardsUnder, ...base2.cardsUnder, comboSecondBaseId],
+        timedEffects: [...top.timedEffects, ...base2.timedEffects],
+      });
+      // CRD 8.10.5: reattach base2's floating triggers to the new top.
+      if (state.floatingTriggers?.length) {
+        state = {
+          ...state,
+          floatingTriggers: state.floatingTriggers.map((ft) =>
+            ft.attachedToInstanceId === comboSecondBaseId ? { ...ft, attachedToInstanceId: instanceId } : ft,
+          ),
+        };
+      }
+      // base2 moves from play to "under" (reset its play-state fields).
+      state = {
+        ...state,
+        cards: {
+          ...state.cards,
+          [comboSecondBaseId]: {
+            ...state.cards[comboSecondBaseId]!,
+            zone: "under",
+            isFaceDown: false,
+            damage: 0,
+            isExerted: false,
+            isDrying: false,
+            grantedKeywords: [],
+            timedEffects: [],
+            cardsUnder: [],
+          },
+        },
+        zones: {
+          ...state.zones,
+          [playerId]: {
+            ...state.zones[playerId],
+            play: state.zones[playerId].play.filter((id) => id !== comboSecondBaseId),
+          },
+        },
       };
     }
     // cardsPlayedThisTurn is now tracked centrally in zoneTransition.

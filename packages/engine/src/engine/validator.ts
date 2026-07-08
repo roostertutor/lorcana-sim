@@ -73,6 +73,15 @@ export function canShiftOnto(
   if (shiftKw?.variant === "classification" && shiftKw.classifier) {
     return target.traits.includes(shiftKw.classifier);
   }
+  // Combo Shift (Set 13): single-target lands on a character whose name is any
+  // of the combo names (Sulley & Boo → "Sulley" or "Boo"). The two-target
+  // "one of each" case is validated separately in validateAction.
+  if (shiftKw?.variant === "combo") {
+    const names = shiftKw.shiftNames ?? [];
+    if (names.includes(target.name)) return true;
+    if ((target.alternateNames ?? []).some((n) => names.includes(n))) return true;
+    return false;
+  }
 
   // MIMICRY: target card explicitly ignores name match for any shifter.
   if (modifiers.mimicryTargets.has(targetInstanceId)) return true;
@@ -96,7 +105,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -133,6 +142,7 @@ function validatePlayCard(
   singerInstanceIds?: string[],
   viaGrantedFreePlay?: boolean,
   altShiftCostInstanceIds?: string,
+  shiftTargetInstanceIds?: string[],
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -167,6 +177,43 @@ function validatePlayCard(
         return fail(`You can't play ${def.cardType}s right now.`);
       }
     }
+  }
+
+  // Combo Shift "one of each" (Set 13, PRE-CRD — docs/CRD_TRACKER Provisional §):
+  // shift onto TWO characters at once, one matching each of two distinct combo
+  // names. Both go under the new top. Ink cost is the single shift cost.
+  if (shiftTargetInstanceIds && shiftTargetInstanceIds.length >= 2) {
+    const comboKw = (def.abilities ?? []).find(
+      (a): a is import("../types/index.js").KeywordAbility =>
+        a.type === "keyword" && a.keyword === "shift" && a.variant === "combo",
+    );
+    if (!comboKw) return fail("This card doesn't have Combo Shift.");
+    const shiftMods = getGameModifiers(state, definitions);
+    const baseShiftCost = def.shiftCost ?? shiftMods.grantedShiftSelf.get(instanceId);
+    if (baseShiftCost === undefined) return fail("This card doesn't have Shift.");
+    if (shiftTargetInstanceIds.length !== 2) return fail("Combo Shift targets exactly one of each name.");
+    const [aId, bId] = shiftTargetInstanceIds;
+    if (aId === bId) return fail("Combo Shift requires two different characters.");
+    const names = comboKw.shiftNames ?? [];
+    const seen: string[] = [];
+    for (const tId of shiftTargetInstanceIds) {
+      if (tId === instanceId) return fail("Can't shift a card onto itself.");
+      const t = getInstance(state, tId!);
+      if (t.zone !== "play") return fail("Shift target is not in play.");
+      if (t.ownerId !== playerId) return fail("You don't own the shift target.");
+      const tDef = getDefinition(state, tId!, definitions);
+      if (tDef.cardType !== "character") return fail("Shift target must be a character.");
+      // Which combo name does this target satisfy (by name or alternate name)?
+      const matched = names.find((n) => tDef.name === n || (tDef.alternateNames ?? []).includes(n));
+      if (!matched) return fail("Combo Shift target must match one of this character's names.");
+      if (seen.includes(matched)) return fail("Combo Shift needs one of EACH name, not two of the same.");
+      seen.push(matched);
+    }
+    const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost);
+    if (!canAfford(state, playerId, effectiveShiftCost)) {
+      return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
+    }
+    return OK;
   }
 
   // CRD 8.10.1: Shift — alternate cost onto same-named character in play.
