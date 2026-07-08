@@ -5698,7 +5698,18 @@
       "Team",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 0,
+        "variant": "duo",
+        "shiftNames": [
+          "Mickey Mouse",
+          "Minnie Mouse"
+        ]
+      }
+    ],
     "setId": "13",
     "number": 99,
     "rarity": "legendary",
@@ -5723,7 +5734,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/99_bc248b16a65df4329e9d10148bbbcec454defada.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/99_bc248b16a65df4329e9d10148bbbcec454defada.jpg",
+    "shiftCost": 0
   },
   {
     "id": "rapunzel-flynn-rider-unlikely-pair",
@@ -12467,7 +12479,18 @@
       "Team",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 0,
+        "variant": "duo",
+        "shiftNames": [
+          "Mickey Mouse",
+          "Minnie Mouse"
+        ]
+      }
+    ],
     "setId": "13",
     "number": 238,
     "rarity": "enchanted",
@@ -12492,7 +12515,8 @@
       }
     ],
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/238_bbc5cfe06474615656dcc3053826ea1aeddd2393.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/238_bbc5cfe06474615656dcc3053826ea1aeddd2393.jpg",
+    "shiftCost": 0
   },
   {
     "id": "rapunzel-flynn-rider-unlikely-pair",

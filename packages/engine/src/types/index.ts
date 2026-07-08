@@ -167,8 +167,12 @@ export interface KeywordAbility {
    *    characters named A, ONE named B, OR ONE OF EACH (two targets at once —
    *    both go under the new top). Valid names live in `shiftNames`. PRE-CRD —
    *    see docs/CRD_TRACKER.md "Provisional" §. The two-target case uses
-   *    PlayCardAction.shiftTargetInstanceIds. */
-  variant?: "classification" | "universal" | "temporary" | "combo";
+   *    PlayCardAction.shiftTargetInstanceIds.
+   *  - "duo": Duo Shift (Set 13, e.g. Mickey & Minnie). Like Combo but REQUIRES
+   *    two targets — one named A AND one named B. Single-target shift is illegal
+   *    (canShiftOnto returns false for "duo"). Same two-base state merge and
+   *    shiftNames as combo. PRE-CRD — see CRD_TRACKER "Provisional" §. */
+  variant?: "classification" | "universal" | "temporary" | "combo" | "duo";
   /** Trait classifier for Classification Shift (CRD 8.10.8.1). Required when
    *  variant === "classification"; ignored otherwise. E.g. Thunderbolt's
    *  [Dog] Shift uses classifier: "Dog". */

@@ -451,13 +451,14 @@ export function getAllLegalActions(
           actions.push(shiftPlay);
         }
       }
-      // Combo Shift "one of each" (Set 13): also enumerate two-target combos.
+      // Combo/Duo Shift "one of each" (Set 13): also enumerate two-target combos.
       // The single-target case is covered by the loop above (canShiftOnto with
-      // the combo name set); here we fan out unordered pairs and let
-      // validateAction keep only the valid one-of-each combinations.
+      // the combo name set — Duo returns false there, so it's two-target only);
+      // here we fan out unordered pairs and let validateAction keep only the
+      // valid one-of-each combinations.
       const comboKw = cardDef?.abilities?.find(
         (a): a is import("../types/index.js").KeywordAbility =>
-          a.type === "keyword" && a.keyword === "shift" && a.variant === "combo",
+          a.type === "keyword" && a.keyword === "shift" && (a.variant === "combo" || a.variant === "duo"),
       );
       if (comboKw) {
         for (let i = 0; i < myPlay.length; i++) {

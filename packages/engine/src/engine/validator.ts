@@ -73,6 +73,9 @@ export function canShiftOnto(
   if (shiftKw?.variant === "classification" && shiftKw.classifier) {
     return target.traits.includes(shiftKw.classifier);
   }
+  // Duo Shift (Set 13): NO single-target shift — you must shift onto two (one
+  // of each name). The two-target case is validated in validateAction.
+  if (shiftKw?.variant === "duo") return false;
   // Combo Shift (Set 13): single-target lands on a character whose name is any
   // of the combo names (Sulley & Boo → "Sulley" or "Boo"). The two-target
   // "one of each" case is validated separately in validateAction.
@@ -185,9 +188,9 @@ function validatePlayCard(
   if (shiftTargetInstanceIds && shiftTargetInstanceIds.length >= 2) {
     const comboKw = (def.abilities ?? []).find(
       (a): a is import("../types/index.js").KeywordAbility =>
-        a.type === "keyword" && a.keyword === "shift" && a.variant === "combo",
+        a.type === "keyword" && a.keyword === "shift" && (a.variant === "combo" || a.variant === "duo"),
     );
-    if (!comboKw) return fail("This card doesn't have Combo Shift.");
+    if (!comboKw) return fail("This card doesn't have Combo/Duo Shift.");
     const shiftMods = getGameModifiers(state, definitions);
     const baseShiftCost = def.shiftCost ?? shiftMods.grantedShiftSelf.get(instanceId);
     if (baseShiftCost === undefined) return fail("This card doesn't have Shift.");

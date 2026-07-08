@@ -608,6 +608,32 @@ function parseKeywordAbilities(
       shiftNames: names,
     });
   }
+  // Duo Shift (Set 13) — `<Duo <Shift>> N`. Requires shifting onto TWO characters
+  // (one named A AND one named B). Names extracted from the "...one named A and
+  // one named B" reminder. Matched before classification (Duo is reserved).
+  // PRE-CRD — see docs/CRD_TRACKER.md "Provisional" §.
+  const duoShiftMatch = rulesText.match(
+    new RegExp(`${anchor}<Duo\\s+<Shift>>\\s*(\\d+)`, "i"),
+  );
+  if (duoShiftMatch) {
+    const v = parseInt(duoShiftMatch[1]!, 10);
+    shiftCost = v;
+    const names: string[] = [];
+    const reminderTail = rulesText.slice(duoShiftMatch.index ?? 0);
+    const nameRe = /named\s+([A-Z][A-Za-z0-9 .'&-]*?)(?=,|\.|\)| and | one )/g;
+    let nm: RegExpExecArray | null;
+    while ((nm = nameRe.exec(reminderTail)) !== null) {
+      const name = nm[1]!.trim();
+      if (name && !names.includes(name)) names.push(name);
+    }
+    abilities.push({
+      type: "keyword",
+      keyword: "shift",
+      value: v,
+      variant: "duo",
+      shiftNames: names,
+    });
+  }
   // Classification Shift — `<<Classifier> <Shift>>` where Classifier is a
   // capitalized trait word (Puppy, Dog, Princess, etc.). Skip the special
   // variant keywords (Universal / Temporary / Combo / Duo) handled elsewhere.
@@ -631,7 +657,7 @@ function parseKeywordAbilities(
       classifier: classificationShiftMatch[1]!,
     });
   }
-  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!temporaryShiftMatch || !!comboShiftMatch || !!(classificationShiftMatch && !reservedShiftWords.includes(classificationShiftMatch[1]!.toLowerCase()));
+  const shiftAlreadyAddedAsVariant = !!universalShiftMatch || !!temporaryShiftMatch || !!comboShiftMatch || !!duoShiftMatch || !!(classificationShiftMatch && !reservedShiftWords.includes(classificationShiftMatch[1]!.toLowerCase()));
 
   const patterns: [RegExp, (m: RegExpMatchArray) => void][] = [
     [new RegExp(`${anchor}<Bodyguard>${tail}`, "i"), () => add("bodyguard")],

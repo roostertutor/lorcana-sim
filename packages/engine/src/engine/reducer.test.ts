@@ -3826,6 +3826,32 @@ describe("§8 Keywords", () => {
     expect(getZone(quest.newState, "player1", "hand").length).toBe(handBefore + 2); // draw 1 per card under
   });
 
+  it("Duo Shift requires two targets (one of each name); single-target is illegal (Set 13, pre-CRD)", () => {
+    let state = startGame();
+    let mickeyId: string, minnieId: string, duoId: string;
+    ({ state, instanceId: mickeyId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    ({ state, instanceId: duoId } = injectCard(state, "player1", "mickey-mouse-minnie-mouse-adventuring-duo", "hand"));
+    state = giveInk(state, "player1", 10);
+
+    // Single-target shift is NOT legal for Duo (must shift onto two).
+    const singleTry = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: duoId, shiftTargetInstanceId: mickeyId }, CARD_DEFINITIONS);
+    expect(singleTry.success).toBe(false);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const singleShifts = legal.filter((a) => a.type === "PLAY_CARD" && a.instanceId === duoId && (a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId);
+    expect(singleShifts).toHaveLength(0);
+    const duoPairs = legal.filter((a) => a.type === "PLAY_CARD" && a.instanceId === duoId && (a as { shiftTargetInstanceIds?: string[] }).shiftTargetInstanceIds);
+    expect(duoPairs.length).toBeGreaterThanOrEqual(1); // the Mickey + Minnie pair
+
+    // Two-target Duo shift works — both bases go under.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: duoId, shiftTargetInstanceIds: [mickeyId, minnieId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, duoId).zone).toBe("play");
+    expect(getInstance(r.newState, mickeyId).zone).toBe("under");
+    expect(getInstance(r.newState, minnieId).zone).toBe("under");
+    expect(getInstance(r.newState, duoId).cardsUnder).toEqual(expect.arrayContaining([mickeyId, minnieId]));
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;

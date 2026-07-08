@@ -123,10 +123,13 @@ if a future slice wants quest-specific or exert-specific motion.
 
 ---
 
-## UI/gameboard agent: multi-target shift picker for Combo Shift (Set 13)
+## UI/gameboard agent: multi-target shift picker for Combo/Duo Shift (Set 13)
 
-**Trigger:** sandbox users try to Combo-Shift a Set 13 "&" card (Sulley & Boo
-`#29`, Dash & Violet `#133/#241`) onto **two** bases at once.
+**Trigger:** sandbox users try to Combo/Duo-Shift a Set 13 "&" card (Sulley & Boo
+`#29`, Dash & Violet `#133/#241` Combo; Mickey & Minnie `#99/#238` Duo) onto
+**two** bases at once. Duo Shift is two-target-ONLY (`variant:"duo"` — no
+single-target option), so its cards have *no* single-target shift entry; the
+picker must offer the two-base selection or the card can't be shifted at all.
 
 **What shipped (engine, commit `fd37e33`):** Combo Shift is fully implemented
 and tested headlessly. The two-target action shape is
