@@ -123,6 +123,36 @@ if a future slice wants quest-specific or exert-specific motion.
 
 ---
 
+## UI/gameboard agent: multi-target shift picker for Combo Shift (Set 13)
+
+**Trigger:** sandbox users try to Combo-Shift a Set 13 "&" card (Sulley & Boo
+`#29`, Dash & Violet `#133/#241`) onto **two** bases at once.
+
+**What shipped (engine, commit `fd37e33`):** Combo Shift is fully implemented
+and tested headlessly. The two-target action shape is
+`PlayCardAction.shiftTargetInstanceIds: [idA, idB]` (one matching each combo
+name). `getAllLegalActions` already enumerates the valid one-of-each pairs, so
+the bot/sim play it today. The single-target case (shift onto just a Sulley
+*or* just a Boo) uses the existing `shiftTargetInstanceId` and **already works
+in the current shift picker** with no UI change.
+
+**The gap (UI only):** the sandbox shift-target picker assumes a single target.
+For the "one of each" case the player must be able to pick **two** bases before
+committing the play. Needed:
+- After the shift card is chosen, if its shift keyword has `variant: "combo"`,
+  offer both the single-target targets (existing) **and** the two-target combos
+  (pick one base per name). Simplest: let the user click two valid bases, then
+  dispatch `PLAY_CARD` with `shiftTargetInstanceIds`.
+- Read the valid names from the keyword's `shiftNames` (e.g. `["Sulley","Boo"]`)
+  to label/group the picker.
+- No new `PendingChoice` variant is involved — this is action *construction* in
+  the sandbox before dispatch, same layer as the existing shift picker.
+
+**Not blocking** engine/sim/bot work. Only affects interactive sandbox play of
+these three cards' two-target mode.
+
+---
+
 ## Companion docs
 
 | Doc | Purpose | When something belongs here vs HANDOFF |
