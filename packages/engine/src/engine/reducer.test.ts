@@ -3922,6 +3922,55 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, receiverId).cardsUnder).toContain(minnieId);
   });
 
+  it("Self-discard replay (on:discarded): discarding Mother Gothel lets you play her from discard, paying costs (Set 13)", () => {
+    let state = startGame();
+    let mgId: string;
+    ({ state, instanceId: mgId } = injectCard(state, "player1", "mother-gothel-evil-as-ever", "hand"));
+    state = giveInk(state, "player1", 10);
+    state = applyEffect(state, { type: "discard_from_hand", amount: 1, target: { type: "self" }, chooser: "target_player" } as never, mgId, "player1", CARD_DEFINITIONS, []);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [mgId] } as never, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(getInstance(state, mgId).zone).toBe("discard");
+    expect(state.pendingChoice?.type).toBe("choose_may"); // MUMMY'S BACK
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as never, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, mgId).zone).toBe("play"); // replayed from discard
+    expect(r.newState.players.player1.availableInk).toBe(8); // paid all costs (cost 2)
+  });
+
+  it("FRESH START (cards_discarded filter + triggering_card): discarding a character lets you play THAT character from discard (Set 13)", () => {
+    let state = startGame();
+    let rfId: string, minnieId: string;
+    ({ state, instanceId: rfId } = injectCard(state, "player1", "rapunzel-flynn-rider-unlikely-pair", "play", { isDrying: false }));
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = giveInk(state, "player1", 10);
+    state = applyEffect(state, { type: "discard_from_hand", amount: 1, target: { type: "self" }, chooser: "target_player" } as never, rfId, "player1", CARD_DEFINITIONS, []);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [minnieId] } as never, CARD_DEFINITIONS);
+    state = r.newState;
+    expect(state.pendingChoice?.type).toBe("choose_may"); // FRESH START
+    r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" } as never, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, minnieId).zone).toBe("play"); // that specific character, from discard
+  });
+
+  it("cards_discarded fires PER card by default (Sheriff of Nottingham): discarding 2 cards → 2 damage (CRD ruling)", () => {
+    let state = startGame();
+    let sheriffId: string, oppId: string, h1: string, h2: string;
+    ({ state, instanceId: sheriffId } = injectCard(state, "player1", "sheriff-of-nottingham-corrupt-official", "play", { isDrying: false }));
+    ({ state, instanceId: oppId } = injectCard(state, "player2", "mickey-mouse-true-friend", "play"));
+    ({ state, instanceId: h1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    ({ state, instanceId: h2 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));
+    state = applyEffect(state, { type: "discard_from_hand", amount: 2, target: { type: "self" }, chooser: "target_player" } as never, sheriffId, "player1", CARD_DEFINITIONS, []);
+    let r = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [h1, h2] } as never, CARD_DEFINITIONS);
+    state = r.newState;
+    // TAXES SHOULD HURT ("whenever you discard A card") fires once per discarded card.
+    for (let i = 0; i < 6 && state.pendingChoice; i++) {
+      const choice = state.pendingChoice.type === "choose_may" ? "accept" : [oppId];
+      const rr = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice } as never, CARD_DEFINITIONS);
+      state = rr.newState;
+    }
+    void sheriffId;
+    expect(getInstance(state, oppId).damage).toBe(2); // fired twice × 1 damage
+  });
+
   it("THINKING OF YOU self-banish replacement (CRD 6.5): would-be-banished → inkwell exerted, not discard, no banish", () => {
     // Mickey & Minnie: "If this character would be banished, put them into your
     // inkwell facedown and exerted instead." Source-agnostic (lethal damage via

@@ -5442,7 +5442,30 @@
       "Storyborn",
       "Villain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MUMMY'S BACK",
+        "rulesText": "During your turn, when you discard this card, you may play this character from your discard. (You pay all costs.)",
+        "trigger": {
+          "on": "discarded"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "target": {
+              "type": "this"
+            },
+            "sourceZone": "discard",
+            "cost": "normal",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 93,
     "rarity": "common",
@@ -5821,6 +5844,68 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "CLEVER SWAP",
+        "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FRESH START",
+        "rulesText": "During your turn, whenever you discard a character card, you may play that character from your discard. (You pay all costs.)",
+        "trigger": {
+          "on": "cards_discarded",
+          "player": {
+            "type": "self"
+          },
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "target": {
+              "type": "triggering_card"
+            },
+            "sourceZone": "discard",
+            "cost": "normal",
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -11138,7 +11223,29 @@
     "cost": 2,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "rulesText": "During your turn, when you discard this card, you may play it from your discard. (You pay all costs.)",
+        "trigger": {
+          "on": "discarded"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "target": {
+              "type": "this"
+            },
+            "sourceZone": "discard",
+            "cost": "normal",
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 200,
     "rarity": "uncommon",
@@ -11150,7 +11257,22 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/200_06a61a944e364b4e88d05fa453a06a15d36017da.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/200_3691c2734df564ba7a4063436cbe97222f1117a2.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/200_3691c2734df564ba7a4063436cbe97222f1117a2.jpg",
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ]
   },
   {
     "id": "you-broke-my-smolder",
@@ -12710,6 +12832,68 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "CLEVER SWAP",
+        "rulesText": "Whenever this character quests, you may draw a card, then choose and discard a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "discard_from_hand",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "FRESH START",
+        "rulesText": "During your turn, whenever you discard a character card, you may play that character from your discard. (You pay all costs.)",
+        "trigger": {
+          "on": "cards_discarded",
+          "player": {
+            "type": "self"
+          },
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "target": {
+              "type": "triggering_card"
+            },
+            "sourceZone": "discard",
+            "cost": "normal",
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "13",

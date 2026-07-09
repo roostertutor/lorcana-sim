@@ -5554,7 +5554,8 @@
           "on": "cards_discarded",
           "player": {
             "type": "opponent"
-          }
+          },
+          "perEvent": true
         },
         "effects": [
           {

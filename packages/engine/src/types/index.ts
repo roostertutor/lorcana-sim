@@ -2997,7 +2997,18 @@ export type TriggerEvent =
   | { on: "damage_removed_from"; filter?: CardFilter }
   | { on: "readied"; filter?: CardFilter }
   | { on: "returned_to_hand"; filter?: CardFilter }
-  | { on: "cards_discarded"; player: PlayerTarget }
+  /** Fires when the given player discards card(s). Default: fires once PER
+   *  discarded card ("Whenever you discard a card" — Sheriff of Nottingham),
+   *  binding `triggering_card` to that card and, if `filter` is set, only for
+   *  discards matching it ("a character card" — Rapunzel & Flynn FRESH START).
+   *  `perEvent: true` fires ONCE for the whole discard batch instead ("discards
+   *  1 or more cards" — Prince John), with no `triggering_card`. */
+  | { on: "cards_discarded"; player: PlayerTarget; filter?: CardFilter; perEvent?: boolean }
+  /** CRD 6.2: self-trigger that fires on the card AS IT IS DISCARDED (source =
+   *  the discarded card, now in the discard pile — leave-play family, so it
+   *  doesn't fizzle on the zone change). "When you discard this card, ..."
+   *  Mother Gothel MUMMY'S BACK, Look What You've Done. */
+  | { on: "discarded" }
   /** CRD 4.3.6: fires when a character deals damage to another character in a challenge.
    * Filter is matched against the source (damage-dealer) card. The triggering card in
    * context is the damaged character, and the damage amount is stored on the trigger context.

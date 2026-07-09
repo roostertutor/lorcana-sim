@@ -2648,7 +2648,7 @@ function applyResolveChoice(
     // no cards were discarded (Geppetto Skilled Craftsman "any number" path).
     state = { ...state, lastEffectResult: discardCount };
     if (discardCount > 0 && discardingPlayerId) {
-      state = queueTriggersByEvent(state, "cards_discarded", discardingPlayerId, definitions, {});
+      state = fireDiscardTriggers(state, discardingPlayerId, discardedRefs, definitions);
       // P1.11 — log the chosen-discard. Discard pile is public so no privateTo.
       state = appendLog(state, {
         turn: state.turnNumber,
@@ -5903,7 +5903,7 @@ export function applyEffect(
           // applyAction → processTriggerStack at line 80.
           if (discardCount > 0) {
             state = { ...state, lastEffectResult: discardCount };
-            state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+            state = fireDiscardTriggers(state, pid, hand.map((id) => ({ instanceId: id })), definitions);
             // P1.11 — log names. Discard pile is public so no privateTo.
             state = appendLog(state, {
               turn: state.turnNumber,
@@ -5971,7 +5971,7 @@ export function applyEffect(
             state = { ...state, lastDiscarded: [...existing, ...newRefs] };
           }
           if (picked.length > 0) {
-            state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
+            state = fireDiscardTriggers(state, pid, newRefs, definitions);
             // P1.11 — log randomly-discarded names. Public (cards now in
             // discard pile). Note "randomly" so a watching player understands
             // they didn't choose this — it was Bruno-style coin flip.
@@ -7260,6 +7260,11 @@ function queueTriggersByEvent(
   definitions: Record<string, CardDefinition>,
   _context: object
 ): GameState {
+  // Discard triggers (cards_discarded, self "discarded") are owned by
+  // fireDiscardTriggers — which fires per-card with triggering_card + filter,
+  // and only from real hand-discards (not mill / reveal-to-discard). Guard here
+  // so any stray queueTriggersByEvent("cards_discarded", …) is a no-op.
+  if (eventType === "cards_discarded") return state;
   for (const [instanceId, instance] of Object.entries(state.cards)) {
     const def = definitions[instance.definitionId];
     if (!def) continue;
@@ -7291,6 +7296,78 @@ function queueTriggersByEvent(
       };
     }
   }
+  return state;
+}
+
+/**
+ * Queue discard triggers for the cards in state.lastDiscarded. Replaces the
+ * scattered queueTriggersByEvent("cards_discarded", …) sites so the two shapes
+ * are handled in one place:
+ *  - cross-card `cards_discarded` watchers (in play). Default fires ONCE PER
+ *    discarded card, binding triggering_card + honoring `filter` (Sheriff, FRESH
+ *    START). `perEvent: true` fires once for the whole batch (Prince John).
+ *  - self `discarded` triggers on the discarded card itself (Mother Gothel,
+ *    Look What You've Done) — source = the discarded card (now in discard).
+ */
+function fireDiscardTriggers(
+  state: GameState,
+  discardingPlayerId: PlayerID,
+  refs: { instanceId: string }[],
+  definitions: Record<string, CardDefinition>,
+): GameState {
+  if (refs.length === 0) return state;
+
+  // Cross-card cards_discarded watchers (in play).
+  for (const [instanceId, instance] of Object.entries(state.cards)) {
+    if (instance.zone !== "play") continue;
+    const def = definitions[instance.definitionId];
+    if (!def) continue;
+    for (const ability of def.abilities) {
+      if (ability.type !== "triggered") continue;
+      const matched = findMatchingTriggerSpec(ability, "cards_discarded") as
+        | { on: "cards_discarded"; player?: PlayerTarget; filter?: CardFilter; perEvent?: boolean }
+        | undefined;
+      if (!matched) continue;
+      const activeZones = ability.activeZones ?? ["play"];
+      if (!activeZones.includes(instance.zone)) continue;
+      // Player field is relative to the discarding player.
+      if (matched.player) {
+        if (matched.player.type === "self" && discardingPlayerId !== instance.ownerId) continue;
+        if (matched.player.type === "opponent" && discardingPlayerId !== getOpponent(instance.ownerId)) continue;
+      }
+      if (matched.perEvent) {
+        // "discards 1 or more cards" — fire once for the batch, no bound card.
+        state = { ...state, triggerStack: [...state.triggerStack, { ability, sourceInstanceId: instanceId, context: { triggeringPlayerId: discardingPlayerId }, matchedEvent: matched }] };
+      } else {
+        // "discard a card" — fire once per matching discarded card, bound.
+        for (const ref of refs) {
+          const disc = state.cards[ref.instanceId];
+          const discDef = disc ? definitions[disc.definitionId] : undefined;
+          if (matched.filter) {
+            if (!disc || !discDef) continue;
+            if (!matchesFilter(disc, discDef, matched.filter, state, instance.ownerId)) continue;
+          }
+          state = { ...state, triggerStack: [...state.triggerStack, { ability, sourceInstanceId: instanceId, context: { triggeringPlayerId: discardingPlayerId, triggeringCardInstanceId: ref.instanceId }, matchedEvent: matched }] };
+        }
+      }
+    }
+  }
+
+  // Self `discarded` triggers — fire on the discarded card itself (leave-play
+  // family; its zone is now "discard").
+  for (const ref of refs) {
+    const disc = state.cards[ref.instanceId];
+    if (!disc) continue;
+    const def = definitions[disc.definitionId];
+    if (!def) continue;
+    for (const ability of def.abilities) {
+      if (ability.type !== "triggered") continue;
+      const matched = findMatchingTriggerSpec(ability, "discarded");
+      if (!matched) continue;
+      state = { ...state, triggerStack: [...state.triggerStack, { ability, sourceInstanceId: ref.instanceId, context: { triggeringPlayerId: discardingPlayerId }, matchedEvent: matched }] };
+    }
+  }
+
   return state;
 }
 
@@ -7379,7 +7456,7 @@ function processTriggerStack(
     // sites pre-anyOf migration).
     const matchedOn = trigger.matchedEvent?.on
       ?? ("on" in trigger.ability.trigger ? trigger.ability.trigger.on : "");
-    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges", "shifted_onto"].includes(matchedOn);
+    const leavesPlayFamily = ["is_banished", "leaves_play", "banished_in_challenge", "banished_other_in_challenge", "is_challenged", "challenges", "shifted_onto", "discarded"].includes(matchedOn);
     if (!leavesPlayFamily) {
       const activeZones = trigger.ability.activeZones ?? ["play"];
       if (!activeZones.includes(source.zone)) continue;
