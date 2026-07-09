@@ -5748,6 +5748,23 @@
           "Mickey Mouse",
           "Minnie Mouse"
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "THINKING OF YOU",
+        "rulesText": "If this character would be banished, put them into your inkwell facedown and exerted instead.",
+        "effect": {
+          "type": "self_banish_replacement",
+          "instead": [
+            {
+              "type": "put_into_inkwell",
+              "target": {
+                "type": "this"
+              },
+              "enterExerted": true
+            }
+          ]
+        }
       }
     ],
     "setId": "13",
@@ -12581,6 +12598,23 @@
           "Mickey Mouse",
           "Minnie Mouse"
         ]
+      },
+      {
+        "type": "static",
+        "storyName": "THINKING OF YOU",
+        "rulesText": "If this character would be banished, put them into your inkwell facedown and exerted instead.",
+        "effect": {
+          "type": "self_banish_replacement",
+          "instead": [
+            {
+              "type": "put_into_inkwell",
+              "target": {
+                "type": "this"
+              },
+              "enterExerted": true
+            }
+          ]
+        }
       }
     ],
     "setId": "13",

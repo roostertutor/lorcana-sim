@@ -1994,6 +1994,7 @@ export type StaticEffect =
   | SelfCostReductionStatic
   | CanChallengeReadyStatic
   | DamageRedirectStatic
+  | SelfBanishReplacementStatic
   | ChallengeDamagePreventionStatic
   | ChallengeDamageStatSourceStatic
   | DamagePreventionStatic
@@ -2495,6 +2496,22 @@ export interface DamageRedirectStatic {
   type: "damage_redirect";
   /** Which characters' damage gets redirected ("other own characters" = all others you control) */
   from: CardTarget;
+}
+
+/**
+ * CRD 6.5 self-replacement — "If this character would be banished, [instead]."
+ * Registered as a static on the card itself. When banishCard is about to banish
+ * this instance (from ANY source — lethal damage, challenge, or a banish
+ * effect), it applies the `instead` effects (with the instance as source)
+ * rather than moving it to discard, and — per CRD 6.5.4 — the banish never
+ * happens, so is_banished / banished_in_challenge triggers do NOT fire and the
+ * lastBanished* snapshots are not set. Mickey Mouse & Minnie Mouse THINKING OF
+ * YOU ("...put them into your inkwell facedown and exerted instead").
+ */
+export interface SelfBanishReplacementStatic {
+  type: "self_banish_replacement";
+  /** The modified event that occurs instead of the banish (target: "this"). */
+  instead: Effect[];
 }
 
 /**

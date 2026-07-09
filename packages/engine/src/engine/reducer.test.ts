@@ -3922,6 +3922,26 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, receiverId).cardsUnder).toContain(minnieId);
   });
 
+  it("THINKING OF YOU self-banish replacement (CRD 6.5): would-be-banished → inkwell exerted, not discard, no banish", () => {
+    // Mickey & Minnie: "If this character would be banished, put them into your
+    // inkwell facedown and exerted instead." Source-agnostic (lethal damage via
+    // the game-state check here); the banish is REPLACED, so it's not in discard
+    // and no card_banished event fires (CRD 6.5.4).
+    let state = startGame();
+    let mmId: string;
+    ({ state, instanceId: mmId } = injectCard(state, "player1", "mickey-mouse-minnie-mouse-adventuring-duo", "play", { isDrying: false, damage: 99 }));
+    const inkBefore = getZone(state, "player1", "inkwell").length;
+
+    const r = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const inst = getInstance(r.newState, mmId);
+    expect(inst.zone).toBe("inkwell");                 // put into inkwell instead of banished
+    expect(inst.isExerted).toBe(true);                 // enters facedown + exerted
+    expect(getZone(r.newState, "player1", "discard")).not.toContain(mmId); // NOT banished
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(inkBefore + 1);
+    expect(r.newState.actionLog.filter((e) => e.type === "card_banished" && (e.message ?? "").includes("Mickey"))).toHaveLength(0);
+  });
+
   it("Alternate names on '&' team cards: shift onto/among constituents; buried names don't count (Set 13)", () => {
     // Woody & Buzz Lightyear carries alternateNames ["Woody","Buzz Lightyear"],
     // so it shifts onto a "Woody" and both a Woody- and a Buzz-named shifter can

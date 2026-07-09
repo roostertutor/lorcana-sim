@@ -8248,6 +8248,28 @@ function banishCard(
   // is a direct effect/cost/EOT cleanup, which is "banish_effect".
   cause?: BanishCause,
 ): GameState {
+  // CRD 6.5.4 / 6.5.6: self-banish replacement — "If this character would be
+  // banished, [instead]." Applied from ANY banish source (this is the single
+  // path all banishes route through). The banish is REPLACED: it never happens,
+  // so is_banished / banished_in_challenge triggers don't fire and no
+  // lastBanished* snapshot is taken (those live in the discard zoneTransition
+  // below, which we skip). Mickey & Minnie THINKING OF YOU → inkwell instead.
+  const replacingInst = state.cards[instanceId];
+  const replacingDef = replacingInst ? definitions[replacingInst.definitionId] : undefined;
+  const banishReplacement = replacingInst && replacingInst.zone === "play"
+    ? (replacingDef?.abilities ?? []).find(
+        (a): a is import("../types/index.js").StaticAbility =>
+          a.type === "static" && (a.effect as { type?: string })?.type === "self_banish_replacement",
+      )
+    : undefined;
+  if (replacingInst && banishReplacement) {
+    const insteadEffects = (banishReplacement.effect as { instead: import("../types/index.js").Effect[] }).instead;
+    for (const eff of insteadEffects) {
+      state = applyEffect(state, eff, instanceId, replacingInst.ownerId, definitions, events, instanceId);
+    }
+    return state;
+  }
+
   // CRD 4.6.7: if the banished card is one of the two challengers of the still
   // active challenge AND the caller didn't supply explicit challengeCtx, infer
   // it from state.activeChallengeIds. This is what makes CRD Example B work —
