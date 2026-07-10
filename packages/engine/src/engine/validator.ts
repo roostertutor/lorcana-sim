@@ -69,6 +69,19 @@ export function canShiftOnto(
     (a): a is import("../types/index.js").KeywordAbility =>
       a.type === "keyword" && a.keyword === "shift",
   );
+  // MIMICRY (Morph - Space Goo, card-set-3.json; Morph - Little Imitator
+  // ADVANCED MIMICRY, card-set-13.json): the target ignores name/trait matching
+  // for ANY shifter. ADVANCED MIMICRY explicitly covers "all Shift variants" —
+  // universal, classification (Madrigal/Puppy), combo — so mimicry is checked
+  // BEFORE the variant gates: a classification shifter lands on Morph even
+  // though Morph lacks the classification trait. Duo is the one exception: it
+  // has NO single-target form, so you can't Duo Shift onto a SINGLE Morph. The
+  // two-target Duo case (where a Morph may fill one of the two slots) is handled
+  // in validateAction.
+  if (modifiers.mimicryTargets.has(targetInstanceId)) {
+    return shiftKw?.variant !== "duo";
+  }
+
   if (shiftKw?.variant === "universal") return true;
   if (shiftKw?.variant === "classification" && shiftKw.classifier) {
     return target.traits.includes(shiftKw.classifier);
@@ -85,9 +98,6 @@ export function canShiftOnto(
     if ((target.alternateNames ?? []).some((n) => names.includes(n))) return true;
     return false;
   }
-
-  // MIMICRY: target card explicitly ignores name match for any shifter.
-  if (modifiers.mimicryTargets.has(targetInstanceId)) return true;
 
   // Base shift: name must match. Either side may carry alternate names (CRD 5.2.6.1–3).
   if (shifting.name === target.name) return true;
@@ -206,6 +216,11 @@ function validatePlayCard(
       if (t.ownerId !== playerId) return fail("You don't own the shift target.");
       const tDef = getDefinition(state, tId!, definitions);
       if (tDef.cardType !== "character") return fail("Shift target must be a character.");
+      // MIMICRY (Morph): a mimicry target is a wildcard slot — it fills whichever
+      // combo/duo name isn't covered by the other target. With exactly two
+      // targets and two names, distinct concrete matches + wildcards always
+      // cover "one of each". (A SINGLE Morph still can't Duo — length must be 2.)
+      if (shiftMods.mimicryTargets.has(tId!)) continue;
       // Which combo name does this target satisfy (by name or alternate name)?
       const matched = names.find((n) => tDef.name === n || (tDef.alternateNames ?? []).includes(n));
       if (!matched) return fail("Combo Shift target must match one of this character's names.");

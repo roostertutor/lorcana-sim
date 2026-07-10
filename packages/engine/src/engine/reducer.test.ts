@@ -3852,6 +3852,63 @@ describe("§8 Keywords", () => {
     expect(getInstance(r.newState, duoId).cardsUnder).toEqual(expect.arrayContaining([mickeyId, minnieId]));
   });
 
+  it("Morph ADVANCED MIMICRY: a classification (Madrigal) shifter lands on Morph even though Morph isn't a Madrigal (Set 13)", () => {
+    // ADVANCED MIMICRY covers "all Shift variants" — the mimicry check runs
+    // BEFORE the classification trait gate, so a Madrigal Shift character shifts
+    // onto Morph (traits Storyborn/Ally/Alien — no Madrigal).
+    let state = startGame();
+    let morphId: string, madrigalId: string;
+    ({ state, instanceId: morphId } = injectCard(state, "player1", "morph-little-imitator", "play", { isDrying: false }));
+    ({ state, instanceId: madrigalId } = injectCard(state, "player1", "the-madrigal-family-every-generation", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: madrigalId, shiftTargetInstanceId: morphId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, madrigalId).zone).toBe("play");
+    expect(getInstance(r.newState, morphId).zone).toBe("under");
+    expect(getInstance(r.newState, madrigalId).cardsUnder).toContain(morphId);
+  });
+
+  it("Morph ADVANCED MIMICRY: a universal shifter also lands on Morph (Set 13)", () => {
+    let state = startGame();
+    let morphId: string, baymaxId: string;
+    ({ state, instanceId: morphId } = injectCard(state, "player1", "morph-little-imitator", "play", { isDrying: false }));
+    ({ state, instanceId: baymaxId } = injectCard(state, "player1", "baymax-giant-robot", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: baymaxId, shiftTargetInstanceId: morphId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, morphId).zone).toBe("under");
+  });
+
+  it("Morph ADVANCED MIMICRY: you CANNOT Duo Shift onto a single Morph (Set 13 ruling)", () => {
+    // Duo has no single-target form — one Morph is not enough for a Duo Shift.
+    let state = startGame();
+    let morphId: string, duoId: string;
+    ({ state, instanceId: morphId } = injectCard(state, "player1", "morph-little-imitator", "play", { isDrying: false }));
+    ({ state, instanceId: duoId } = injectCard(state, "player1", "mickey-mouse-minnie-mouse-adventuring-duo", "hand"));
+    state = giveInk(state, "player1", 10);
+    const single = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: duoId, shiftTargetInstanceId: morphId }, CARD_DEFINITIONS);
+    expect(single.success).toBe(false);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    // No shift action for the Duo card at all — only one Morph in play, and Duo
+    // needs two distinct targets.
+    const duoShifts = legal.filter((a) => a.type === "PLAY_CARD" && a.instanceId === duoId && ((a as { shiftTargetInstanceId?: string }).shiftTargetInstanceId || (a as { shiftTargetInstanceIds?: string[] }).shiftTargetInstanceIds));
+    expect(duoShifts).toHaveLength(0);
+  });
+
+  it("Morph ADVANCED MIMICRY: two Morphs CAN serve as the two Duo Shift targets (wildcard slots) (Set 13)", () => {
+    // Each Morph mimics one of the two Duo names — two of them cover "one of
+    // each", so a Duo character shifts onto the pair.
+    let state = startGame();
+    let morph1: string, morph2: string, duoId: string;
+    ({ state, instanceId: morph1 } = injectCard(state, "player1", "morph-little-imitator", "play", { isDrying: false }));
+    ({ state, instanceId: morph2 } = injectCard(state, "player1", "morph-little-imitator", "play", { isDrying: false }));
+    ({ state, instanceId: duoId } = injectCard(state, "player1", "mickey-mouse-minnie-mouse-adventuring-duo", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: duoId, shiftTargetInstanceIds: [morph1, morph2] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, duoId).cardsUnder).toEqual(expect.arrayContaining([morph1, morph2]));
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;

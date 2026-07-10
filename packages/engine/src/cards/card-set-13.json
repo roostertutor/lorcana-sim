@@ -3369,7 +3369,16 @@
       "Ally",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ADVANCED MIMICRY",
+        "rulesText": "You can shift any character on top of this character. (This includes all Shift variants.)",
+        "effect": {
+          "type": "mimicry_target_self"
+        }
+      }
+    ],
     "setId": "13",
     "number": 57,
     "rarity": "uncommon",
@@ -3385,13 +3394,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/57_cdb46a0a151a524a01007e18799a15297cf12a5a.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/57_d93fada7b9894eb28813f89e384cf39037990836.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ADVANCED MIMICRY",
-        "rulesText": "You can shift any character on top of this character. (This includes all Shift variants.)",
-        "raw": "ADVANCED MIMICRY You can shift any character on top of this character. (This includes all Shift variants.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/57_cdb46a0a151a524a01007e18799a15297cf12a5a.jpg"
   },

@@ -14,7 +14,16 @@
       "Ally",
       "Alien"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ADVANCED MIMICRY",
+        "rulesText": "You can shift any character on top of this character. (This includes all Shift variants.)",
+        "effect": {
+          "type": "mimicry_target_self"
+        }
+      }
+    ],
     "setId": "P4",
     "number": 9,
     "rarity": "challenge",
