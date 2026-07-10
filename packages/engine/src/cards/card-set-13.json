@@ -7420,7 +7420,44 @@
       "Hero",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FEARSOME GLARE",
+        "rulesText": "When you play this character, you may exert all cards in your inkwell.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "isMay": true,
+        "effects": [
+          {
+            "type": "mass_inkwell",
+            "mode": "exert_all",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "RILED UP",
+        "rulesText": "While all cards in your inkwell are exerted, this character gains Rush.",
+        "condition": {
+          "type": "all_inkwell_exerted",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "rush",
+          "target": {
+            "type": "this"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 128,
     "rarity": "uncommon",
@@ -7435,18 +7472,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/128_3ccf6d2dd931746307d6c17e3b1019f89ab48a4c.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/128_b4a2da858ad6f58979e43b201f8514b8bf4577d9.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FEARSOME GLARE",
-        "rulesText": "When you play this character, you may exert all cards in your inkwell.",
-        "raw": "FEARSOME GLARE When you play this character, you may exert all cards in your inkwell."
-      },
-      {
-        "storyName": "RILED UP",
-        "rulesText": "While all cards in your inkwell are exerted, this character gains <Rush>. (They can challenge the turn they’re played.)",
-        "raw": "RILED UP While all cards in your inkwell are exerted, this character gains <Rush>. (They can challenge the turn they’re played.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/128_3ccf6d2dd931746307d6c17e3b1019f89ab48a4c.jpg"
   },
@@ -8069,7 +8094,53 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "ERRATIC SCREAMS",
+        "rulesText": "Exert all cards in your inkwell. Exert chosen opposing character with 2 {S} or less.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "mass_inkwell",
+            "mode": "exert_all",
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "exert",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "owner": {
+                  "type": "opponent"
+                },
+                "statComparisons": [
+                  {
+                    "stat": "strength",
+                    "op": "lte",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 139,
     "rarity": "uncommon",
@@ -8081,13 +8152,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/139_be4a2ffd0e6e2bf266bfb2afce94c8fa6c4f117d.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/139_71546d93e3a63d66859c4b19f9e9b5a9ff9c1f8f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ERRATIC SCREAMS",
-        "rulesText": "{E}, 2 {I} — Exert all cards in your inkwell. Exert chosen opposing character with 2 {S} or less.",
-        "raw": "ERRATIC SCREAMS {E}, 2 {I} — Exert all cards in your inkwell. Exert chosen opposing character with 2 {S} or less."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/139_be4a2ffd0e6e2bf266bfb2afce94c8fa6c4f117d.jpg"
   },
@@ -8794,7 +8858,61 @@
       "Villain",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "GET OUTTA HERE!",
+        "rulesText": "When you play this character, put chosen character of yours into your inkwell facedown and exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "enterExerted": true,
+            "fromZone": "play",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "DEVIOUS PLAN",
+        "rulesText": "At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore.",
+        "trigger": {
+          "on": "turn_end",
+          "player": {
+            "type": "self"
+          }
+        },
+        "condition": {
+          "type": "all_inkwell_exerted",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 153,
     "rarity": "rare",
@@ -8809,18 +8927,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/153_770b9025dacb052ece62d609e9d27459c2bfd215.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/153_44ee08645645bc8e70c0660ebd72b9fd3a488236.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "GET OUTTA HERE!",
-        "rulesText": "When you play this character, put chosen character of yours into your inkwell facedown and exerted.",
-        "raw": "GET OUTTA HERE! When you play this character, put chosen character of yours into your inkwell facedown and exerted."
-      },
-      {
-        "storyName": "DEVIOUS PLAN",
-        "rulesText": "At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore.",
-        "raw": "DEVIOUS PLAN At the end of your turn, if all cards in your inkwell are exerted, gain 1 lore."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/153_770b9025dacb052ece62d609e9d27459c2bfd215.jpg"
   },

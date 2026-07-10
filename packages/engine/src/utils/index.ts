@@ -1136,6 +1136,12 @@ export function evaluateCondition(
         return def?.cardType === "character" && def.traits.includes(condition.trait);
       });
     }
+    case "all_inkwell_exerted": {
+      const p = condition.player.type === "opponent" ? opponent : controllingPlayerId;
+      // Vacuously true on an empty inkwell (user ruling 2026-07-10) — an extreme
+      // corner case but possible on an uninked turn 1.
+      return getZone(state, p, "inkwell").every((id) => state.cards[id]?.isExerted === true);
+    }
     case "opponent_has_more_cards_in_hand":
       return getZone(state, opponent, "hand").length > getZone(state, controllingPlayerId, "hand").length;
     case "is_your_turn":

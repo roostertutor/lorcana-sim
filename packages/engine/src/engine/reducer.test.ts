@@ -4010,6 +4010,53 @@ describe("§8 Keywords", () => {
     expect(mods.topOfDeckVisible.has("player1")).toBe(false); // not the controller's
   });
 
+  it("Sulley RILED UP: gains Rush only while all cards in your inkwell are exerted; empty inkwell is vacuously true (Set 13)", () => {
+    let state = startGame();
+    let sulleyId: string;
+    ({ state, instanceId: sulleyId } = injectCard(state, "player1", "sulley-protective-monster", "play", { isDrying: false }));
+    const rush = (s: typeof state) => (getGameModifiers(s, CARD_DEFINITIONS).grantedKeywords.get(sulleyId) ?? []).some((k) => k.keyword === "rush");
+    expect(rush(state)).toBe(true); // empty inkwell → vacuously all-exerted
+    let ink1: string;
+    ({ state, instanceId: ink1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "inkwell", { isExerted: false }));
+    expect(rush(state)).toBe(false); // a ready ink card → not all exerted
+    state = { ...state, cards: { ...state.cards, [ink1]: { ...state.cards[ink1], isExerted: true } } };
+    expect(rush(state)).toBe(true); // now all exerted
+  });
+
+  it("Randall GET OUTTA HERE + DEVIOUS PLAN: inkwells a chosen character; end of turn with all inkwell exerted gains 1 lore (Set 13)", () => {
+    let state = startGame();
+    let randallId: string, victimId: string;
+    ({ state, instanceId: victimId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: randallId } = injectCard(state, "player1", "randall-boggs-scary-smart", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: randallId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // GET OUTTA HERE! — put the chosen character into your inkwell facedown & exerted.
+    if (state.pendingChoice) state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victimId] }, CARD_DEFINITIONS).newState;
+    expect(getInstance(state, victimId).zone).toBe("inkwell");
+    expect(getInstance(state, victimId).isExerted).toBe(true);
+    // The only inkwell card is exerted → end-of-turn DEVIOUS PLAN gains 1 lore.
+    const loreBefore = state.players.player1.lore;
+    const end = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(end.newState.players.player1.lore).toBe(loreBefore + 1);
+  });
+
+  it("Scream Canister ERRATIC SCREAMS: exerts your inkwell and a chosen opposing character with 2 strength or less (Set 13)", () => {
+    let state = startGame();
+    let canId: string, ink1: string, weakId: string;
+    ({ state, instanceId: canId } = injectCard(state, "player1", "scream-canister", "play"));
+    ({ state, instanceId: ink1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "inkwell", { isExerted: false }));
+    state = giveInk(state, "player1", 10);
+    ({ state, instanceId: weakId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", { isDrying: false })); // strength 2
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: canId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    if (state.pendingChoice) state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [weakId] }, CARD_DEFINITIONS).newState;
+    expect(getInstance(state, ink1).isExerted).toBe(true);   // inkwell exerted
+    expect(getInstance(state, weakId).isExerted).toBe(true); // chosen opposing character exerted
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;

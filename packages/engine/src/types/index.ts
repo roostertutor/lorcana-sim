@@ -3115,6 +3115,13 @@ export type Condition =
   | { type: "opponent_has_more_cards_in_hand" }
   | { type: "is_your_turn" }
   | { type: "this_is_exerted" }
+  /** "While/if all cards in [player]'s inkwell are exerted" — Sulley -
+   *  Protective Monster RILED UP (static grant Rush), Randall Boggs - Scary
+   *  Smart DEVIOUS PLAN (end-of-turn gain lore). Vacuously TRUE on an EMPTY
+   *  inkwell [user ruling 2026-07-10: "no cards in inkwell should be 'all are
+   *  exerted'"] — an extreme corner case (you'd normally have ink), but
+   *  possible on an uninked turn 1. */
+  | { type: "all_inkwell_exerted"; player: PlayerTarget }
   /** True if the count of cards in `zone` for `player` (matching `filter` if
    *  present, else `cardType` array if present, else any) is >= `amount`.
    *  `filter` is the rich form (full CardFilter — `hasDamage`, `hasTrait`,
