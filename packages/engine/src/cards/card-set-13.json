@@ -796,7 +796,7 @@
               {
                 "type": "cant_action",
                 "action": "quest",
-                "duration": "this_turn",
+                "duration": "end_of_turn",
                 "target": {
                   "type": "this"
                 }
@@ -804,7 +804,7 @@
               {
                 "type": "cant_action",
                 "action": "challenge",
-                "duration": "this_turn",
+                "duration": "end_of_turn",
                 "target": {
                   "type": "this"
                 }
@@ -7394,7 +7394,7 @@
           {
             "type": "cant_action",
             "action": "quest",
-            "duration": "this_turn",
+            "duration": "end_of_turn",
             "target": {
               "type": "this"
             }
@@ -7542,6 +7542,62 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "triggered",
+        "storyName": "INSPIRING DANCE",
+        "rulesText": "Whenever this character quests, ready all cards in your inkwell.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "mass_inkwell",
+            "mode": "ready_all",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "APPRECIATIVE AUDIENCE",
+        "rulesText": "6 {I} — Ready your other characters. They can’t quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 6
+          }
+        ],
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -13382,6 +13438,62 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 6
+      },
+      {
+        "type": "triggered",
+        "storyName": "INSPIRING DANCE",
+        "rulesText": "Whenever this character quests, ready all cards in your inkwell.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "mass_inkwell",
+            "mode": "ready_all",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "activated",
+        "storyName": "APPRECIATIVE AUDIENCE",
+        "rulesText": "6 {I} — Ready your other characters. They can’t quest for the rest of this turn.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 6
+          }
+        ],
+        "effects": [
+          {
+            "type": "ready",
+            "target": {
+              "type": "all",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
+          }
+        ]
       }
     ],
     "setId": "13",

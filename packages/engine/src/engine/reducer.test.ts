@@ -3971,6 +3971,35 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, oppId).damage).toBe(2); // fired twice × 1 damage
   });
 
+  it("Belle & Beast INSPIRING DANCE: questing readies all cards in your inkwell (Set 13)", () => {
+    let state = startGame();
+    let bbId: string, ink1: string, ink2: string;
+    ({ state, instanceId: bbId } = injectCard(state, "player1", "belle-beast-certain-as-the-sun", "play", { isDrying: false }));
+    ({ state, instanceId: ink1 } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "inkwell", { isExerted: true }));
+    ({ state, instanceId: ink2 } = injectCard(state, "player1", "mickey-mouse-true-friend", "inkwell", { isExerted: true }));
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: bbId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, ink1).isExerted).toBe(false); // readied
+    expect(getInstance(r.newState, ink2).isExerted).toBe(false);
+  });
+
+  it("Belle & Beast APPRECIATIVE AUDIENCE: readies your other characters; they can't quest this turn but can next turn (Set 13)", () => {
+    let state = startGame();
+    let bbId: string, otherId: string;
+    ({ state, instanceId: bbId } = injectCard(state, "player1", "belle-beast-certain-as-the-sun", "play", { isDrying: false }));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, isExerted: true }));
+    state = giveInk(state, "player1", 10);
+    // APPRECIATIVE AUDIENCE (abilityIndex 2: shift=0, INSPIRING DANCE=1, APPRECIATIVE AUDIENCE=2).
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: bbId, abilityIndex: 2 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, otherId).isExerted).toBe(false); // readied
+    expect(getInstance(state, otherId).timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(true);
+    // "rest of this turn" (end_of_turn) — the restriction expires when the turn ends.
+    const end = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(getInstance(end.newState, otherId).timedEffects.some((te) => te.type === "cant_action" && te.action === "quest")).toBe(false);
+  });
+
   it("grant_trait (GIFT OF THE HIVE): timed trait grant makes a non-Hunny character count as Hunny (Set 13)", () => {
     let state = startGame();
     let staffId: string, minnieId: string;

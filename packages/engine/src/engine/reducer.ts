@@ -9795,8 +9795,18 @@ function applyChosenPlayerEffect(
 
 function addTimedEffect(state: GameState, instanceId: string, effect: TimedEffect): GameState {
   const instance = getInstance(state, instanceId);
+  // Normalize the informal "this_turn" duration to the canonical "end_of_turn".
+  // Card JSON sometimes writes "this_turn" for "for the rest of this turn"
+  // (cant_action, grant_keyword). The pass-turn expiry only recognizes
+  // end_of_turn / *_next_turn, so an un-normalized "this_turn" TimedEffect would
+  // NEVER expire (e.g. "can't quest for the rest of this turn" would persist
+  // forever). gain_stats has its own this_turn path; this covers every
+  // addTimedEffect-based timed effect.
+  const normalized = (effect.expiresAt as string) === "this_turn"
+    ? { ...effect, expiresAt: "end_of_turn" as const }
+    : effect;
   return updateInstance(state, instanceId, {
-    timedEffects: [...instance.timedEffects, effect],
+    timedEffects: [...instance.timedEffects, normalized],
   });
 }
 
