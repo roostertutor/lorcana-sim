@@ -2813,7 +2813,16 @@ export type CardTarget =
    *  N-singer roster. Used by Alma Madrigal THE MIRACLE IS YOU: "ready those
    *  characters" — needs the multi-singer set, not just the trigger's
    *  triggering_card (which would only be one of N). */
-  | { type: "last_song_singers" };
+  | { type: "last_song_singers" }
+  /** The in-play character at the TOP of the shift stack that the source card
+   *  belongs to. On a `shifted_onto` trigger the ability lives on the base,
+   *  which has just slid UNDER the newly-played shifter — so `this` resolves to
+   *  the under-card, not the character now in play. This resolves the in-play
+   *  card whose `cardsUnder` includes the source (falling back to the source if
+   *  it's still on top). Meilin Lee - Superficially Obedient NEWFOUND
+   *  CONFIDENCE: "When you shift a character on top of her, this character gains
+   *  Evasive" — the grant must land on the resulting character. */
+  | { type: "shift_stack_top" };
 
 /** A numeric stat axis a CardFilter can compare against.
  *  - `cost`: printed cost from the card definition (`definition.cost`).

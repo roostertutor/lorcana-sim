@@ -9963,6 +9963,18 @@ function resolveDirectTarget(
     case "triggering_card": return triggeringCardInstanceId;
     case "last_resolved_target": return state.lastResolvedTarget?.instanceId;
     case "from_last_discarded": return state.lastDiscarded?.[0]?.instanceId;
+    case "shift_stack_top": {
+      // The in-play character at the top of the stack the source belongs to.
+      // On a shifted_onto trigger the base (source) has moved under the new top,
+      // so find the in-play card whose cardsUnder includes it. Fall back to the
+      // source itself if it's still on top / in play (non-shift misuse is inert).
+      const src = state.cards[sourceInstanceId];
+      if (src && src.zone === "play") return sourceInstanceId;
+      const top = Object.values(state.cards).find(
+        (c) => c.zone === "play" && (c.cardsUnder ?? []).includes(sourceInstanceId),
+      );
+      return top?.instanceId;
+    }
     default: return undefined;
   }
 }

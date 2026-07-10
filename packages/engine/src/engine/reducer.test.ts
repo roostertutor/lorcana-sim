@@ -11,7 +11,7 @@ import {
   CARD_DEFINITIONS,
   startGame, injectCard, giveInk, setLore, passTurns, emptyDeck, buildTestDeck,
 } from "./test-helpers.js";
-import { generateId, getZone, getInstance, getEffectiveLore, getDefinition as getDefinitionImport, makeResolvedRef as makeResolvedRefImport } from "../utils/index.js";
+import { generateId, getZone, getInstance, getEffectiveLore, getDefinition as getDefinitionImport, makeResolvedRef as makeResolvedRefImport, hasKeyword } from "../utils/index.js";
 import { getGameModifiers } from "../engine/gameModifiers.js";
 import type { CardInstance, GameState, DeckEntry } from "../index.js";
 
@@ -3969,6 +3969,31 @@ describe("§8 Keywords", () => {
     }
     expect(getInstance(state, russellId).atLocationInstanceId).toBe(locId);
     expect(getInstance(state, otherId).atLocationInstanceId).toBe(locId);
+  });
+
+  it("Meilin NEWFOUND CONFIDENCE: the character shifted on top gains Evasive, not the base that slid under (Set 13)", () => {
+    let state = startGame();
+    let baseId: string, shifterId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "meilin-lee-superficially-obedient", "play", { isDrying: false }));
+    ({ state, instanceId: shifterId } = injectCard(state, "player1", "meilin-lee-popular-red-panda", "hand"));
+    state = giveInk(state, "player1", 10);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shifterId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, shifterId).zone).toBe("play"); // shifter is the in-play top
+    expect(getInstance(state, baseId).zone).toBe("under");   // base slid under
+    // Evasive landed on the resulting character (the top), not the under-card.
+    // hasKeyword reads the timed grant off timedEffects — the real consumer.
+    expect(hasKeyword(getInstance(state, shifterId), getDefinitionImport(state, shifterId, CARD_DEFINITIONS), "evasive")).toBe(true);
+    expect(getInstance(state, baseId).timedEffects.some((t) => t.type === "grant_keyword" && (t as { keyword?: string }).keyword === "evasive")).toBe(false);
+  });
+
+  it("Roz ALWAYS: each opponent plays with the top card of their deck faceup (Set 13)", () => {
+    let state = startGame();
+    ({ state } = injectCard(state, "player1", "roz-always-watching", "play", { isDrying: false }));
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect(mods.topOfDeckVisible.has("player2")).toBe(true);  // opponent's top is visible
+    expect(mods.topOfDeckVisible.has("player1")).toBe(false); // not the controller's
   });
 
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {

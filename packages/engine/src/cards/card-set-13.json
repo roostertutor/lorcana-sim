@@ -2617,7 +2617,31 @@
       "Hero",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "NEWFOUND CONFIDENCE",
+        "rulesText": "When you shift a character on top of her, this character gains Evasive until the start of your next turn.",
+        "trigger": {
+          "on": "shifted_onto",
+          "filter": {
+            "cardType": [
+              "character"
+            ]
+          }
+        },
+        "effects": [
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "shift_stack_top"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 44,
     "rarity": "common",
@@ -2632,13 +2656,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/44_5333e02deeed1b2da656d234307a392362edfe6f.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/44_26fcc5b7f049aac6fedf8a0a29d131a471b79cf3.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "NEWFOUND CONFIDENCE",
-        "rulesText": "When you shift a character on top of her, this character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)",
-        "raw": "NEWFOUND CONFIDENCE When you shift a character on top of her, this character gains <Evasive> until the start of your next turn. (Only characters with Evasive can challenge them.)"
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/44_5333e02deeed1b2da656d234307a392362edfe6f.jpg"
   },
@@ -8366,7 +8383,19 @@
       "Ally",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "ALWAYS",
+        "rulesText": "Each opponent plays with the top card of their deck faceup.",
+        "effect": {
+          "type": "top_of_deck_visible",
+          "affectedPlayer": {
+            "type": "opponent"
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 145,
     "rarity": "common",
@@ -8382,13 +8411,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/145_891b2e749c54b00d11fb040efa8510cf4044c6ed.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/145_7486baf03d7e5edc0b6d949639e90b93dbe39f84.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ALWAYS",
-        "rulesText": "Each opponent plays with the top card of their deck faceup.",
-        "raw": "ALWAYS Each opponent plays with the top card of their deck faceup."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/145_891b2e749c54b00d11fb040efa8510cf4044c6ed.jpg"
   },
