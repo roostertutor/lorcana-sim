@@ -296,6 +296,7 @@ export type Effect =
   | ChooseEffect
   | ExertEffect
   | GrantKeywordEffect
+  | GrantTraitEffect
   | RemoveKeywordEffect
   | ReadyEffect
   | CantActionEffect
@@ -1516,6 +1517,22 @@ export interface GrantKeywordEffect {
    *  ("if a character sang this song, your characters gain Ward…" — What
    *  Else Can I Do?). Gated by CONDITION_GATED_EFFECTS in applyEffect. */
   condition?: Condition;
+}
+
+/**
+ * Timed, targeted trait/classification grant — "give chosen character the
+ * <trait> classification until the start of your next turn" (Magical Hunny
+ * Staff GIFT OF THE HIVE; Detective's Badge "gains ... the Detective
+ * classification"). Attaches a `grant_trait` TimedEffect to the target;
+ * getGameModifiers folds active ones into modifiers.grantedTraits so hasTrait
+ * sees the granted trait for the duration. Mirrors GrantKeywordEffect.
+ */
+export interface GrantTraitEffect {
+  type: "grant_trait";
+  trait: string;
+  target: CardTarget;
+  duration: EffectDuration;
+  isMay?: boolean;
 }
 
 /** Timed-variant "loses <keyword>". Attaches a `suppress_keyword` TimedEffect
@@ -3354,8 +3371,16 @@ export interface TimedEffect {
      *  permanent `remove_keyword` static but scoped to a duration. hasKeyword
      *  respects this timed effect the same way it respects static
      *  suppressedKeywords. */
-    | "suppress_keyword";
+    | "suppress_keyword"
+    /** Timed, targeted trait/classification grant: "give chosen character the
+     *  <trait> classification until the start of your next turn" (Magical Hunny
+     *  Staff GIFT OF THE HIVE, Detective's Badge). The turn-scoped, targeted
+     *  counterpart to grant_trait_static. getGameModifiers folds active ones
+     *  into modifiers.grantedTraits so hasTrait sees them. */
+    | "grant_trait";
   keyword?: Keyword | undefined;
+  /** For grant_trait: the trait/classification being granted (e.g. "Hunny"). */
+  trait?: string | undefined;
   value?: number | undefined;       // for keyword values (e.g. Challenger +N)
   amount?: number | undefined;      // for modify_* effects
   /** For cant_action: which action is restricted */

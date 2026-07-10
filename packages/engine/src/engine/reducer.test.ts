@@ -3971,6 +3971,41 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, oppId).damage).toBe(2); // fired twice × 1 damage
   });
 
+  it("grant_trait (GIFT OF THE HIVE): timed trait grant makes a non-Hunny character count as Hunny (Set 13)", () => {
+    let state = startGame();
+    let staffId: string, minnieId: string;
+    ({ state, instanceId: staffId } = injectCard(state, "player1", "magical-hunny-staff", "play", { isDrying: false }));
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 10);
+    // GIFT OF THE HIVE (abilityIndex 1; SPELL OF SWIFTNESS is 0) → grant Hunny to Minnie.
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: staffId, abilityIndex: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [minnieId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Observable: grantedTraits has Hunny, AND the staff's own SPELL OF SWIFTNESS
+    // (targets "chosen Hunny character") can now pick Minnie.
+    expect(getGameModifiers(state, CARD_DEFINITIONS).grantedTraits.get(minnieId)?.has("Hunny")).toBe(true);
+    const sos = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: staffId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(sos.success).toBe(true);
+    expect(sos.newState.pendingChoice?.validTargets).toContain(minnieId); // now a valid Hunny target
+  });
+
+  it("grant_trait via followUp (Detective's Badge): chosen character gains Resist +1 AND the Detective classification (fix)", () => {
+    let state = startGame();
+    let badgeId: string, minnieId: string;
+    ({ state, instanceId: badgeId } = injectCard(state, "player1", "detectives-badge", "play", { isDrying: false }));
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play", { isDrying: false }));
+    state = giveInk(state, "player1", 10);
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: badgeId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [minnieId] }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const inst = getInstance(r.newState, minnieId);
+    expect(inst.timedEffects.some((te) => te.type === "grant_keyword" && te.keyword === "resist")).toBe(true); // Resist +1
+    expect(getGameModifiers(r.newState, CARD_DEFINITIONS).grantedTraits.get(minnieId)?.has("Detective")).toBe(true); // Detective (was silently omitted)
+  });
+
   it("THINKING OF YOU self-banish replacement (CRD 6.5): would-be-banished → inkwell exerted, not discard, no banish", () => {
     // Mickey & Minnie: "If this character would be banished, put them into your
     // inkwell facedown and exerted instead." Source-agnostic (lethal damage via

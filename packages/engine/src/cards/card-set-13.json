@@ -4177,6 +4177,40 @@
             }
           }
         ]
+      },
+      {
+        "type": "activated",
+        "storyName": "GIFT OF THE HIVE",
+        "rulesText": "Once during your turn, you may pay 1 {I} to give chosen character of yours the Hunny classification until the start of your next turn.",
+        "oncePerTurn": true,
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "grant_trait",
+            "trait": "Hunny",
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "13",

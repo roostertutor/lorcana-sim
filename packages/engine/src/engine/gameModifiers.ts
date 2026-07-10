@@ -451,6 +451,17 @@ export function getGameModifiers(
   for (const instance of Object.values(state.cards)) {
     const def = definitions[instance.definitionId];
     if (!def) continue;
+    // Timed, targeted trait grants (GIFT OF THE HIVE, Detective's Badge) live as
+    // `grant_trait` TimedEffects on the target — fold active ones into
+    // grantedTraits so hasTrait sees the granted trait for the duration (they
+    // expire via the normal timed-effect expiry at pass-turn).
+    for (const te of instance.timedEffects ?? []) {
+      if (te.type === "grant_trait" && te.trait) {
+        let set = modifiers.grantedTraits.get(instance.instanceId);
+        if (!set) { set = new Set(); modifiers.grantedTraits.set(instance.instanceId, set); }
+        set.add(te.trait);
+      }
+    }
     for (const ability of def.abilities) {
       if (ability.type !== "static") continue;
       const effs = normalizeEffects(ability);

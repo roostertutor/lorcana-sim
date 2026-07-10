@@ -11082,7 +11082,17 @@
                   "character"
                 ]
               }
-            }
+            },
+            "followUpEffects": [
+              {
+                "type": "grant_trait",
+                "trait": "Detective",
+                "duration": "until_caster_next_turn",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ]
           }
         ]
       }

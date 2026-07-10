@@ -4553,6 +4553,42 @@ export function applyEffect(
       return state;
     }
 
+    case "grant_trait": {
+      // Timed, targeted trait grant (Magical Hunny Staff GIFT OF THE HIVE,
+      // Detective's Badge). Mirrors grant_keyword: attach a `grant_trait`
+      // TimedEffect; getGameModifiers folds it into grantedTraits.
+      const timedTrait: TimedEffect = {
+        type: "grant_trait",
+        trait: effect.trait,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      };
+      const directGT = resolveDirectTarget(effect.target, state, sourceInstanceId, triggeringCardInstanceId);
+      if (directGT && state.cards[directGT]) return addTimedEffect(state, directGT, timedTrait);
+      if (effect.target.type === "chosen") {
+        const validTargets = findChosenTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        if (validTargets.length === 0) return state; // CRD 1.7.7
+        return {
+          ...state,
+          pendingChoice: {
+            type: "choose_target",
+            choosingPlayerId: controllingPlayerId,
+            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose a character to gain the ${effect.trait} classification.`),
+            validTargets,
+            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+          },
+        };
+      }
+      if (effect.target.type === "all") {
+        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
+        for (const targetId of targets) state = addTimedEffect(state, targetId, timedTrait);
+        return state;
+      }
+      return state;
+    }
+
     case "remove_keyword": {
       // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn".
       // Effect form (with duration) — for the Static form (no duration,
@@ -8892,6 +8928,17 @@ function applyEffectToTarget(
       };
       return addTimedEffect(state, targetInstanceId, timedEffect);
     }
+    case "grant_trait": {
+      const timedTrait: TimedEffect = {
+        type: "grant_trait",
+        trait: effect.trait,
+        expiresAt: effect.duration,
+        appliedOnTurn: state.turnNumber,
+        casterPlayerId: controllingPlayerId,
+        sourceInstanceId,
+      };
+      return addTimedEffect(state, targetInstanceId, timedTrait);
+    }
     case "remove_keyword": {
       // Maui Soaring Demigod IN MA BELLY: "loses Reckless this turn". Attach
       // a `suppress_keyword` TimedEffect; hasKeyword honors it until the
@@ -9917,6 +9964,12 @@ function findValidTargets(
   definitions: Record<string, CardDefinition>,
   sourceInstanceId?: string
 ): string[] {
+  // Compute modifiers up front so matchesFilter sees runtime trait grants
+  // (grant_trait_static + timed grant_trait — GIFT OF THE HIVE, Detective's
+  // Badge, Chief Bogo DEPUTIZE) during target enumeration, not just the printed
+  // traits. Without this a "chosen <Trait> character" effect can't pick a
+  // character that only has the trait via a grant.
+  const mods = getGameModifiers(state, definitions);
   const raw = Object.values(state.cards)
     .filter((instance) => {
       // CRD 6.1.6: "other" — exclude the source card
@@ -9925,7 +9978,7 @@ function findValidTargets(
       if (!def) return false;
       // Pass sourceInstanceId so atLocation: "this" filters resolve correctly
       // (Sugar Rush Speedway "chosen character here" needs the location's instanceId).
-      return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId, definitions);
+      return matchesFilter(instance, def, filter, state, controllingPlayerId, sourceInstanceId, definitions, mods);
     })
     .map((i) => i.instanceId);
 
@@ -9933,7 +9986,6 @@ function findValidTargets(
   // character for actions and abilities if able"): if any forced-target is in
   // the raw valid set, the chooser MUST pick from that subset. "If able"
   // means we don't apply the restriction when no forced target is targetable.
-  const mods = getGameModifiers(state, definitions);
   const forced = mods.forcedTargets.get(controllingPlayerId);
   if (forced && forced.size > 0) {
     const intersection = raw.filter((id) => forced.has(id));
