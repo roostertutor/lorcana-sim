@@ -10806,7 +10806,26 @@
       "Hero",
       "Prince"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "WE CAN WORK THIS OUT",
+        "rulesText": "Whenever an opponent chooses this character for an action or ability, they choose and discard a card.",
+        "trigger": {
+          "on": "chosen_by_opponent"
+        },
+        "effects": [
+          {
+            "type": "discard_from_hand",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            },
+            "chooser": "target_player"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 189,
     "rarity": "common",
@@ -10821,13 +10840,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/189_71a478c9a9409be9f48e07344c29b0cd62fcd350.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/189_9c0242ae7013fc1913c50eab50bf3adc15dd3152.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "WE CAN WORK THIS OUT",
-        "rulesText": "Whenever an opponent chooses this character for an action or ability, they choose and discard a card.",
-        "raw": "WE CAN WORK THIS OUT Whenever an opponent chooses this character for an action or ability, they choose and discard a card."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/189_71a478c9a9409be9f48e07344c29b0cd62fcd350.jpg"
   },

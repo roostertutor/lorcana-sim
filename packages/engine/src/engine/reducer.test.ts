@@ -4057,6 +4057,30 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, weakId).isExerted).toBe(true); // chosen opposing character exerted
   });
 
+  it("Flynn Rider WE CAN WORK THIS OUT: when an opponent chooses him for an ability, they discard a card (Set 13)", () => {
+    // Charming Rogue's discard on the chosen_by_opponent event (Archimedes -
+    // Exceptional Owl MORE TO LEARN shape). Vehicle: player2 uses Elsa - Snow
+    // Queen FREEZE ({E} — exert chosen opposing character) to choose Flynn.
+    let state = startGame();
+    let flynnId: string, elsaId: string;
+    ({ state, instanceId: flynnId } = injectCard(state, "player1", "flynn-rider-high-climbing-rogue", "play", { isDrying: false }));
+    state = passTurns(state, 1); // → player2's turn
+    ({ state, instanceId: elsaId } = injectCard(state, "player2", "elsa-snow-queen", "play", { isDrying: false }));
+    const p2HandBefore = getZone(state, "player2", "hand").length;
+    // player2 activates FREEZE, choosing Flynn (an opposing character).
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player2", instanceId: elsaId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    if (state.pendingChoice) state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [flynnId] }, CARD_DEFINITIONS).newState;
+    // chosen_by_opponent → WE CAN WORK THIS OUT → player2 chooses & discards.
+    if (state.pendingChoice) {
+      const pick = getZone(state, "player2", "hand")[0]!;
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player2", choice: [pick] }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, flynnId).isExerted).toBe(true);            // FREEZE landed
+    expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore - 1); // and they discarded
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;
