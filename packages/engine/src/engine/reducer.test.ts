@@ -3988,6 +3988,20 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, baseId).timedEffects.some((t) => t.type === "grant_keyword" && (t as { keyword?: string }).keyword === "evasive")).toBe(false);
   });
 
+  it("Kevin BACK TO THE NEST: questing puts him on top of your deck (Safety Rope shape, self target) (Set 13)", () => {
+    let state = startGame();
+    let kevinId: string;
+    ({ state, instanceId: kevinId } = injectCard(state, "player1", "kevin-flightless-bird", "play", { isDrying: false }));
+    const loreBefore = state.players.player1.lore;
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: kevinId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(state.players.player1.lore).toBeGreaterThan(loreBefore); // still quested first
+    // Kevin left play and is now the top card of the deck.
+    expect(getInstance(state, kevinId).zone).toBe("deck");
+    expect(getZone(state, "player1", "deck")[0]).toBe(kevinId);
+  });
+
   it("Roz ALWAYS: each opponent plays with the top card of their deck faceup (Set 13)", () => {
     let state = startGame();
     ({ state } = injectCard(state, "player1", "roz-always-watching", "play", { isDrying: false }));

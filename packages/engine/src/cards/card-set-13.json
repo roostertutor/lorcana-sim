@@ -5299,7 +5299,26 @@
       "Storyborn",
       "Ally"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "BACK TO THE NEST",
+        "rulesText": "Whenever this character quests, put this card on the top of your deck.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "play",
+            "target": {
+              "type": "this"
+            },
+            "position": "top"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 88,
     "rarity": "uncommon",
@@ -5315,13 +5334,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/88_207b5fe7cea520bffb958f71a35ff91533bc9105.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/88_4f6ef42814468c3e0c873dfdb7e9c4229181132f.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "BACK TO THE NEST",
-        "rulesText": "Whenever this character quests, put this card on the top of your deck.",
-        "raw": "BACK TO THE NEST Whenever this character quests, put this card on the top of your deck."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/88_207b5fe7cea520bffb958f71a35ff91533bc9105.jpg"
   },
