@@ -3909,6 +3909,68 @@ describe("§8 Keywords", () => {
     expect(getInstance(r.newState, duoId).cardsUnder).toEqual(expect.arrayContaining([morph1, morph2]));
   });
 
+  it("Big Book of Hunny INVOKE HUNNY: reveals top; a Hunny card goes to hand, otherwise to the bottom of the deck (Set 13)", () => {
+    let state = startGame();
+    let bookId: string, hunnyId: string;
+    ({ state, instanceId: bookId } = injectCard(state, "player1", "big-book-of-hunny", "play"));
+    ({ state, instanceId: hunnyId } = injectCard(state, "player1", "rabbit-hunny-paladin", "deck"));
+    state = giveInk(state, "player1", 10);
+    // Put the Hunny card on top of the deck.
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [hunnyId, ...state.zones.player1.deck.filter((x) => x !== hunnyId)] } } };
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: bookId, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand")).toContain(hunnyId); // Hunny → hand
+
+    // Non-Hunny on top → goes to the bottom of the deck.
+    let state2 = startGame();
+    let book2: string, nonHunny: string;
+    ({ state: state2, instanceId: book2 } = injectCard(state2, "player1", "big-book-of-hunny", "play"));
+    ({ state: state2, instanceId: nonHunny } = injectCard(state2, "player1", "mickey-mouse-true-friend", "deck"));
+    state2 = giveInk(state2, "player1", 10);
+    state2 = { ...state2, zones: { ...state2.zones, player1: { ...state2.zones.player1, deck: [nonHunny, ...state2.zones.player1.deck.filter((x) => x !== nonHunny)] } } };
+    const r2 = applyAction(state2, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: book2, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r2.success).toBe(true);
+    const deck2 = getZone(r2.newState, "player1", "deck");
+    expect(getZone(r2.newState, "player1", "hand")).not.toContain(nonHunny);
+    expect(deck2[deck2.length - 1]).toBe(nonHunny); // bottom of deck
+  });
+
+  it("Colonel Hathi HUP, TWO, THREE, FOUR: questing may move him to one of your locations for free (Set 13)", () => {
+    let state = startGame();
+    let hathiId: string, locId: string;
+    ({ state, instanceId: hathiId } = injectCard(state, "player1", "colonel-hathi-on-the-march", "play", { isDrying: false }));
+    ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
+    state = giveInk(state, "player1", 10);
+    const inkBefore = state.players.player1.availableInk;
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: hathiId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // The quest trigger surfaces the location target directly.
+    expect(state.pendingChoice?.type).toBe("choose_target");
+    state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [locId] }, CARD_DEFINITIONS).newState;
+    expect(getInstance(state, hathiId).atLocationInstanceId).toBe(locId);
+    expect(state.players.player1.availableInk).toBe(inkBefore); // "for free"
+  });
+
+  it("Russell ASSISTING THE ELDERLY BADGE: questing may move him and one other character to the same location for free (Set 13)", () => {
+    let state = startGame();
+    let russellId: string, otherId: string, locId: string;
+    ({ state, instanceId: russellId } = injectCard(state, "player1", "russell-junior-wilderness-explorer", "play", { isDrying: false }));
+    ({ state, instanceId: otherId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: locId } = injectCard(state, "player1", "never-land-mermaid-lagoon", "play"));
+    state = giveInk(state, "player1", 10);
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: russellId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Drive the choice chain: choose the other character, then the location.
+    for (const p of [[otherId], [locId]]) {
+      if (!state.pendingChoice) break;
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: p }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, russellId).atLocationInstanceId).toBe(locId);
+    expect(getInstance(state, otherId).atLocationInstanceId).toBe(locId);
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;
