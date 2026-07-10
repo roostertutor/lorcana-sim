@@ -168,7 +168,75 @@
       "Toy",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ACTION FIGURE",
+        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead: • You may return an action card with cost 2 or less from your discard to your hand. • You may play an action with cost 2 or less for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "allIfCondition": {
+              "type": "has_character_with_trait",
+              "trait": "Toy",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            "options": [
+              [
+                {
+                  "type": "return_to_hand",
+                  "isMay": true,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "discard",
+                      "cardType": [
+                        "action"
+                      ],
+                      "statComparisons": [
+                        {
+                          "stat": "cost",
+                          "op": "lte",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "play_card",
+                  "isMay": true,
+                  "filter": {
+                    "cardType": [
+                      "action"
+                    ],
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "PD1",
     "number": 5,
     "rarity": "promo",

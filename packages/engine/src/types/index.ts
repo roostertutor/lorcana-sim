@@ -1480,6 +1480,12 @@ export interface ChooseEffect {
   count: number;
   /** CRD 6.1.4 */
   isMay?: boolean;
+  /** "Choose one of the following. If [condition], choose both instead." —
+   *  Woody - Helping a Friend HANG ON!, Buzz Lightyear - Providing Cover ACTION
+   *  FIGURE (Set 13). When the condition holds at resolution, ALL options are
+   *  applied in order (no modal choice); otherwise the normal choose-one modal
+   *  is surfaced. Each option keeps its own `isMay`. */
+  allIfCondition?: Condition;
 }
 
 export interface ExertEffect {

@@ -4081,6 +4081,48 @@ describe("§8 Keywords", () => {
     expect(getZone(state, "player2", "hand").length).toBe(p2HandBefore - 1); // and they discarded
   });
 
+  it("Woody HANG ON! with another Toy in play: 'choose both instead' runs both modes (Set 13)", () => {
+    let state = startGame();
+    let woodyId: string, liloId: string, minnieId: string;
+    ({ state } = injectCard(state, "player1", "rex-protective-dinosaur", "play", { isDrying: false })); // another Toy
+    ({ state, instanceId: liloId } = injectCard(state, "player1", "lilo-making-a-wish", "discard"));      // return target (cost 1)
+    ({ state, instanceId: minnieId } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand")); // play target (cost 2)
+    ({ state, instanceId: woodyId } = injectCard(state, "player1", "woody-helping-a-friend", "hand"));
+    state = giveInk(state, "player1", 10);
+    state = { ...state, interactive: true };
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: woodyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Both modes run: mode A (return) surfaces a target choice; mode B (play)
+    // surfaces a may-accept then a target choice. Drive lilo (return) + minnie (play).
+    for (let g = 0; g < 8 && state.pendingChoice; g++) {
+      const pc = state.pendingChoice as { type: string; validTargets?: string[] };
+      const valid = pc.validTargets ?? [];
+      // Prefer minnie for the play choice; lilo is only offered by the discard-return.
+      const choice: "accept" | string[] = pc.type === "choose_may" ? "accept"
+        : valid.includes(minnieId) ? [minnieId]
+        : valid.includes(liloId) ? [liloId]
+        : [];
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, liloId).zone).toBe("hand");   // returned from discard
+    expect(getInstance(state, minnieId).zone).toBe("play"); // played for free
+  });
+
+  it("Woody HANG ON! without another Toy: surfaces a choose-one modal (both options feasible) (Set 13)", () => {
+    let state = startGame();
+    let woodyId: string;
+    ({ state } = injectCard(state, "player1", "lilo-making-a-wish", "discard"));                 // mode A feasible
+    ({ state } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "hand"));         // mode B feasible
+    ({ state, instanceId: woodyId } = injectCard(state, "player1", "woody-helping-a-friend", "hand"));
+    state = giveInk(state, "player1", 10);
+    state = { ...state, interactive: true };
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: woodyId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Woody is the only Toy (excludeSelf) → condition false → normal choose-one modal.
+    expect(r.newState.pendingChoice?.type).toBe("choose_option");
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;

@@ -6348,6 +6348,24 @@ export function applyEffect(
     // CRD 6.1.5.1: "[A] to [B]" sequential effect
     // CRD 6.1.3: "choose one of" — present options to the controller
     case "choose": {
+      // "Choose one ... If [condition], choose both instead" — Woody HANG ON! /
+      // Buzz ACTION FIGURE (Set 13). When the condition holds, apply ALL options
+      // in order (no modal). Each option is its own "may"; an option that
+      // surfaces a pendingChoice continues the rest via queueAfterCurrent.
+      if (effect.allIfCondition && evaluateCondition(effect.allIfCondition, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId)) {
+        const flat = effect.options.flat();
+        for (let i = 0; i < flat.length; i++) {
+          state = applyEffect(state, flat[i]!, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
+          if (state.pendingChoice) {
+            const remaining = flat.slice(i + 1);
+            if (remaining.length > 0) {
+              state = queueAfterCurrent(state, remaining, sourceInstanceId, controllingPlayerId, abilitySource);
+            }
+            return state;
+          }
+        }
+        return state;
+      }
       // CRD 6.1.5.2: Filter infeasible options — "if [A] can't be chosen, [B] must be chosen"
       const feasibleOptions = effect.options.filter(option =>
         option.length > 0 && option.every(subEff => canPerformChooseOption(state, subEff, controllingPlayerId, triggeringCardInstanceId, definitions, sourceInstanceId))

@@ -14,7 +14,75 @@
       "Hero",
       "Toy"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "HANG ON!",
+        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead: • You may return a character card with cost 2 or less from your discard to your hand. • You may play a character with cost 2 or less for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "allIfCondition": {
+              "type": "has_character_with_trait",
+              "trait": "Toy",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            "options": [
+              [
+                {
+                  "type": "return_to_hand",
+                  "isMay": true,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "discard",
+                      "cardType": [
+                        "character"
+                      ],
+                      "statComparisons": [
+                        {
+                          "stat": "cost",
+                          "op": "lte",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "play_card",
+                  "isMay": true,
+                  "filter": {
+                    "cardType": [
+                      "character"
+                    ],
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 1,
     "rarity": "rare",
@@ -29,13 +97,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/1_9e5034ef64dbfe30344c5dace27116d15a8cf47f.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/1_bc624bf4da5d5ca7ae58c706cbfda6bbf4aa88b8.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "HANG ON!",
-        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return a character card with cost 2 or less from your discard to your hand.\n• You may play a character with cost 2 or less for free.",
-        "raw": "HANG ON! When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return a character card with cost 2 or less from your discard to your hand.\n• You may play a character with cost 2 or less for free."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/1_9e5034ef64dbfe30344c5dace27116d15a8cf47f.jpg"
   },
@@ -4611,7 +4672,75 @@
       "Toy",
       "Captain"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "ACTION FIGURE",
+        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead: • You may return an action card with cost 2 or less from your discard to your hand. • You may play an action with cost 2 or less for free.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "choose",
+            "count": 1,
+            "allIfCondition": {
+              "type": "has_character_with_trait",
+              "trait": "Toy",
+              "player": {
+                "type": "self"
+              },
+              "excludeSelf": true
+            },
+            "options": [
+              [
+                {
+                  "type": "return_to_hand",
+                  "isMay": true,
+                  "target": {
+                    "type": "chosen",
+                    "filter": {
+                      "owner": {
+                        "type": "self"
+                      },
+                      "zone": "discard",
+                      "cardType": [
+                        "action"
+                      ],
+                      "statComparisons": [
+                        {
+                          "stat": "cost",
+                          "op": "lte",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              [
+                {
+                  "type": "play_card",
+                  "isMay": true,
+                  "filter": {
+                    "cardType": [
+                      "action"
+                    ],
+                    "statComparisons": [
+                      {
+                        "stat": "cost",
+                        "op": "lte",
+                        "value": 2
+                      }
+                    ]
+                  }
+                }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 77,
     "rarity": "rare",
@@ -4626,13 +4755,6 @@
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/77_9a8a149f4ca3e5fa0032e39ed58238efd931c043.jpg",
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/77_76fd66fd3cc78a88e69e6f6e1bac496c6ee591f0.jpg",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "ACTION FIGURE",
-        "rulesText": "When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return an action card with cost 2 or less from your discard to your hand.\n• You may play an action with cost 2 or less for free.",
-        "raw": "ACTION FIGURE When you play this character, choose one of the following. If you have another Toy character in play, choose both instead:\n• You may return an action card with cost 2 or less from your discard to your hand.\n• You may play an action with cost 2 or less for free."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/77_9a8a149f4ca3e5fa0032e39ed58238efd931c043.jpg"
   },
