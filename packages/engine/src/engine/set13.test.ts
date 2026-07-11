@@ -599,3 +599,16 @@ describe("Set 13 — Powhatan's Staff STEP FORWARD", () => {
     expect(getInstance(r.newState, second).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "bodyguard")).toBe(false);
   });
 });
+
+describe("Set 13 — Belle Always Reading DREAMING OF MORE", () => {
+  it("shifting a character onto Belle costs 1 less", () => {
+    let state = startGame();
+    let base: string, shifter: string;
+    ({ state, instanceId: base } = injectCard(state, "player1", "belle-always-reading", "play", { isDrying: false }));
+    ({ state, instanceId: shifter } = injectCard(state, "player1", "belle-accomplished-mystic", "hand")); // Shift 3
+    state = giveInk(state, "player1", 3);
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shifter, shiftTargetInstanceId: base } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(1); // 3 - (3-1)
+  });
+});

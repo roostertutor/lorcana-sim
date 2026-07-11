@@ -9382,7 +9382,17 @@
       "Hero",
       "Princess"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "DREAMING OF MORE",
+        "rulesText": "You pay 1 {I} less to shift a character on top of this character.",
+        "effect": {
+          "type": "shift_onto_cost_reduction",
+          "amount": 1
+        }
+      }
+    ],
     "setId": "13",
     "number": 148,
     "rarity": "common",

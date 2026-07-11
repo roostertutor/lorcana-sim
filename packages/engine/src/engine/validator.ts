@@ -306,7 +306,9 @@ function validatePlayCard(
     }
     // Ink-based shift (standard)
     if (hasInkShift) {
-      const effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost!);
+      let effectiveShiftCost = getEffectiveCostWithReductions(state, playerId, instanceId, definitions, baseShiftCost!);
+      // Belle DREAMING OF MORE: discount for shifting onto this specific target.
+      effectiveShiftCost = Math.max(0, effectiveShiftCost - (shiftModifiers.shiftOntoCostReduction.get(shiftTargetInstanceId) ?? 0));
       if (!canAfford(state, playerId, effectiveShiftCost)) {
         return fail(`Not enough ink. Need ${effectiveShiftCost} (shift), have ${state.players[playerId].availableInk}.`);
       }

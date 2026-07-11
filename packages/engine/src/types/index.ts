@@ -2078,6 +2078,7 @@ export type StaticEffect =
   | EnterPlayExertedSelfStatic
   | CantSingWithoutSingTogetherStatic
   | GrantKeywordRememberedTargetStatic
+  | ShiftOntoCostReductionStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | SingCostBonusCharactersStatic
@@ -2384,6 +2385,14 @@ export interface GrantKeywordRememberedTargetStatic {
   type: "grant_keyword_remembered_target";
   keyword: Keyword;
   value?: number;
+}
+
+/** Belle - Always Reading DREAMING OF MORE (set-13/148): "You pay 1 {I} less to
+ *  shift a character on top of this character." Discounts the Shift cost when
+ *  THIS card is the shift target. */
+export interface ShiftOntoCostReductionStatic {
+  type: "shift_onto_cost_reduction";
+  amount: number;
 }
 
 /**

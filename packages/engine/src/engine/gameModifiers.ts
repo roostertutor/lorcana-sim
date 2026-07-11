@@ -338,6 +338,11 @@ export interface GameModifiers {
    *  Key = character instanceId, value = bonus amount. */
   singCostBonusCharacters: Map<string, number>;
 
+  /** Belle - Always Reading DREAMING OF MORE (set-13/148): "You pay 1 {I} less
+   *  to shift a character on top of this character." Key = the shift-TARGET
+   *  instanceId, value = ink discount when shifting onto it. */
+  shiftOntoCostReduction: Map<string, number>;
+
   /**
    * CRD-style stat floors at printed value (Elisa Maza Transformed Gargoyle —
    * "your characters' {S} can't be reduced below their printed value"). Key =
@@ -428,6 +433,7 @@ export function getGameModifiers(
     statFloorsPrinted: new Map(),
     singCostBonusHere: new Map(),
     singCostBonusCharacters: new Map(),
+    shiftOntoCostReduction: new Map(),
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
     preventLoreGain: new Set(),
@@ -859,6 +865,15 @@ export function getGameModifiers(
             }
             set.add(eff.action);
           }
+          break;
+        }
+
+        case "shift_onto_cost_reduction": {
+          // Belle DREAMING OF MORE: shifting a character onto THIS one costs
+          // less. Keyed by this instance (the shift target).
+          const eff = effect as any;
+          const prev = modifiers.shiftOntoCostReduction.get(instance.instanceId) ?? 0;
+          modifiers.shiftOntoCostReduction.set(instance.instanceId, prev + (eff.amount ?? 0));
           break;
         }
 

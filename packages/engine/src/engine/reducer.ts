@@ -870,6 +870,10 @@ function applyPlayCard(
     // Static cost reductions (e.g. Mickey: Broom chars cost 1 less). Filter
     // the unified modifier list to "play"-kind entries for this player.
     const isShiftPay = !!shiftTargetInstanceId;
+    // Belle DREAMING OF MORE: shifting onto a card that discounts shift-onto.
+    if (shiftTargetInstanceId) {
+      cost -= modifiers.shiftOntoCostReduction.get(shiftTargetInstanceId) ?? 0;
+    }
     for (const red of modifiers.costReductions) {
       if (red.kind !== "play") continue;
       if (red.playerId !== playerId) continue;
