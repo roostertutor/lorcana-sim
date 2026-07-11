@@ -164,9 +164,16 @@ function validatePlayCard(
   // CRD 4.3.2: player-initiated plays are from hand. Cards that play from
   // other zones (Lilo Escape Artist from discard at turn start) do so via
   // triggered `play_card` effects, which bypass this validator entirely.
-  if (instance.zone !== "hand") return fail("Card is not in your hand.");
-
   const def = getDefinition(state, instanceId, definitions);
+  if (instance.zone !== "hand") {
+    // The Horned King CAULDRON'S POWER: characters may be played from the
+    // controller's discard while the power is active.
+    const canFromDiscard =
+      instance.zone === "discard" &&
+      def.cardType === "character" &&
+      getGameModifiers(state, definitions).canPlayCharactersFromDiscard.has(playerId);
+    if (!canFromDiscard) return fail("Card is not in your hand.");
+  }
 
   // CRD 6.6.1 / 4.3.x: play restrictions — checked BEFORE alternate cost paths
   // (shift, sing, sing-together) because "opponents can't play actions" applies

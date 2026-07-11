@@ -663,3 +663,31 @@ describe("Set 13 — Closet Door Portal", () => {
     expect(getInstance(r.newState, portal).isExerted).toBe(true);
   });
 });
+
+describe("Set 13 — The Horned King CAULDRON'S POWER", () => {
+  it("lets you play characters from your discard (entering exerted) only while exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let king: string, corpse: string;
+    ({ state, instanceId: king } = injectCard(state, "player1", "the-horned-king-merciless-master", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: corpse } = injectCard(state, "player1", "mushu-stealthy-dragon", "discard")); // cost 3 character
+
+    // While exerted → discard character is playable + enumerated.
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect(mods.canPlayCharactersFromDiscard.has("player1")).toBe(true);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    expect(legal.some((a: any) => a.type === "PLAY_CARD" && a.instanceId === corpse)).toBe(true);
+
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: corpse }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, corpse).zone).toBe("play");
+    expect(getInstance(r.newState, corpse).isExerted).toBe(true); // enters play exerted
+
+    // Ready the King → power off → discard play no longer legal.
+    let s2 = { ...state, cards: { ...state.cards, [king]: { ...getInstance(state, king), isExerted: false } } };
+    const legal2 = getAllLegalActions(s2, "player1", CARD_DEFINITIONS);
+    expect(legal2.some((a: any) => a.type === "PLAY_CARD" && a.instanceId === corpse)).toBe(false);
+    const blocked = applyAction(s2, { type: "PLAY_CARD", playerId: "player1", instanceId: corpse }, CARD_DEFINITIONS);
+    expect(blocked.success).toBe(false);
+  });
+});

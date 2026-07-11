@@ -1419,7 +1419,19 @@
       "King",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "CAULDRON'S POWER",
+        "rulesText": "While this character is exerted, you may play characters from your discard. If you do, they enter play exerted. (You pay all costs.)",
+        "condition": {
+          "type": "this_is_exerted"
+        },
+        "effect": {
+          "type": "play_characters_from_discard"
+        }
+      }
+    ],
     "setId": "13",
     "number": 22,
     "rarity": "legendary",

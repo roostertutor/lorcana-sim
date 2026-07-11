@@ -2086,6 +2086,7 @@ export type StaticEffect =
   | CantSingWithoutSingTogetherStatic
   | GrantKeywordRememberedTargetStatic
   | ShiftOntoCostReductionStatic
+  | PlayCharactersFromDiscardStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | SingCostBonusCharactersStatic
@@ -2400,6 +2401,14 @@ export interface GrantKeywordRememberedTargetStatic {
 export interface ShiftOntoCostReductionStatic {
   type: "shift_onto_cost_reduction";
   amount: number;
+}
+
+/** The Horned King CAULDRON'S POWER (set-13/22): "While this character is
+ *  exerted, you may play characters from your discard. If you do, they enter
+ *  play exerted." Gate the ability on a `this_is_exerted` condition; this
+ *  effect just flags the owner as able to play characters from discard. */
+export interface PlayCharactersFromDiscardStatic {
+  type: "play_characters_from_discard";
 }
 
 /**

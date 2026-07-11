@@ -520,6 +520,19 @@ export function getAllLegalActions(
     // Belle's banish-item enumeration now happens in the playForFreeSelf block above.
   }
 
+  // The Horned King CAULDRON'S POWER: play character cards from your discard.
+  if (playMods.canPlayCharactersFromDiscard.has(playerId)) {
+    for (const instanceId of getZone(state, playerId, "discard")) {
+      const inst = state.cards[instanceId];
+      const d = inst ? definitions[inst.definitionId] : undefined;
+      if (!d || d.cardType !== "character") continue;
+      const discardPlay: GameAction = { type: "PLAY_CARD", playerId, instanceId };
+      if (validateAction(state, discardPlay, definitions).valid) {
+        actions.push(discardPlay);
+      }
+    }
+  }
+
   // SING — each song in hand × each eligible singer in play (CRD 5.4.4.2)
   for (const songId of hand) {
     const songInst = state.cards[songId];
@@ -665,6 +678,9 @@ function applyPlayCard(
   shiftTargetInstanceIds?: string[],
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
+  // The Horned King CAULDRON'S POWER: characters played from discard enter
+  // play exerted. Capture the source zone before any cost/zone transition.
+  const playedFromDiscard = getInstance(state, instanceId).zone === "discard" && def.cardType === "character";
   // Combo Shift "one of each" (Set 13): the first target drives the normal
   // single-target shift path below (base1 stacked, state inherited, slot taken,
   // shifted_onto fired); the SECOND target is absorbed additively afterward
@@ -1203,6 +1219,10 @@ function applyPlayCard(
   }
 
   state = applyEnterPlayExertion(state, instanceId, playerId, definitions);
+  // CAULDRON'S POWER: a character played from discard enters exerted.
+  if (playedFromDiscard && state.cards[instanceId]?.zone === "play") {
+    state = updateInstance(state, instanceId, { isExerted: true });
+  }
   return state;
 }
 

@@ -343,6 +343,12 @@ export interface GameModifiers {
    *  instanceId, value = ink discount when shifting onto it. */
   shiftOntoCostReduction: Map<string, number>;
 
+  /** The Horned King CAULDRON'S POWER (set-13/22): "While this character is
+   *  exerted, you may play characters from your discard." Set of player ids
+   *  allowed to play character cards from their discard this way (paying all
+   *  costs; those characters enter play exerted). */
+  canPlayCharactersFromDiscard: Set<string>;
+
   /**
    * CRD-style stat floors at printed value (Elisa Maza Transformed Gargoyle —
    * "your characters' {S} can't be reduced below their printed value"). Key =
@@ -434,6 +440,7 @@ export function getGameModifiers(
     singCostBonusHere: new Map(),
     singCostBonusCharacters: new Map(),
     shiftOntoCostReduction: new Map(),
+    canPlayCharactersFromDiscard: new Set(),
     inkwellEntersExerted: new Set(),
     preventLoreLoss: new Set(),
     preventLoreGain: new Set(),
@@ -865,6 +872,14 @@ export function getGameModifiers(
             }
             set.add(eff.action);
           }
+          break;
+        }
+
+        case "play_characters_from_discard": {
+          // The Horned King CAULDRON'S POWER. The ability's condition
+          // (this_is_exerted) is evaluated by the caller before reaching here,
+          // so if we're here the power is active for the source's owner.
+          modifiers.canPlayCharactersFromDiscard.add(instance.ownerId);
           break;
         }
 
