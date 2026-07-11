@@ -523,3 +523,25 @@ describe("Set 13 — Meilin Lee BAND LOYALTY", () => {
     expect(r.success).toBe(true);
   });
 });
+
+describe("Set 13 — Bunch of Balloons", () => {
+  it("FLOAT AWAY grants Evasive to a chosen location while in play; OUT OF SIGHT returns it", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 6);
+    let loc: string, balloons: string;
+    ({ state, instanceId: loc } = injectCard(state, "player1", "agrabah-marketplace", "play"));
+    ({ state, instanceId: balloons } = injectCard(state, "player1", "bunch-of-balloons", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: balloons }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [loc] }, CARD_DEFINITIONS);
+    let mods = getGameModifiers(r.newState, CARD_DEFINITIONS);
+    expect((mods.grantedKeywords.get(loc) ?? []).some((k: any) => k.keyword === "evasive")).toBe(true);
+
+    // OUT OF SIGHT returns the item; the grant then disappears.
+    let s2 = giveInk(r.newState, "player1", 3);
+    const ret = applyAction(s2, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: balloons, abilityIndex: 2 }, CARD_DEFINITIONS);
+    expect(getInstance(ret.newState, balloons).zone).toBe("hand");
+    mods = getGameModifiers(ret.newState, CARD_DEFINITIONS);
+    expect((mods.grantedKeywords.get(loc) ?? []).some((k: any) => k.keyword === "evasive")).toBe(false);
+  });
+});

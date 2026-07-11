@@ -862,6 +862,22 @@ export function getGameModifiers(
           break;
         }
 
+        case "grant_keyword_remembered_target": {
+          // Bunch of Balloons FLOAT AWAY: "While this item is in play, that
+          // [chosen] location gains Evasive." The item's enters_play trigger
+          // seeded rememberedTargetIds via remember_chosen_target; this static
+          // grants the keyword to each remembered in-play target every pass.
+          const eff = effect as any;
+          const remembered = instance.rememberedTargetIds ?? [];
+          for (const id of remembered) {
+            if (!state.cards[id] || state.cards[id]!.zone !== "play") continue;
+            const existing = modifiers.grantedKeywords.get(id) ?? [];
+            existing.push({ keyword: eff.keyword, value: eff.value });
+            modifiers.grantedKeywords.set(id, existing);
+          }
+          break;
+        }
+
         case "conditional_challenger_self": {
           // Shenzi Scar's Accomplice EASY PICKINGS: "while challenging a
           // damaged character, this character gets +2 {S}". Per-instance

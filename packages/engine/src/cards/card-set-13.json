@@ -8770,7 +8770,56 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FLOAT AWAY",
+        "rulesText": "When you play this item, choose a location of yours. While this item is in play, that location gains <Evasive>.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "remember_chosen_target",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "location"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "effect": {
+          "type": "grant_keyword_remembered_target",
+          "keyword": "evasive"
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "OUT OF SIGHT",
+        "rulesText": "3 {I} — Return this item to your hand.",
+        "costs": [
+          {
+            "type": "pay_ink",
+            "amount": 3
+          }
+        ],
+        "effects": [
+          {
+            "type": "return_to_hand",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 140,
     "rarity": "rare",

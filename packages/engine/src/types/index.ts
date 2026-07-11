@@ -2060,6 +2060,7 @@ export type StaticEffect =
   | EnterPlayExertedStatic
   | EnterPlayExertedSelfStatic
   | CantSingWithoutSingTogetherStatic
+  | GrantKeywordRememberedTargetStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | SingCostBonusCharactersStatic
@@ -2357,6 +2358,15 @@ export interface EnterPlayExertedSelfStatic {
  *  validatePlayCard while leaving the Sing Together path available. */
 export interface CantSingWithoutSingTogetherStatic {
   type: "cant_sing_without_sing_together";
+}
+
+/** Bunch of Balloons FLOAT AWAY (set-13/140): "While this item is in play,
+ *  that [chosen] location gains Evasive." Grants a keyword to each instance in
+ *  the source's rememberedTargetIds (seeded by remember_chosen_target). */
+export interface GrantKeywordRememberedTargetStatic {
+  type: "grant_keyword_remembered_target";
+  keyword: Keyword;
+  value?: number;
 }
 
 /**
