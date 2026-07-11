@@ -4306,6 +4306,26 @@ describe("§8 Keywords", () => {
     expect(after.players.player1.aCharacterWasDamagedThisTurn ?? false).toBe(false); // "was not dealt damage"
   });
 
+  it("CRD 1.9.5 (2.2.0): a challenge dealing 0 (Resist) does NOT fire the attacker's 'deals damage in a challenge' trigger", () => {
+    // The load-bearing 1.9.5 case: Mulan - Elite Archer TRIPLE SHOT fires on
+    // deals_damage_in_challenge. If her Strength is fully absorbed by the
+    // defender's Resist, she dealt 0 → "was not dealt damage" → TRIPLE SHOT must
+    // NOT fire (no follow-up prompt / no damage to a third character).
+    let state = startGame();
+    let mulanId: string, defId: string, bystanderId: string;
+    ({ state, instanceId: mulanId } = injectCard(state, "player1", "mulan-elite-archer", "play", { isDrying: false })); // Strength 2
+    ({ state, instanceId: defId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", {
+      isDrying: false, isExerted: true,
+      timedEffects: [{ type: "grant_keyword", keyword: "resist", value: 3, expiresAt: "end_of_turn" }], // Resist 3 > Strength 2
+    }));
+    ({ state, instanceId: bystanderId } = injectCard(state, "player2", "goofy-musketeer", "play", { isDrying: false }));
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mulanId, defenderInstanceId: defId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, defId).damage).toBe(0);        // Resist absorbed all of Mulan's Strength
+    expect(r.newState.pendingChoice ?? null).toBeNull();          // TRIPLE SHOT did not fire → no target prompt
+    expect(getInstance(r.newState, bystanderId).damage).toBe(0);  // and no splash damage to a bystander
+  });
+
   it("CRD 4.6.6.1 (2.2.0): a character with negative effective Strength deals 0 challenge damage (never heals)", () => {
     let state = startGame();
     let atkId: string, defId: string;
