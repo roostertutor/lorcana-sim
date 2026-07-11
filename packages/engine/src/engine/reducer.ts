@@ -1738,7 +1738,9 @@ function applyChallenge(
   const attackerRedirect = actualAttackerDamage > 0 ? findDamageRedirect(state, attackerInstanceId, definitions, modifiers) : null;
   const defenderRedirect = actualDefenderDamage > 0 ? findDamageRedirect(state, defenderInstanceId, definitions, modifiers) : null;
 
-  // CRD 4.6.6.2: Apply damage simultaneously
+  // CRD 4.6.6.2: damage is dealt simultaneously. RECIPIENT side ("takes damage")
+  // — counters, damaged-this-turn flag, and "is dealt damage" triggers — applies
+  // only when actual (post-Resist) damage lands.
   if (actualAttackerDamage > 0) {
     const atkTarget = attackerRedirect ?? attackerInstanceId;
     const inst = getInstance(state, atkTarget);
@@ -1752,9 +1754,6 @@ function applyChallenge(
     };
     events.push({ type: "damage_dealt", instanceId: atkTarget, amount: actualAttackerDamage });
     state = queueTrigger(state, "damage_dealt_to", atkTarget, definitions, {});
-    state = queueTrigger(state, "deals_damage_in_challenge", defenderInstanceId, definitions, {
-      triggeringCardInstanceId: atkTarget,
-    });
   }
   if (actualDefenderDamage > 0) {
     const defTarget = defenderRedirect ?? defenderInstanceId;
@@ -1769,9 +1768,23 @@ function applyChallenge(
     };
     events.push({ type: "damage_dealt", instanceId: defTarget, amount: actualDefenderDamage });
     state = queueTrigger(state, "damage_dealt_to", defTarget, definitions, {});
+  }
+  // SOURCE side ("deals damage") — CRD 1.9.5 + 4.6.6.1: a character with
+  // Strength > 0 "still deals damage" even if the opponent's Resist reduces the
+  // amount taken to 0, so deals_damage_in_challenge fires on base Strength > 0
+  // (negative Strength counts as 0 per 4.6.6.1, so it doesn't fire).
+  // lastDamageDealtAmount reflects the amount actually taken (0 when fully
+  // resisted) for "deal the same amount" followers (Mulan - Elite Archer).
+  if (defenderStr > 0) {
+    state = { ...state, lastDamageDealtAmount: actualAttackerDamage };
+    state = queueTrigger(state, "deals_damage_in_challenge", defenderInstanceId, definitions, {
+      triggeringCardInstanceId: attackerRedirect ?? attackerInstanceId,
+    });
+  }
+  if (attackerStr > 0) {
     state = { ...state, lastDamageDealtAmount: actualDefenderDamage };
     state = queueTrigger(state, "deals_damage_in_challenge", attackerInstanceId, definitions, {
-      triggeringCardInstanceId: defTarget,
+      triggeringCardInstanceId: defenderRedirect ?? defenderInstanceId,
     });
   }
 
@@ -7280,7 +7293,7 @@ function queueTrigger(
   eventType: string,
   sourceInstanceId: string,
   definitions: Record<string, CardDefinition>,
-  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string; sourceInstanceId?: string; viaSingTogether?: boolean }
+  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string; sourceInstanceId?: string; viaSingTogether?: boolean; dealtButNotTaken?: boolean }
 ): GameState {
   const instance = state.cards[sourceInstanceId];
   if (!instance) return state;
@@ -7363,6 +7376,12 @@ function queueTrigger(
     if (a.type !== "triggered") continue;
     const matched = findMatchingTriggerSpec(a, eventType);
     if (!matched) continue;
+    // CRD 1.9.5: recipient-side "is dealt / takes damage" self-triggers (Hydra
+    // WATCH THE TEETH, Maid Marian GOOD SHOT, Captain Hook GIVE 'EM ALL YOU GOT)
+    // only fire when damage actually landed. When the deal was reduced to 0 by
+    // modifiers (dealtButNotTaken), the recipient "takes no damage" — skip.
+    // Source-side "deals" triggers are cross-card (sourceFilter) — see below.
+    if (eventType === "damage_dealt_to" && context?.dealtButNotTaken) continue;
     const triggerFilter = "filter" in matched ? matched.filter : undefined;
     // CRD 6.1.6: pass sourceInstanceId so `excludeSelf` ("another character",
     // "another item") can reject the source's own event — otherwise a card like
@@ -7416,6 +7435,12 @@ function queueTrigger(
       if (ability.type !== "triggered") continue;
       const matched = findMatchingTriggerSpec(ability, eventType);
       if (!matched) continue;
+      // CRD 1.9.5: a damage_dealt_to watcher WITHOUT a sourceFilter is
+      // recipient-side ("when your character is dealt damage") — it must NOT
+      // fire when the deal was reduced to 0 (dealtButNotTaken). Watchers WITH a
+      // sourceFilter are source-side ("your actions deal damage", STEADY AIM)
+      // and DO fire — the effect is "still considered to deal damage".
+      if (eventType === "damage_dealt_to" && context?.dealtButNotTaken && !("sourceFilter" in matched && (matched as { sourceFilter?: CardFilter }).sourceFilter)) continue;
       // Cross-card triggers MUST have a filter to match against the source card
       const triggerFilter = "filter" in matched ? matched.filter : undefined;
       if (!triggerFilter) continue;
@@ -8773,9 +8798,13 @@ function dealDamageToCard(
     };
   }
 
-  // Fire damage_dealt_to trigger after damage is applied — skipped for "put damage counter".
-  if (actualDamage > 0 && !asPutDamage) {
-    state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId });
+  // Fire damage_dealt_to after damage is applied — skipped for "put damage counter".
+  // CRD 1.9.5: fire when the effect WOULD deal damage (base `amount` > 0) even if
+  // modifiers reduced the amount taken to 0 — the effect is "still considered to
+  // deal damage", so source-side triggers (STEADY AIM) fire. `dealtButNotTaken`
+  // gates the recipient-side ("takes"/"is dealt") watchers inside queueTrigger.
+  if (amount > 0 && !asPutDamage) {
+    state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId, dealtButNotTaken: actualDamage === 0 });
   }
 
   // P1.11 — log effect-driven damage so players can reconstruct why a card

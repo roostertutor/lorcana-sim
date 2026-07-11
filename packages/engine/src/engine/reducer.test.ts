@@ -4306,24 +4306,44 @@ describe("§8 Keywords", () => {
     expect(after.players.player1.aCharacterWasDamagedThisTurn ?? false).toBe(false); // "was not dealt damage"
   });
 
-  it("CRD 1.9.5 (2.2.0): a challenge dealing 0 (Resist) does NOT fire the attacker's 'deals damage in a challenge' trigger", () => {
-    // The load-bearing 1.9.5 case: Mulan - Elite Archer TRIPLE SHOT fires on
-    // deals_damage_in_challenge. If her Strength is fully absorbed by the
-    // defender's Resist, she dealt 0 → "was not dealt damage" → TRIPLE SHOT must
-    // NOT fire (no follow-up prompt / no damage to a third character).
+  it("CRD 1.9.5 (2.2.0): an action reduced to 0 by Resist STILL 'deals' damage — source-side STEADY AIM fires (user scenario)", () => {
+    // CRD 1.9.5 example: Avalanche deals 1 to Eeyore (Resist +1) → Eeyore takes
+    // 0, BUT the action is "still considered to deal damage", so Merida -
+    // Formidable Archer STEADY AIM triggers and deals 2 → reduced to 1 by
+    // Resist → Eeyore ends with 1 damage.
     let state = startGame();
-    let mulanId: string, defId: string, bystanderId: string;
+    let meridaId: string, eeyoreId: string, avalancheId: string;
+    ({ state, instanceId: meridaId } = injectCard(state, "player1", "merida-formidable-archer", "play", { isDrying: false }));
+    ({ state, instanceId: eeyoreId } = injectCard(state, "player2", "eeyore-overstuffed-donkey", "play", { isDrying: false })); // Resist +1
+    ({ state, instanceId: avalancheId } = injectCard(state, "player1", "avalanche", "hand"));
+    state = giveInk(state, "player1", 10);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: avalancheId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Avalanche's "may banish a location" has no target → decline any prompt.
+    for (let g = 0; g < 3 && state.pendingChoice; g++) {
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, eeyoreId).damage).toBe(1); // 0 from Avalanche + (2 - Resist 1) from STEADY AIM
+  });
+
+  it("CRD 1.9.5 (2.2.0): a challenge dealing 0 (Resist) STILL fires the attacker's 'deals damage in a challenge' trigger", () => {
+    // 1.9.5 source side: Mulan - Elite Archer (Strength 2) challenges a Resist-3
+    // defender → defender takes 0, BUT Mulan (Strength > 0) is "still considered
+    // to deal damage", so TRIPLE SHOT (deals_damage_in_challenge) DOES fire and
+    // surfaces its "up to 2 other characters" prompt (during your turn).
+    let state = startGame();
+    let mulanId: string, defId: string;
     ({ state, instanceId: mulanId } = injectCard(state, "player1", "mulan-elite-archer", "play", { isDrying: false })); // Strength 2
     ({ state, instanceId: defId } = injectCard(state, "player2", "minnie-mouse-beloved-princess", "play", {
       isDrying: false, isExerted: true,
       timedEffects: [{ type: "grant_keyword", keyword: "resist", value: 3, expiresAt: "end_of_turn" }], // Resist 3 > Strength 2
     }));
-    ({ state, instanceId: bystanderId } = injectCard(state, "player2", "goofy-musketeer", "play", { isDrying: false }));
+    ({ state } = injectCard(state, "player2", "goofy-musketeer", "play", { isDrying: false })); // a valid TRIPLE SHOT target
     const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mulanId, defenderInstanceId: defId }, CARD_DEFINITIONS);
     expect(r.success).toBe(true);
-    expect(getInstance(r.newState, defId).damage).toBe(0);        // Resist absorbed all of Mulan's Strength
-    expect(r.newState.pendingChoice ?? null).toBeNull();          // TRIPLE SHOT did not fire → no target prompt
-    expect(getInstance(r.newState, bystanderId).damage).toBe(0);  // and no splash damage to a bystander
+    expect(getInstance(r.newState, defId).damage).toBe(0);   // Resist absorbed all of Mulan's Strength
+    expect(r.newState.pendingChoice).toBeTruthy();           // but TRIPLE SHOT still fired → its target prompt is up
   });
 
   it("CRD 4.6.6.1 (2.2.0): a character with negative effective Strength deals 0 challenge damage (never heals)", () => {
