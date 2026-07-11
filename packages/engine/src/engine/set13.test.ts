@@ -174,3 +174,95 @@ describe("Set 13 — Dash Parr Super Fast FOLLOW ME!", () => {
     expect(getZone(decline.newState, "player1", "deck")[0]).toBe(top);
   });
 });
+
+describe("Set 13 — Hana's Inkcaster REJUVENATING FLOURISH", () => {
+  it("removes up to 2 damage from the chosen character", () => {
+    let state = startGame();
+    let hana: string, ally: string;
+    ({ state, instanceId: hana } = injectCard(state, "player1", "hanas-inkcaster", "play"));
+    ({ state, instanceId: ally } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false, damage: 2 }));
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: hana, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [ally] }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, ally).damage).toBe(0);
+  });
+
+  // The conditional Resist grant is driven by the effect-level condition
+  // `last_resolved_target_has_card_under` on grant_keyword. Exercise it directly
+  // (a full ACTIVATE flow can't be used here — injected cardsUnder is normalised
+  // away by applyAction; genuine cards-under come from Shift/Boost which is out
+  // of scope for a unit test of this gate).
+  it("grants Resist +1 only when a card is under the last-resolved target", () => {
+    let state = startGame();
+    let ally: string, under: string;
+    ({ state, instanceId: ally } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    ({ state, instanceId: under } = injectCard(state, "player1", "minnie-mouse-beloved-princess", "play"));
+    const def = CARD_DEFINITIONS["mushu-stealthy-dragon"]!;
+    const grant = {
+      type: "grant_keyword", keyword: "resist", value: 1, duration: "until_caster_next_turn",
+      target: { type: "last_resolved_target" }, condition: { type: "last_resolved_target_has_card_under" },
+    } as any;
+    const lrt = { instanceId: ally, definitionId: def.id, name: def.name, fullName: def.fullName, ownerId: "player1", cost: def.cost };
+
+    // With a card under → Resist granted.
+    let s = { ...state, cards: { ...state.cards, [ally]: { ...getInstance(state, ally), cardsUnder: [under] } }, lastResolvedTarget: lrt };
+    s = applyEffect(s, grant, "hana-src", "player1", CARD_DEFINITIONS, []);
+    expect(getInstance(s, ally).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "resist")).toBe(true);
+
+    // No card under → not granted.
+    let s2 = { ...state, cards: { ...state.cards, [ally]: { ...getInstance(state, ally), cardsUnder: [] } }, lastResolvedTarget: lrt };
+    s2 = applyEffect(s2, grant, "hana-src", "player1", CARD_DEFINITIONS, []);
+    expect(getInstance(s2, ally).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "resist")).toBe(false);
+  });
+});
+
+describe("Set 13 — Laugh Canister COPYCAT", () => {
+  it("puts your top card into your inkwell and lets the opponent optionally do the same", () => {
+    let state = startGame();
+    let canister: string;
+    ({ state, instanceId: canister } = injectCard(state, "player1", "laugh-canister", "play"));
+    const p1InkBefore = getZone(state, "player1", "inkwell").length;
+    const p2InkBefore = getZone(state, "player2", "inkwell").length;
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: canister, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(p1InkBefore + 1);
+    // opponent may-prompt
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    expect(r.newState.pendingChoice?.choosingPlayerId).toBe("player2");
+    const accept = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player2", choice: "accept" }, CARD_DEFINITIONS);
+    expect(getZone(accept.newState, "player2", "inkwell").length).toBe(p2InkBefore + 1);
+  });
+});
+
+describe("Set 13 — Power Surge", () => {
+  it("each player puts the top 2 cards of their deck into their inkwell exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let surge: string;
+    ({ state, instanceId: surge } = injectCard(state, "player1", "power-surge", "hand"));
+    const p1Before = getZone(state, "player1", "inkwell").length;
+    const p2Before = getZone(state, "player2", "inkwell").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: surge }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "inkwell").length).toBe(p1Before + 2);
+    expect(getZone(r.newState, "player2", "inkwell").length).toBe(p2Before + 2);
+    // and they are exerted
+    const newInk = getZone(r.newState, "player1", "inkwell").slice(p1Before);
+    expect(newInk.every((id: string) => getInstance(r.newState, id).isExerted)).toBe(true);
+  });
+});
+
+describe("Set 13 engine fix — grant_keyword honors effect-level condition", () => {
+  it("What Else Can I Do grants Ward only when sung (played_via_sing gate)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let char: string, song: string;
+    ({ state, instanceId: char } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    ({ state, instanceId: song } = injectCard(state, "player1", "what-else-can-i-do", "hand"));
+    // Played normally (not sung) → no Ward.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: song }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    const hasWard = getInstance(r.newState, char).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "ward");
+    expect(hasWard).toBe(false);
+  });
+});

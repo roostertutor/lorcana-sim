@@ -3345,7 +3345,12 @@ export type Condition =
    *  "if a [Trait] character is chosen" conditional-bonus actions. True iff
    *  state.lastResolvedTarget points to a card whose definition has the named
    *  trait. Used post-choose to gate a bonus effect on the picked card. */
-  | { type: "last_resolved_target_has_trait"; trait: string };
+  | { type: "last_resolved_target_has_trait"; trait: string }
+  /** Hana's Inkcaster REJUVENATING FLOURISH (set-13/171): "If there's a card
+   *  under that character, they gain Resist +1." True iff state.lastResolvedTarget
+   *  points to an in-play instance with at least one card under it (CRD 8.4.2).
+   *  Used post-choose to gate a follow-up grant on the picked card. */
+  | { type: "last_resolved_target_has_card_under" };
 
 export type AbilityTiming = "your_turn_main" | "any_time" | "opponent_turn";
 

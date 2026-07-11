@@ -1179,6 +1179,15 @@ export function evaluateCondition(
       if (!def) return false;
       return Array.isArray(def.traits) && def.traits.includes(condition.trait);
     }
+    case "last_resolved_target_has_card_under": {
+      // Hana's Inkcaster REJUVENATING FLOURISH: "If there's a card under that
+      // character, they gain Resist +1." Reads state.lastResolvedTarget — must
+      // be invoked AFTER an effect that sets it (the remove_damage chosen target).
+      const lrt = state.lastResolvedTarget;
+      if (!lrt || !lrt.instanceId) return false;
+      const inst = state.cards[lrt.instanceId];
+      return !!inst && (inst.cardsUnder?.length ?? 0) > 0;
+    }
     case "this_had_card_put_under_this_turn": {
       const inst = state.cards[sourceInstanceId];
       return !!inst && (inst.cardsPutUnderThisTurn ?? 0) > 0;

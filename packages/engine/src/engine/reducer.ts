@@ -4520,6 +4520,12 @@ export function applyEffect(
     }
 
     case "grant_keyword": {
+      // CRD 6.1.4: effect-level condition gate. What Else Can I Do
+      // (played_via_sing → Ward), Hana's Inkcaster (card-under → Resist +1).
+      // Previously unread on this case — the field silently no-op'd.
+      if (effect.condition && !evaluateCondition(effect.condition, state, definitions, controllingPlayerId, sourceInstanceId)) {
+        return state;
+      }
       const timedEffect: TimedEffect = {
         type: "grant_keyword",
         keyword: effect.keyword,
@@ -8970,6 +8976,10 @@ function applyEffectToTarget(
       return exertInstance(state, targetInstanceId, definitions);
     }
     case "grant_keyword": {
+      // Effect-level condition gate (see applyEffect grant_keyword case).
+      if (effect.condition && !evaluateCondition(effect.condition, state, definitions, controllingPlayerId, sourceInstanceId)) {
+        return state;
+      }
       const timedEffect: TimedEffect = {
         type: "grant_keyword",
         keyword: effect.keyword,

@@ -9946,6 +9946,29 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "each_player",
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          },
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 166,
     "rarity": "uncommon",
@@ -10147,7 +10170,46 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "REJUVENATING FLOURISH",
+        "rulesText": "{E} — Remove up to 2 damage from chosen character. If there's a card under that character, they gain Resist +1 until the start of your next turn.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "remove_damage",
+            "amount": 2,
+            "isUpTo": true,
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "resist",
+            "value": 1,
+            "duration": "until_caster_next_turn",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "condition": {
+              "type": "last_resolved_target_has_card_under"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 171,
     "rarity": "uncommon",
@@ -10179,7 +10241,43 @@
     "cost": 3,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "COPYCAT",
+        "rulesText": "{E} — Put the top card of your deck into your inkwell facedown and exerted. Chosen opponent may put the top card of their deck into their inkwell facedown and exerted.",
+        "costs": [
+          {
+            "type": "exert"
+          }
+        ],
+        "effects": [
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true,
+            "fromZone": "deck"
+          },
+          {
+            "type": "each_player",
+            "scope": "opponents",
+            "isMay": true,
+            "effects": [
+              {
+                "type": "put_into_inkwell",
+                "target": {
+                  "type": "this"
+                },
+                "enterExerted": true,
+                "fromZone": "deck"
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 172,
     "rarity": "rare",
