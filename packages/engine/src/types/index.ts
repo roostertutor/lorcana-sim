@@ -1937,6 +1937,10 @@ export interface CostReductionEffect {
   amount: number | { type: "count"; filter: CardFilter } | "last_resolved_target_delta";
   /** Filter for which cards get the discount */
   filter: CardFilter;
+  /** Scope. Default: any play. "shift_only" — only applies when the matching
+   *  card is played via its Shift ability. Mrs. Incredible TORRENT (set-13/51):
+   *  "you pay 1 {I} less for the next character you shift this turn." */
+  appliesTo?: "shift_only";
 }
 
 /**
@@ -4022,6 +4026,9 @@ export interface CostReductionEntry {
   filter: CardFilter;
   /** Instance that created this entry (for UI: look up card name/text via state.cards[id].definitionId) */
   sourceInstanceId?: string;
+  /** "shift_only" — the discount applies only when the matching card is played
+   *  via Shift (Mrs. Incredible TORRENT). */
+  appliesTo?: "shift_only";
 }
 
 export interface GameState {

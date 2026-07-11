@@ -3202,7 +3202,34 @@
       "Super",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TORRENT",
+        "rulesText": "Whenever one of your Floodborn characters quests, you pay 1 {I} less for the next character you shift this turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "cost_reduction",
+            "amount": 1,
+            "appliesTo": "shift_only",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 51,
     "rarity": "rare",
@@ -12907,7 +12934,34 @@
       "Super",
       "Vineling"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "TORRENT",
+        "rulesText": "Whenever one of your Floodborn characters quests, you pay 1 {I} less for the next character you shift this turn.",
+        "trigger": {
+          "on": "quests",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "hasTrait": "Floodborn"
+          }
+        },
+        "effects": [
+          {
+            "type": "cost_reduction",
+            "amount": 1,
+            "appliesTo": "shift_only",
+            "filter": {
+              "cardType": [
+                "character"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 213,
     "rarity": "epic",

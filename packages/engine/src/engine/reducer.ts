@@ -891,7 +891,9 @@ function applyPlayCard(
     const oneShot = state.players[playerId].costReductions ?? [];
     const remainingReductions: typeof oneShot = [];
     for (const red of oneShot) {
-      if (matchesFilter(instance, def, red.filter, state, playerId)) {
+      // shift_only entries (Mrs. Incredible TORRENT) apply only to Shift plays.
+      const scopeOk = red.appliesTo !== "shift_only" || isShiftPay;
+      if (scopeOk && matchesFilter(instance, def, red.filter, state, playerId)) {
         cost -= red.amount;
         // consumed — don't add to remaining
       } else {
@@ -6658,7 +6660,7 @@ export function applyEffect(
           ...state.players,
           [controllingPlayerId]: {
             ...state.players[controllingPlayerId],
-            costReductions: [...existing, { amount: resolvedAmount, filter: effect.filter, sourceInstanceId }],
+            costReductions: [...existing, { amount: resolvedAmount, filter: effect.filter, sourceInstanceId, ...(effect.appliesTo ? { appliesTo: effect.appliesTo } : {}) }],
           },
         },
       };

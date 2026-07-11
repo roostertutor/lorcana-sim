@@ -492,6 +492,8 @@ export function getEffectiveCostWithReductions(
   // One-shot cost reductions (e.g. Lantern: next character costs 1 less)
   const oneShot = state.players[playerId].costReductions ?? [];
   for (const red of oneShot) {
+    // shift_only entries (Mrs. Incredible TORRENT) apply only on the Shift path.
+    if (red.appliesTo === "shift_only" && !isShiftPath) continue;
     if (matchesFilter(instance, def, red.filter, state, playerId)) {
       cost -= red.amount;
     }

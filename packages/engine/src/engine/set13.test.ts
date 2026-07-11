@@ -545,3 +545,33 @@ describe("Set 13 — Bunch of Balloons", () => {
     expect((mods.grantedKeywords.get(loc) ?? []).some((k: any) => k.keyword === "evasive")).toBe(false);
   });
 });
+
+describe("Set 13 — Mrs. Incredible Created by the Vine TORRENT", () => {
+  it("accumulates a shift-only cost reduction per Floodborn quest", () => {
+    let state = startGame();
+    let mrs: string, ursula: string;
+    ({ state, instanceId: mrs } = injectCard(state, "player1", "mrs-incredible-created-by-the-vine", "play", { isDrying: false }));
+    ({ state, instanceId: ursula } = injectCard(state, "player1", "ursula-created-by-the-vine", "play", { isDrying: false }));
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ursula }, CARD_DEFINITIONS);
+    const reds = r.newState.players.player1.costReductions ?? [];
+    expect(reds.length).toBe(1);
+    expect(reds[0].appliesTo).toBe("shift_only");
+    expect(reds[0].amount).toBe(1);
+  });
+
+  it("discounts the next shift (and not a normal play)", () => {
+    let state = startGame();
+    let mrs: string, ursula: string, base: string, shifter: string;
+    ({ state, instanceId: mrs } = injectCard(state, "player1", "mrs-incredible-created-by-the-vine", "play", { isDrying: false }));
+    ({ state, instanceId: ursula } = injectCard(state, "player1", "ursula-created-by-the-vine", "play", { isDrying: false }));
+    ({ state, instanceId: base } = injectCard(state, "player1", "russell-junior-wilderness-explorer", "play", { isDrying: false }));
+    ({ state, instanceId: shifter } = injectCard(state, "player1", "russell-senior-wilderness-explorer", "hand"));
+    // One Floodborn quest → 1 shift discount.
+    state = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: ursula }, CARD_DEFINITIONS).newState;
+    state = giveInk(state, "player1", 3);
+    // Shift cost 3 → 2 after discount.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shifter, shiftTargetInstanceId: base } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.availableInk).toBe(1); // 3 - (3-1)
+  });
+});
