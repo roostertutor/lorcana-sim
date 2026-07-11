@@ -4731,6 +4731,14 @@ export function applyEffect(
         if (wasExerted) {
           state = queueTrigger(state, "readied", triggeringCardInstanceId, definitions, {});
         }
+        // CRD 6.1.5: "ready them. If you do, they can't quest or challenge"
+        // (Mirabel Madrigal MIRACULOUS PROTECTION). Follow-ups attach to the
+        // readied character, mirroring the `this`/`all` branches above.
+        if (effect.followUpEffects) {
+          for (const followUp of effect.followUpEffects) {
+            state = applyEffectToTarget(state, followUp, triggeringCardInstanceId, controllingPlayerId, definitions, events);
+          }
+        }
         return state;
       }
       // John Silver Ferocious Friend: after the cost-step damage chose a

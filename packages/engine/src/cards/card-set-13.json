@@ -1543,7 +1543,48 @@
       "Hero",
       "Madrigal"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MIRACULOUS PROTECTION",
+        "rulesText": "Whenever you remove damage from one of your characters, you may ready them. If you do, they can't quest or challenge for the rest of this turn.",
+        "trigger": {
+          "on": "damage_removed_from",
+          "filter": {
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "ready",
+            "isMay": true,
+            "target": {
+              "type": "triggering_card"
+            },
+            "followUpEffects": [
+              {
+                "type": "cant_action",
+                "action": "quest",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "triggering_card"
+                }
+              },
+              {
+                "type": "cant_action",
+                "action": "challenge",
+                "duration": "end_of_turn",
+                "target": {
+                  "type": "triggering_card"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 25,
     "rarity": "rare",
@@ -5944,6 +5985,27 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "triggered",
+        "storyName": "TIP THE SCALES",
+        "rulesText": "Whenever this character quests, if an opponent has more cards in their hand than you, you may draw a card.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -6429,7 +6491,49 @@
     "cost": 3,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "NEW MEMORIES",
+        "rulesText": "{E}, 1 {I} — Reveal the top card of your deck. If it's a non-character card or a character card named Kevin, put it into your hand. Otherwise, put it on the bottom of your deck.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "anyOf": [
+                {
+                  "cardType": [
+                    "action",
+                    "item",
+                    "location"
+                  ]
+                },
+                {
+                  "cardType": [
+                    "character"
+                  ],
+                  "hasName": "Kevin"
+                }
+              ]
+            },
+            "matchAction": "to_hand",
+            "noMatchDestination": "bottom",
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 106,
     "rarity": "uncommon",
@@ -6566,6 +6670,35 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "FOLLOW ME!",
+        "rulesText": "Whenever this character quests, you may reveal the top card of your deck. If you do, you may play it. Otherwise, put it into your discard. (You pay all costs.)",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "reveal_top_conditional",
+            "filter": {
+              "cardType": [
+                "character",
+                "action",
+                "item",
+                "location"
+              ]
+            },
+            "matchAction": "play_card",
+            "matchPayCost": true,
+            "matchIsMay": true,
+            "noMatchDestination": "discard",
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -7285,6 +7418,25 @@
       {
         "type": "keyword",
         "keyword": "evasive"
+      },
+      {
+        "type": "static",
+        "storyName": "AFTER-HOURS PROJECT",
+        "rulesText": "While all cards in your inkwell are exerted, this character gets +2 {L}.",
+        "condition": {
+          "type": "all_inkwell_exerted",
+          "player": {
+            "type": "self"
+          }
+        },
+        "effect": {
+          "type": "modify_stat",
+          "stat": "lore",
+          "amount": 2,
+          "target": {
+            "type": "this"
+          }
+        }
       }
     ],
     "setId": "13",
@@ -12116,7 +12268,34 @@
     "cost": 2,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "METAMORPHOSIS",
+        "rulesText": "{E}, 1 {I} — If a character was banished in a challenge this turn, draw a card.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "condition": {
+              "type": "a_character_was_banished_in_challenge_this_turn"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 206,
     "rarity": "uncommon",
@@ -12829,7 +13008,69 @@
       "Princess",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FOCUSED ENERGY",
+        "rulesText": "This character may enter play exerted to draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "BECKON",
+        "rulesText": "During your turn, whenever another character of yours enters play exerted, you may draw a card.",
+        "trigger": {
+          "on": "enters_play_exerted",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 231,
     "rarity": "enchanted",
