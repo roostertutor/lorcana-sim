@@ -4291,6 +4291,34 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, oppId).damage).toBe(2); // fired twice × 1 damage
   });
 
+  it("CRD 1.9.5 (2.2.0): damage fully absorbed by Resist counts as 'not dealt' — no damaged-this-turn flag", () => {
+    // 2.2.0 1.9.5: damage reduced to 0 by modifiers = the character was NOT
+    // dealt damage. dealDamageToCard gates the damaged-this-turn flag AND the
+    // damage_dealt_to trigger on actualDamage > 0.
+    let state = startGame();
+    let cId: string;
+    ({ state, instanceId: cId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", {
+      isDrying: false,
+      timedEffects: [{ type: "grant_keyword", keyword: "resist", value: 5, expiresAt: "end_of_turn" }],
+    }));
+    const after = applyEffect(state, { type: "deal_damage", amount: 3, target: { type: "this" } } as never, cId, "player1", CARD_DEFINITIONS, []);
+    expect(getInstance(after, cId).damage).toBe(0); // Resist 5 fully absorbs 3
+    expect(after.players.player1.aCharacterWasDamagedThisTurn ?? false).toBe(false); // "was not dealt damage"
+  });
+
+  it("CRD 4.6.6.1 (2.2.0): a character with negative effective Strength deals 0 challenge damage (never heals)", () => {
+    let state = startGame();
+    let atkId: string, defId: string;
+    ({ state, instanceId: atkId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", {
+      isDrying: false,
+      timedEffects: [{ type: "modify_strength", amount: -99, expiresAt: "end_of_turn" }], // effective S well below 0
+    }));
+    ({ state, instanceId: defId } = injectCard(state, "player2", "goofy-musketeer", "play", { isDrying: false, isExerted: true }));
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: atkId, defenderInstanceId: defId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, defId).damage).toBe(0); // max(0, negStr - resist) — never negative/healing
+  });
+
   it("Belle & Beast INSPIRING DANCE: questing readies all cards in your inkwell (Set 13)", () => {
     let state = startGame();
     let bbId: string, ink1: string, ink2: string;

@@ -990,10 +990,10 @@ to ✅. This section is the engine-expert work queue for 2.2.0.
 | 2.2.0 Rule | Change vs 2.0.1 | Status | Engine impact |
 |---|---|---|---|
 | 1.9.2.x | Damage terms **Deal/Put/Remove/Move** renumbered from 1.9.1.x; standalone "Take" folded into 1.9.2 | ✅ | Nomenclature; behavior unchanged. Citation updated in Open-gaps table. |
-| **1.9.4.1–.3** | NEW explicit damage-calc pipeline: base damage → apply modifiers (any order) → total → place counters | review | Verify challenge + effect damage follow base→modifier→total ordering (`applyChallengeDamage` / damage effects). |
-| **1.9.5** | Damage reduced to 0 by modifiers = the character **was not dealt damage** | review | "Whenever dealt damage" triggers must NOT fire on a 0-result. Needs a regression test. |
+| **1.9.4.1–.3** | NEW explicit damage-calc pipeline: base damage → apply modifiers (any order) → total → place counters | ✅ | Re-traced: challenge damage `Math.max(0, opponentStr - myResist)` (reducer.ts:1692-3), effect damage `Math.max(0, amount - resistValue)` then place counters (reducer.ts:8752-6) — base→modifier→total→counters. Behavior unchanged. |
+| **1.9.5** | Damage reduced to 0 by modifiers = the character **was not dealt damage** | ✅ | Compliant: `damage_dealt_to` trigger (reducer.ts:8777) AND `aCharacterWasDamagedThisTurn` flag (8763) both gated on `actualDamage > 0`. Test: reducer.test.ts "CRD 1.9.5 … damage fully absorbed by Resist". |
 | 1.9.6 | Damage counters cease to exist when a damaged card leaves play (was 1.9.3) | ⚠️ | Matches existing cleanup; renumber only. |
-| **4.6.6.1** | Negative Strength counts as **0** for challenge damage (now explicit) | review | Confirm engine clamps negative effective S to 0 in challenge-damage calc. |
+| **4.6.6.1** | Negative Strength counts as **0** for challenge damage (now explicit) | ✅ | Clamped by `Math.max(0, str - resist)` (reducer.ts:1692-3) — negative Strength → 0, never heals. Test: reducer.test.ts "CRD 4.6.6.1 … negative effective Strength deals 0 challenge damage". |
 | **4.5.1.2** | Quest now "**pays any costs** required to quest" + checks **limiters** (was "restrictions") | review | New: cards costing ink/exert to quest. Currently no such card, but the resolution step should support it. |
 | **4.6.4.3** | Challenge now "check **requirements and limiters**, make choices, **pay any costs** to challenge" (was "restrictions") | review | Same as above for challenge declaration. |
 | **4.6.4.4** | A **readied challenger stays the challenging character** and isn't removed from the challenge | review | Edge case for ready-during-challenge; verify `challengingCharacterId` sticky. |
