@@ -1028,5 +1028,5 @@ shipped card — the corpus is fully wired (2353 implemented / 0 partial /
 
 *Last updated: 2026-07-11 (v2.2.0 reconciliation — snapshot regenerated; Set 13 Shift variants reconciled from provisional TBD → official 8.10.8.3–.6/8.10.4/8.10.9; new "CRD 2.2.0 changes" section added with a review queue of ~10 new/reworded rules pending code re-trace + tests. Prior: 2026-05-01 session 23 completeness pass, 458/458 v2.0.1 sub-rules cited.)*
 *CRD version: 2.2.0, effective July 9, 2026*
-*PDF source: `docs/Disney-Lorcana-Comprehensive-Rules-2.2.0-EN.pdf` (prior: `-020526-EN-Edited.pdf`, retained for reference)*
+*PDF source: `docs/Disney-Lorcana-Comprehensive-Rules-2.2.0-EN.pdf` (prior v2.0.1 `-020526-EN-Edited.pdf` removed; recover from git history if needed)*
 *Snapshot: `docs/CRD_SNAPSHOT.txt` — see "Diffing a new CRD revision" above.*
