@@ -612,3 +612,25 @@ describe("Set 13 — Belle Always Reading DREAMING OF MORE", () => {
     expect(r.newState.players.player1.availableInk).toBe(1); // 3 - (3-1)
   });
 });
+
+describe("Set 13 — I'm Never Not by Your Side", () => {
+  it("removes up to 4 damage total across chosen characters and gains 1 lore per damage removed", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    state = setLore(state, "player1", 0);
+    let c1: string, c2: string, c3: string, action: string;
+    // High-willpower characters so the injected damage isn't lethal.
+    ({ state, instanceId: c1 } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false, damage: 2 }));
+    ({ state, instanceId: c2 } = injectCard(state, "player1", "goofy-musketeer", "play", { isDrying: false, damage: 3 }));
+    ({ state, instanceId: c3 } = injectCard(state, "player1", "hades-king-of-olympus", "play", { isDrying: false, damage: 5 }));
+    ({ state, instanceId: action } = injectCard(state, "player1", "im-never-not-by-your-side", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: action }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [c1, c2, c3] }, CARD_DEFINITIONS);
+    // Greedy distribution of 4: c1 -2 (→0), c2 -2 (→1), c3 -0 (→5). Total removed 4.
+    expect(getInstance(r.newState, c1).damage).toBe(0);
+    expect(getInstance(r.newState, c2).damage).toBe(1);
+    expect(getInstance(r.newState, c3).damage).toBe(5);
+    expect(r.newState.players.player1.lore).toBe(4);
+  });
+});

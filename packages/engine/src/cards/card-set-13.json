@@ -2182,6 +2182,35 @@
         "value": 5
       }
     ],
+    "actionEffects": [
+      {
+        "type": "remove_damage",
+        "amount": 4,
+        "totalCap": 4,
+        "isUpTo": true,
+        "target": {
+          "type": "chosen",
+          "count": "any",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "hasDamage": true
+          }
+        }
+      },
+      {
+        "type": "gain_lore",
+        "amount": "cost_result",
+        "target": {
+          "type": "self"
+        }
+      }
+    ],
     "setId": "13",
     "number": 33,
     "rarity": "uncommon",

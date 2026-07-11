@@ -3164,6 +3164,13 @@ function applyResolveChoice(
         },
       };
     }
+    // I'm Never Not by Your Side: "remove up to N damage TOTAL from any number
+    // of your characters." Track a shared heal budget across the picked targets.
+    const peffHeal = pendingEffect as Effect | undefined;
+    const healTotalCap = peffHeal?.type === "remove_damage" && typeof peffHeal.totalCap === "number"
+      ? peffHeal.totalCap : undefined;
+    let healRemaining = healTotalCap;
+    let healTotalDone = 0;
     for (const targetId of choice) {
       // Track a snapshot of the targeted card. Used by follow-up effects like
       // target_owner ("its player draws") and last_target_location_lore
@@ -3200,10 +3207,20 @@ function applyResolveChoice(
       // TARGET — each iteration overwrites the previous one, so only the
       // last target actually resolves. Fixed 2026-04-24 (user QA: Ever as
       // Before on two damaged Mulans only healed one).
-      const perTargetEffect = choice.length > 1
-        ? { ...pendingEffect!, isUpTo: false }
-        : pendingEffect!;
-      state = applyEffectToTarget(state, perTargetEffect as Effect, targetId, playerId, definitions, events, srcId, trigId);
+      let perTargetEffect: Effect;
+      if (healRemaining !== undefined && pendingEffect!.type === "remove_damage") {
+        // Distribute the shared heal budget greedily onto this target.
+        const tgtDmg = state.cards[targetId]?.damage ?? 0;
+        const removeNow = Math.max(0, Math.min(healRemaining, tgtDmg));
+        perTargetEffect = { ...(pendingEffect as any), amount: removeNow, isUpTo: false, totalCap: undefined } as Effect;
+        healRemaining -= removeNow;
+        healTotalDone += removeNow;
+      } else {
+        perTargetEffect = (choice.length > 1
+          ? { ...pendingEffect!, isUpTo: false }
+          : pendingEffect!) as Effect;
+      }
+      state = applyEffectToTarget(state, perTargetEffect, targetId, playerId, definitions, events, srcId, trigId);
       // Apply follow-up effects to the same target
       if (pendingChoice.followUpEffects) {
         for (const followUp of pendingChoice.followUpEffects) {
@@ -3271,7 +3288,9 @@ function applyResolveChoice(
     // per-instance lastEffectResult values set during the loop — safe because
     // Dinner Bell-style single-target banish-then-draw uses the distinct
     // `target_damage` DynamicAmount, not `cost_result` (verified).
-    state = { ...state, lastEffectResult: choice.length };
+    // For a totalCap heal, record the TOTAL damage removed instead of the pick
+    // count (I'm Never Not by Your Side: "gain 1 lore for each 1 damage removed").
+    state = { ...state, lastEffectResult: healTotalCap !== undefined ? healTotalDone : choice.length };
   }
 
   // Resume any pending effect queue (e.g. multi-effect actions like "ready + can't quest")

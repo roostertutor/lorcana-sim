@@ -849,6 +849,13 @@ export interface RemoveDamageEffect {
   isUpTo?: boolean;
   /** CRD 6.1.4 */
   isMay?: boolean;
+  /** "Remove up to N damage TOTAL from any number of your characters" — a
+   *  shared pool across the multi-select (I'm Never Not by Your Side,
+   *  set-13/33), distinct from per-target `amount`. Used with
+   *  target:{type:"chosen", count:"any"}. The resolver removes greedily up to
+   *  the cap and records the TOTAL removed in lastEffectResult (so a follow-up
+   *  "gain 1 lore for each damage removed" reads it via cost_result). */
+  totalCap?: number;
   /** Effects to apply to each target after removing damage. Pattern shared with
    *  ExertEffect / ReadyEffect. */
   followUpEffects?: Effect[];
