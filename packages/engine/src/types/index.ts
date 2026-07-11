@@ -762,6 +762,9 @@ export interface DrawEffect {
   type: "draw";
   amount: DynamicAmount;
   target: PlayerTarget;
+  /** Merlin - Envisioning the Future MINOR TRICKERY (set-13/146): "draw a card
+   *  from the bottom of your deck." Draws from deck[last] instead of deck[0]. */
+  fromBottom?: boolean;
   /** CRD 6.1.4: player may choose not to apply this effect */
   isMay?: boolean;
   /** CRD 6.1.3: "up to" — player may choose 0..amount. Engine resolves at max for now. */
@@ -817,6 +820,11 @@ export interface DealDamageEffect {
    * dealt_damage triggers / damage_dealt events.
    */
   asPutDamage?: boolean;
+  /** CRD 8.8.3: "This damage can't be reduced by Resist." Deals normal (still
+   *  "dealt", still fires damage_dealt_to triggers) damage that bypasses the
+   *  target's Resist reduction. Distinct from asPutDamage, which also skips
+   *  triggers. Piercing Attack (set-13/102). */
+  ignoreResist?: boolean;
   /** CRD 6.1.4 */
   isMay?: boolean;
 }
@@ -2947,6 +2955,10 @@ export interface CardFilter {
   /** Match cards whose name equals `state.lastResolvedTarget.name`. Used by
    *  We Know the Way ("if it has the same name as the chosen card"). */
   nameFromLastResolvedTarget?: boolean;
+  /** Exclude the instance that IS `state.lastResolvedTarget`. Used with
+   *  nameFromLastResolvedTarget to express "all OTHER characters with the same
+   *  name as the chosen one" — One and Only (set-13/67). */
+  excludeLastResolvedTarget?: boolean;
   /** Match cards whose name equals the source instance's name. Used by
    *  Bad-Anon Villain Support Center grant — Villain characters there can
    *  play a character with the same name as themselves. Resolved against the

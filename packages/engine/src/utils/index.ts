@@ -521,6 +521,9 @@ export function matchesFilter(
     const altNames = definition.alternateNames ?? [];
     if (definition.name !== tgtName && !altNames.includes(tgtName)) return false;
   }
+  if (filter.excludeLastResolvedTarget) {
+    if (instance.instanceId === state.lastResolvedTarget?.instanceId) return false;
+  }
   if (filter.hasDamage !== undefined) {
     if (filter.hasDamage && instance.damage <= 0) return false;
     if (!filter.hasDamage && instance.damage > 0) return false;

@@ -4137,6 +4137,31 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "remember_chosen_target",
+        "filter": {
+          "zone": "play",
+          "cardType": [
+            "character"
+          ]
+        }
+      },
+      {
+        "type": "banish",
+        "target": {
+          "type": "all",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ],
+            "nameFromLastResolvedTarget": true,
+            "excludeLastResolvedTarget": true
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 67,
     "rarity": "uncommon",
@@ -6343,6 +6368,22 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "deal_damage",
+        "amount": 2,
+        "ignoreResist": true,
+        "target": {
+          "type": "chosen",
+          "filter": {
+            "zone": "play",
+            "cardType": [
+              "character"
+            ]
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 102,
     "rarity": "common",
@@ -6566,7 +6607,58 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "FRAGILE HUSK",
+        "rulesText": "This item enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "REGENERATE",
+        "rulesText": "{E}, 1 {I} — Banish chosen character of yours. You may play a character with the same name as that character for free.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "banish",
+            "target": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ]
+              }
+            }
+          },
+          {
+            "type": "play_card",
+            "sourceZone": "hand",
+            "isMay": true,
+            "filter": {
+              "cardType": [
+                "character"
+              ],
+              "nameFromLastResolvedSource": true
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 107,
     "rarity": "rare",
@@ -8829,7 +8921,44 @@
       "Mentor",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MINOR TRICKERY",
+        "rulesText": "When you play this character, you may draw a card from the bottom of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "fromBottom": true,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "AGE OF INCONVENIENCE",
+        "rulesText": "When this character is banished, put this card from your discard on the bottom of your deck.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 146,
     "rarity": "rare",

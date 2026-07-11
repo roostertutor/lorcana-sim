@@ -347,7 +347,44 @@
       "Mentor",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MINOR TRICKERY",
+        "rulesText": "When you play this character, you may draw a card from the bottom of your deck.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "fromBottom": true,
+            "isMay": true,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "AGE OF INCONVENIENCE",
+        "rulesText": "When this character is banished, put this card from your discard on the bottom of your deck.",
+        "trigger": {
+          "on": "is_banished"
+        },
+        "effects": [
+          {
+            "type": "put_card_on_bottom_of_deck",
+            "from": "discard",
+            "target": {
+              "type": "this"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "PD1",
     "number": 7,
     "rarity": "promo",

@@ -12,6 +12,7 @@ import {
   injectCard,
   giveInk,
   setLore,
+  passTurns,
 } from "./test-helpers.js";
 import { getInstance, getZone } from "../utils/index.js";
 
@@ -264,5 +265,111 @@ describe("Set 13 engine fix — grant_keyword honors effect-level condition", ()
     expect(r.success).toBe(true);
     const hasWard = getInstance(r.newState, char).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "ward");
     expect(hasWard).toBe(false);
+  });
+});
+
+describe("Set 13 — Piercing Attack", () => {
+  it("deals 2 damage that ignores Resist", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    let attack: string, victim: string;
+    // 3 willpower so it survives the 2 damage (retains the counters to assert on).
+    ({ state, instanceId: victim } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", {
+      isDrying: false,
+      timedEffects: [{ type: "grant_keyword", keyword: "resist", value: 2, amount: 0, expiresAt: "end_of_turn", appliedOnTurn: 0, casterPlayerId: "player2" }],
+    }));
+    ({ state, instanceId: attack } = injectCard(state, "player1", "piercing-attack", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: attack }, CARD_DEFINITIONS);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victim] }, CARD_DEFINITIONS);
+    // Resist +2 would normally reduce 2 → 0; ignoreResist means full 2 lands.
+    expect(getInstance(r.newState, victim).damage).toBe(2);
+  });
+});
+
+describe("Set 13 — One and Only", () => {
+  it("banishes all other characters with the same name as the chosen one", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    let a: string, b: string, c: string, action: string;
+    ({ state, instanceId: a } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    ({ state, instanceId: b } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    ({ state, instanceId: c } = injectCard(state, "player2", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    // A different-named character must survive.
+    let other: string;
+    ({ state, instanceId: other } = injectCard(state, "player2", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: action } = injectCard(state, "player1", "one-and-only", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: action }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [a] }, CARD_DEFINITIONS);
+    // Chosen (a) survives; other same-name (b, c) banished; unrelated (other) survives.
+    expect(getInstance(r.newState, a).zone).toBe("play");
+    expect(getInstance(r.newState, b).zone).toBe("discard");
+    expect(getInstance(r.newState, c).zone).toBe("discard");
+    expect(getInstance(r.newState, other).zone).toBe("play");
+  });
+});
+
+describe("Set 13 — Merlin Envisioning the Future", () => {
+  it("MINOR TRICKERY may draw from the bottom of the deck on play", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let merlin: string, bottom: string;
+    ({ state, instanceId: merlin } = injectCard(state, "player1", "merlin-envisioning-the-future", "hand"));
+    ({ state, instanceId: bottom } = injectCard(state, "player1", "mushu-stealthy-dragon", "deck"));
+    // Force `bottom` to the bottom of the deck.
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [...getZone(state, "player1", "deck").filter((x: string) => x !== bottom), bottom] } } };
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: merlin }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    const accept = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(getZone(accept.newState, "player1", "hand")).toContain(bottom);
+  });
+
+  it("AGE OF INCONVENIENCE puts Merlin from discard onto the bottom of the deck when banished", () => {
+    let state = startGame();
+    let merlin: string, attacker: string;
+    // Merlin (1/4) exerted so it can be challenged to death on player2's turn.
+    ({ state, instanceId: merlin } = injectCard(state, "player1", "merlin-envisioning-the-future", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: attacker } = injectCard(state, "player2", "marshmallow-persistent-guardian", "play", { isDrying: false }));
+    state = passTurns(state, 1); // hand turn to player2
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player2", attackerInstanceId: attacker, defenderInstanceId: merlin }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Banished → AGE OF INCONVENIENCE moves it from discard to the deck bottom.
+    expect(getInstance(r.newState, merlin).zone).toBe("deck");
+    const deck = getZone(r.newState, "player1", "deck");
+    expect(deck[deck.length - 1]).toBe(merlin);
+  });
+});
+
+describe("Set 13 — Vine Pod", () => {
+  it("FRAGILE HUSK enters play exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let pod: string;
+    ({ state, instanceId: pod } = injectCard(state, "player1", "vine-pod", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: pod }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, pod).isExerted).toBe(true);
+  });
+
+  it("REGENERATE banishes your character and may play a same-named one for free", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 1);
+    let pod: string, victim: string, copy: string;
+    ({ state, instanceId: pod } = injectCard(state, "player1", "vine-pod", "play"));
+    ({ state, instanceId: victim } = injectCard(state, "player1", "mushu-stealthy-dragon", "play", { isDrying: false }));
+    ({ state, instanceId: copy } = injectCard(state, "player1", "mushu-stealthy-dragon", "hand"));
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: pod, abilityIndex: 1 }, CARD_DEFINITIONS);
+    // choose the character to banish
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victim] }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, victim).zone).toBe("discard");
+    // may-play the same-named copy from hand for free
+    if (r.newState.pendingChoice?.type === "choose_may") {
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    }
+    // some flows surface a target pick for which same-name card to play
+    if (r.newState.pendingChoice?.type === "choose_target") {
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [copy] }, CARD_DEFINITIONS);
+    }
+    expect(getInstance(r.newState, copy).zone).toBe("play");
   });
 });

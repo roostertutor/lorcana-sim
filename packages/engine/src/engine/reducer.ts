@@ -2368,12 +2368,15 @@ function applyDraw(
   playerId: PlayerID,
   amount: number,
   events: GameEvent[],
-  definitions: Record<string, CardDefinition>
+  definitions: Record<string, CardDefinition>,
+  /** Merlin - Envisioning the Future MINOR TRICKERY: "draw a card from the
+   *  bottom of your deck." Draws deck[last] instead of deck[0]. */
+  fromBottom = false
 ): GameState {
   for (let i = 0; i < amount; i++) {
     const deck = getZone(state, playerId, "deck");
     if (deck.length === 0) break;
-    const topCardId = deck[0];
+    const topCardId = fromBottom ? deck[deck.length - 1] : deck[0];
     if (!topCardId) break;
     state = moveCard(state, topCardId, playerId, "hand", definitions);
     events.push({ type: "card_drawn", playerId, instanceId: topCardId });
@@ -3498,7 +3501,7 @@ export function applyEffect(
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, undefined);
       if (amount <= 0) return state;
       for (const p of drawPlayers) {
-        state = applyDraw(state, p, amount, events, definitions);
+        state = applyDraw(state, p, amount, events, definitions, effect.fromBottom ?? false);
       }
       return state;
     }
@@ -3587,10 +3590,10 @@ export function applyEffect(
       const resolveAmount = (amt: typeof effect.amount): number =>
         resolveDynamicAmount(amt, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, state.lastResolvedTarget?.instanceId);
       if (effect.target.type === "this") {
-        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+        return dealDamageToCard(state, sourceInstanceId, resolveAmount(effect.amount), definitions, events, effect.ignoreResist ?? false, false, effect.asPutDamage, sourceInstanceId);
       }
       if (effect.target.type === "triggering_card" && triggeringCardInstanceId) {
-        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+        return dealDamageToCard(state, triggeringCardInstanceId, resolveAmount(effect.amount), definitions, events, effect.ignoreResist ?? false, false, effect.asPutDamage, sourceInstanceId);
       }
       if (effect.target.type === "chosen") {
         const choosingPlayerId = chosenChooserPlayerId(effect.target, controllingPlayerId);
@@ -3612,7 +3615,7 @@ export function applyEffect(
         const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
         const amount = resolveAmount(effect.amount);
         for (const targetId of targets) {
-          state = dealDamageToCard(state, targetId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+          state = dealDamageToCard(state, targetId, amount, definitions, events, effect.ignoreResist ?? false, false, effect.asPutDamage, sourceInstanceId);
         }
         return state;
       }
@@ -8699,7 +8702,7 @@ function applyEffectToTarget(
   switch (effect.type) {
     case "deal_damage": {
       const amount = resolveDynamicAmount(effect.amount, state, definitions, controllingPlayerId, sourceInstanceId, triggeringCardInstanceId, targetInstanceId);
-      state = dealDamageToCard(state, targetInstanceId, amount, definitions, events, false, false, effect.asPutDamage, sourceInstanceId);
+      state = dealDamageToCard(state, targetInstanceId, amount, definitions, events, effect.ignoreResist ?? false, false, effect.asPutDamage, sourceInstanceId);
       // Mirror exert/ready followUpEffects pattern.
       if ((effect as { followUpEffects?: Effect[] }).followUpEffects) {
         for (const fu of (effect as { followUpEffects: Effect[] }).followUpEffects) {
@@ -8763,9 +8766,16 @@ function applyEffectToTarget(
       const sourceInst = state.cards[sourceInstanceId];
       if (!sourceInst) return state;
       const existing = sourceInst.rememberedTargetIds ?? [];
-      return updateInstance(state, sourceInstanceId, {
+      state = updateInstance(state, sourceInstanceId, {
         rememberedTargetIds: [...existing, targetInstanceId],
       });
+      // Also expose the chosen card as lastResolvedTarget so a following effect
+      // can reference it by name — One and Only (set-13/67): "Choose a
+      // character. Banish all other characters with the same name." Harmless
+      // for Containment Unit (its remaining effects are static).
+      const chosenRef = makeResolvedRef(state, definitions, targetInstanceId);
+      if (chosenRef) state = { ...state, lastResolvedTarget: chosenRef };
+      return state;
     }
     case "create_floating_trigger": {
       // Resolution path for `attachTo: "chosen"` — store the floating trigger
