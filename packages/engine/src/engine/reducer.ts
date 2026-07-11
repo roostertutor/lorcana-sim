@@ -220,6 +220,28 @@ export function applyAction(
     // CRD 1.8: Game state check — damage≥willpower banish + lore win
     newState = runGameStateCheck(newState, definitions, events);
 
+    // enters_play_exerted post-pass: once a character's entry has fully settled
+    // (no pending choice, bag drained), fire the event for any that entered
+    // exerted — by static, opponent modifier, Bodyguard's may-exert, or a
+    // "may enter play exerted to [benefit]" self-exert. Clearing the flag first
+    // (before queuing) prevents re-fire; the loop drains the resulting BECKON /
+    // similar triggers, which may pend a choice (handled on the next action).
+    while (!newState.pendingChoice && newState.triggerStack.length === 0 && !newState.isGameOver) {
+      const entering = Object.values(newState.cards).filter((c) => c.enteringPlay);
+      if (entering.length === 0) break;
+      let firedAny = false;
+      for (const c of entering) {
+        newState = updateInstance(newState, c.instanceId, { enteringPlay: false });
+        if (c.zone === "play" && c.isExerted) {
+          newState = queueTrigger(newState, "enters_play_exerted", c.instanceId, definitions, { triggeringPlayerId: c.ownerId });
+          firedAny = true;
+        }
+      }
+      if (!firedAny) break;
+      newState = processTriggerStack(newState, definitions, events);
+      newState = runGameStateCheck(newState, definitions, events);
+    }
+
     // CRD 3.2.3.1: if applyPassTurn deferred the draw step because a
     // turn_start trigger created a pendingChoice (e.g. The Queen Conceited
     // Ruler ROYAL SUMMONS), resume the draw now that the choice has resolved
@@ -1189,6 +1211,12 @@ function applyEnterPlayExertion(
   definitions: Record<string, CardDefinition>,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
+  // Mark the character as entering play so the enters_play_exerted post-pass can
+  // detect it once its entry settles (covers static/modifier/Bodyguard/self-exert
+  // paths uniformly — this helper is called at every character-entry site).
+  if (def.cardType === "character") {
+    state = updateInstance(state, instanceId, { enteringPlay: true });
+  }
   for (const ab of def.abilities) {
     if (ab.type === "static") {
       const effs = Array.isArray(ab.effect) ? ab.effect : [ab.effect];

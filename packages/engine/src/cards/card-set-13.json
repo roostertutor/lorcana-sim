@@ -3038,7 +3038,69 @@
       "Princess",
       "Sorcerer"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "FOCUSED ENERGY",
+        "rulesText": "This character may enter play exerted to draw a card.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "exert",
+                "target": {
+                  "type": "this"
+                }
+              }
+            ],
+            "rewardEffects": [
+              {
+                "type": "draw",
+                "amount": 1,
+                "target": {
+                  "type": "self"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "BECKON",
+        "rulesText": "During your turn, whenever another character of yours enters play exerted, you may draw a card.",
+        "trigger": {
+          "on": "enters_play_exerted",
+          "filter": {
+            "owner": {
+              "type": "self"
+            },
+            "cardType": [
+              "character"
+            ],
+            "excludeSelf": true
+          }
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 50,
     "rarity": "legendary",
@@ -3055,18 +3117,6 @@
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/50_ee5cbda214cfc70199009f3792f376a159603577.jpg",
     "foilTopLayerMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/50_ae602ae52e82931d52d4a502945baa572d4a9f89.jpg",
     "foilTopLayer": "high_gloss",
-    "_namedAbilityStubs": [
-      {
-        "storyName": "FOCUSED ENERGY",
-        "rulesText": "This character may enter play exerted to draw a card.",
-        "raw": "FOCUSED ENERGY This character may enter play exerted to draw a card."
-      },
-      {
-        "storyName": "BECKON",
-        "rulesText": "During your turn, whenever another character of yours enters play exerted, you may draw a card.",
-        "raw": "BECKON During your turn, whenever another character of yours enters play exerted, you may draw a card."
-      }
-    ],
     "_imageSource": "ravensburger",
     "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/50_c9d7d488e96d6041344689777ac42a9c963a6d35.jpg"
   },

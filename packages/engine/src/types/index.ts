@@ -2999,6 +2999,14 @@ export type Cost =
 
 export type TriggerEvent =
   | { on: "enters_play"; filter?: CardFilter }
+  /** Fires once for a character that ENTERS PLAY EXERTED — by any mechanism:
+   *  enter_play_exerted_self static (Flash, Gustav), opponent EnterPlayExerted
+   *  modifier (Jiminy), Bodyguard's may-exert, or a "may enter play exerted to
+   *  [benefit]" self-exert (Merida - Wisp Conjurer FOCUSED ENERGY / Lord
+   *  Dingwall). Fired by a post-pass once the entry has fully settled and the
+   *  character is exerted. Merida BECKON: "whenever another character of yours
+   *  enters play exerted, you may draw a card." */
+  | { on: "enters_play_exerted"; filter?: CardFilter }
   | { on: "leaves_play"; filter?: CardFilter }
   | { on: "quests"; filter?: CardFilter }
   | { on: "sings"; filter?: CardFilter }
@@ -3724,6 +3732,10 @@ export interface CardInstance {
 
   // --- In-play state (only relevant when zone === "play") ---
   isExerted: boolean;
+  /** Transient: set true when a character enters play, cleared once its entry
+   *  fully settles. Drives the `enters_play_exerted` post-pass — if the flag is
+   *  still set and the character is exerted at settle, the event fires. */
+  enteringPlay?: boolean;
   /** Damage counters on the card */
   damage: number;
   /** True when this card entered play this turn (CRD 5.1.1.11 "drying").

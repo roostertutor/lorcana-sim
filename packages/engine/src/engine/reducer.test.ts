@@ -4123,6 +4123,55 @@ describe("§8 Keywords", () => {
     expect(r.newState.pendingChoice?.type).toBe("choose_option");
   });
 
+  it("Merida FOCUSED ENERGY: may enter play exerted to draw a card (Lord Dingwall shape) (Set 13)", () => {
+    let state = startGame();
+    let meridaId: string;
+    ({ state, instanceId: meridaId } = injectCard(state, "player1", "merida-wisp-conjurer", "hand"));
+    state = giveInk(state, "player1", 10);
+    const deckBefore = getZone(state, "player1", "deck").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: meridaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // FOCUSED ENERGY may — accept to enter exerted and draw.
+    if (state.pendingChoice) state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS).newState;
+    expect(getInstance(state, meridaId).isExerted).toBe(true);
+    expect(getZone(state, "player1", "deck").length).toBe(deckBefore - 1); // drew 1
+  });
+
+  it("Merida BECKON: another of your characters entering play exerted lets you draw (Set 13)", () => {
+    let state = startGame();
+    let flashId: string;
+    ({ state } = injectCard(state, "player1", "merida-wisp-conjurer", "play", { isDrying: false }));
+    ({ state, instanceId: flashId } = injectCard(state, "player1", "flash-records-specialist", "hand"));
+    state = giveInk(state, "player1", 10);
+    const deckBefore = getZone(state, "player1", "deck").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: flashId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, flashId).isExerted).toBe(true); // Flash entered exerted (static)
+    // BECKON may (from Merida) — accept to draw.
+    if (state.pendingChoice) state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS).newState;
+    expect(getZone(state, "player1", "deck").length).toBe(deckBefore - 1); // BECKON drew 1
+  });
+
+  it("Merida BECKON: fires when a Bodyguard character chooses to enter play exerted (deferred may-exert path) (Set 13)", () => {
+    let state = startGame();
+    let simbaId: string;
+    ({ state } = injectCard(state, "player1", "merida-wisp-conjurer", "play", { isDrying: false }));
+    ({ state, instanceId: simbaId } = injectCard(state, "player1", "simba-protective-cub", "hand")); // Bodyguard-only
+    state = giveInk(state, "player1", 10);
+    const deckBefore = getZone(state, "player1", "deck").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: simbaId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    // Accept Bodyguard's may-exert, then BECKON's may-draw.
+    for (let g = 0; g < 4 && state.pendingChoice; g++) {
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, simbaId).isExerted).toBe(true);              // entered exerted via Bodyguard
+    expect(getZone(state, "player1", "deck").length).toBe(deckBefore - 1); // BECKON drew
+  });
+
   it("THE POWER OF FRIENDSHIP: banished Sulley & Boo replays the character cards that were under it from discard (Set 13)", () => {
     let state = startGame();
     let sulleyId: string, booId: string, comboId: string, questerId: string;
