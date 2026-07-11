@@ -2307,7 +2307,32 @@
     "cost": 1,
     "inkable": true,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "activated",
+        "storyName": "STEP FORWARD",
+        "rulesText": "{E}, 1 {I} — The next character you play this turn enters play exerted and gains <Bodyguard> until the start of your next turn.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 1
+          }
+        ],
+        "effects": [
+          {
+            "type": "modify_next_character_played",
+            "enterExerted": true,
+            "grantKeyword": {
+              "keyword": "bodyguard",
+              "duration": "until_caster_next_turn"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 36,
     "rarity": "uncommon",

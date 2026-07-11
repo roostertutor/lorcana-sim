@@ -311,6 +311,7 @@ export type Effect =
   | PayInkEffect
   | SequentialEffect
   | CostReductionEffect
+  | ModifyNextCharacterPlayedEffect
   | LoseLoreEffect
   | CreateFloatingTriggerEffect
   | GrantExtraInkPlayEffect
@@ -1932,6 +1933,18 @@ export interface SequentialEffect {
  * "You pay N less for the next [type] you play this turn."
  * Creates a one-shot cost reduction on the controlling player.
  */
+/**
+ * Powhatan's Staff STEP FORWARD (set-13/36): "The next character you play this
+ * turn enters play exerted and gains Bodyguard until the start of your next
+ * turn." Registers a one-shot modifier consumed when the controller's next
+ * character enters play.
+ */
+export interface ModifyNextCharacterPlayedEffect {
+  type: "modify_next_character_played";
+  enterExerted?: boolean;
+  grantKeyword?: { keyword: Keyword; value?: number; duration: "end_of_turn" | "until_caster_next_turn" | "end_of_owner_next_turn" };
+}
+
 export interface CostReductionEffect {
   type: "cost_reduction";
   amount: number | { type: "count"; filter: CardFilter } | "last_resolved_target_delta";
@@ -3905,6 +3918,13 @@ export interface PlayerState {
   costReductions?: CostReductionEntry[];
   /** Extra ink plays granted by effects this turn (cleared on PASS_TURN) */
   extraInkPlaysGranted?: number;
+  /** One-shot modifier applied to the NEXT character this player plays this
+   *  turn (Powhatan's Staff STEP FORWARD, set-13/36). Cleared when consumed by
+   *  the next character entering play, or at turn start if unused. */
+  nextCharacterPlayMods?: {
+    enterExerted?: boolean;
+    grantKeyword?: { keyword: Keyword; value?: number; duration: "end_of_turn" | "until_caster_next_turn" | "end_of_owner_next_turn" };
+  }[];
   /** Number of times any of this player's characters has quested this turn
    *  (Isabela Madrigal Golden Child — "if no other character has quested this
    *  turn"). Reset on PASS_TURN. */

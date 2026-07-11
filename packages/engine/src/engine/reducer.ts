@@ -1267,6 +1267,29 @@ function applyEnterPlayExertion(
     };
     state = { ...state, triggerStack: [bodyguardTrigger, ...state.triggerStack] };
   }
+  // Powhatan's Staff STEP FORWARD: apply + consume the one-shot "next character
+  // you play this turn" modifier (enters exerted + gains a keyword).
+  if (def.cardType === "character") {
+    const nextMods = state.players[playerId].nextCharacterPlayMods ?? [];
+    if (nextMods.length > 0) {
+      for (const mod of nextMods) {
+        if (mod.enterExerted) state = updateInstance(state, instanceId, { isExerted: true });
+        if (mod.grantKeyword) {
+          state = addTimedEffect(state, instanceId, {
+            type: "grant_keyword",
+            keyword: mod.grantKeyword.keyword,
+            value: mod.grantKeyword.value,
+            amount: 0,
+            expiresAt: mod.grantKeyword.duration,
+            appliedOnTurn: state.turnNumber,
+            casterPlayerId: playerId,
+            sourceInstanceId: instanceId,
+          });
+        }
+      }
+      state = { ...state, players: { ...state.players, [playerId]: { ...state.players[playerId], nextCharacterPlayMods: [] } } };
+    }
+  }
   return state;
 }
 
@@ -2119,6 +2142,7 @@ function performTurnTransition(
         inkPlaysThisTurn: 0,
         availableInk: getZone(state, opponent, "inkwell").length,
         costReductions: [], // Clear one-shot cost reductions at turn start
+        nextCharacterPlayMods: [], // Clear unused STEP FORWARD modifier
         extraInkPlaysGranted: 0, // Clear turn-scoped extra ink grants
         cardsPlayedThisTurn: [],
         charactersQuestedThisTurn: 0,
@@ -6638,6 +6662,25 @@ export function applyEffect(
         return moveCard(state, matchId, targetPlayer, "deck", definitions, "top");
       }
       return moveCard(state, matchId, targetPlayer, effect.putInto, definitions);
+    }
+
+    // Powhatan's Staff STEP FORWARD: register a one-shot modifier for the next
+    // character the controller plays this turn.
+    case "modify_next_character_played": {
+      const existingMods = state.players[controllingPlayerId].nextCharacterPlayMods ?? [];
+      return {
+        ...state,
+        players: {
+          ...state.players,
+          [controllingPlayerId]: {
+            ...state.players[controllingPlayerId],
+            nextCharacterPlayMods: [...existingMods, {
+              ...(effect.enterExerted ? { enterExerted: true } : {}),
+              ...(effect.grantKeyword ? { grantKeyword: effect.grantKeyword } : {}),
+            }],
+          },
+        },
+      };
     }
 
     // "You pay N less for the next X you play this turn"

@@ -575,3 +575,27 @@ describe("Set 13 — Mrs. Incredible Created by the Vine TORRENT", () => {
     expect(r.newState.players.player1.availableInk).toBe(1); // 3 - (3-1)
   });
 });
+
+describe("Set 13 — Powhatan's Staff STEP FORWARD", () => {
+  it("the next character played enters exerted and gains Bodyguard; later plays are unaffected", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 10);
+    let staff: string, first: string, second: string;
+    ({ state, instanceId: staff } = injectCard(state, "player1", "powhatans-staff", "play"));
+    ({ state, instanceId: first } = injectCard(state, "player1", "mickey-mouse-true-friend", "hand"));
+    ({ state, instanceId: second } = injectCard(state, "player1", "mushu-stealthy-dragon", "hand"));
+    // Activate STEP FORWARD.
+    let r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: staff, abilityIndex: 0 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // Play first character → exerted + Bodyguard.
+    r = applyAction(r.newState, { type: "PLAY_CARD", playerId: "player1", instanceId: first }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, first).isExerted).toBe(true);
+    const firstDef = CARD_DEFINITIONS["mickey-mouse-true-friend"]!;
+    const hasBG = getInstance(r.newState, first).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "bodyguard");
+    expect(hasBG).toBe(true);
+    // Second character is unaffected (modifier consumed).
+    r = applyAction(r.newState, { type: "PLAY_CARD", playerId: "player1", instanceId: second }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, second).isExerted).toBe(false);
+    expect(getInstance(r.newState, second).timedEffects.some((t: any) => t.type === "grant_keyword" && t.keyword === "bodyguard")).toBe(false);
+  });
+});
