@@ -482,3 +482,44 @@ describe("Set 13 — Quackerjack Loony Toymaker EVIL DESIGN", () => {
     expect(getInstance(r.newState, victim).damage).toBe(4);
   });
 });
+
+describe("Set 13 — 4*Town STAR PERFORMANCE (sings via Sing Together)", () => {
+  it("draws when this character sings a song with Sing Together", () => {
+    let state = startGame();
+    let town: string, helper: string, song: string;
+    ({ state, instanceId: town } = injectCard(state, "player1", "4-town-hottest-band-of-the-year", "play", { isDrying: false }));
+    ({ state, instanceId: helper } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false }));
+    ({ state, instanceId: song } = injectCard(state, "player1", "a-pirates-life", "hand")); // Sing Together 6
+    const before = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: song, singerInstanceIds: [town, helper] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // a-pirates-life only touches lore; the +1 hand is STAR PERFORMANCE. (song leaves hand too)
+    // hand: -1 (song played) +1 (draw) = net 0 relative to before, so compare deck draw via hand incl. draw.
+    const after = getZone(r.newState, "player1", "hand").length;
+    expect(after).toBe(before - 1 + 1);
+  });
+});
+
+describe("Set 13 — Meilin Lee BAND LOYALTY", () => {
+  it("cannot sing a song on its own (validator + legal-action parity)", () => {
+    let state = startGame();
+    let meilin: string, song: string;
+    ({ state, instanceId: meilin } = injectCard(state, "player1", "meilin-lee-lead-vocalist", "play", { isDrying: false }));
+    ({ state, instanceId: song } = injectCard(state, "player1", "control-your-temper", "hand"));
+    const solo = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: song, singerInstanceId: meilin } as any, CARD_DEFINITIONS);
+    expect(solo.success).toBe(false);
+    const legal = getAllLegalActions(state, "player1", CARD_DEFINITIONS);
+    const meilinSing = legal.find((a: any) => a.type === "PLAY_CARD" && a.instanceId === song && a.singerInstanceId === meilin);
+    expect(meilinSing).toBeUndefined();
+  });
+
+  it("may sing as part of Sing Together", () => {
+    let state = startGame();
+    let meilin: string, big: string, song: string;
+    ({ state, instanceId: meilin } = injectCard(state, "player1", "meilin-lee-lead-vocalist", "play", { isDrying: false }));
+    ({ state, instanceId: big } = injectCard(state, "player1", "goofy-musketeer", "play", { isDrying: false })); // cost 5
+    ({ state, instanceId: song } = injectCard(state, "player1", "a-pirates-life", "hand")); // Sing Together 6
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: song, singerInstanceIds: [meilin, big] } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+  });
+});

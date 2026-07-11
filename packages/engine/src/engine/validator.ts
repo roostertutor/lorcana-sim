@@ -333,6 +333,10 @@ function validatePlayCard(
     if (isActionRestricted(singerInst, singerDef2, "sing", playerId, state, modifiers)) {
       return fail("This character can't sing songs.");
     }
+    // Meilin Lee BAND LOYALTY: can't sing on its own — only via Sing Together.
+    if (singerDef2.abilities?.some((a) => a.type === "static" && (a as { effect?: { type?: string } }).effect?.type === "cant_sing_without_sing_together")) {
+      return fail("This character can't sing songs without Sing Together.");
+    }
     const singerDef = getDefinition(state, singerInstanceId, definitions);
     // Atlantica Concert Hall: virtual sing-cost bonus while at certain locations.
     const singerLocBonus = singer.atLocationInstanceId

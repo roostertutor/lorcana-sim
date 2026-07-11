@@ -68,6 +68,14 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "BAND LOYALTY",
+        "rulesText": "This character can't sing songs without <Sing Together>.",
+        "effect": {
+          "type": "cant_sing_without_sing_together"
+        }
       }
     ],
     "setId": "P4",

@@ -2059,6 +2059,7 @@ export type StaticEffect =
   | MoveToSelfCostReductionStatic
   | EnterPlayExertedStatic
   | EnterPlayExertedSelfStatic
+  | CantSingWithoutSingTogetherStatic
   | StatFloorPrintedStatic
   | SingCostBonusHereStatic
   | SingCostBonusCharactersStatic
@@ -2349,6 +2350,13 @@ export interface EnterPlayExertedStatic {
  *  entry modifier — the card itself enters exerted. No filter needed. */
 export interface EnterPlayExertedSelfStatic {
   type: "enter_play_exerted_self";
+}
+
+/** Meilin Lee - Lead Vocalist BAND LOYALTY (set-13/7): "This character can't
+ *  sing songs without Sing Together." Blocks the single-singer path in
+ *  validatePlayCard while leaving the Sing Together path available. */
+export interface CantSingWithoutSingTogetherStatic {
+  type: "cant_sing_without_sing_together";
 }
 
 /**
@@ -3033,7 +3041,7 @@ export type TriggerEvent =
   | { on: "enters_play_exerted"; filter?: CardFilter }
   | { on: "leaves_play"; filter?: CardFilter }
   | { on: "quests"; filter?: CardFilter }
-  | { on: "sings"; filter?: CardFilter }
+  | { on: "sings"; filter?: CardFilter; viaSingTogether?: boolean }
   /** `filter` matches the source (attacker). `defenderFilter` (optional) also
    *  matches the challenged character — fires only if BOTH are satisfied.
    *  Used by Shenzi Head Hyena, Scar Vengeful Lion, Shenzi Scar's Accomplice,

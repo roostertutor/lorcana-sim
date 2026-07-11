@@ -430,6 +430,14 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 3
+      },
+      {
+        "type": "static",
+        "storyName": "BAND LOYALTY",
+        "rulesText": "This character can't sing songs without <Sing Together>.",
+        "effect": {
+          "type": "cant_sing_without_sing_together"
+        }
       }
     ],
     "setId": "13",
@@ -1067,6 +1075,24 @@
         "type": "keyword",
         "keyword": "singer",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "STAR PERFORMANCE",
+        "rulesText": "Whenever this character sings a song with <Sing Together>, draw a card.",
+        "trigger": {
+          "on": "sings",
+          "viaSingTogether": true
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",

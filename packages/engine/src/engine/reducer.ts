@@ -706,6 +706,7 @@ function applyPlayCard(
       state = queueTrigger(state, "sings", sId, definitions, {
         triggeringPlayerId: playerId,
         triggeringCardInstanceId: instanceId,
+        viaSingTogether: true,
       });
     }
   } else if (singerInstanceId) {
@@ -7191,12 +7192,18 @@ function queueTrigger(
   eventType: string,
   sourceInstanceId: string,
   definitions: Record<string, CardDefinition>,
-  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string; sourceInstanceId?: string }
+  context: { triggeringPlayerId?: PlayerID; triggeringCardInstanceId?: string; sourceInstanceId?: string; viaSingTogether?: boolean }
 ): GameState {
   const instance = state.cards[sourceInstanceId];
   if (!instance) return state;
   const def = definitions[instance.definitionId];
   if (!def) return state;
+
+  // 4*Town STAR PERFORMANCE: "Whenever this character sings a song with Sing
+  // Together..." — the `sings` trigger only fires when the song was sung via
+  // Sing Together (multiple singers), signalled by context.viaSingTogether.
+  const matchViaSingTogether = (trigger: { viaSingTogether?: boolean }): boolean =>
+    !trigger.viaSingTogether || context?.viaSingTogether === true;
 
   // Merida Formidable Archer STEADY AIM: damage_dealt_to triggers may include
   // a sourceFilter on the DAMAGE source (the card whose effect caused it,
@@ -7287,6 +7294,7 @@ function queueTrigger(
     }
     if (!matchSourceFilter(matched as { sourceFilter?: CardFilter } & { on: string }, instance.ownerId)) continue;
     if (!matchChosenSourceCardType(matched as { sourceCardType?: CardType[] } & { on: string })) continue;
+    if (!matchViaSingTogether(matched as { viaSingTogether?: boolean })) continue;
     selfTriggers.push({
       ability: a,
       sourceInstanceId,
