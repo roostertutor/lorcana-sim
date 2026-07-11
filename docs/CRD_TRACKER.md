@@ -1,6 +1,7 @@
 # CRD TRACKER
-# Disney Lorcana Comprehensive Rules v2.0.1 (Effective Feb 5, 2026)
+# Disney Lorcana Comprehensive Rules v2.2.0 (Effective July 9, 2026)
 # Maps every mechanically relevant rule to engine implementation + test status.
+# 2.2.0 reconciliation: see "CRD 2.2.0 changes (reconciled from 2.0.1)" below.
 #
 # Legend:
 #   ✅  Implemented and tested
@@ -74,9 +75,15 @@ you want to keep the original snapshot timestamp).
 ## Provisional (pre-CRD) mechanics
 
 New-set mechanics sometimes ship on cards **before** the CRD assigns them a
-rule number (the PDF above is v2.0.1 / Feb 2026; Set 13 introduced mechanics
-it doesn't cover). We still implement them, but with a disciplined stand-in
+rule number. We still implement them, but with a disciplined stand-in
 for the missing rule citation:
+
+> **2.2.0 reconciliation (2026-07-11):** the Set 13 Shift variants below —
+> Temporary / Combo / Duo Shift — were provisional (`Rule #: TBD`) under the
+> v2.0.1 PDF. **CRD 2.2.0 now assigns them official rule numbers (8.10.8.3–.6,
+> 8.10.4, 8.10.9)** and the official wording matches our tests. Their Rule #
+> column is updated accordingly. The remaining `TBD` rows (enters-play-exerted
+> trigger, Advanced Mimicry) are still uncovered by 2.2.0 and stay provisional.
 
 - **Primary source = the card's printed reminder text** (transcribed verbatim
   below). Any behavior beyond the reminder text is a **ruling** with its source
@@ -90,9 +97,9 @@ for the missing rule citation:
 
 | Mechanic | Reminder text (primary source) | Behavioral rulings (source, date) | Rule # | Test / impl |
 |---|---|---|---|---|
-| **Temporary Shift** (Set 13) | *"You may pay N {I} to play this on top of one of your characters named X. At the end of your turn, remove all damage from this character and return only this card to your hand."* | (a) *"return only this card"* = the temp (top) card, tracked by instanceId — overrides CRD 8.10.7 (whole stack follows). (b) The character underneath is **promoted back into play** (not discarded), carrying the stack's **current** exerted/drying state — a ready base that was shifted onto and then quested comes back **exerted** [user ruling 2026-07-07]. (c) Damage is cleared on revert. (d) **TBD:** timed effects / keyword grants on the top card — currently dropped (fall off with the returned card); revisit when CRD clarifies. | TBD | `KeywordAbility.variant:"temporary"` + `revert_temporary_shift` effect (scheduled by `applyPlayCard` via an end-of-turn `delayedTrigger`). Test: reducer.test.ts "Temporary Shift reverts at end of turn". |
-| **Combo Shift** (Set 13) | *"You may pay N {I} to play this on top of one of your characters named A, one named B, or one of each."* | (a) Shift onto **1** character (name A or B) OR **2** at once (one of each name); the two-target case requires one match per distinct name [user ruling 2026-07-08]. (b) Both bases go **under** the new top; under-piles merge. (c) Two-base state inheritance: **exerted if EITHER base is exerted, drying if EITHER, damage = SUM** [user ruling 2026-07-08]. (d) `shifted_onto` fires once per base. | TBD | `KeywordAbility.variant:"combo"` + `shiftNames`; `PlayCardAction.shiftTargetInstanceIds` (2-target). Validator + `getAllLegalActions` enumerate one-of-each pairs; `applyPlayCard` absorbs the 2nd base after the normal single-target block. Tests: reducer.test.ts "Combo Shift *". |
-| **Duo Shift** (Set 13) | *"You may pay N {I} to play this on top of two of your characters, one named A and one named B."* | Like Combo but **exactly two** targets (one of each) — **single-target shift is illegal** [user ruling 2026-07-08]. Same two-base state merge as Combo. | TBD | `KeywordAbility.variant:"duo"` — `canShiftOnto` returns false (blocks single-target); the two-target validator + enumeration are shared with Combo. Test: reducer.test.ts "Duo Shift requires two targets". |
+| **Temporary Shift** (Set 13) | *"You may pay N {I} to play this on top of one of your characters named X. At the end of your turn, remove all damage from this character and return only this card to your hand."* | (a) *"return only this card"* = the temp (top) card, tracked by instanceId — overrides CRD 8.10.7 (whole stack follows). (b) The character underneath is **promoted back into play** (not discarded), carrying the stack's **current** exerted/drying state — a ready base that was shifted onto and then quested comes back **exerted** [user ruling 2026-07-07]. (c) Damage is cleared on revert. (d) **TBD:** timed effects / keyword grants on the top card — currently dropped (fall off with the returned card); revisit when CRD clarifies. | **8.10.8.5** (2.2.0). Official wording matches our reminder text incl. *"remove all damage from it and return only that card to your hand"*; drying-state inheritance governed by 8.10.4; combined variants (e.g. Sun Yee's Temporary Red Panda Shift, `card-set-13.json:7055`) by 8.10.9. | `KeywordAbility.variant:"temporary"` + `revert_temporary_shift` effect (scheduled by `applyPlayCard` via an end-of-turn `delayedTrigger`). Test: reducer.test.ts "Temporary Shift reverts at end of turn". |
+| **Combo Shift** (Set 13) | *"You may pay N {I} to play this on top of one of your characters named A, one named B, or one of each."* | (a) Shift onto **1** character (name A or B) OR **2** at once (one of each name); the two-target case requires one match per distinct name [user ruling 2026-07-08]. (b) Both bases go **under** the new top; under-piles merge. (c) Two-base state inheritance: **exerted if EITHER base is exerted, drying if EITHER, damage = SUM** [user ruling 2026-07-08]. (d) `shifted_onto` fires once per base. | **8.10.8.4** (2.2.0) = "Shift AND Duo Shift" (1-or-2 targets), matches ruling (a). Two-base state merge confirmed by **8.10.4.2**: onto dry+drying → **drying**, onto ready+exerted → **exerted** — matches ruling (c). CRD is silent on **damage = SUM**, so that half of (c) remains our ruling. | `KeywordAbility.variant:"combo"` + `shiftNames`; `PlayCardAction.shiftTargetInstanceIds` (2-target). Validator + `getAllLegalActions` enumerate one-of-each pairs; `applyPlayCard` absorbs the 2nd base after the normal single-target block. Tests: reducer.test.ts "Combo Shift *". |
+| **Duo Shift** (Set 13) | *"You may pay N {I} to play this on top of two of your characters, one named A and one named B."* | Like Combo but **exactly two** targets (one of each) — **single-target shift is illegal** [user ruling 2026-07-08]. Same two-base state merge as Combo. | **8.10.8.3** (2.2.0) = "two characters that each match one of the names on this card" — confirms **exactly two** targets (no single-target form), matching the ruling. State merge per **8.10.4.2** (same as Combo). | `KeywordAbility.variant:"duo"` — `canShiftOnto` returns false (blocks single-target); the two-target validator + enumeration are shared with Combo. Test: reducer.test.ts "Duo Shift requires two targets". |
 | **Enters-play-exerted trigger** (Set 13, Merida - Wisp Conjurer BECKON) | *"Whenever another character of yours enters play exerted, you may draw a card."* | Fires once for a character that ENTERS PLAY EXERTED by **any** mechanism [user ruling 2026-07-11 — "fire on all of these"]: `enter_play_exerted_self` static (Flash, Gustav), opponent `EnterPlayExerted` modifier (Jiminy), **Bodyguard**'s may-exert, and a "may enter play exerted to [benefit]" self-exert (Merida FOCUSED ENERGY / Lord Dingwall). Because these exert at different times (statics synchronous; Bodyguard/self-exert deferred via a may-choice), it can't be a plain `enters_play` + `isExerted` filter. | TBD | New `enters_play_exerted` trigger event + transient `CardInstance.enteringPlay` flag (set in `applyEnterPlayExertion`). A post-pass in `applyAction` fires the event once entry has settled and the character is exerted, then clears the flag. Tests: reducer.test.ts "Merida BECKON *" (static / Bodyguard paths), "Merida FOCUSED ENERGY". |
 | **Advanced Mimicry** (Set 13, Morph - Little Imitator) | *"You can shift any character on top of this character. (This includes all Shift variants.)"* | Extends base Mimicry (Morph - Space Goo, Set 3 — any **name**) to **all Shift variants**: universal, classification (Madrigal/Puppy — lands even though Morph lacks the trait), and combo. **Exception:** you **cannot Duo Shift onto a single Morph** — Duo has no single-target form, so one Morph isn't enough; two Morphs (each a wildcard slot) or Morph + a named base CAN satisfy the two-target Duo [user ruling 2026-07-10]. | TBD | Reuses `mimicry_target_self`; `canShiftOnto` checks `mimicryTargets` **before** the variant gates (except duo → false); the two-target validator treats a mimicry target as a wildcard name slot. Tests: reducer.test.ts "Morph ADVANCED MIMICRY *". |
 
@@ -927,7 +934,7 @@ search this tracker's bottom sections for the open-ended TODO list.
 ## Open CRD gaps (forward-looking)
 
 Rule citations that remain ❌ or ⚠️ in the row-by-row tables above. Cross-
-referenced against CRD v2.0.1 PDF; sorted by impact.
+referenced against CRD v2.2.0 PDF; sorted by impact.
 
 | CRD Rule | Description | Status | Impact / blocker |
 |----------|-------------|--------|------------------|
@@ -936,7 +943,7 @@ referenced against CRD v2.0.1 PDF; sorted by impact.
 | 1.5.4 | Cost can't be changed; payment modifies amount only | ⚠️ | None — engine behavior is correct (Singer / cost_reduction modify amount paid, not `card.cost`). The ⚠️ is purely about lacking explicit "cost vs payment" object tracking. No card needs the distinction modeled separately. |
 | 1.7.6 | Illegal action: undo all steps, payments reversed | ⚠️ | Low — `validateAction` rejects illegal actions before mutation, so failed actions don't mutate state (effective rollback). We don't `log` an undo event. Open question per DECISIONS.md: would explicit undo logging help bot training? |
 | 1.8.4 | Multiple GSC conditions met simultaneously → all happen at once | ⚠️ | Low — banishes within a single GSC pass happen in object-iteration order, not truly parallel. Matches 2P behavior; would matter for 3+P or for a "leaves play together" trigger (CRD 7.4.3) sensitive to within-pass order. No current card exposes this. |
-| 1.9.1.5 | "Take damage" — character takes damage when dealt/put/moved | ⚠️ | None — implicit. Any damage placement triggers downstream "takes damage" handling; no explicit "takes damage" event abstraction needed because no card differentiates "took damage" from "was dealt damage" or "had damage put on" (1.9.2 establishes the equivalence). |
+| 1.9.2 (was 1.9.1.5) | "Take damage" — character takes damage when dealt/put/moved | ⚠️ | None — implicit. Any damage placement triggers downstream "takes damage" handling; no explicit "takes damage" event abstraction needed because no card differentiates "took damage" from "was dealt damage" or "had damage put on". **2.2.0 renumbered** the damage taxonomy: old 1.9.1.x (Deal/Put/Remove/Move/Take) → 1.9.2.x, with the standalone "Take" term folded into 1.9.2 and a new damage-calc pipeline at 1.9.4 (see 2.2.0 changes section). |
 | 3.3.2.1 | Can't end turn while in a turn action | ⚠️ | None — `pendingChoice` blocks PASS_TURN globally (validator.ts:92). The ⚠️ is purely about edge-case "turn action started but no pendingChoice surfaced yet" which doesn't occur in practice (engine never has a half-resolved action without a pendingChoice or pendingEffectQueue). |
 | 4.3.6 | Payment modifiers: "next [Type] you play" should skip non-matching plays | ⚠️ | Low — self-referential `self_cost_reduction` works from hand. Non-self cost_reduction works from play. Classification filtering implemented. Edge case: "next character" one-shot consumption may not skip non-matching types correctly in all cases. No current card surfaces a behavior bug. |
 | 4.6.7 | "After the challenge" triggers fire as a distinct phase | ⚠️ | Low — in-challenge banish window is correct (`activeChallengeIds` set/cleared around `processTriggerStack`), so `banished_in_challenge` triggers fire correctly during bag resolution. "After the challenge" triggers aren't separated from challenge-end timing — would matter if a card needs to fire AFTER all in-challenge triggers drain, but no current card has this requirement. |
@@ -951,6 +958,55 @@ referenced against CRD v2.0.1 PDF; sorted by impact.
 | §9 (all) | Multiplayer (3+P, team play, simultaneous turns) | ❌ | Low — same scope blocker as 1.1.1. Engine hardcodes 2-player turn order, opponent lookup, and bag resolution order. Refactoring would touch `state.players` shape, `getOpponent`, all `each_player` iteration logic, the multi-player bag pass, and the win-check (currently 2P-binary). No current product need. |
 | §10 (all) | Casual game variants (Pack Rush) | N/A | Out of scope. Engine targets standard format; variant-specific rules contradict standard rules and aren't applicable to deck-analytics simulation. |
 | 6.1.10 | Loops (combinations of abilities that repeat indefinitely) | N/A | No card in current corpus creates a loop. No explicit loop-detection — if a future card creates one, infinite recursion would manifest as a stack overflow. Backlog if/when needed. |
+
+---
+
+## CRD 2.2.0 changes (reconciled from 2.0.1)
+
+Reconciliation of the 2026-07-09 revision (v2.0.1 → v2.2.0, skipping 2.1.x).
+Derived from a rule-number-keyed diff of `docs/CRD_SNAPSHOT.txt`: **38 rules
+added, 12 removed (mostly renumbers), ~25 materially reworded.** Keyword set is
+**unchanged** (8.2 Alert … 8.15 Ward). Status legend as at top of file.
+
+**Verification discipline:** rows below marked "review" are text-shape
+reconciliations only — the CRD wording changed but the engine handler has NOT
+been re-traced or re-tested against it. Per CLAUDE.md "Handler existence is not
+correctness," each `review` needs a code read + regression test before it flips
+to ✅. This section is the engine-expert work queue for 2.2.0.
+
+### Now-official (were provisional TBD)
+
+| 2.2.0 Rule | Mechanic | Status | Note |
+|---|---|---|---|
+| 8.10.8.3 | Duo Shift | ✅ | Reconciled — see Provisional table. Wording matches; tests exist. |
+| 8.10.8.4 | Combo Shift | ✅ | Reconciled. Damage=SUM half of state-merge is our ruling (CRD silent). |
+| 8.10.8.5 | Temporary Shift | ✅ | Reconciled. |
+| 8.10.4 / 8.10.4.2 | Shift dry/drying + Duo/Combo state merge | ✅ | 8.10.4.2 (drying-if-either / exerted-if-either) confirms our 2026-07-08 ruling. |
+| 8.10.9 | Combined Shift variants must satisfy all conditions | ✅ | Sun Yee - Red Panda Spirit (`card-set-13.json:7055`), Temporary + Classification. |
+| 8.10.8.6 | Potato Shift (item named Potato) | ❌ N/A | No such card in the wired corpus. Wire when one ships. |
+
+### New / reworded rules — engine review queue
+
+| 2.2.0 Rule | Change vs 2.0.1 | Status | Engine impact |
+|---|---|---|---|
+| 1.9.2.x | Damage terms **Deal/Put/Remove/Move** renumbered from 1.9.1.x; standalone "Take" folded into 1.9.2 | ✅ | Nomenclature; behavior unchanged. Citation updated in Open-gaps table. |
+| **1.9.4.1–.3** | NEW explicit damage-calc pipeline: base damage → apply modifiers (any order) → total → place counters | review | Verify challenge + effect damage follow base→modifier→total ordering (`applyChallengeDamage` / damage effects). |
+| **1.9.5** | Damage reduced to 0 by modifiers = the character **was not dealt damage** | review | "Whenever dealt damage" triggers must NOT fire on a 0-result. Needs a regression test. |
+| 1.9.6 | Damage counters cease to exist when a damaged card leaves play (was 1.9.3) | ⚠️ | Matches existing cleanup; renumber only. |
+| **4.6.6.1** | Negative Strength counts as **0** for challenge damage (now explicit) | review | Confirm engine clamps negative effective S to 0 in challenge-damage calc. |
+| **4.5.1.2** | Quest now "**pays any costs** required to quest" + checks **limiters** (was "restrictions") | review | New: cards costing ink/exert to quest. Currently no such card, but the resolution step should support it. |
+| **4.6.4.3** | Challenge now "check **requirements and limiters**, make choices, **pay any costs** to challenge" (was "restrictions") | review | Same as above for challenge declaration. |
+| **4.6.4.4** | A **readied challenger stays the challenging character** and isn't removed from the challenge | review | Edge case for ready-during-challenge; verify `challengingCharacterId` sticky. |
+| **4.7.3.2–.4** | Move-a-character cost overhaul: announce move-cost vs **alternate cost**, determine total (cost + **payment modifiers**), then pay | review | Location move now supports alternate costs + payment modifiers, mirroring play-cost. |
+| **6.1.16.1–.3** | **Conditional dependent effects** — generalizes old 6.4.4.x (conditional *static* abilities) to **all** effects: "[Effect] unless/if [Condition]" | review | Broader than static-only; audit `conditional_effect` coverage for non-static triggers/activateds. |
+| 6.4.3 | Now defines **"skip step/phase"** static effects (old slot held conditional-static, moved to 6.1.16) | ⚠️ | `skip`-step statics already modeled; renumber + reword only. |
+| **6.1.3.1 / 6.7.3–.3.3** | Formal **requirements vs limiters** framework + resolution order (pay ink → make choices → check limiters legal) | review | Terminology; audit sequential-effect + choose resolution order matches. |
+| **6.7.9** | Effects that modify **how a card enters play** resolve along with the play (CRD example: Mother Gothel enters with 3 damage) | ⚠️ | Enter-play modifiers already wired per-card; formalized in CRD. |
+| 5.6.6 | Characters **remain in play** when their location leaves play | review | Verify location banish doesn't cascade-banish characters "at" it. |
+| 5.6.5.1 | Locations gain a **Version** characteristic (name + version = full name) | ⚠️ | Already modeled as `name` + `subtitle` → `fullName`. |
+| 1.8.5 | Conditions are met **only when the game state check occurs** | ⚠️ | Matches `runGameStateCheck` semantics. |
+
+**Not real changes (snapshot noise):** `{S}`→`$`, `{W}`→`#`, `{I}`→`"` in several rules are `pdftotext` glyph-mapping artifacts, not errata. ~90 diff lines were two-column TOC bleed / page-footer text (`disneylorcana.com -Disney…`).
 
 ---
 
@@ -970,7 +1026,7 @@ shipped card — the corpus is fully wired (2353 implemented / 0 partial /
 
 ---
 
-*Last updated: 2026-05-01 (session 23 — completeness pass: every numbered sub-rule in CRD v2.0.1 is now cited at least once. Coverage 458/458 numbered sub-rules = 100%. Section headers (1.1, 2.4, etc. — no third dot) are intentionally aggregated under their sub-rules and not individually tracked.)*
-*CRD version: 2.0.1, effective Feb 5, 2026*
-*PDF source: `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf`*
+*Last updated: 2026-07-11 (v2.2.0 reconciliation — snapshot regenerated; Set 13 Shift variants reconciled from provisional TBD → official 8.10.8.3–.6/8.10.4/8.10.9; new "CRD 2.2.0 changes" section added with a review queue of ~10 new/reworded rules pending code re-trace + tests. Prior: 2026-05-01 session 23 completeness pass, 458/458 v2.0.1 sub-rules cited.)*
+*CRD version: 2.2.0, effective July 9, 2026*
+*PDF source: `docs/Disney-Lorcana-Comprehensive-Rules-2.2.0-EN.pdf` (prior: `-020526-EN-Edited.pdf`, retained for reference)*
 *Snapshot: `docs/CRD_SNAPSHOT.txt` — see "Diffing a new CRD revision" above.*

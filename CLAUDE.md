@@ -127,7 +127,7 @@ These three docs partition the "what's next" surface. Knowing where an item belo
 | `docs/COMPETITIVE.md` | Competitive landscape (duels.ink, Inktable, etc.) | Competitive analysis, wedge claims |
 | `docs/SPEC.md` | Full spec: APIs, types, build order | Starting a new package/feature |
 | `docs/DECISIONS.md` | Why decisions were made | Before proposing architecture changes |
-| `docs/CRD_TRACKER.md` | CRD v2.0.1 rule-to-engine map | Implementing/fixing game rules |
+| `docs/CRD_TRACKER.md` | CRD v2.2.0 rule-to-engine map | Implementing/fixing game rules |
 | `docs/CARD_ISSUES.md` | Card implementation gaps / history | Importing new sets, fixing card bugs |
 | `docs/ENGINE_PRIMITIVES.md` | Live primitive inventory (generated via `pnpm catalog`). Effect types split into *leaf* (direct state mutations) and *combinator* (higher-order — wrap other effects, e.g. `sequential`, `each_player`, `each_target`, `choose`, `self_replacement`, `create_floating_trigger`). | Checking what effect/trigger/condition types exist |
 | `docs/RL.md` | RL training architecture, policies, reward design | Touching the RL training pipeline |
@@ -162,7 +162,7 @@ Reversing this order ("write proposal → grep if challenged") is what produces 
 ✅ Compliant — every card paired with `file:line`:
 > "For `last_resolved_target` + trait check, use Widow Tweed - Kindly Soul (`card-set-11.json:1667-1730`) — it does `return_to_hand` then `self_replacement` with `condition: { hasName: 'Tod' }` on `target: { type: 'last_resolved_target' }`."
 
-**Same rule applies to CRD claims.** Cite rule numbers from `docs/CRD_TRACKER.md` and read the full text from `docs/Disney-Lorcana-Comprehensive-Rules-020526-EN-Edited.pdf` before claiming a rule says X. The tracker is an index; the PDF has the full spec with examples and edge cases.
+**Same rule applies to CRD claims.** Cite rule numbers from `docs/CRD_TRACKER.md` and read the full text from `docs/Disney-Lorcana-Comprehensive-Rules-2.2.0-EN.pdf` (v2.2.0, effective July 9 2026) before claiming a rule says X. The tracker is an index; the PDF has the full spec with examples and edge cases.
 
 **If data isn't available, say so and look it up.** Do not make things up. Subagent dispatches inherit this rule — when briefing engine-expert / others, every precedent in the brief must already carry its `file:line`, and you must instruct them to do the same in commit messages and tests.
 
