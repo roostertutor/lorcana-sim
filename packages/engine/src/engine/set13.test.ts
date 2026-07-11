@@ -373,3 +373,52 @@ describe("Set 13 — Vine Pod", () => {
     expect(getInstance(r.newState, copy).zone).toBe("play");
   });
 });
+
+describe("Set 13 — Gopher Hunny Cook", () => {
+  it("DOWN THE HOLE may enter play exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let gopher: string;
+    ({ state, instanceId: gopher } = injectCard(state, "player1", "gopher-hunny-cook", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: gopher }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    const accept = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(getInstance(accept.newState, gopher).isExerted).toBe(true);
+  });
+
+  it("FORTIFYING MEAL grants other Hunny characters Resist +1 only on opponent's turn while exerted", () => {
+    let state = startGame();
+    let gopher: string, otherHunny: string;
+    ({ state, instanceId: gopher } = injectCard(state, "player1", "gopher-hunny-cook", "play", { isDrying: false, isExerted: true }));
+    ({ state, instanceId: otherHunny } = injectCard(state, "player1", "rabbit-hunny-paladin", "play", { isDrying: false }));
+
+    // player1's turn → condition false (not opponent's turn) → no grant.
+    let mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect((mods.grantedKeywords.get(otherHunny) ?? []).some((k: any) => k.keyword === "resist")).toBe(false);
+
+    // Advance to player2's turn (Gopher stays exerted).
+    state = passTurns(state, 1);
+    mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect((mods.grantedKeywords.get(otherHunny) ?? []).some((k: any) => k.keyword === "resist")).toBe(true);
+    // Gopher itself does not get its own grant ("your OTHER Hunny characters").
+    expect((mods.grantedKeywords.get(gopher) ?? []).some((k: any) => k.keyword === "resist")).toBe(false);
+  });
+});
+
+describe("Set 13 — Prophetic Vision", () => {
+  it("non-action reveal goes to the bottom and swings 1 lore", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 3);
+    state = setLore(state, "player1", 5);
+    state = setLore(state, "player2", 5);
+    let vision: string, top: string;
+    ({ state, instanceId: vision } = injectCard(state, "player1", "prophetic-vision", "hand"));
+    // Ensure the top after shuffle is deterministic is hard; instead assert lore swing
+    // when the revealed card is NOT an action. The opening deck (Mickey fillers) is all
+    // characters, so any revealed top card is a non-action → the miss branch fires.
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: vision }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(r.newState.players.player1.lore).toBe(6);
+    expect(r.newState.players.player2.lore).toBe(4);
+  });
+});

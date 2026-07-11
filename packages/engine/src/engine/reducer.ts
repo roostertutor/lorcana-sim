@@ -3936,6 +3936,13 @@ export function applyEffect(
       } else {
         // CRD: revealed but not matching → put on top (default), bottom, hand, or discard.
         state = applyRevealNoMatchRoute(state, topId, effect.noMatchDestination ?? "top", targetPlayer, definitions, events);
+        // Prophetic Vision: "Otherwise ... each opponent loses 1 lore and you
+        // gain 1 lore." Apply the miss-branch extra effects after routing.
+        if (effect.noMatchExtraEffects) {
+          for (const extra of effect.noMatchExtraEffects) {
+            state = applyEffect(state, extra, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId);
+          }
+        }
         return state;
       }
       // repeatOnMatch: continue the loop with the new top card.

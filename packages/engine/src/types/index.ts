@@ -1324,6 +1324,11 @@ export interface RevealTopConditionalEffect {
    * like `triggering_card` work. Applied AFTER matchAction.
    */
   matchExtraEffects?: Effect[];
+  /** Extra effects to apply when the revealed card does NOT match the filter,
+   *  after routing it to noMatchDestination. Prophetic Vision (set-13/137):
+   *  "Otherwise, put it on the bottom of your deck, then each opponent loses 1
+   *  lore and you gain 1 lore." Mirrors matchExtraEffects for the miss branch. */
+  noMatchExtraEffects?: Effect[];
   target: PlayerTarget;
 }
 

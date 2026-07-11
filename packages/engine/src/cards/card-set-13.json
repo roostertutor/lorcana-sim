@@ -4889,7 +4889,63 @@
       "Ally",
       "Hunny"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "DOWN THE HOLE",
+        "rulesText": "This character may enter play exerted.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "exert",
+            "target": {
+              "type": "this"
+            },
+            "isMay": true
+          }
+        ]
+      },
+      {
+        "type": "static",
+        "storyName": "FORTIFYING MEAL",
+        "rulesText": "During an opponent's turn, while this character is exerted, your other Hunny characters gain <Resist> +1.",
+        "condition": {
+          "type": "compound_and",
+          "conditions": [
+            {
+              "type": "this_is_exerted"
+            },
+            {
+              "type": "not",
+              "condition": {
+                "type": "is_your_turn"
+              }
+            }
+          ]
+        },
+        "effect": {
+          "type": "grant_keyword",
+          "keyword": "resist",
+          "value": 1,
+          "target": {
+            "type": "all",
+            "filter": {
+              "owner": {
+                "type": "self"
+              },
+              "zone": "play",
+              "cardType": [
+                "character"
+              ],
+              "hasTrait": "Hunny",
+              "excludeSelf": true
+            }
+          }
+        }
+      }
+    ],
     "setId": "13",
     "number": 78,
     "rarity": "rare",
@@ -8434,6 +8490,39 @@
     "inkable": true,
     "traits": [],
     "abilities": [],
+    "actionEffects": [
+      {
+        "type": "reveal_top_conditional",
+        "shuffleBefore": true,
+        "filter": {
+          "cardType": [
+            "action"
+          ]
+        },
+        "matchAction": "play_card",
+        "matchIsMay": true,
+        "noMatchDestination": "bottom",
+        "target": {
+          "type": "self"
+        },
+        "noMatchExtraEffects": [
+          {
+            "type": "lose_lore",
+            "amount": 1,
+            "target": {
+              "type": "opponent"
+            }
+          },
+          {
+            "type": "gain_lore",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 137,
     "rarity": "uncommon",
