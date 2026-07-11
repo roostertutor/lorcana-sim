@@ -3325,6 +3325,13 @@ function resolveStatRef(
       const locId = tgtInst?.atLocationInstanceId;
       return locId ? readLiveStat(locId) : 0;
     }
+    case "this_at_location": {
+      // Carl Fredricksen ADVENTURE AWAITS: the SOURCE character is at a
+      // location; read a stat off that location (its {L}).
+      const inst = sourceInstanceId ? state.cards[sourceInstanceId] : undefined;
+      const locId = inst?.atLocationInstanceId;
+      return locId ? readLiveStat(locId) : 0;
+    }
     case "last_discarded": {
       // The Queen Disguised Peddler: "gain lore equal to the discarded
       // character's {L}." Reads the most recently discarded card's stat.
@@ -3357,6 +3364,9 @@ function resolveDynamicAmount(
   // see the switch block below.
   if (amount === "last_damage_dealt") {
     return state.lastDamageDealtAmount ?? 0;
+  }
+  if (typeof amount === "object" && amount !== null && (amount as { type?: string }).type === "last_milled_item_count") {
+    return state.lastMilledItemCount ?? 0;
   }
   if (amount === "unique_ink_types_on_top_of_both_decks") {
     const inks = new Set<string>();
@@ -5288,10 +5298,13 @@ export function applyEffect(
         const millCount = Math.min(amount, deck.length);
         if (millCount === 0) continue;
         const topIds = deck.slice(0, millCount);
+        // Count item cards milled BEFORE moving (Quackerjack EVIL DESIGN reads
+        // this for "deal 1 damage for each item card put into discard").
+        const itemsMilled = topIds.filter((id) => definitions[state.cards[id]?.definitionId ?? ""]?.cardType === "item").length;
         for (const id of topIds) {
           state = moveCard(state, id, pid, "discard", definitions);
         }
-        state = { ...state, lastEffectResult: millCount };
+        state = { ...state, lastEffectResult: millCount, lastMilledItemCount: itemsMilled };
         state = queueTriggersByEvent(state, "cards_discarded", pid, definitions, {});
       }
       return state;

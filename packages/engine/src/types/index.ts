@@ -739,7 +739,11 @@ export type DynamicAmount =
       type: "stat_ref";
       from: "source" | "target" | "triggering_card"
           | "last_resolved_source" | "last_resolved_target"
-          | "last_target_location";
+          | "last_target_location"
+          /** The location the SOURCE character is currently at. Carl
+           *  Fredricksen ADVENTURE AWAITS (set-13/113): "draw cards equal to
+           *  that location's {L}." */
+          | "this_at_location";
       property: "cost" | "strength" | "willpower" | "lore" | "damage" | "delta";
       max?: number;
     }
@@ -747,6 +751,9 @@ export type DynamicAmount =
    *  under this character" / "equal to the number of cards under"). Resolved
    *  against the SOURCE instance's `cardsUnder.length`. */
   | { type: "cards_under_count"; max?: number }
+  /** Number of item cards moved to discard by the most recent
+   *  put_top_cards_into_discard. Quackerjack EVIL DESIGN (set-13/147). */
+  | { type: "last_milled_item_count"; max?: number }
   /** Donald Duck Fred Honeywell WELL WISHES: "draw a card for each card that
    *  was under them". Reads state.lastBanishedCardsUnderCount — the count
    *  captured at banish time before leave-play cleanup clears cardsUnder. */
@@ -4100,6 +4107,12 @@ export interface GameState {
 
   /** CRD 6.1.5.1: Result of the last cost effect in a sequential (for "[A]. For each X, [B]" patterns) */
   lastEffectResult?: number;
+
+  /** Number of ITEM cards moved to discard by the most recent
+   *  put_top_cards_into_discard. Quackerjack EVIL DESIGN (set-13/147): "deal 1
+   *  damage to chosen character for each item card put into your discard this
+   *  way." Read via DynamicAmount { type: "last_milled_item_count" }. */
+  lastMilledItemCount?: number;
 
   /** Snapshot of the last card resolved by a choose_target step. Used by
    *  follow-up effects — "its player draws" (target_owner), "that location's

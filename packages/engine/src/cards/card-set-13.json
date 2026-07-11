@@ -7042,7 +7042,80 @@
       "Storyborn",
       "Hero"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "MOVING PARTNER",
+        "isMay": true,
+        "rulesText": "Whenever you play a location, you may move this character and up to 1 of your other characters to that location for free.",
+        "trigger": {
+          "on": "card_played",
+          "filter": {
+            "cardType": [
+              "location"
+            ],
+            "owner": {
+              "type": "self"
+            }
+          }
+        },
+        "effects": [
+          {
+            "type": "move_character",
+            "character": {
+              "type": "this"
+            },
+            "location": {
+              "type": "triggering_card"
+            }
+          },
+          {
+            "type": "move_character",
+            "isMay": true,
+            "character": {
+              "type": "chosen",
+              "filter": {
+                "owner": {
+                  "type": "self"
+                },
+                "zone": "play",
+                "cardType": [
+                  "character"
+                ],
+                "excludeSelf": true
+              }
+            },
+            "location": {
+              "type": "triggering_card"
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "ADVENTURE AWAITS",
+        "rulesText": "Whenever this character quests while at a location, draw cards equal to that location's {L}.",
+        "trigger": {
+          "on": "quests"
+        },
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": {
+              "type": "stat_ref",
+              "from": "this_at_location",
+              "property": "lore"
+            },
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 113,
     "rarity": "super_rare",
@@ -9093,7 +9166,54 @@
       "Villain",
       "Inventor"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "triggered",
+        "storyName": "EVIL DESIGN",
+        "rulesText": "When you play this character and whenever he quests, put the top 4 cards of your deck into your discard. You may deal 1 damage to chosen character for each item card put into your discard this way.",
+        "trigger": {
+          "anyOf": [
+            {
+              "on": "enters_play"
+            },
+            {
+              "on": "quests"
+            }
+          ]
+        },
+        "effects": [
+          {
+            "type": "put_top_cards_into_discard",
+            "amount": 4,
+            "target": {
+              "type": "self"
+            }
+          },
+          {
+            "type": "sequential",
+            "isMay": true,
+            "costEffects": [
+              {
+                "type": "deal_damage",
+                "amount": {
+                  "type": "last_milled_item_count"
+                },
+                "target": {
+                  "type": "chosen",
+                  "filter": {
+                    "zone": "play",
+                    "cardType": [
+                      "character"
+                    ]
+                  }
+                }
+              }
+            ],
+            "rewardEffects": []
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 147,
     "rarity": "legendary",

@@ -422,3 +422,63 @@ describe("Set 13 — Prophetic Vision", () => {
     expect(r.newState.players.player2.lore).toBe(4);
   });
 });
+
+describe("Set 13 — Carl Fredricksen On the Move", () => {
+  it("MOVING PARTNER moves Carl to a location you play (may)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 6);
+    let carl: string, loc: string;
+    ({ state, instanceId: carl } = injectCard(state, "player1", "carl-fredricksen-on-the-move", "play", { isDrying: false }));
+    ({ state, instanceId: loc } = injectCard(state, "player1", "agrabah-marketplace", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: loc }, CARD_DEFINITIONS);
+    // MOVING PARTNER is a may.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    // Decline moving a second character if prompted.
+    if (r.newState.pendingChoice?.type === "choose_may") {
+      r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "decline" }, CARD_DEFINITIONS);
+    }
+    expect(getInstance(r.newState, carl).atLocationInstanceId).toBe(loc);
+  });
+
+  it("ADVENTURE AWAITS draws cards equal to the location's lore when questing at it", () => {
+    let state = startGame();
+    let carl: string, loc: string;
+    ({ state, instanceId: carl } = injectCard(state, "player1", "carl-fredricksen-on-the-move", "play", { isDrying: false }));
+    ({ state, instanceId: loc } = injectCard(state, "player1", "agrabah-marketplace", "play"));
+    // Place Carl at the lore-2 location.
+    state = { ...state, cards: { ...state.cards, [carl]: { ...getInstance(state, carl), atLocationInstanceId: loc } } };
+    const before = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: carl }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(before + 2); // agrabah-marketplace lore 2
+  });
+});
+
+describe("Set 13 — Quackerjack Loony Toymaker EVIL DESIGN", () => {
+  it("mills 4 and may deal 1 damage per item milled to a chosen character", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 6);
+    let quack: string, victim: string;
+    ({ state, instanceId: quack } = injectCard(state, "player1", "quackerjack-loony-toymaker", "hand"));
+    ({ state, instanceId: victim } = injectCard(state, "player2", "marshmallow-persistent-guardian", "play", { isDrying: false }));
+    // Stack 4 item cards on top of player1's deck so all 4 milled are items.
+    const itemIds: string[] = [];
+    for (let i = 0; i < 4; i++) {
+      let id: string;
+      ({ state, instanceId: id } = injectCard(state, "player1", "absorbing-bloom", "deck"));
+      itemIds.push(id);
+    }
+    state = { ...state, zones: { ...state.zones, player1: { ...state.zones.player1, deck: [...itemIds, ...getZone(state, "player1", "deck").filter((x: string) => !itemIds.includes(x))] } } };
+
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: quack }, CARD_DEFINITIONS);
+    // All 4 items milled to discard.
+    expect(itemIds.every((id) => getInstance(r.newState, id).zone === "discard")).toBe(true);
+    // Optional damage prompt.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [victim] }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, victim).damage).toBe(4);
+  });
+});
