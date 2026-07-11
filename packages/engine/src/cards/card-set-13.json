@@ -10637,7 +10637,70 @@
     "cost": 4,
     "inkable": false,
     "traits": [],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "static",
+        "storyName": "KNOCK, KNOCK",
+        "rulesText": "This item enters play exerted.",
+        "effect": {
+          "type": "enter_play_exerted_self"
+        }
+      },
+      {
+        "type": "activated",
+        "storyName": "WHO'S THERE?",
+        "rulesText": "{E}, 2 {I} — Look at the top 3 cards of your deck. You may reveal a character, item, or location card with cost 6 or less and play it for free. Put the rest on the bottom of your deck in any order. Put this card into your inkwell facedown and exerted.",
+        "costs": [
+          {
+            "type": "exert"
+          },
+          {
+            "type": "pay_ink",
+            "amount": 2
+          }
+        ],
+        "effects": [
+          {
+            "type": "look_at_top",
+            "count": 3,
+            "action": "peek_and_set_target",
+            "restPlacement": "bottom",
+            "filter": {
+              "cardType": [
+                "character",
+                "item",
+                "location"
+              ],
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 6
+                }
+              ]
+            },
+            "target": {
+              "type": "self"
+            },
+            "isMay": true
+          },
+          {
+            "type": "play_card",
+            "target": {
+              "type": "last_resolved_target"
+            },
+            "sourceZone": "deck"
+          },
+          {
+            "type": "put_into_inkwell",
+            "target": {
+              "type": "this"
+            },
+            "enterExerted": true
+          }
+        ]
+      }
+    ],
     "setId": "13",
     "number": 170,
     "rarity": "super_rare",

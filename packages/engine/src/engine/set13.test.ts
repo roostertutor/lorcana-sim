@@ -634,3 +634,32 @@ describe("Set 13 — I'm Never Not by Your Side", () => {
     expect(r.newState.players.player1.lore).toBe(4);
   });
 });
+
+describe("Set 13 — Closet Door Portal", () => {
+  it("KNOCK KNOCK enters play exerted", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 4);
+    let portal: string;
+    ({ state, instanceId: portal } = injectCard(state, "player1", "closet-door-portal", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: portal }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, portal).isExerted).toBe(true);
+  });
+
+  it("WHO'S THERE looks at top 3, plays a ≤6-cost card for free, and inks itself", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 2);
+    let portal: string, top: string;
+    ({ state, instanceId: portal } = injectCard(state, "player1", "closet-door-portal", "play"));
+    ({ state, instanceId: top } = injectCard(state, "player1", "mushu-stealthy-dragon", "deck")); // cost 3 character
+    state = putOnTop(state, "player1", top);
+    // Non-interactive: the peek auto-picks the matching card and plays it free.
+    const r = applyAction(state, { type: "ACTIVATE_ABILITY", playerId: "player1", instanceId: portal, abilityIndex: 1 }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // The revealed ≤6-cost character was played for free.
+    expect(getInstance(r.newState, top).zone).toBe("play");
+    // The portal put itself into the inkwell facedown and exerted.
+    expect(getInstance(r.newState, portal).zone).toBe("inkwell");
+    expect(getInstance(r.newState, portal).isExerted).toBe(true);
+  });
+});
