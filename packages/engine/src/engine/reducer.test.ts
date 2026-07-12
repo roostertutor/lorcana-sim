@@ -4382,6 +4382,23 @@ describe("§8 Keywords", () => {
     expect(getInstance(r.newState, defId).damage).toBe(0); // max(0, negStr - resist) — never negative/healing
   });
 
+  it("CRD 4.6.4.4 (2.2.0): a challenger readied mid-challenge stays the challenging character and still takes challenge damage (Ming Lee)", () => {
+    // Ming Lee - Giant Red Panda PATH OF DESTRUCTION readies HER when she
+    // challenges (a Declaration-step trigger). 4.6.4.4: she's still the
+    // challenging character and isn't removed from the challenge — so she still
+    // deals and takes challenge damage in the Damage step.
+    let state = startGame();
+    let mingId: string, hadesId: string;
+    ({ state, instanceId: mingId } = injectCard(state, "player1", "ming-lee-giant-red-panda", "play", { isDrying: false })); // S10/W10
+    ({ state, instanceId: hadesId } = injectCard(state, "player2", "hades-king-of-olympus", "play", { isDrying: false, isExerted: true })); // S6/W7
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mingId, defenderInstanceId: hadesId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    expect(getInstance(state, mingId).isExerted).toBe(false); // readied by PATH OF DESTRUCTION during Declaration
+    expect(getInstance(state, mingId).damage).toBe(6);        // still took Hades's Strength — she stayed in the challenge
+    expect(getInstance(state, hadesId).zone).toBe("discard"); // Hades took Ming Lee's 10 (lethal, W7)
+  });
+
   it("Belle & Beast INSPIRING DANCE: questing readies all cards in your inkwell (Set 13)", () => {
     let state = startGame();
     let bbId: string, ink1: string, ink2: string;
