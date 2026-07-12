@@ -4327,6 +4327,29 @@ describe("§8 Keywords", () => {
     expect(getInstance(state, eeyoreId).damage).toBe(1); // 0 from Avalanche + (2 - Resist 1) from STEADY AIM
   });
 
+  it("CRD 1.9.5 (2.2.0): an action PREVENTED to 0 still 'deals' damage — STEADY AIM fires (Lilo - Bundled Up)", () => {
+    // Prevention variant of the CRD example: Avalanche (1 dmg to each opposing)
+    // into Lilo - Bundled Up (EXTRA LAYERS: first damage on an opponent's turn
+    // is prevented; willpower 2). Lilo TAKES no damage from Avalanche, but the
+    // action is "still considered to deal damage" → STEADY AIM triggers. Lilo's
+    // one-shot shield was spent on Avalanche, so STEADY AIM's 2 lands — which is
+    // lethal (W2), so she's banished. (If STEADY AIM had NOT fired, Lilo would
+    // sit at 0 damage, still in play.)
+    let state = startGame();
+    let liloId: string, avalancheId: string;
+    ({ state } = injectCard(state, "player1", "merida-formidable-archer", "play", { isDrying: false }));
+    ({ state, instanceId: liloId } = injectCard(state, "player2", "lilo-bundled-up", "play", { isDrying: false }));
+    ({ state, instanceId: avalancheId } = injectCard(state, "player1", "avalanche", "hand"));
+    state = giveInk(state, "player1", 10);
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: avalancheId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    state = r.newState;
+    for (let g = 0; g < 3 && state.pendingChoice; g++) {
+      state = applyAction(state, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, CARD_DEFINITIONS).newState;
+    }
+    expect(getInstance(state, liloId).zone).toBe("discard"); // STEADY AIM's 2 was lethal → banished
+  });
+
   it("CRD 1.9.5 (2.2.0): a challenge dealing 0 (Resist) STILL fires the attacker's 'deals damage in a challenge' trigger", () => {
     // 1.9.5 source side: Mulan - Elite Archer (Strength 2) challenges a Resist-3
     // defender → defender takes 0, BUT Mulan (Strength > 0) is "still considered

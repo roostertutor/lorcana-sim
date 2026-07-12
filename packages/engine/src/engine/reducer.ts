@@ -8723,6 +8723,13 @@ function dealDamageToCard(
         const used = (immTarget.damagePreventionChargesUsedThisTurn ?? 0) + 1;
         state = updateInstance(state, instanceId, { damagePreventionChargesUsedThisTurn: used });
       }
+      // CRD 1.9.5: the effect is "still considered to deal damage" even though the
+      // target takes none (prevention reduces it to 0). Fire source-side "deals
+      // damage" triggers (Merida STEADY AIM); the recipient takes 0 and its "is
+      // dealt / takes damage" self-trigger is skipped via dealtButNotTaken.
+      if (amount > 0 && !asPutDamage) {
+        state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId, dealtButNotTaken: true });
+      }
       return state;
     }
     const timedIdx = findTimedDamagePreventionIdx(immTarget, inChallenge);
@@ -8739,6 +8746,10 @@ function dealDamageToCard(
           nextEffects = immTarget.timedEffects.map((e, i) => (i === timedIdx ? { ...e, charges: remaining } : e));
         }
         state = updateInstance(state, instanceId, { timedEffects: nextEffects });
+      }
+      // CRD 1.9.5: still "deals" damage even when timed prevention takes it to 0.
+      if (amount > 0 && !asPutDamage) {
+        state = queueTrigger(state, "damage_dealt_to", instanceId, definitions, { sourceInstanceId, dealtButNotTaken: true });
       }
       return state;
     }
