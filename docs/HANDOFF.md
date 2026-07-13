@@ -187,28 +187,40 @@ if a future slice wants quest-specific or exert-specific motion.
 single-target option), so its cards have *no* single-target shift entry; the
 picker must offer the two-base selection or the card can't be shifted at all.
 
-**What shipped (engine, commit `fd37e33`):** Combo Shift is fully implemented
-and tested headlessly. The two-target action shape is
-`PlayCardAction.shiftTargetInstanceIds: [idA, idB]` (one matching each combo
-name). `getAllLegalActions` already enumerates the valid one-of-each pairs, so
-the bot/sim play it today. The single-target case (shift onto just a Sulley
-*or* just a Boo) uses the existing `shiftTargetInstanceId` and **already works
-in the current shift picker** with no UI change.
+**What shipped (engine — on `main`, fully tested headlessly):** Both **Combo**
+(`variant:"combo"`) and **Duo** (`variant:"duo"`) Shift are complete. The
+two-target action shape is `PlayCardAction.shiftTargetInstanceIds: [idA, idB]`
+(one matching each name). Differences the picker must respect:
+- **Combo** supports BOTH single-target (`shiftTargetInstanceId`, one base whose
+  name is any of `shiftNames`) AND two-target (one of each). Single-target
+  already works in the current picker unchanged.
+- **Duo** is **two-target ONLY** — `canShiftOnto` returns `false` for a single
+  target, so Duo cards have *no* single-target entry. The picker MUST offer the
+  two-base selection or these cards can't be shifted at all in the sandbox.
+- **Morph mimicry wildcard** (Morph - Little Imitator, Set 13): a Morph can fill
+  *either* name slot, so it's a valid pick for one (or both) of the two bases.
+
+**Source of truth — don't re-derive the matching logic:** `getAllLegalActions`
+already enumerates every valid `shiftTargetInstanceIds` pair (one-of-each names,
+Morph wildcards included) and rejects illegal ones (two of the same name, a
+single Morph for Duo, etc.). The picker should **filter `getAllLegalActions` for
+`PLAY_CARD` actions on the chosen shift card that carry `shiftTargetInstanceIds`**
+and surface those pairs, rather than reimplementing the name/mimicry checks.
+`shiftNames` (e.g. `["Sulley","Boo"]`) is available on the keyword for labeling.
 
 **The gap (UI only):** the sandbox shift-target picker assumes a single target.
-For the "one of each" case the player must be able to pick **two** bases before
-committing the play. Needed:
-- After the shift card is chosen, if its shift keyword has `variant: "combo"`,
-  offer both the single-target targets (existing) **and** the two-target combos
-  (pick one base per name). Simplest: let the user click two valid bases, then
-  dispatch `PLAY_CARD` with `shiftTargetInstanceIds`.
-- Read the valid names from the keyword's `shiftNames` (e.g. `["Sulley","Boo"]`)
-  to label/group the picker.
-- No new `PendingChoice` variant is involved — this is action *construction* in
-  the sandbox before dispatch, same layer as the existing shift picker.
+For the two-target case the player must pick **two** bases before committing.
+Simplest flow: user clicks two valid bases (validated against the enumerated
+legal pairs), then dispatch `PLAY_CARD` with `shiftTargetInstanceIds`. No new
+`PendingChoice` variant — this is action *construction* in the sandbox before
+dispatch, same layer as the existing shift picker.
+
+**Test cards:** Sulley & Boo `#29` (Combo), Dash & Violet `#133/#241` (Combo),
+Mickey & Minnie `#99/#238` (Duo). Inject the two bases + the "&" card in hand,
+confirm the two-target play is offered and lands both bases under the new top.
 
 **Not blocking** engine/sim/bot work. Only affects interactive sandbox play of
-these three cards' two-target mode.
+these cards' two-target mode.
 
 ---
 
