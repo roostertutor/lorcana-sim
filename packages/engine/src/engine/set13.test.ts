@@ -691,3 +691,208 @@ describe("Set 13 — The Horned King CAULDRON'S POWER", () => {
     expect(blocked.success).toBe(false);
   });
 });
+
+// =============================================================================
+// Set 13 "&" Combo/Duo cards — named-ability wiring
+// =============================================================================
+
+describe("Set 13 — Woody & Buzz Lightyear TO INFINITY / ...AND BEYOND", () => {
+  it("TO INFINITY draws until your hand equals chosen opponent's when they have more", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 7);
+    let woody: string;
+    ({ state, instanceId: woody } = injectCard(state, "player1", "woody-buzz-lightyear-best-buddies", "hand"));
+    // Give player2 a strictly larger hand so the condition fires.
+    for (let i = 0; i < 5; i++) ({ state } = injectCard(state, "player2", "meeko-lucky-raccoon", "hand"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: woody }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // After the draw, both hands hold the same number of cards.
+    expect(getZone(r.newState, "player1", "hand").length).toBe(getZone(r.newState, "player2", "hand").length);
+  });
+
+  it("TO INFINITY draws nothing when the opponent does not have more cards", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 7);
+    let woody: string;
+    ({ state, instanceId: woody } = injectCard(state, "player1", "woody-buzz-lightyear-best-buddies", "hand"));
+    // player1 hand is larger than player2's after playing Woody — no draw.
+    for (let i = 0; i < 5; i++) ({ state } = injectCard(state, "player1", "meeko-lucky-raccoon", "hand"));
+    const p1Before = getZone(state, "player1", "hand").length - 1; // minus Woody being played
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: woody }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(p1Before);
+  });
+
+  it("...AND BEYOND lets you play a cost-2 card for free when this character quests", () => {
+    let state = startGame();
+    let woody: string, cheap: string;
+    ({ state, instanceId: woody } = injectCard(state, "player1", "woody-buzz-lightyear-best-buddies", "play", { isDrying: false }));
+    ({ state, instanceId: cheap } = injectCard(state, "player1", "isabela-madrigal-kind-cultivator", "hand")); // cost 2
+    // No ink — proves the play is free.
+    let r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: woody }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    // "you may play" — accept the may first, then pick the card.
+    expect(r.newState.pendingChoice?.type).toBe("choose_may");
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: "accept" }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r.newState.pendingChoice?.validTargets).toContain(cheap);
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [cheap] }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, cheap).zone).toBe("play");
+    expect(r.newState.players.player1.availableInk).toBe(0); // played for free
+  });
+});
+
+describe("Set 13 — Aladdin & Genie SLEIGHT OF HAND", () => {
+  it("puts any number from hand on the bottom of the deck, then draws that many plus 1", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let aladdin: string, a: string, b: string;
+    ({ state, instanceId: aladdin } = injectCard(state, "player1", "aladdin-genie-mischievous-pals", "hand")); // cost 5
+    ({ state, instanceId: a } = injectCard(state, "player1", "meeko-lucky-raccoon", "hand"));
+    ({ state, instanceId: b } = injectCard(state, "player1", "abu-wise-sultan", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: aladdin }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+    const handAfterPlay = getZone(r.newState, "player1", "hand").length;
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [a, b] }, CARD_DEFINITIONS);
+    // Both chosen cards moved to the bottom of the deck.
+    const deck = getZone(r.newState, "player1", "deck");
+    expect(getInstance(r.newState, a).zone).toBe("deck");
+    expect(getInstance(r.newState, b).zone).toBe("deck");
+    expect(deck.slice(-2)).toEqual([a, b]); // selection order = bottom order
+    // Put 2 → drew 2 + 1 = 3. Net hand change: -2 + 3 = +1.
+    expect(getZone(r.newState, "player1", "hand").length).toBe(handAfterPlay - 2 + 3);
+  });
+
+  it("draws nothing when you put zero cards on the bottom (decline)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let aladdin: string;
+    ({ state, instanceId: aladdin } = injectCard(state, "player1", "aladdin-genie-mischievous-pals", "hand"));
+    let r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: aladdin }, CARD_DEFINITIONS);
+    expect(r.newState.pendingChoice?.type).toBe("choose_discard");
+    const handAfterPlay = getZone(r.newState, "player1", "hand").length;
+    r = applyAction(r.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: [] }, CARD_DEFINITIONS);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(handAfterPlay); // no put, no draw
+  });
+});
+
+describe("Set 13 — Maleficent & Diablo FOOLS! / RAVEN'S CALL", () => {
+  it("FOOLS! shifts for free by putting 5 characters from discard on the bottom of the deck", () => {
+    let state = startGame();
+    let base: string, shifter: string;
+    ({ state, instanceId: base } = injectCard(state, "player1", "maleficent-biding-her-time", "play", { isDrying: false }));
+    ({ state, instanceId: shifter } = injectCard(state, "player1", "maleficent-diablo-evil-incarnate", "hand"));
+    const discardIds: string[] = [];
+    for (let i = 0; i < 5; i++) {
+      let id: string;
+      ({ state, instanceId: id } = injectCard(state, "player1", "meeko-lucky-raccoon", "discard"));
+      discardIds.push(id);
+    }
+    // 0 ink → the printed 5-ink Shift is unaffordable; force the alt cost.
+    const r0 = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shifter, shiftTargetInstanceId: base, viaAltShift: true } as any, CARD_DEFINITIONS);
+    expect(r0.success).toBe(true);
+    expect(r0.newState.pendingChoice?.type).toBe("choose_target");
+    expect(r0.newState.pendingChoice?.count).toBe(5);
+    const r = applyAction(r0.newState, { type: "RESOLVE_CHOICE", playerId: "player1", choice: discardIds }, CARD_DEFINITIONS);
+    expect(getInstance(r.newState, shifter).zone).toBe("play"); // shift completed
+    // All 5 cost cards left the discard for the deck bottom.
+    for (const id of discardIds) expect(getInstance(r.newState, id).zone).toBe("deck");
+    expect(getZone(r.newState, "player1", "discard").filter((x: string) => discardIds.includes(x)).length).toBe(0);
+  });
+
+  it("still allows the printed ink Shift for the same card (no discard cards spent)", () => {
+    let state = startGame();
+    state = giveInk(state, "player1", 5);
+    let base: string, shifter: string, junk: string;
+    ({ state, instanceId: base } = injectCard(state, "player1", "maleficent-biding-her-time", "play", { isDrying: false }));
+    ({ state, instanceId: shifter } = injectCard(state, "player1", "maleficent-diablo-evil-incarnate", "hand"));
+    ({ state, instanceId: junk } = injectCard(state, "player1", "meeko-lucky-raccoon", "discard"));
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: shifter, shiftTargetInstanceId: base } as any, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, shifter).zone).toBe("play");
+    expect(r.newState.players.player1.availableInk).toBe(0); // paid 5 ink
+    expect(getInstance(r.newState, junk).zone).toBe("discard"); // discard untouched
+  });
+
+  it("RAVEN'S CALL draws a card when this character exerts on your turn (quest)", () => {
+    let state = startGame();
+    let mal: string;
+    ({ state, instanceId: mal } = injectCard(state, "player1", "maleficent-diablo-evil-incarnate", "play", { isDrying: false }));
+    const before = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "QUEST", playerId: "player1", instanceId: mal }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(before + 1); // drew from the exert
+  });
+
+  it("RAVEN'S CALL draws when this character exerts via challenge", () => {
+    let state = startGame();
+    let mal: string, victim: string;
+    ({ state, instanceId: mal } = injectCard(state, "player1", "maleficent-diablo-evil-incarnate", "play", { isDrying: false }));
+    ({ state, instanceId: victim } = injectCard(state, "player2", "abu-wise-sultan", "play", { isDrying: false, isExerted: true }));
+    const before = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: mal, defenderInstanceId: victim }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(before + 1);
+  });
+
+  it("RAVEN'S CALL does not draw for you when an opponent's character exerts", () => {
+    let state = startGame();
+    let mal: string, oppChar: string;
+    ({ state, instanceId: mal } = injectCard(state, "player1", "maleficent-diablo-evil-incarnate", "play", { isDrying: false }));
+    ({ state, instanceId: oppChar } = injectCard(state, "player2", "meeko-lucky-raccoon", "play", { isDrying: false }));
+    state = passTurns(state, 1); // player2's turn
+    const before = getZone(state, "player1", "hand").length;
+    const r = applyAction(state, { type: "QUEST", playerId: "player2", instanceId: oppChar }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getZone(r.newState, "player1", "hand").length).toBe(before); // self-scoped: no draw
+  });
+});
+
+describe("Set 13 — Darkwing Duck & Launchpad VICTORY POSE", () => {
+  it("gains 2 lore when this character banishes another character in a challenge on your turn", () => {
+    let state = startGame();
+    let dw: string, victim: string;
+    ({ state, instanceId: dw } = injectCard(state, "player1", "darkwing-duck-launchpad-st-canards-finest", "play", { isDrying: false }));
+    // abu is 2/2, exerted → Darkwing's 5 strength banishes it in the challenge.
+    ({ state, instanceId: victim } = injectCard(state, "player2", "abu-wise-sultan", "play", { isDrying: false, isExerted: true }));
+    const loreBefore = state.players.player1.lore;
+    const r = applyAction(state, { type: "CHALLENGE", playerId: "player1", attackerInstanceId: dw, defenderInstanceId: victim }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, victim).zone).toBe("discard"); // banished
+    expect(r.newState.players.player1.lore).toBe(loreBefore + 2);
+  });
+});
+
+describe("Set 13 — Carl Fredricksen & Russell OUTDOOR SKILLS", () => {
+  it("grants +1 lore and Evasive to characters at the same location, but not elsewhere", () => {
+    let state = startGame();
+    let loc: string, carl: string, coLocated: string, elsewhere: string;
+    ({ state, instanceId: loc } = injectCard(state, "player1", "agrabah-marketplace", "play"));
+    ({ state, instanceId: carl } = injectCard(state, "player1", "carl-fredricksen-russell-intrepid-explorers", "play", { isDrying: false, atLocationInstanceId: loc }));
+    ({ state, instanceId: coLocated } = injectCard(state, "player1", "meeko-lucky-raccoon", "play", { isDrying: false, atLocationInstanceId: loc }));
+    ({ state, instanceId: elsewhere } = injectCard(state, "player1", "abu-wise-sultan", "play", { isDrying: false }));
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    // Co-located character gets +1 lore and Evasive.
+    expect(mods.statBonuses.get(coLocated)?.lore ?? 0).toBe(1);
+    expect((mods.grantedKeywords.get(coLocated) ?? []).some((k: any) => k.keyword === "evasive")).toBe(true);
+    // Carl himself is at the location too.
+    expect(mods.statBonuses.get(carl)?.lore ?? 0).toBe(1);
+    expect((mods.grantedKeywords.get(carl) ?? []).some((k: any) => k.keyword === "evasive")).toBe(true);
+    // A character not at the location is unaffected.
+    expect(mods.statBonuses.get(elsewhere)?.lore ?? 0).toBe(0);
+    expect((mods.grantedKeywords.get(elsewhere) ?? []).some((k: any) => k.keyword === "evasive")).toBe(false);
+  });
+
+  it("stops granting once Carl is no longer at a location", () => {
+    let state = startGame();
+    let loc: string, carl: string, coLocated: string;
+    ({ state, instanceId: loc } = injectCard(state, "player1", "agrabah-marketplace", "play"));
+    ({ state, instanceId: carl } = injectCard(state, "player1", "carl-fredricksen-russell-intrepid-explorers", "play", { isDrying: false }));
+    ({ state, instanceId: coLocated } = injectCard(state, "player1", "meeko-lucky-raccoon", "play", { isDrying: false, atLocationInstanceId: loc }));
+    // Carl is NOT at the location → OUTDOOR SKILLS is inactive.
+    const mods = getGameModifiers(state, CARD_DEFINITIONS);
+    expect(mods.statBonuses.get(coLocated)?.lore ?? 0).toBe(0);
+    expect((mods.grantedKeywords.get(coLocated) ?? []).some((k: any) => k.keyword === "evasive")).toBe(false);
+    void carl;
+  });
+});

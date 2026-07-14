@@ -1864,6 +1864,58 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "TO INFINITY...",
+        "rulesText": "When you play this character, if chosen opponent has more cards in their hand than you, draw cards until you have the same number.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "until": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "hand"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "...AND BEYOND!",
+        "rulesText": "Whenever this character quests, you may play a card with cost 2 or less for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "isMay": true,
+            "filter": {
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -3774,6 +3826,20 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "SLEIGHT OF HAND",
+        "rulesText": "When you play this character, you may put any number of cards from your hand on the bottom of your deck in any order. If you do, draw that number of cards plus 1.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_hand_on_bottom_then_draw",
+            "drawBonus": 1
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -4058,6 +4124,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "RAVEN'S CALL",
+        "rulesText": "During your turn, whenever this character exerts, draw a card.",
+        "trigger": {
+          "on": "character_exerted"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -4070,6 +4156,15 @@
     "willpower": 5,
     "lore": 2,
     "shiftCost": 5,
+    "altShiftCost": {
+      "type": "put_from_discard_on_bottom",
+      "filter": {
+        "cardType": [
+          "character"
+        ]
+      },
+      "amount": 5
+    },
     "rulesText": "<Shift> 5 {I} (You may pay 5 {I} to play this on top of one of your characters named Maleficent or Diablo.)\nFOOLS! You may put 5 character cards from your discard on the bottom of your deck in any order to shift this character for free.\nRAVEN’S CALL During your turn, whenever this character exerts, draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set13/63_0bd2dbdfe4a46fd5_normal.jpg",
     "foilImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/63_3657556db9953ceb0910fb69f9f5df3e879498ba.jpg",
@@ -6255,6 +6350,43 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "OUTDOOR SKILLS",
+        "rulesText": "While this character is at a location, all characters at that location get +1 {L} and gain <Evasive>. (Only characters with Evasive can challenge them.)",
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "same_location"
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "same_location"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -10419,6 +10551,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "VICTORY POSE",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, gain 2 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -13493,6 +13645,58 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "TO INFINITY...",
+        "rulesText": "When you play this character, if chosen opponent has more cards in their hand than you, draw cards until you have the same number.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "condition": {
+          "type": "opponent_has_more_cards_in_hand"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 0,
+            "target": {
+              "type": "self"
+            },
+            "until": {
+              "type": "count",
+              "filter": {
+                "owner": {
+                  "type": "opponent"
+                },
+                "zone": "hand"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "triggered",
+        "storyName": "...AND BEYOND!",
+        "rulesText": "Whenever this character quests, you may play a card with cost 2 or less for free.",
+        "trigger": {
+          "on": "quests"
+        },
+        "effects": [
+          {
+            "type": "play_card",
+            "isMay": true,
+            "filter": {
+              "statComparisons": [
+                {
+                  "stat": "cost",
+                  "op": "lte",
+                  "value": 2
+                }
+              ]
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -13827,6 +14031,20 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 3
+      },
+      {
+        "type": "triggered",
+        "storyName": "SLEIGHT OF HAND",
+        "rulesText": "When you play this character, you may put any number of cards from your hand on the bottom of your deck in any order. If you do, draw that number of cards plus 1.",
+        "trigger": {
+          "on": "enters_play"
+        },
+        "effects": [
+          {
+            "type": "put_hand_on_bottom_then_draw",
+            "drawBonus": 1
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -14037,6 +14255,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "RAVEN'S CALL",
+        "rulesText": "During your turn, whenever this character exerts, draw a card.",
+        "trigger": {
+          "on": "character_exerted"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "draw",
+            "amount": 1,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -14049,6 +14287,15 @@
     "willpower": 5,
     "lore": 2,
     "shiftCost": 5,
+    "altShiftCost": {
+      "type": "put_from_discard_on_bottom",
+      "filter": {
+        "cardType": [
+          "character"
+        ]
+      },
+      "amount": 5
+    },
     "rulesText": "<Shift> 5 {I}\nFOOLS! You may put 5 character cards from your discard on the bottom of your deck in any order to shift this character for free.\nRAVEN’S CALL During your turn, whenever this character exerts, draw a card.",
     "imageUrl": "https://pub-5d52a089800f49be846aa55b2833c558.r2.dev/set13/235_0bd9c6fc68120e26_normal.jpg",
     "foilType": "magma",
@@ -14147,6 +14394,43 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 4
+      },
+      {
+        "type": "static",
+        "storyName": "OUTDOOR SKILLS",
+        "rulesText": "While this character is at a location, all characters at that location get +1 {L} and gain <Evasive>. (Only characters with Evasive can challenge them.)",
+        "condition": {
+          "type": "this_at_location"
+        },
+        "effect": [
+          {
+            "type": "modify_stat",
+            "stat": "lore",
+            "amount": 1,
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "same_location"
+              }
+            }
+          },
+          {
+            "type": "grant_keyword",
+            "keyword": "evasive",
+            "target": {
+              "type": "all",
+              "filter": {
+                "cardType": [
+                  "character"
+                ],
+                "atLocation": "same_location"
+              }
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
@@ -14572,6 +14856,26 @@
         "type": "keyword",
         "keyword": "shift",
         "value": 5
+      },
+      {
+        "type": "triggered",
+        "storyName": "VICTORY POSE",
+        "rulesText": "During your turn, whenever this character banishes another character in a challenge, gain 2 lore.",
+        "trigger": {
+          "on": "banished_other_in_challenge"
+        },
+        "condition": {
+          "type": "is_your_turn"
+        },
+        "effects": [
+          {
+            "type": "gain_lore",
+            "amount": 2,
+            "target": {
+              "type": "self"
+            }
+          }
+        ]
       }
     ],
     "setId": "13",
