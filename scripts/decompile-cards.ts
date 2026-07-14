@@ -245,7 +245,24 @@ function renderKeywordWithReminder(ab: Json): string {
     resist: (n) => `Damage dealt to this character is reduced by ${n ?? 1}.`,
     challenger: (n) => `While challenging, this character gets +${n ?? 1} {S}.`,
     singer: (n) => `This character counts as cost ${n ?? 1} to sing songs.`,
-    shift: (n) => `You may pay ${n ?? 0} {I} to play this on top of one of your characters with the same name.`,
+    shift: (n) => {
+      // Set 13 shift variants — the reminder text differs by variant (the
+      // closures capture `ab`, so shiftNames/classifier are available).
+      const names = Array.isArray(ab.shiftNames) ? ab.shiftNames : null;
+      if (ab.variant === "duo" && names && names.length >= 2) {
+        return `You may pay ${n ?? 0} {I} to play this on top of two of your characters, one named ${names[0]} and one named ${names[1]}.`;
+      }
+      if (ab.variant === "combo" && names) {
+        return `You may pay ${n ?? 0} {I} to play this on top of one of your characters named ${names.join(" or ")}.`;
+      }
+      if (ab.variant === "universal") {
+        return `You may pay ${n ?? 0} {I} to play this on top of any of your characters.`;
+      }
+      if (ab.variant === "classification" && ab.classifier) {
+        return `You may pay ${n ?? 0} {I} to play this on top of one of your ${ab.classifier} characters.`;
+      }
+      return `You may pay ${n ?? 0} {I} to play this on top of one of your characters with the same name.`;
+    },
     boost: (n) => `Once during your turn, you may pay ${n ?? 0} {I} to put the top card of your deck facedown under this character.`,
     "sing together": (n) => `Any number of your or your teammates' characters with total cost ${n ?? 0} or more may {E} to sing this song for free.`,
   };
@@ -562,6 +579,8 @@ function filterMentionsYour(f: Json | undefined): boolean {
 const CONDITION_RENDERERS: Record<string, Renderer> = {
   is_your_turn:               ()  => "during your turn",
   this_is_exerted:            ()  => "if this character is exerted",
+  all_inkwell_exerted:        ()  => "if all cards in your inkwell are exerted",
+  last_resolved_target_has_card_under: () => "if there's a card under that character",
   has_character_named:        (c) => `if you have a character named ${c.name} in play`,
   has_character_with_trait:   (c) => `if you have ${c.excludeSelf ? "another" : "a"} ${c.trait} character in play`,
   controls_location:          ()  => "if you have a location in play",
@@ -893,6 +912,24 @@ function renderCost(c: Json, ctx?: { cardType?: string }): string {
 // gains"). Adding a new effect type = adding a row here.
 // -----------------------------------------------------------------------------
 const EFFECT_RENDERERS: Record<string, Renderer> = {
+  // Set 13 additions.
+  play_characters_from_discard: () => "you may play characters from your discard",
+  self_banish_replacement: (e) => {
+    const instead = Array.isArray(e.instead) ? e.instead.map((f: Json) => renderEffect(f)).join(", ") : "do something else";
+    return `if this character would be banished, ${instead} instead`;
+  },
+  modify_next_character_played: (e) => {
+    const parts: string[] = [];
+    if (e.enterExerted) parts.push("enters play exerted");
+    if (e.grantKeyword?.keyword) {
+      const dur = e.grantKeyword.duration ? " " + renderDuration(e.grantKeyword.duration) : "";
+      parts.push(`gains ${cap(e.grantKeyword.keyword)}${dur}`);
+    }
+    return `the next character you play this turn ${parts.join(" and ") || "is affected"}`;
+  },
+  grant_keyword_remembered_target: (e) => `that location gains ${cap(e.keyword ?? "a keyword")}`,
+  shift_onto_cost_reduction: (e) => `you pay ${e.amount ?? 1} {I} less to shift a character on top of this character`,
+  cant_sing_without_sing_together: () => "this character can't sing songs without Sing Together",
   draw: (e) => {
     // `until` is a runtime-computed draw count; the literal `amount` field is a
     // 0 placeholder in that case (Clarabelle / Yzma / Remember Who You Are
@@ -3695,7 +3732,13 @@ function loadCards(setFilter?: string): CardJSON[] {
   const files = readdirSync(CARDS_DIR)
     .filter((f) => f.startsWith("card-set-") && f.endsWith(".json"));
   for (const f of files) {
-    if (setFilter && !f.includes(setFilter)) continue;
+    if (setFilter) {
+      // Precise match on `card-set-<N>.json`. Accepts leading zeros ("013" →
+      // "13") and non-numeric set codes ("P1", "DIS"). Avoids the loose
+      // substring bug where `--set 3` also matched card-set-13.json.
+      const stripped = setFilter.replace(/^0+(?=\d)/, "");
+      if (f !== `card-set-${setFilter}.json` && f !== `card-set-${stripped}.json`) continue;
+    }
     const cards = JSON.parse(readFileSync(join(CARDS_DIR, f), "utf-8")) as CardJSON[];
     for (const c of cards) {
       const existing = byId.get(c.id);
