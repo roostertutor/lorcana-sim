@@ -49,7 +49,7 @@ export function useBoardDnd(params: {
       // Collect every "simple" play path for this card (excludes shift/sing/
       // singer-group, which drop onto other cards not the play zone).
       const playActions = legalActions.filter(
-        (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.singerInstanceId && !a.singerInstanceIds,
+        (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.shiftTargetInstanceIds && !a.singerInstanceId && !a.singerInstanceIds,
       );
       if (playActions.length === 0) return;
       if (playActions.length === 1) { dispatch(playActions[0]!); return; }
@@ -125,7 +125,7 @@ export function useBoardDnd(params: {
 
   function isValidPlayZoneDrop(draggingId: string): boolean {
     return legalActions.some(
-      (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.singerInstanceId && !a.singerInstanceIds,
+      (a) => a.type === "PLAY_CARD" && a.instanceId === draggingId && !a.shiftTargetInstanceId && !a.shiftTargetInstanceIds && !a.singerInstanceId && !a.singerInstanceIds,
     );
   }
 

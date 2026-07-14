@@ -4,7 +4,7 @@
 // =============================================================================
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers, GameLogEntry } from "@lorcana-sim/engine";
+import type { CardDefinition, DeckEntry, PlayerID, GameState, GameModifiers, GameLogEntry, GameAction } from "@lorcana-sim/engine";
 import { parseDecklist, getGameModifiers, evaluateCondition, hasKeyword, getKeywordValue, isSong, getLoreThreshold } from "@lorcana-sim/engine";
 import {
   GreedyBot,
@@ -718,6 +718,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const [cardsUnderViewerId, setCardsUnderViewerId] = useState<string | null>(null);
   const [challengeAttackerId, setChallengeAttackerId] = useState<string | null>(null);
   const [shiftCardId, setShiftCardId] = useState<string | null>(null);
+  // Combo/Duo Shift (Set 13): the two bases the player has tapped for a
+  // two-target shift. Engine enumerates the valid pairs in legalActions (as
+  // PLAY_CARD with shiftTargetInstanceIds); the picker validates the selection
+  // against those before dispatch. Empty for ordinary single-target shift.
+  const [shiftComboSelected, setShiftComboSelected] = useState<string[]>([]);
   const [singCardId, setSingCardId] = useState<string | null>(null);
   // Sing Together (CRD 8.12): multi-select mode — user picks any number of
   // eligible singers whose combined effective cost ≥ singTogetherCost, then
@@ -1074,6 +1079,7 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
   const cancelMode = React.useCallback(() => {
     setChallengeAttackerId(null);
     setShiftCardId(null);
+    setShiftComboSelected([]);
     setSingCardId(null);
     setSingTogetherCardId(null);
     setSingTogetherSelected([]);
@@ -1099,6 +1105,100 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         .map(a => (a as { shiftTargetInstanceId: string }).shiftTargetInstanceId)
     );
   }, [shiftCardId, session.legalActions]);
+
+  // Combo/Duo Shift (Set 13): valid two-target pairs for the selected shift
+  // card. `getAllLegalActions` (reducer.ts ~486) already enumerates every legal
+  // [idA, idB] pair — one matching each combo name, Morph mimicry included —
+  // and omits illegal ones (two of the same name, a single Morph for Duo, etc.),
+  // so the picker filters those actions instead of re-deriving the name match.
+  const shiftComboPairs = useMemo<string[][]>(() => {
+    if (!shiftCardId) return [];
+    return session.legalActions
+      .filter(a => a.type === "PLAY_CARD"
+        && (a as { instanceId: string }).instanceId === shiftCardId
+        && Array.isArray((a as { shiftTargetInstanceIds?: string[] }).shiftTargetInstanceIds)
+        && (a as { shiftTargetInstanceIds: string[] }).shiftTargetInstanceIds.length === 2)
+      .map(a => (a as { shiftTargetInstanceIds: string[] }).shiftTargetInstanceIds);
+  }, [shiftCardId, session.legalActions]);
+
+  // Two-target mode is active whenever the engine offers any valid pair for the
+  // selected card. Combo cards with only one eligible base of each name in play
+  // still shift via the ordinary single-target path (no pair enumerated → this
+  // is false). Duo cards are pair-only, so this is the sole route for them.
+  const shiftMultiTarget = shiftComboPairs.length > 0;
+
+  // shiftNames + duo flag off the shift keyword, for labeling the picker.
+  const shiftComboInfo = useMemo<{ names: string[]; isDuo: boolean }>(() => {
+    const gs = session.gameState;
+    if (!shiftCardId || !gs) return { names: [], isDuo: false };
+    const inst = gs.cards[shiftCardId];
+    const def = inst ? definitions[inst.definitionId] : undefined;
+    const kw = (def?.abilities ?? []).find(a => {
+      const k = a as { type?: string; keyword?: string; variant?: string };
+      return k.type === "keyword" && k.keyword === "shift" && (k.variant === "combo" || k.variant === "duo");
+    }) as { variant?: string; shiftNames?: string[] } | undefined;
+    return { names: kw?.shiftNames ?? [], isDuo: kw?.variant === "duo" };
+  }, [shiftCardId, session.gameState, definitions]);
+
+  // Which bases are tappable given the current selection. With nothing picked,
+  // every base in any legal pair (plus single-target combo bases) is offered;
+  // after one base is picked, only its valid partners stay lit so a dead-end
+  // pair can't be assembled.
+  const shiftComboEligible = useMemo<Set<string>>(() => {
+    const set = new Set<string>();
+    if (!shiftMultiTarget) return set;
+    const sel = shiftComboSelected;
+    if (sel.length === 0) {
+      for (const p of shiftComboPairs) { set.add(p[0]!); set.add(p[1]!); }
+      for (const t of shiftTargets) set.add(t); // single-target combo bases
+    } else if (sel.length === 1) {
+      const x = sel[0]!;
+      set.add(x);
+      for (const p of shiftComboPairs) {
+        if (p[0] === x) set.add(p[1]!);
+        else if (p[1] === x) set.add(p[0]!);
+      }
+    } else {
+      for (const s of sel) set.add(s);
+    }
+    return set;
+  }, [shiftMultiTarget, shiftComboSelected, shiftComboPairs, shiftTargets]);
+
+  // Whether the current selection maps to a dispatchable action: a matching
+  // enumerated pair (2 picks) or a single-target combo shift (1 pick — never
+  // valid for Duo, whose only entries are pairs).
+  const shiftComboConfirmValid = useMemo<boolean>(() => {
+    if (!shiftCardId) return false;
+    const sel = shiftComboSelected;
+    if (sel.length === 2) {
+      return shiftComboPairs.some(p => p.includes(sel[0]!) && p.includes(sel[1]!));
+    }
+    if (sel.length === 1) {
+      return shiftTargets.has(sel[0]!);
+    }
+    return false;
+  }, [shiftCardId, shiftComboSelected, shiftComboPairs, shiftTargets]);
+
+  // Commit the combo/duo shift once the toast's Confirm is pressed.
+  const confirmShiftCombo = useCallback(() => {
+    if (!shiftCardId || !shiftComboConfirmValid) return;
+    const sel = shiftComboSelected;
+    let action: GameAction | undefined;
+    if (sel.length === 2) {
+      action = session.legalActions.find(a =>
+        a.type === "PLAY_CARD"
+        && a.instanceId === shiftCardId
+        && Array.isArray(a.shiftTargetInstanceIds)
+        && a.shiftTargetInstanceIds.length === 2
+        && a.shiftTargetInstanceIds.includes(sel[0]!)
+        && a.shiftTargetInstanceIds.includes(sel[1]!));
+    } else if (sel.length === 1) {
+      action = session.legalActions.find(a =>
+        a.type === "PLAY_CARD" && a.instanceId === shiftCardId && a.shiftTargetInstanceId === sel[0]);
+    }
+    if (action) session.dispatch(action);
+    cancelMode();
+  }, [shiftCardId, shiftComboSelected, shiftComboConfirmValid, session, cancelMode]);
 
   // Valid location targets for the selected character (CRD 4.7)
   const moveTargets = useMemo(() => {
@@ -1229,7 +1329,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           });
           break;
         case "PLAY_CARD":
-          if (action.shiftTargetInstanceId) {
+          if (action.shiftTargetInstanceId || action.shiftTargetInstanceIds) {
+            // shiftTargetInstanceIds-only = Duo Shift (pair-only, no single-target
+            // entry): still surface a Shift button so the two-base picker is
+            // reachable. Combo cards have both a single-target entry (this branch)
+            // and pair entries; either lights the same button.
             if (!shiftAdded.has(action.instanceId)) {
               shiftAdded.add(action.instanceId);
               add(action.instanceId, {
@@ -2278,7 +2382,11 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
 
   function renderCardWithActions(id: string, zone: "play" | "hand", isOpponent = false, index = 0, total = 1, faceDown = false) {
     const isChallTarget = challengeTargets.has(id);
-    const isShiftTarget = shiftTargets.has(id);
+    // In Combo/Duo two-target mode, eligible bases come from the enumerated
+    // pairs (narrowed to valid partners once one base is picked); otherwise a
+    // plain single-target shift highlight.
+    const isShiftTarget = shiftMultiTarget ? shiftComboEligible.has(id) : shiftTargets.has(id);
+    const isShiftComboSelected = shiftComboSelected.includes(id);
     const isSingTarget = singTargets.has(id);
     const isMoveTarget = moveTargets.has(id);
     const isSingTogetherTarget = singTogetherEligible.has(id);
@@ -2344,7 +2452,20 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
         setChallengeAttackerId(null);
         return;
       }
-      if (!isOpponent && shiftCardId && isShiftTarget) {
+      if (!isOpponent && shiftCardId && shiftMultiTarget) {
+        // Combo/Duo Shift: tapping an eligible base toggles it in/out of the
+        // two-base selection (cap 2). Confirm/Cancel live in the top toast,
+        // mirroring Sing Together. A tap outside the eligible set falls through
+        // to cancelMode below.
+        if (shiftComboEligible.has(id)) {
+          setShiftComboSelected(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id)
+            : prev.length >= 2 ? prev
+            : [...prev, id]
+          );
+          return;
+        }
+      } else if (!isOpponent && shiftCardId && isShiftTarget) {
         // Both ink-cost and alt-cost shift dispatch the same way — the engine
         // surfaces a pendingChoice for alt-cost targets after the action fires.
         const shiftAction = legalActions.find(a => a.type === "PLAY_CARD" && a.instanceId === shiftCardId && a.shiftTargetInstanceId === id);
@@ -2425,8 +2546,8 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
                   gameState={gameState}
                   definitions={definitions}
                   gameModifiers={gameModifiers}
-                  isSelected={isSingTogetherSelected}
-                  isTarget={isChallTarget || isShiftTarget || isSingTarget || isMoveTarget || isDropTarget || (isSingTogetherTarget && !isSingTogetherSelected)}
+                  isSelected={isSingTogetherSelected || isShiftComboSelected}
+                  isTarget={isChallTarget || (isShiftTarget && !isShiftComboSelected) || isSingTarget || isMoveTarget || isDropTarget || (isSingTogetherTarget && !isSingTogetherSelected)}
                   isAttacker={isAttacker}
                   onClick={handleClick}
                   zone={zone}
@@ -3106,8 +3227,33 @@ export default function GameBoard({ definitions, sandboxMode, initialDeck, oppon
           {challengeAttackerId && (
             <ModeToast label="Challenge" hint="tap a highlighted opponent card" theme="red" onCancel={cancelMode} />
           )}
-          {shiftCardId && (
+          {shiftCardId && !shiftMultiTarget && (
             <ModeToast label="Shift" hint="tap a highlighted character" theme="purple" onCancel={cancelMode} />
+          )}
+          {shiftCardId && shiftMultiTarget && (
+            <ModeToast
+              label={shiftComboInfo.isDuo ? "Duo Shift" : "Combo Shift"}
+              hint={shiftComboInfo.names.length === 2
+                ? `tap one ${shiftComboInfo.names[0]} + one ${shiftComboInfo.names[1]}`
+                : "tap two highlighted characters"}
+              theme="purple"
+              onCancel={cancelMode}
+            >
+              <span className={`font-mono ${shiftComboConfirmValid ? "text-green-400" : "text-purple-400"}`}>
+                {shiftComboSelected.length}/2
+              </span>
+              <button
+                className={`px-2 py-0.5 rounded font-bold active:scale-95 ${
+                  shiftComboConfirmValid
+                    ? "bg-green-700 hover:bg-green-600 text-green-100"
+                    : "bg-gray-800 text-gray-600 cursor-not-allowed"
+                }`}
+                disabled={!shiftComboConfirmValid}
+                onClick={confirmShiftCombo}
+              >
+                Confirm
+              </button>
+            </ModeToast>
           )}
           {singCardId && (
             <ModeToast label="Sing" hint="tap a highlighted character to sing" theme="yellow" onCancel={cancelMode} />
