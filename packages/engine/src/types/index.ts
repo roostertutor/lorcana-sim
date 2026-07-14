@@ -182,6 +182,14 @@ export interface KeywordAbility {
    *  character whose name is any entry; the two-target ("one of each") case
    *  requires one target matching each of two distinct entries. */
   shiftNames?: string[];
+  /** CRD 8.10.9 — combined Shift variants must satisfy all conditions. Orthogonal
+   *  "temporary" behavior flag so a targeting variant (classification/name) can
+   *  ALSO be Temporary. Sun Yee - Red Panda Spirit "Temporary Red Panda Shift":
+   *  `variant:"classification", classifier:"Red Panda", temporary:true` — shifts
+   *  onto a Red Panda character AND reverts (returns only this card) at end of
+   *  turn. The name-matched Temporary Shift (Grandma Wu) uses `variant:"temporary"`;
+   *  applyPlayCard schedules the revert when `variant === "temporary" || temporary`. */
+  temporary?: boolean;
 }
 
 export interface TriggeredAbility {

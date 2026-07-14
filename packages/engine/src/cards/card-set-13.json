@@ -7668,7 +7668,16 @@
       "Storyborn",
       "Red Panda"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 2,
+        "variant": "classification",
+        "classifier": "Red Panda",
+        "temporary": true
+      }
+    ],
     "setId": "13",
     "number": 119,
     "rarity": "uncommon",
@@ -7684,7 +7693,8 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/119_29ddec2dbdefdba37da03e1fcfd2212467ab01a7.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/119_fc75d56c25c43bee46892880af4273ec9403d727.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/119_fc75d56c25c43bee46892880af4273ec9403d727.jpg",
+    "shiftCost": 2
   },
   {
     "id": "grandma-wu-fierce-red-panda",

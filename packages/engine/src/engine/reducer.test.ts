@@ -3715,6 +3715,31 @@ describe("§8 Keywords", () => {
     expect(s.pendingChoice).toBeFalsy();
   });
 
+  it("Combined Temporary + Classification Shift (Sun Yee 'Temporary Red Panda Shift'): shifts onto a Red Panda, reverts at end of turn (CRD 8.10.9)", () => {
+    // Sun Yee - Red Panda Spirit: variant "classification" (classifier "Red
+    // Panda") + temporary:true — must satisfy BOTH: land on a Red Panda AND
+    // return only this card at end of turn.
+    let state = startGame();
+    let baseId: string, sunId: string, nonPandaId: string;
+    ({ state, instanceId: baseId } = injectCard(state, "player1", "ming-lee-proud-parent", "play", { isDrying: false })); // Red Panda
+    ({ state, instanceId: nonPandaId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false })); // not Red Panda
+    ({ state, instanceId: sunId } = injectCard(state, "player1", "sun-yee-red-panda-spirit", "hand"));
+    state = giveInk(state, "player1", 10);
+    // Can't shift onto a non-Red-Panda (classification gate).
+    const bad = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: sunId, shiftTargetInstanceId: nonPandaId }, CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    // Shifts onto the Red Panda base.
+    const shift = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: sunId, shiftTargetInstanceId: baseId }, CARD_DEFINITIONS);
+    expect(shift.success).toBe(true);
+    state = shift.newState;
+    expect(getInstance(state, sunId).zone).toBe("play");
+    expect(getInstance(state, baseId).zone).toBe("under");
+    // Temporary: end of turn → only Sun Yee returns to hand, the base is promoted back.
+    const end = applyAction(state, { type: "PASS_TURN", playerId: "player1" }, CARD_DEFINITIONS);
+    expect(getInstance(end.newState, sunId).zone).toBe("hand");
+    expect(getInstance(end.newState, baseId).zone).toBe("play");
+  });
+
   it("Temporary Shift reverts at end of turn — top card to hand, base promoted carrying exerted state + damage cleared (Set 13, pre-CRD)", () => {
     // Ruling 2026-07-07 (no CRD yet — docs/CRD_TRACKER Provisional §): a ready
     // base that is temp-shifted onto and then quests comes back EXERTED when the

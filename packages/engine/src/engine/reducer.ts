@@ -1119,7 +1119,7 @@ function applyPlayCard(
       (a): a is import("../types/index.js").KeywordAbility =>
         a.type === "keyword" && a.keyword === "shift",
     );
-    if (playedShiftKw?.variant === "temporary") {
+    if (playedShiftKw?.variant === "temporary" || playedShiftKw?.temporary === true) {
       state = {
         ...state,
         delayedTriggers: [...(state.delayedTriggers ?? []), {
