@@ -118,7 +118,7 @@ export function validateAction(
 
   switch (action.type) {
     case "PLAY_CARD":
-      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds);
+      return validatePlayCard(state, action.playerId, action.instanceId, definitions, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds, action.viaAltShift);
     case "PLAY_INK":
       return validatePlayInk(state, action.playerId, action.instanceId, definitions);
     case "QUEST":
@@ -156,6 +156,7 @@ function validatePlayCard(
   viaGrantedFreePlay?: boolean,
   altShiftCostInstanceIds?: string,
   shiftTargetInstanceIds?: string[],
+  viaAltShift?: boolean,
 ): ValidationResult {
   if (!isMainPhase(state, playerId)) return fail("Not your main phase.");
 
@@ -263,9 +264,19 @@ function validatePlayCard(
     // modes — cost-IDs provided (legacy, headless bot, or post-pendingChoice
     // re-invoke) validates each target; no cost-IDs (new interactive path)
     // just verifies feasibility so applyPlayCard can surface the chooser.
-    if (hasAltShift) {
+    // For cards with BOTH ink Shift and an alt Shift cost (Maleficent & Diablo
+    // FOOLS!), the ink-shift action (viaAltShift falsy) must be validated
+    // against the INK cost, and the alt-shift action (viaAltShift true) against
+    // the alt cost. Alt-only cards (no printed shiftCost) always validate the
+    // alt cost. So only run the alt-cost branch when the alt path is the one in
+    // play for this action.
+    const validateAltPath = hasAltShift && (viaAltShift || !hasInkShift);
+    if (validateAltPath) {
       const altCost = def.altShiftCost!;
-      const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
+      const requiredAmount =
+        altCost.type === "discard" || altCost.type === "put_from_discard_on_bottom"
+          ? (altCost.amount ?? 1)
+          : 1;
       if (altShiftCostInstanceIds && altShiftCostInstanceIds.length > 0) {
         if (altShiftCostInstanceIds.length !== requiredAmount) {
           return fail(`Alt shift cost requires ${requiredAmount} card(s), got ${altShiftCostInstanceIds.length}.`);
@@ -284,6 +295,11 @@ function validatePlayCard(
             if (costTarget.zone !== "play") return fail("Banish target is not in play.");
             if (!matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
               return fail("Banish target doesn't match the shift cost filter.");
+            }
+          } else if (altCost.type === "put_from_discard_on_bottom") {
+            if (costTarget.zone !== "discard") return fail("Cost target is not in your discard.");
+            if (altCost.filter && !matchesFilter(costTarget, costTargetDef, altCost.filter, state, playerId)) {
+              return fail("Cost target doesn't match the shift cost filter.");
             }
           }
         }
@@ -306,10 +322,21 @@ function validatePlayCard(
           const d = inst ? definitions[inst.definitionId] : undefined;
           return !!inst && !!d && matchesFilter(inst, d, altCost.filter, state, playerId);
         });
+      } else if (altCost.type === "put_from_discard_on_bottom") {
+        eligible = getZone(state, playerId, "discard").filter(id => {
+          const inst = state.cards[id];
+          const d = inst ? definitions[inst.definitionId] : undefined;
+          return !!inst && !!d && (!altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId));
+        });
       }
       if (eligible.length >= requiredAmount) return OK;
-      // Not enough valid cost targets — fall through to ink check below (may
-      // still work if the card happens to have a printed shift cost too).
+      // Not enough valid cost targets. When the player EXPLICITLY chose the alt
+      // cost (viaAltShift), fail here rather than silently charging ink. When
+      // the alt path was auto-selected only because there's no ink shift, fall
+      // through to the ink check (which will also fail — hasInkShift is false).
+      if (viaAltShift) {
+        return fail("Not enough valid cards to pay the Shift alternate cost.");
+      }
     }
     // Ink-based shift (standard)
     if (hasInkShift) {

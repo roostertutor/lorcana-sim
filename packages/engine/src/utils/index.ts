@@ -406,6 +406,14 @@ export function matchesFilter(
   if (filter.atLocation === "any") {
     if (!instance.atLocationInstanceId) return false;
   }
+  if (filter.atLocation === "same_location") {
+    // Co-located with the SOURCE CHARACTER (Carl & Russell OUTDOOR SKILLS):
+    // match instances at the same location the source character is standing at.
+    if (!sourceInstanceId) return false;
+    const src = state.cards[sourceInstanceId];
+    if (!src || !src.atLocationInstanceId) return false;
+    if (instance.atLocationInstanceId !== src.atLocationInstanceId) return false;
+  }
   const opponent: PlayerID = viewingPlayerId === "player1" ? "player2" : "player1";
 
   if (filter.zone) {

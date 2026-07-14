@@ -290,6 +290,7 @@ export type Effect =
   | ReturnAllToBottomInOrderEffect
   | PutTopCardUnderEffect
   | PutCardOnBottomOfDeckEffect
+  | PutHandOnBottomThenDrawEffect
   | MoveDamageEffect
   | GrantCostReductionEffect
   | SearchEffect
@@ -1071,6 +1072,26 @@ export interface PutCardOnBottomOfDeckEffect {
   position?: "top" | "bottom";
   /** CRD 6.1.4: optional. */
   isMay?: boolean;
+}
+
+/**
+ * Aladdin & Genie - Mischievous Pals SLEIGHT OF HAND: "you may put any number
+ * of cards from your hand on the bottom of your deck in any order. If you do,
+ * draw that number of cards plus 1."
+ *
+ * Surfaces a `choose_discard` PendingChoice (existing multi-select-from-hand UI,
+ * `maxCount` = hand size, `optional`) carrying this effect as `pendingEffect`.
+ * The choose_discard resolver detects this marker and, instead of discarding,
+ * moves each chosen card to the BOTTOM of the deck (selection order = bottom
+ * order, satisfying "in any order"; no discard triggers fire). If ≥1 card was
+ * put, it then draws `count + 1`. Putting 0 cards ("you may … If you do") draws
+ * nothing.
+ */
+export interface PutHandOnBottomThenDrawEffect {
+  type: "put_hand_on_bottom_then_draw";
+  /** Bonus cards drawn on top of the number put on the bottom. FOOLS-style
+   *  "plus 1". Defaults to 1. */
+  drawBonus?: number;
 }
 
 /**
@@ -2549,7 +2570,13 @@ export interface GrantPlayForFreeSelfStatic {
 export type PlayForFreeCost =
   | { type: "banish_chosen"; filter: CardFilter }
   | { type: "exert_n_matching"; count: number; filter: CardFilter }
-  | { type: "discard"; filter?: CardFilter; amount: number };
+  | { type: "discard"; filter?: CardFilter; amount: number }
+  /** "Put N cards from your discard on the bottom of your deck in any order."
+   *  Maleficent & Diablo - Evil Incarnate FOOLS! ("put 5 character cards from
+   *  your discard on the bottom of your deck in any order to shift this
+   *  character for free"). The cost cards come from the controller's discard;
+   *  `amount` is exact (feasibility fails when fewer match). */
+  | { type: "put_from_discard_on_bottom"; filter?: CardFilter; amount: number };
 
 /**
  * Anna - Soothing Sister (Set 11) UNUSUAL TRANSFORMATION: "this card gains
@@ -3049,9 +3076,17 @@ export interface CardFilter {
   /** Match cards with the {IW} inkable mark. Used by Stitch Experiment 626
    *  STEALTH MODE ("choose and discard a card with {IW}"). */
   inkable?: boolean;
-  /** CRD 5.6.4: Match characters currently at the source location ("while here")
-   *  or at any location ("while at a location"). */
-  atLocation?: "this" | "any";
+  /** CRD 5.6.4: Match characters relative to a location.
+   *  - "this": characters AT the source location — `sourceInstanceId` IS the
+   *    location (Andy's Room ANDY'S FAVORITE, "while here").
+   *  - "any": characters at any location ("while at a location").
+   *  - "same_location": characters co-located with the source CHARACTER — i.e.
+   *    at the same location the source character is currently at. Used by Carl
+   *    Fredricksen & Russell - Intrepid Explorers OUTDOOR SKILLS ("While this
+   *    character is at a location, all characters at that location get +1 {L}
+   *    and gain Evasive"). Distinct from "this" because the source is a
+   *    character standing at a location, not the location itself. */
+  atLocation?: "this" | "any" | "same_location";
   /** OR-of-subfilters at the filter-clause level. The instance matches if it
    *  satisfies ALL of the top-level fields AND ALSO matches at least one of
    *  the `anyOf` entries. Used by John Smith's Compass YOUR PATH ("a character
@@ -4494,7 +4529,11 @@ export interface PendingChoice {
     characterInstanceId: string;
     shiftTargetInstanceId: string;
     playerId: PlayerID;
-    costType: "discard" | "banish_chosen";
+    /** Informational only — the resolve path re-invokes applyPlayCard with the
+     *  chosen cost IDs and pays via `def.altShiftCost.type`, not this field.
+     *  Typed as the full PlayForFreeCost tag set so `costType: altCost.type`
+     *  assigns without narrowing. */
+    costType: PlayForFreeCost["type"];
     exactCount: number;
   };
   /** Internal: two-phase continuation for `shift_card` (granted free Shift —
@@ -4686,6 +4725,14 @@ export interface PlayCardAction {
    *  multi-card costs (Flotsam & Jetsam: discard 2 cards). Only valid when
    *  the card's definition has altShiftCost and shiftTargetInstanceId is set. */
   altShiftCostInstanceIds?: string[];
+  /** When a card offers BOTH a printed ink Shift AND an alternate Shift cost
+   *  (Maleficent & Diablo - Evil Incarnate: pay 5 {I}, OR put 5 characters from
+   *  discard on the bottom for FOOLS!), this flag distinguishes the alt-cost
+   *  play from the ink-cost play in the legal-action list. When true the
+   *  applyPlayCard alt-cost picker fires; when false/undefined the ink shift is
+   *  paid. Alt-only cards (no ink shift) don't need the flag — the alt picker
+   *  fires whenever altShiftCost is the only shift cost. */
+  viaAltShift?: boolean;
   /** CRD 5.4.4.2: For singing — the character exerted to pay for this song */
   singerInstanceId?: string;
   /** CRD 8.12: For Sing Together — multiple characters whose combined effective cost

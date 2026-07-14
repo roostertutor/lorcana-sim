@@ -503,12 +503,15 @@ export function getAllLegalActions(
       // The cost picker (which cards to discard/banish) is surfaced as a
       // pendingChoice by applyPlayCard after the click — same pattern as
       // Belle/Scrooge's granted-free-play alt cost. No per-combo fanout.
+      // viaAltShift distinguishes this from the ink-shift action for cards that
+      // offer BOTH (Maleficent & Diablo FOOLS!). Harmless on alt-only cards.
       for (const targetId of myPlay) {
         const shiftPlay: GameAction = {
           type: "PLAY_CARD",
           playerId,
           instanceId,
           shiftTargetInstanceId: targetId,
+          viaAltShift: true,
         };
         if (validateAction(state, shiftPlay, definitions).valid) {
           actions.push(shiftPlay);
@@ -640,7 +643,7 @@ function applyActionInner(
 ): GameState {
   switch (action.type) {
     case "PLAY_CARD":
-      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds);
+      return applyPlayCard(state, action.playerId, action.instanceId, definitions, events, action.shiftTargetInstanceId, action.singerInstanceId, action.singerInstanceIds, action.viaGrantedFreePlay, action.altShiftCostInstanceIds, action.shiftTargetInstanceIds, action.viaAltShift);
     case "PLAY_INK":
       return applyPlayInk(state, action.playerId, action.instanceId, definitions, events);
     case "QUEST":
@@ -676,6 +679,7 @@ function applyPlayCard(
   viaGrantedFreePlay?: boolean,
   altShiftCostInstanceIds?: string[],
   shiftTargetInstanceIds?: string[],
+  viaAltShift?: boolean,
 ): GameState {
   const def = getDefinition(state, instanceId, definitions);
   // The Horned King CAULDRON'S POWER: characters played from discard enter
@@ -805,13 +809,24 @@ function applyPlayCard(
       message: `${playerId} played ${def.fullName} for free.`,
       type: "card_played",
     });
-  } else if (shiftTargetInstanceId && def.altShiftCost && (!altShiftCostInstanceIds || altShiftCostInstanceIds.length === 0)) {
+  } else if (
+    shiftTargetInstanceId &&
+    def.altShiftCost &&
+    (!altShiftCostInstanceIds || altShiftCostInstanceIds.length === 0) &&
+    // For cards with BOTH ink Shift and an alt Shift cost (Maleficent & Diablo
+    // FOOLS!), only route to the alt-cost picker when the player explicitly
+    // chose it (viaAltShift). Alt-only cards (no ink shift) always route here.
+    (viaAltShift || def.shiftCost === undefined)
+  ) {
     // Alt-cost shift interactive entry: cost picker not yet collected.
     // Surface a choose_target pendingChoice; on resolve the reducer re-invokes
     // applyPlayCard with the chosen cost IDs filled in, which lands in the
     // altShiftCostInstanceIds branch below and completes the shift normally.
     const altCost = def.altShiftCost;
-    const requiredAmount = altCost.type === "discard" ? (altCost.amount ?? 1) : 1;
+    const requiredAmount =
+      altCost.type === "discard" || altCost.type === "put_from_discard_on_bottom"
+        ? (altCost.amount ?? 1)
+        : 1;
     let validTargets: string[] = [];
     if (altCost.type === "discard") {
       validTargets = getZone(state, playerId, "hand").filter(id => {
@@ -827,13 +842,24 @@ function applyPlayCard(
         const d = inst ? definitions[inst.definitionId] : undefined;
         return !!inst && !!d && matchesFilter(inst, d, altCost.filter, state, playerId);
       });
+    } else if (altCost.type === "put_from_discard_on_bottom") {
+      // FOOLS! — pick N cards from your discard to put on the bottom of your deck.
+      validTargets = getZone(state, playerId, "discard").filter(id => {
+        const inst = state.cards[id];
+        const d = inst ? definitions[inst.definitionId] : undefined;
+        return !!inst && !!d && (!altCost.filter || matchesFilter(inst, d, altCost.filter, state, playerId));
+      });
     }
+    const promptVerb =
+      altCost.type === "discard" ? "card(s) to discard"
+      : altCost.type === "put_from_discard_on_bottom" ? "card(s) from your discard to put on the bottom of your deck"
+      : "card(s) to banish";
     return {
       ...state,
       pendingChoice: {
         type: "choose_target",
         choosingPlayerId: playerId,
-        prompt: `${def.fullName} — choose ${requiredAmount} ${altCost.type === "discard" ? "card(s) to discard" : "card(s) to banish"} to Shift.`,
+        prompt: `${def.fullName} — choose ${requiredAmount} ${promptVerb} to Shift.`,
         validTargets,
         count: requiredAmount,
         _altShiftCostContinuation: {
@@ -867,6 +893,19 @@ function applyPlayCard(
       state = appendLog(state, {
         turn: state.turnNumber, playerId,
         message: `${playerId} banished card(s) to shift ${def.fullName}.`,
+        type: "card_played",
+      });
+    } else if (altCost.type === "put_from_discard_on_bottom") {
+      // FOOLS! — move the chosen discard cards to the bottom of the deck in the
+      // order the player selected them ("in any order").
+      const names: string[] = [];
+      for (const costId of altShiftCostInstanceIds) {
+        names.push(getDefinition(state, costId, definitions).fullName);
+        state = moveCard(state, costId, playerId, "deck", definitions, "bottom");
+      }
+      state = appendLog(state, {
+        turn: state.turnNumber, playerId,
+        message: `${playerId} put ${names.join(", ")} on the bottom of their deck to shift ${def.fullName}.`,
         type: "card_played",
       });
     }
@@ -2711,6 +2750,38 @@ function applyResolveChoice(
   }
 
   if (pendingChoice.type === "choose_discard" && Array.isArray(choice)) {
+    // SLEIGHT OF HAND (Aladdin & Genie): the choose_discard multi-select is
+    // reused to pick "any number of cards from your hand" to put on the BOTTOM
+    // of the deck (not discard) — then draw that many plus 1. Detected via the
+    // pendingEffect marker so no discard triggers fire.
+    const pe = pendingChoice.pendingEffect;
+    if (pe && (pe as { type?: string }).type === "put_hand_on_bottom_then_draw") {
+      const bottomPlayerId = pendingChoice.choosingPlayerId;
+      const putNames: string[] = [];
+      for (const cardId of choice) {
+        const inst = state.cards[cardId];
+        if (inst && inst.zone === "hand") {
+          putNames.push(getDefinition(state, cardId, definitions).fullName);
+          // Selection order = bottom order ("in any order").
+          state = moveCard(state, cardId, inst.ownerId, "deck", definitions, "bottom");
+        }
+      }
+      const putCount = putNames.length;
+      state = { ...state, lastEffectResult: putCount };
+      if (putCount > 0) {
+        state = appendLog(state, {
+          turn: state.turnNumber,
+          playerId: bottomPlayerId,
+          message: `${bottomPlayerId} put ${putCount} card(s) on the bottom of their deck.`,
+          type: "card_played",
+        });
+        const drawBonus = (pe as { drawBonus?: number }).drawBonus ?? 1;
+        state = applyDraw(state, bottomPlayerId, putCount + drawBonus, events, definitions);
+      }
+      state = resumePendingEffectQueue(state, definitions, events);
+      state = cleanupPendingAction(state, playerId, definitions);
+      return state;
+    }
     // Discard the chosen cards from hand
     const discardCount = choice.length;
     // Determine who is discarding (the owner of the first card chosen)
@@ -4044,6 +4115,28 @@ export function applyEffect(
       return state;
     }
 
+    case "put_hand_on_bottom_then_draw": {
+      // Aladdin & Genie SLEIGHT OF HAND: "you may put any number of cards from
+      // your hand on the bottom of your deck in any order. If you do, draw that
+      // number of cards plus 1." Surface a choose_discard multi-select (existing
+      // "any number" UI); the choose_discard resolver detects this pendingEffect
+      // marker and routes to deck-bottom + draw instead of discarding.
+      const pid = controllingPlayerId;
+      const hand = getZone(state, pid, "hand");
+      if (hand.length === 0) return state; // no cards to put → "if you do" no-op
+      return {
+        ...state,
+        pendingChoice: {
+          type: "choose_discard",
+          choosingPlayerId: pid,
+          prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, `Choose any number of cards to put on the bottom of your deck (then draw that many plus 1).`),
+          validTargets: hand,
+          maxCount: hand.length,
+          optional: true,
+          pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
+        },
+      };
+    }
     case "put_card_on_bottom_of_deck": {
       // CRD: place card(s) on the bottom (or top) of a deck without shuffling.
       // See PutCardOnBottomOfDeckEffect docs for variants.
