@@ -1893,6 +1893,29 @@ function hasUnwiredNamedAbility(card: any): boolean {
   return genuineStubs.length > nonKeywordWired;
 }
 
+/**
+ * Companion blind spot (2026-07-14): a card whose oracle gives IT a Shift keyword
+ * ("You may pay N to play THIS on top of ...") but no shift is wired at all —
+ * no shift keyword ability, no `shiftCost`/`altShiftCost`, no conditional
+ * `grant_shift_self`/variant grant. Shift keyword reminders don't generate
+ * `_namedAbilityStubs`, so such cards read as vanilla (empty abilities, empty
+ * stubs). Found the special-variant shifts unwired: Posey - Vampire Potato
+ * (Potato Shift), Sun Yee - Red Panda Spirit (Temporary Red Panda Shift).
+ */
+function hasUnwiredShift(card: any): boolean {
+  if (!/to play this on top of/i.test(card.rulesText ?? "")) return false; // the card shifts ITSELF
+  const abils = card.abilities ?? [];
+  const hasShiftKw = abils.some((a: any) => a.type === "keyword" && a.keyword === "shift");
+  const hasShiftCost = card.shiftCost !== undefined || card.altShiftCost !== undefined;
+  const hasGrantShift = abils.some((a: any) => {
+    const effs = Array.isArray(a.effect) ? a.effect : a.effect ? [a.effect] : (a.effects ?? []);
+    return effs.some((e: any) =>
+      ["grant_shift_self", "universal_shift_self", "classification_shift_self", "mimicry_target_self"].includes(e?.type),
+    );
+  });
+  return !hasShiftKw && !hasShiftCost && !hasGrantShift;
+}
+
 function hasNamedStubs(card: any): boolean {
   // Filter out stubs whose entire text is just keyword reminder text for a
   // keyword the card already has wired (e.g. Cri-Kee with only "Alert (...)").
@@ -1933,7 +1956,7 @@ for (const filename of SET_FILES) {
 
     if (fieldErrors.length > 0) {
       category = "invalid-field";
-    } else if (isPartiallyWired(card) || hasUnwiredNamedAbility(card)) {
+    } else if (isPartiallyWired(card) || hasUnwiredNamedAbility(card) || hasUnwiredShift(card)) {
       category = "partial";
     } else if (isImplemented(card)) {
       category = "implemented";

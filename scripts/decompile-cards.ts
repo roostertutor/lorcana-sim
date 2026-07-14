@@ -125,11 +125,18 @@ function renderCard(card: CardJSON): string {
         ? (/^[aeiou]/i.test(cardWord) ? "an" : "a")
         : altShift.amount;
       const plural = altShift.amount === 1 ? cardWord : `${cardWord}s`;
+      // Set 13: Maleficent & Diablo FOOLS! — "put N character cards from your
+      // discard on the bottom of your deck".
+      const bottomPhrase = `put ${altShift.amount ?? ""} ${plural} from your discard on the bottom of your deck`.replace(/\s+/g, " ").trim();
       const headPhrase = altShift.type === "discard"
         ? `Discard ${article} ${plural}`
+        : altShift.type === "put_from_discard_on_bottom"
+        ? cap(bottomPhrase)
         : altShift.type;
       const costPhrase = altShift.type === "discard"
         ? `discard ${article} ${plural}`
+        : altShift.type === "put_from_discard_on_bottom"
+        ? bottomPhrase
         : altShift.type;
       parts.push(`Shift: ${headPhrase} (You may ${costPhrase} to play this on top of one of your characters named ${shiftNames}.)`);
     } else if (card.shiftCost !== undefined) {
@@ -535,7 +542,7 @@ const TRIGGER_RENDERERS: Record<string, Renderer> = {
                                           if (types.length === 1 && types[0] === "item") return "Whenever this character is chosen for an item's ability";
                                           return "Whenever this character is chosen for an action or ability";
                                         },
-  character_exerted:             ()  => "Whenever a character is exerted",
+  character_exerted:             ()  => "Whenever this character is exerted",
   chosen_for_support:            (t) => filterMentionsYour(t.filter)
                                           ? "Whenever one of your characters is chosen for support"
                                           : "Whenever this character is chosen for support",
@@ -914,6 +921,7 @@ function renderCost(c: Json, ctx?: { cardType?: string }): string {
 const EFFECT_RENDERERS: Record<string, Renderer> = {
   // Set 13 additions.
   play_characters_from_discard: () => "you may play characters from your discard",
+  put_hand_on_bottom_then_draw: () => "you may put any number of cards from your hand on the bottom of your deck in any order. If you do, draw that number of cards plus 1",
   self_banish_replacement: (e) => {
     const instead = Array.isArray(e.instead) ? e.instead.map((f: Json) => renderEffect(f)).join(", ") : "do something else";
     return `if this character would be banished, ${instead} instead`;
@@ -2831,6 +2839,11 @@ function renderAmount(a: any): string {
       }
     }
     if (a.type === "last_effect_result") return "the number of cards affected";
+    // Set 13: With a Few Good Friends / Magical Mix — "for each different ink
+    // type of characters you have in play".
+    if (a.type === "unique_ink_types") return "each different ink type of characters you have in play";
+    // Set 13: Quackerjack EVIL DESIGN — "for each item card put into your discard this way".
+    if (a.type === "last_milled_item_count") return "each item card put into your discard this way";
     if (a.type === "cards_under_count") return "the number of cards under this character";
     // Donald Duck Fred Honeywell WELL WISHES: "for each card that was under them"
     if (a.type === "triggering_card_cards_under_count") return "the number of cards that were under them";
