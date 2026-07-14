@@ -1852,6 +1852,47 @@ function isPartiallyWired(card: any): boolean {
   return expected > 0 && actual > 0 && expected > actual;
 }
 
+/**
+ * Gap that decompile-cards surfaced (2026-07-14): a card can pass `isImplemented`
+ * via `alternateNames` / a keyword / `playRestrictions` while STILL leaving a
+ * named ability (from `_namedAbilityStubs`) completely UNWIRED — no `abilities[]`
+ * entry at all. `isPartiallyWired` missed it because it requires `actual > 0`
+ * (Set 13 "&" Combo/Duo cards had only the shift keyword wired: #28 Woody & Buzz
+ * TO INFINITY / AND BEYOND, #63 Maleficent & Diablo RAVEN'S CALL, etc.).
+ *
+ * Flags any stub storyName with no matching wired ability, EXCLUDING stubs whose
+ * behavior legitimately lives outside `abilities[]`: play restrictions
+ * (`playRestrictions`), "counts as being named X" (`alternateNames`), keyword
+ * reminders, deckbuild rules, and alt shift costs (`altShiftCost`).
+ */
+function hasUnwiredNamedAbility(card: any): boolean {
+  const stubs = (card._namedAbilityStubs ?? []).filter((s: any) => s.storyName);
+  if (stubs.length === 0) return false;
+  const cardKeywords: string[] = (card.abilities ?? [])
+    .filter((a: any) => a.type === "keyword")
+    .map((a: any) => String(a.keyword || "").toLowerCase());
+  const shiftHasAltCost =
+    (card.abilities ?? []).some((a: any) => a.type === "keyword" && a.keyword === "shift" && a.altShiftCost) ||
+    card.altShiftCost !== undefined;
+  // Stubs whose behavior legitimately lives in `abilities[]` (triggered/
+  // activated/static). Exclude the ones stored elsewhere.
+  const genuineStubs = stubs.filter((stub: any) => {
+    const text: string = stub.rulesText ?? "";
+    if (/can.?t play this (character|item|location) unless/i.test(text)) return false; // → playRestrictions (straight/curly apostrophe)
+    if (/counts as being named/i.test(text)) return false;                             // → alternateNames
+    const firstWord = text.split(/[\s(]/)[0]?.toLowerCase() ?? "";
+    if (cardKeywords.includes(firstWord)) return false;                                // keyword reminder
+    if (/\byou may have up to \d+ copies\b/i.test(text)) return false;                 // deckbuild rule
+    if (shiftHasAltCost && /to shift this character for free/i.test(text)) return false; // → altShiftCost
+    return true;
+  });
+  // Compare COUNTS, not storyNames — wired abilities routinely lack a storyName
+  // label (so name-matching over-flags). If there are more genuine named-ability
+  // stubs than wired non-keyword abilities, at least one is unwired.
+  const nonKeywordWired = (card.abilities ?? []).filter((a: any) => a.type !== "keyword").length;
+  return genuineStubs.length > nonKeywordWired;
+}
+
 function hasNamedStubs(card: any): boolean {
   // Filter out stubs whose entire text is just keyword reminder text for a
   // keyword the card already has wired (e.g. Cri-Kee with only "Alert (...)").
@@ -1892,7 +1933,7 @@ for (const filename of SET_FILES) {
 
     if (fieldErrors.length > 0) {
       category = "invalid-field";
-    } else if (isPartiallyWired(card)) {
+    } else if (isPartiallyWired(card) || hasUnwiredNamedAbility(card)) {
       category = "partial";
     } else if (isImplemented(card)) {
       category = "implemented";
