@@ -168,6 +168,40 @@ None blocking. The helper already covers ~100 LOC of the hottest duplication.
 
 ---
 
+## Engine agent: decompile-cards renderer cases for new Set 13 discriminators
+
+**Trigger:** Set 13 wiring (on `main`) added ~15 new effect/static/condition
+discriminators. `scripts/decompile-cards.ts`'s English renderer has no case for
+them, so it renders those abilities as empty and the cards score ~0 in the
+decompile audit — even though the wiring is correct. `pnpm card-status` (the
+high-precision audit) is 100% clean; this is decompile-signal hygiene only, not
+correctness. Worst scorers: Belle - Always Reading (0.00), Meilin (Sing
+Together, 0.18), Powhatan's Staff (0.20).
+
+**Owner:** engine-expert. **Not blocking** — audit polish. Per CLAUDE.md,
+audit-improvement is high-leverage (restores decompile's usefulness as a bug
+signal for future sets), so worth a focused pass.
+
+**New discriminators needing renderer cases** (each verified by a passing test
+in `set13.test.ts`; grep the type name for the exact shape):
+- Effects: `deal_damage.ignoreResist`, `draw.fromBottom`,
+  `modify_next_character_played`, `remove_damage.totalCap`,
+  `reveal_top_conditional.noMatchExtraEffects`.
+- Statics: `shift_onto_cost_reduction`, `play_characters_from_discard`,
+  `grant_keyword_remembered_target`, `cant_sing_without_sing_together`,
+  `cost_reduction.appliesTo:"shift_only"`, `grant_keyword.condition` (now read).
+- Filters/conditions/refs: `CardFilter.excludeLastResolvedTarget`,
+  `last_resolved_target_has_card_under`, `stat_ref` from `"this_at_location"`,
+  `DynamicAmount last_milled_item_count`, `sings.viaSingTogether`.
+
+**Approach:** add a render branch per discriminator in the decompiler's
+effect/static/condition switch, then `pnpm decompile-cards --set 013` (note: the
+`--set` filter currently matches nothing for set 13 — fix the filter first, or
+run the full sweep and grep for the card names). Treat the *bottom* of the
+sorted output as the checklist, not the absolute score.
+
+---
+
 ## End-to-end multiplayer UX improvement plan (7 phases)
 
 Planned with user 2026-04-22. Full detail in
