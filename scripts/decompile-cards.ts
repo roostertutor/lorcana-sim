@@ -167,9 +167,12 @@ function renderCard(card: CardJSON): string {
     const paren = /\([^)]*counts as being named[^)]*\)/i.test(card.rulesText ?? "");
     if (paren) {
       parts.push(`(This character counts as being named ${both}${names}.)`);
-    } else {
-      // Turbo-style: the "also ... for <Shift>" body is part of a named
-      // ability (GAME JUMP). Render bare so tokens survive normalize.
+    } else if (/counts as being named/i.test(card.rulesText ?? "")) {
+      // Turbo-style: the "also ... for <Shift>" body is a real named ability
+      // (GAME JUMP). Render bare so tokens survive normalize. Only emit when the
+      // oracle actually prints the clause — the Set 13 "&" cards (Tod & Copper,
+      // Sulley & Boo, …) get their names from the Shift reminder itself, so this
+      // extra line would be spurious.
       parts.push(`This character also counts as being named ${names} for Shift`);
     }
   }
