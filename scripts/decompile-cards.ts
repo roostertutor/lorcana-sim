@@ -1186,6 +1186,8 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
         ? `${maybe(e)}put ${suffix}s equal to ${dyn} on ${renderTarget(e.target ?? {})}`
         : `${maybe(e)}deal damage equal to ${dyn} to ${renderTarget(e.target ?? {})}`;
     }
+    // Set 13: Piercing Attack — deal_damage.ignoreResist (damage can't be reduced by Resist).
+    if (e.ignoreResist) base += " (this damage can't be reduced by Resist)";
     if (e.followUpEffects?.length) {
       const follow = e.followUpEffects.map((f: Json) => renderEffect(f)).join(". ");
       return `${base}. Then, ${follow}`;
@@ -2629,7 +2631,7 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
   },
   top_of_deck_visible: (e) => {
     if (e.affectedPlayer?.type === "both") return "each player plays with the top card of their deck face up";
-    if (e.affectedPlayer?.type === "opponent") return "opponents play with the top card of their deck face up";
+    if (e.affectedPlayer?.type === "opponent") return "each opponent plays with the top card of their deck faceup";
     return "you play with the top card of your deck face up";
   },
   each_target: (e) => {
