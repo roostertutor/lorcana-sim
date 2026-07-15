@@ -86,6 +86,12 @@ export function canShiftOnto(
   if (shiftKw?.variant === "classification" && shiftKw.classifier) {
     return target.traits.includes(shiftKw.classifier);
   }
+  // Potato Shift (CRD 8.10.8.6, Posey - Vampire Potato): a CHARACTER shifts onto
+  // one of your ITEMS named Potato — the only cross-type shift (item goes under
+  // the character). Name(s) carried on shiftNames; defaults to "Potato".
+  if (shiftKw?.variant === "potato") {
+    return target.cardType === "item" && (shiftKw.shiftNames ?? ["Potato"]).includes(target.name);
+  }
   // Duo Shift (Set 13): NO single-target shift — you must shift onto two (one
   // of each name). The two-target case is validated in validateAction.
   if (shiftKw?.variant === "duo") return false;

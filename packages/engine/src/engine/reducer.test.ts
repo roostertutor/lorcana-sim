@@ -3715,6 +3715,24 @@ describe("§8 Keywords", () => {
     expect(s.pendingChoice).toBeFalsy();
   });
 
+  it("Potato Shift (Posey - Vampire Potato): a character shifts onto an ITEM named Potato; the item goes under (CRD 8.10.8.6)", () => {
+    let state = startGame();
+    let potatoId: string, poseyId: string, charId: string;
+    ({ state, instanceId: potatoId } = injectCard(state, "player1", "potato", "play")); // the item named Potato
+    ({ state, instanceId: charId } = injectCard(state, "player1", "mickey-mouse-true-friend", "play", { isDrying: false })); // a character (invalid target)
+    ({ state, instanceId: poseyId } = injectCard(state, "player1", "posey-vampire-potato", "hand"));
+    state = giveInk(state, "player1", 10);
+    // Can't Potato-Shift onto a character.
+    const bad = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: poseyId, shiftTargetInstanceId: charId }, CARD_DEFINITIONS);
+    expect(bad.success).toBe(false);
+    // Shifts onto the Potato item — cross-type stack (item under the character).
+    const r = applyAction(state, { type: "PLAY_CARD", playerId: "player1", instanceId: poseyId, shiftTargetInstanceId: potatoId }, CARD_DEFINITIONS);
+    expect(r.success).toBe(true);
+    expect(getInstance(r.newState, poseyId).zone).toBe("play");
+    expect(getInstance(r.newState, potatoId).zone).toBe("under");
+    expect(getInstance(r.newState, poseyId).cardsUnder).toContain(potatoId);
+  });
+
   it("Combined Temporary + Classification Shift (Sun Yee 'Temporary Red Panda Shift'): shifts onto a Red Panda, reverts at end of turn (CRD 8.10.9)", () => {
     // Sun Yee - Red Panda Spirit: variant "classification" (classifier "Red
     // Panda") + temporary:true — must satisfy BOTH: land on a Red Panda AND

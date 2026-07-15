@@ -172,7 +172,7 @@ export interface KeywordAbility {
    *    two targets — one named A AND one named B. Single-target shift is illegal
    *    (canShiftOnto returns false for "duo"). Same two-base state merge and
    *    shiftNames as combo. PRE-CRD — see CRD_TRACKER "Provisional" §. */
-  variant?: "classification" | "universal" | "temporary" | "combo" | "duo";
+  variant?: "classification" | "universal" | "temporary" | "combo" | "duo" | "potato";
   /** Trait classifier for Classification Shift (CRD 8.10.8.1). Required when
    *  variant === "classification"; ignored otherwise. E.g. Thunderbolt's
    *  [Dog] Shift uses classifier: "Dog". */

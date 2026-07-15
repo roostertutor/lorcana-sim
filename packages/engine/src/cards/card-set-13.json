@@ -5961,7 +5961,17 @@
       "Storyborn",
       "Monster"
     ],
-    "abilities": [],
+    "abilities": [
+      {
+        "type": "keyword",
+        "keyword": "shift",
+        "value": 5,
+        "variant": "potato",
+        "shiftNames": [
+          "Potato"
+        ]
+      }
+    ],
     "setId": "13",
     "number": 91,
     "rarity": "uncommon",
@@ -5978,7 +5988,8 @@
     "foilType": "silver",
     "foilMaskUrl": "https://api.lorcana.ravensburger.com/images/en/set13/91_f007d8c9f5370df9dcbd2ed0888b9f682ff91683.jpg",
     "_imageSource": "ravensburger",
-    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/91_25ced769d8a0b0733a2a057f743efb43641db946.jpg"
+    "_sourceImageUrl": "https://api.lorcana.ravensburger.com/images/en/set13/91_25ced769d8a0b0733a2a057f743efb43641db946.jpg",
+    "shiftCost": 5
   },
   {
     "id": "dr-bushroot-evil-botanist",
