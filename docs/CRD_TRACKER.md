@@ -983,7 +983,8 @@ to ✅. This section is the engine-expert work queue for 2.2.0.
 | 8.10.8.5 | Temporary Shift | ✅ | Reconciled. |
 | 8.10.4 / 8.10.4.2 | Shift dry/drying + Duo/Combo state merge | ✅ | 8.10.4.2 (drying-if-either / exerted-if-either) confirms our 2026-07-08 ruling. |
 | 8.10.9 | Combined Shift variants must satisfy all conditions | ✅ | Sun Yee - Red Panda Spirit (`card-set-13.json:7055`), Temporary + Classification. |
-| 8.10.8.6 | Potato Shift (item named Potato) | ❌ N/A | No such card in the wired corpus. Wire when one ships. |
+| 8.10.8.6 | Potato Shift (item named Potato) | ✅ | Posey - Vampire Potato (`card-set-13.json:#91`) — the "no such card" note was wrong; it was shipped but left unwired (surfaced by card-status `hasUnwiredShift`). The only CROSS-TYPE shift: a character shifts onto an ITEM named Potato. `variant:"potato"` + `canShiftOnto` case (item target, name in `shiftNames`). Test: reducer.test.ts "Potato Shift … a character shifts onto an ITEM named Potato". |
+| 8.10.9 (combined) | Temporary + Classification Shift | ✅ | Sun Yee - Red Panda Spirit (`card-set-13.json:#119`) — was also left unwired. Orthogonal `KeywordAbility.temporary?: boolean` flag so a targeting variant can ALSO be Temporary. Test: reducer.test.ts "Combined Temporary + Classification Shift (Sun Yee …)". |
 
 ### New / reworded rules — engine review queue
 
