@@ -146,28 +146,6 @@ If it's part of the sequenced plan → ROADMAP.
 
 ---
 
-## Engine agent: possible follow-up — expand resolveTargetAndApply coverage
-
-The 2026-04-21 zone-move helper consolidation landed — `resolveTargetAndApply`
-at `reducer.ts:~6620` now serves as the shared target-dispatch for `banish`,
-`return_to_hand`, `put_into_inkwell` (chosen/all), and
-`put_card_on_bottom_of_deck` (from:"play"). Future candidates for migration,
-deferred for a follow-up session:
-
-- **`shuffle_into_deck`** — target-dispatch shape matches, but needs a post-
-  iteration shuffle step. Could extend `ResolveTargetAndApplyOptions` with a
-  `postIterationHook?: (state, events) => state`. Worth doing when a third
-  similar case appears so the hook isn't over-engineered for one user.
-- **`discard_from_hand`** — has `chooser: "random" | "target_player"` modes
-  and `amount: "all" | "any" | number` polymorphism that the helper's 4
-  target-type branches don't cover cleanly. Likely best left bespoke.
-- **`move_damage`** — two targets (source + destination instance) rather
-  than one. Wouldn't fit the helper without a second target parameter.
-
-None blocking. The helper already covers ~100 LOC of the hottest duplication.
-
----
-
 ## End-to-end multiplayer UX improvement plan (7 phases)
 
 Planned with user 2026-04-22. Full detail in
