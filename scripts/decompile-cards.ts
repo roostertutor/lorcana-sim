@@ -1006,8 +1006,10 @@ const EFFECT_RENDERERS: Record<string, Renderer> = {
       }
       return `${subject}cards equal to ${renderAmount(amt)}`;
     }
-    if (amt === 1) return `${subject}a card`;
-    return `${subject}${amt} cards`;
+    // Set 13: Merlin - Envisioning the Future MINOR TRICKERY — "from the bottom of your deck".
+    const from = e.fromBottom ? " from the bottom of your deck" : "";
+    if (amt === 1) return `${subject}a card${from}`;
+    return `${subject}${amt} cards${from}`;
   },
   discard:            (e) => `${maybe(e)}discard ${e.amount ?? 1} card${plural(e.amount ?? 1)}`,
   discard_from_hand:  (e) => {
@@ -2834,6 +2836,8 @@ function renderAmount(a: any): string {
           if (a.property === "delta") return "each 1 removed this way";
           return `their ${statSym}`;
         case "last_target_location": return `the ${statSym} of that location`;
+        // Set 13: Carl Fredricksen & Russell ADVENTURE AWAITS — "equal to that location's {L}".
+        case "this_at_location":     return `the ${statSym} of the location this character is at`;
         // The Queen Disguised Peddler A PERFECT DISGUISE: "Gain lore equal
         // to the discarded character's {L}" — stat_ref from last_discarded
         // pulls the property off the most recent discard. Renderer was
