@@ -6712,58 +6712,26 @@ export function applyEffect(
     }
 
     case "shuffle_into_deck": {
-      if (effect.target.type === "this") {
-        // Shuffle the source card into its owner's deck (You're Welcome pattern)
-        state = zoneTransition(state, sourceInstanceId, "deck", definitions, events, { reason: "effect" });
-        state = shuffleDeck(state, getInstance(state, sourceInstanceId).ownerId);
-        return state;
-      }
-      if (effect.target.type === "all") {
-        // Chernabog - Evildoer SUMMON THE SPIRITS: "shuffle all character
-        // cards from your discard into your deck." Magic Broom CLEAN THIS,
-        // CLEAN THAT: "shuffle all Broom cards from your discard into your
-        // deck." Mass version of the chosen branch.
-        const targets = findValidTargets(state, effect.target.filter, controllingPlayerId, definitions, sourceInstanceId);
-        if (targets.length === 0) return state;
-        const ownersToShuffle = new Set<PlayerID>();
-        for (const id of targets) {
-          const inst = state.cards[id];
-          if (!inst) continue;
-          state = zoneTransition(state, id, "deck", definitions, events, { reason: "effect" });
-          ownersToShuffle.add(inst.ownerId);
-        }
-        for (const owner of ownersToShuffle) state = shuffleDeck(state, owner);
-        return state;
-      }
-      if (effect.target.type === "chosen") {
-        // "any discard" = all discard piles
-        const filter = effect.target.filter;
-        const validTargets = findChosenTargets(state, filter, controllingPlayerId, definitions, sourceInstanceId);
-        if (validTargets.length === 0) return state;
-        // It Calls Me "choose up to 3": target.count>1 surfaces a multi-select.
-        // isUpTo (on DealDamage-style effects) isn't on ShuffleIntoDeckEffect,
-        // so reuse isMay to gate optional (0..count) picks — semantically
-        // equivalent for the "up to N" wording. "any" sentinel resolves to
-        // validTargets.length for unbounded multi-select.
-        const count = effect.target.count === "any"
-          ? validTargets.length
-          : (effect.target.count ?? 1);
-        return {
-          ...state,
-          pendingChoice: {
-            type: "choose_target",
-            choosingPlayerId: controllingPlayerId,
-            prompt: buildPrompt(state, sourceInstanceId, definitions, abilitySource, count > 1
-              ? `Choose up to ${count} cards to shuffle into their owner's deck.`
-              : "Choose a card to shuffle into its owner's deck."),
-            validTargets,
-            pendingEffect: effect, sourceInstanceId, triggeringCardInstanceId,
-            optional: effect.isMay ?? false,
-            count,
-          },
-        };
-      }
-      return state;
+      // this/all: move each card to its owner's deck, then shuffle each affected
+      // owner ONCE (postIterationHook — preserves RNG consumption vs shuffling
+      // per card). chosen: resolveTargetAndApply surfaces the pendingChoice and
+      // the per-resolved-target `applyEffectToTarget` case moves + shuffles per
+      // pick. You're Welcome (this), Chernabog SUMMON THE SPIRITS / Magic Broom
+      // CLEAN THIS CLEAN THAT (all), It Calls Me "up to 3" (chosen).
+      const shuffleOwners = new Set<PlayerID>();
+      return resolveTargetAndApply(state, effect, {
+        prompt: "Choose a card to shuffle into its owner's deck.",
+        promptForCount: (n) => `Choose up to ${n} cards to shuffle into their owner's deck.`,
+        perInstance: (s, id, ev) => {
+          const inst = s.cards[id];
+          if (inst) shuffleOwners.add(inst.ownerId);
+          return zoneTransition(s, id, "deck", definitions, ev, { reason: "effect" });
+        },
+        postIterationHook: (s) => {
+          for (const owner of shuffleOwners) s = shuffleDeck(s, owner);
+          return s;
+        },
+      }, sourceInstanceId, controllingPlayerId, definitions, events, triggeringCardInstanceId, abilitySource);
     }
 
     // CRD: deck search ("search your deck for X, reveal it, ..."). Bot
@@ -8547,6 +8515,13 @@ interface ResolveTargetAndApplyOptions {
    *  — CRD 1.7.7 "valid target" check is at the filter level, but a card could
    *  leave play between filter check and iteration). */
   skipIfNotInPlay?: boolean;
+  /** Runs ONCE after all immediate perInstance applications (the this /
+   *  triggering_card / all branches), before returning. Used by
+   *  `shuffle_into_deck` to shuffle each affected owner's deck a single time
+   *  after every card has moved to deck — preserving RNG consumption vs
+   *  shuffling per-card. NOT run on the "chosen" branch (that surfaces a
+   *  pendingChoice; the per-resolved-target apply handles its own follow-up). */
+  postIterationHook?: (state: GameState, events: GameEvent[]) => GameState;
 }
 
 function resolveTargetAndApply(
@@ -8615,8 +8590,11 @@ function resolveTargetAndApply(
     };
   }
 
+  const withHook = (s: GameState): GameState =>
+    opts.postIterationHook ? opts.postIterationHook(s, events) : s;
+
   if (target.type === "this") {
-    return opts.perInstance(state, sourceInstanceId, events);
+    return withHook(opts.perInstance(state, sourceInstanceId, events));
   }
 
   if (target.type === "triggering_card" && triggeringCardInstanceId) {
@@ -8626,7 +8604,7 @@ function resolveTargetAndApply(
       const trigRef = makeResolvedRef(state, definitions, triggeringCardInstanceId);
       if (trigRef) state = { ...state, lastResolvedTarget: trigRef };
     }
-    return opts.perInstance(state, triggeringCardInstanceId, events);
+    return withHook(opts.perInstance(state, triggeringCardInstanceId, events));
   }
 
   if (target.type === "all") {
@@ -8638,7 +8616,7 @@ function resolveTargetAndApply(
       }
       state = opts.perInstance(state, id, events);
     }
-    return state;
+    return withHook(state);
   }
 
   return state;
