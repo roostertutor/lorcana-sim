@@ -272,6 +272,12 @@ section only — public games section can ship without it.
 
 ## Clone bot `--from-db` — wire a player game-log export (server-specialist)
 
+> **⏸ PAUSED (2026-07-16, user call):** no point building this with a single user —
+> clone training needs a population of real human game logs. Do NOT pick up until the
+> trigger in `docs/BACKLOG.md` → "Clone-trainer payoff … gated on real users" fires
+> (≥3 non-owner players with ≥20 finished games each, or a direct user request). Kept
+> here (not deleted) because it's a concrete, ready-to-build spec the moment real logs exist.
+
 **Trigger:** ROADMAP Stream 5b/5c landed the supervised clone trainer + the
 `pnpm profile-player` CLI. `--logs` (local JSON files) works end-to-end. The
 `--from-db` path is stubbed: it reads from an EXPORTED JSON dump file

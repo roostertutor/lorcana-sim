@@ -478,6 +478,31 @@ Fits the strategic direction: the moat is the engine + bot + analytics flywheel,
 
 ---
 
+### Clone-trainer payoff (5c live export, 5d coaching map, 5e play-your-clone) + slot optimization (2g) — gated on real users
+
+**Considered (2026-07-16)**: With the engine done (Set 13 + CRD 2.2.0) and MP deployed, the natural next build is the clone-trainer flywheel payoff:
+- **5c** — live Supabase `game_actions` export so `pnpm profile-player --from-db` builds a clone from real logs (currently reads a hand-exported dump; server-specialist HANDOFF item).
+- **5d** — coaching map: run clone bot + RL bot on the same real-game positions, rank divergences by win% cost ("T3 you played X, RL plays Y, cost −7%").
+- **5e** — play-against-your-clone in GameBoard bot selector.
+- **2g** — automated slot optimization ("cut X for Y?") via warm-start fine-tune + query-suite deltas.
+
+**Why parked (2026-07-16, user call)**: **No point with a single user (just me).** All four need a population of *real human games* to be meaningful:
+- 5c/5d/5e clone fidelity is supervised learning over human `(state, action)` logs — one player's handful of games can't train or validate a clone, and coaching-map divergences are noise at low N.
+- 2g needs games being played to have a baseline win-rate signal to optimize against; running it on self-play/GreedyBot just re-derives what the policies already encode.
+
+Building any of these now would produce demoware that can't be validated, and would bit-rot before real usage arrives.
+
+**Trigger to reconsider** (any one):
+1. **Real MP users generating sustained game_actions** — concretely, ≥3 distinct non-owner players with ≥20 finished ranked/casual games each (enough to train + hold out a clone), OR
+2. A specific player asks "can I play against a bot of myself" / "coach my last 20 games" (direct pull for 5d/5e), OR
+3. ≥4 consecutive weeks of ≥20 ranked matches/week (same population bar as the Meta dashboard entry below) — at which point 5c→5d→5e→2g can sequence together off one log corpus.
+
+**Expected scope**: 5c ~2-3 days (server export endpoint + group-by-game_id; unblocks the CLI's stubbed `--from-db`). 5d ~1 session (analytics: two policies over shared positions + divergence ranking). 5e ~half-session (UI: load clone JSON in bot selector — infra already exists). 2g ~1-2 sessions + overnight compute per deck (warm-start fine-tune loop already speced in ROADMAP 2g). Sequence 5c → 5d → 5e → 2g off a single real-log corpus once the trigger fires.
+
+**Note**: the server-side `--from-db` export (5c) remains an open HANDOFF item for server-specialist but is now explicitly **paused** under this trigger — don't pick it up until real logs exist.
+
+---
+
 ### Meta dashboard (user-facing analytics)
 
 **Considered (offline-session brainstorm Bucket 2 + Decision #9, deferred by Decision #8 resolution 2026-05-19)**: Convert the internal analytics CLI (`pnpm analyze`, `pnpm query`, `pnpm compare` — `packages/analytics/`) into a public-facing dashboard. Aggregated anonymous stats: archetype win rates, ink-pair distributions, turn-count metrics, opening-hand analysis, card play-rates by format / rotation. Listed as differentiation point #4 in `lorcana-sim-handoff.md` (T2 gap, marketing-wedge tier).

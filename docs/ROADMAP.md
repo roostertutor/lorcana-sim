@@ -3,8 +3,9 @@
 # Cross-references all docs in docs/ folder.
 # Does NOT replace SPEC.md, DECISIONS.md, STRATEGY.md.
 #
-# Last updated: 2026-06-24 (Stream 4 reconciliation — deploy + OAuth + replay viewer +
-#   server tests + matchmaking + match clock all verified DONE against code/commits/live URL).
+# Last updated: 2026-07-16 (Set 13 + CRD 2.2.0 shipped; clone-trainer payoff 5c/5d/5e + slot-opt 2g
+#   PARKED pending real users; row-based deckbuilder marked DONE; next active = MP Phase 5 friends+presence).
+#   Prior: 2026-06-24 (Stream 4 reconciliation — deploy + OAuth + replay viewer + matchmaking verified DONE).
 # Last cross-ref refresh: 2026-04-25 (added BACKLOG.md companion).
 #
 # Companion docs:
@@ -19,7 +20,7 @@
 ## Where We Are
 
 ```
-✅ Rule engine — Sets 1-12 + promos fully implemented, CRD v2.0.1 audited against PDF
+✅ Rule engine — Sets 1-13 + promos (incl. P4/PD1) fully implemented, CRD v2.2.0 audited against PDF
 ✅ Simulator — RandomBot, GreedyBot, RLPolicy (deprecated bots deleted)
 ✅ Mulligan — engine-level partial mulligan CRD 2.2.2
 ✅ Analytics — composition, aggregation, comparison, calibration, sensitivity
@@ -28,7 +29,7 @@
 ✅ Basic UI — 5 pages (DeckInput, CompositionView, SimulationView, ComparisonView)
 ✅ Engine tests — 662 passing (engine) + 47 simulator + 15 analytics = 724+ total
 ✅ Layer 3 invariants — 1000 RandomBot games, under-zone counted per CRD 5.1.1.5
-✅ Cards — 2896/2896 (100%), 0 stubs, 0 partial, 0 invalid fields, 0 approximations
+✅ Cards — 3135/3135 (100%), 0 stubs, 0 partial, 0 invalid fields, 0 approximations (Set 13 wired 2026-07; CRD 2.2.0 reconciled — Duo/Combo/Temporary/Potato Shift variants + 1.9.5 deals-vs-takes fix)
 ✅ All keywords — Rush, Evasive, Ward, Resist, Bodyguard, Challenger, Reckless, Singer,
            Sing Together, Support, Alert, Boost, Vanish, Shift (normal + Classification + Universal)
 ✅ CRD compliance — full PDF cross-reference done. Only CRD 6.5 (general replacement effects) unimplemented.
@@ -265,7 +266,10 @@ for discovery. See ANALYTICS_PHILOSOPHY.md for the full philosophy.
     pnpm query --sim sim.json --questions q.json --policy ./policies/control.json
     All query results now reflect competent play, not heuristics
 
-2g. Automated slot optimization (after Stream 1 + 2f complete)
+2g. Automated slot optimization — PARKED 2026-07-16 (gated on real games being played)
+    Needs a real win-rate baseline to optimize against; on self-play/GreedyBot it just
+    re-derives what the policies already encode. Trigger + scope in docs/BACKLOG.md →
+    "Clone-trainer payoff … gated on real users" (bundled — same population trigger).
     For each card in deck: swap it out, fine-tune RLPolicy, compare win rate delta
     Answers: "should I cut card X for card Y?"
     Workflow:
@@ -505,8 +509,13 @@ Implement in order: schema.sql → Supabase client → auth → lobby → game a
 
 ---
 
-### Stream 5: Player Profiling + Clone Bot — IN PROGRESS (5a-5c done 2026-06-24)
+### Stream 5: Player Profiling + Clone Bot — 5a-5c(local) DONE; 5c(live)/5d/5e PARKED (gated on real users)
 *Goal: learn how a specific human player plays and create a bot clone of them*
+
+> **⏸ PARKED 2026-07-16 (user call):** the payoff pieces — 5c live DB export, 5d coaching
+> map, 5e play-your-clone — need a population of *real* human game logs to be meaningful.
+> No point with a single user. Trigger + scope in `docs/BACKLOG.md` → "Clone-trainer payoff
+> … gated on real users." 5a/5b + 5c-local (dump-file path) remain shipped and usable.
 
 Every multiplayer game produces a (state, action) log for each player.
 Clone training is supervised learning — "given this state, this player
@@ -626,11 +635,13 @@ Engine is in maintenance mode. New work limited to:
 - DecksPage: signed-out paste+analyze; signed-in deck list + textarea editor + composition view
 - MultiplayerLobby: deck picker with Saved Decks / Paste toggle
 
-**In progress (2026-04-14):**
-- Row-based deckbuilder replacing textarea in DecksPage
-  - Each card is a row: name, cost, ink, qty +/-, remove
-  - "Add card" search with autocomplete (can only pick real cards)
-  - Import from paste (bulk) + Export to paste (share)
+**Done ✅ (shipped 2026-05-25):**
+- Row-based deckbuilder shipped — `DeckBuilder.tsx` (DeckRow), `CardTile.tsx`,
+  `CardPicker.tsx`, `DeckBuilderPage.tsx`. Autocomplete add (real cards only),
+  paste import/export, mobile pass (BACKLOG Section B). Remaining work is
+  polish only — parked in `docs/BACKLOG.md` ("Deckbuilder follow-up polish for
+  /decks/:id", "variant picker → icon dropdown"), triggered by a dedicated
+  polish session or user complaints, not on the critical path.
 
 **Progression (do on demand, not upfront):**
 ```
@@ -700,6 +711,14 @@ KEPT:
 ---
 
 ## How to Decide What to Work On Next
+
+> **Current active priority (2026-07-16): Multiplayer Phase 5 — Friends + presence.**
+> Engine is done (Set 13 + CRD 2.2.0). The clone-trainer payoff (5c/5d/5e) and slot
+> optimization (2g) are PARKED until real users generate game logs — no point with a
+> single player. Friends + presence is the right next build: it's user-independent to
+> ship AND it drives the engagement that eventually unblocks the parked clone-trainer
+> flywheel. Server-first (schema + endpoints), then UI. Full split in
+> `docs/HANDOFF.md` → "End-to-end multiplayer UX improvement plan" § Phase 5.
 
 Ask in order:
 
