@@ -1,5 +1,10 @@
 # Lorcana Sim
 
+> **⚠️ Sunset 2026-07-18 — active development stopped.** Not broken, just paused at a
+> natural stopping point. See [`SUNSET.md`](./SUNSET.md) for why, what's worth keeping
+> (the engine + card corpus are the crown jewels), the still-useful solo scouting tools,
+> and how to wind down the deployed server/UI. If restarting, begin at `packages/engine/`.
+
 Headless Disney Lorcana TCG analytics engine. Simulates thousands of games
 to produce deck analytics, win rates, and card performance data.
 
